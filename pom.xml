@@ -10,7 +10,7 @@
 		<dependency>
 			<groupId>org.neuroml.model</groupId>
 			<artifactId>org.neuroml.model</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 	<build>
