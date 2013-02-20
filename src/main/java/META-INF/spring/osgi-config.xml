@@ -12,5 +12,9 @@
 			<entry key="discoverableID" value="neuroMLModelInterpreter" />
 		</osgi:service-properties>
 	</osgi:service>
-
+	<osgi:service id="LemsMLModelExporter" ref="LemsMLModelInterpreterService" interface="org.openworm.simulationengine.core.model.IModelInterpreter">
+		<osgi:service-properties>
+			<entry key="discoverableID" value="lemsMLModelInterpreter" />
+		</osgi:service-properties>
+	</osgi:service>
 </beans>

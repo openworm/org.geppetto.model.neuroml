@@ -13,7 +13,12 @@
 		<dependency>
 			<groupId>org.neuroml.model</groupId>
 			<artifactId>org.neuroml.model</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lemsml</groupId>
+			<artifactId>jlems</artifactId>
+			<version>0.9.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openworm</groupId>
@@ -71,7 +76,7 @@
 			<url>http://repository.springsource.com/maven/libraries/external</url>
 		</repository>
 	</repositories>
-	
+
 	<build>
 		<plugins>
 			<plugin>
