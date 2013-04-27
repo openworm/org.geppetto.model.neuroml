@@ -10,10 +10,10 @@ import static org.junit.Assert.fail;
 import java.net.URL;
 import java.util.List;
 
+import org.geppetto.core.model.IModel;
+import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.neuroml.services.LemsMLModelInterpreterService;
 import org.junit.Test;
-import org.openworm.simulationengine.core.model.IModel;
-import org.openworm.simulationengine.core.model.ModelInterpreterException;
 
 /**
  * @author matteocantarelli
