@@ -7,14 +7,10 @@
 							http://www.springframework.org/schema/osgi/spring-osgi-1.1.xsd">
 
 
-	<osgi:service id="NeuroMLModelExporter" ref="NeuroMLModelInterpreterService" interface="org.openworm.simulationengine.core.model.IModelInterpreter">
+	<osgi:service id="NeuroMLModelExporter" ref="neuroMLModelInterpreterService" interface="org.geppetto.core.model.IModelInterpreter">
 		<osgi:service-properties>
 			<entry key="discoverableID" value="neuroMLModelInterpreter" />
 		</osgi:service-properties>
 	</osgi:service>
-	<osgi:service id="LemsMLModelExporter" ref="LemsMLModelInterpreterService" interface="org.openworm.simulationengine.core.model.IModelInterpreter">
-		<osgi:service-properties>
-			<entry key="discoverableID" value="lemsMLModelInterpreter" />
-		</osgi:service-properties>
-	</osgi:service>
+
 </beans>
