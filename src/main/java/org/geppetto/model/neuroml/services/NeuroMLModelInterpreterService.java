@@ -21,7 +21,7 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.StateSet;
+import org.geppetto.core.model.state.StateTreeRoot;
 import org.geppetto.core.visualisation.model.AGeometry;
 import org.geppetto.core.visualisation.model.Cylinder;
 import org.geppetto.core.visualisation.model.Entity;
@@ -113,7 +113,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	}
 
 	@Override
-	public Scene getSceneFromModel(IModel model, StateSet stateSet) throws ModelInterpreterException
+	public Scene getSceneFromModel(IModel model, StateTreeRoot stateTree) throws ModelInterpreterException
 	{
 		try
 		{
