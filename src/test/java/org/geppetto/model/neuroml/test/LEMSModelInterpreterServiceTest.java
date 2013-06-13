@@ -34,32 +34,36 @@
 package org.geppetto.model.neuroml.test;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
+import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.junit.Test;
 
 /**
  * @author matteocantarelli
  * 
  */
-public class NeuroMLModelInterpreterServiceTest
+public class LEMSModelInterpreterServiceTest
 {
 
 	/**
 	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
-	 * @throws ModelInterpreterException 
+	 * 
+	 * @throws MalformedURLException
+	 * @throws ModelInterpreterException
 	 */
 	@Test
-	public void testReadModel() throws ModelInterpreterException
+	public void testReadModel() throws MalformedURLException, ModelInterpreterException
 	{
-		NeuroMLModelInterpreterService modelInterpreter = new NeuroMLModelInterpreterService();
-		URL url = this.getClass().getResource("/NML2_FullCell.nml");
-		ModelWrapper model = (ModelWrapper) modelInterpreter.readModel(url);
+		LEMSModelInterpreterService modelInterpreter = new LEMSModelInterpreterService();
+		URL url = new URL("https://www.dropbox.com/s/qzqhdthror8435e/LEMS_NML2_Ex5_DetCell.xml?dl=1");
+		ModelWrapper model;
+
+		model = (ModelWrapper) modelInterpreter.readModel(url);
 		assertNotNull(model);
 		assertNotNull(model.getModel("url"));
 		assertNotNull(model.getModel("lems"));

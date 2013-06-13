@@ -47,6 +47,8 @@ import java.util.UUID;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
@@ -97,6 +99,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	private static final String NEUROML_ID = "neuroml";
 	private static final String URL_ID = "url";
 
+	private static Log logger = LogFactory.getLog(NeuroMLModelInterpreterService.class);
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -109,7 +112,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		{
 			String neuroMLString = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A").next();
 			String lemsString = NeuroMLConverter.convertNeuroML2ToLems(neuroMLString);
-			
+
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument document = lemsReader.readModel(lemsString);
 
@@ -141,18 +144,34 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		}
 		return lemsWrapper;
 	}
+	
+	//FIXME This is a temporary HACK before we refactor the interpreter
+	//We need the design to allow storing the scene so that at every cycle
+	//we just update the scene without recreating it from scratch.
+	private static Scene scene = null;
+	private Scene getScene(IModel model) throws Exception
+	{
+		if(scene==null)
+		{
+			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NEUROML_ID);
+			URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
+			scene=new Scene();
+			scene.getEntities().addAll(getEntitiesFromMorphologies(neuroml)); // if there's any morphology
+			scene.getEntities().addAll(getEntitiesFromNetwork(neuroml, url));
+		}
+		return scene;
+	}
+	//END_HACK
 
 	@Override
 	public Scene getSceneFromModel(IModel model, StateTreeRoot stateTree) throws ModelInterpreterException
 	{
 		try
 		{
-			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NEUROML_ID);
-			URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
-
-			Scene scene = new Scene();
-			scene.getEntities().addAll(getEntitiesFromMorphologies(neuroml)); // if there's any morphology
-			scene.getEntities().addAll(getEntitiesFromNetwork(neuroml, url));
+			double start=System.currentTimeMillis();
+			AddStatesToSceneVisitor addStatesToSceneVisitor=new AddStatesToSceneVisitor(getScene(model).getEntities());
+			stateTree.apply(addStatesToSceneVisitor);
+			logger.info("NeuroML Model to Scene took:"+(System.currentTimeMillis()-start)+"ms");
 			return scene;
 		}
 		catch(Exception e)
@@ -218,54 +237,71 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		{
 			for(Population p : n.getPopulation())
 			{
-				boolean attemptConnection = true;
-				int attempts = 0;
-				NeuroMLDocument neuromlComponent = null;
-				String component = p.getComponent();
-				while(attemptConnection)
+				boolean localCell = false;
+				for(Cell c : neuroml.getCell())
+
 				{
-					try
+					if(c.getId().equals(p.getComponent()))
 					{
-						attemptConnection = false;
-						attempts++;
-						URL componentURL = new URL(url.getProtocol() + "://" + url.getAuthority() + baseURL + component + ".nml");
-						
-						neuromlComponent = neuromlConverter.urlToNeuroML(componentURL);
+						localCell = true;
+						break;
 					}
-					catch(MalformedURLException e)
+				}
+				if(localCell)
+				{
+					//TODO What do we do?
+				}
+				else
+				{
+					boolean attemptConnection = true;
+					int attempts = 0;
+					NeuroMLDocument neuromlComponent = null;
+					String component = p.getComponent();
+					while(attemptConnection)
 					{
-						throw e;
-					}
-					catch(UnmarshalException e)
-					{
-						if(e.getLinkedException() instanceof IOException)
+						try
 						{
-							if(attempts < MAX_ATTEMPTS)
+							attemptConnection = false;
+							attempts++;
+							URL componentURL = new URL(url.getProtocol() + "://" + url.getAuthority() + baseURL + component + ".nml");
+
+							neuromlComponent = neuromlConverter.urlToNeuroML(componentURL);
+						}
+						catch(MalformedURLException e)
+						{
+							throw e;
+						}
+						catch(UnmarshalException e)
+						{
+							if(e.getLinkedException() instanceof IOException)
 							{
-								attemptConnection = true;
+								if(attempts < MAX_ATTEMPTS)
+								{
+									attemptConnection = true;
+								}
 							}
 						}
+						catch(Exception e)
+						{
+							throw e;
+						}
 					}
-					catch(Exception e)
-					{
-						throw e;
-					}
-				}
-				int size = p.getSize().intValue();
+					int size = p.getSize().intValue();
 
-				for(int i = 0; i < size; i++)
-				{
-					// FIXME the position of the population within the network needs to be specified in neuroml
-					List<Entity> localEntities = getEntitiesFromMorphologies(neuromlComponent);
-					for(Entity e : localEntities)
+					for(int i = 0; i < size; i++)
 					{
-						e.setId(e.getId() + "[" + i + "]");
-						entities.put(e.getId(), e);
+						// FIXME the position of the population within the network needs to be specified in neuroml
+						List<Entity> localEntities = getEntitiesFromMorphologies(neuromlComponent);
+						for(Entity e : localEntities)
+						{
+							e.setId(e.getId() + "[" + i + "]");
+							entities.put(e.getId(), e);
+						}
 					}
-				}
-				// FIXME what's the purpose of the id here?
-				String id = p.getId();
+					// FIXME what's the purpose of the id here?
+					String id = p.getId();
 
+				}
 			}
 			for(SynapticConnection c : n.getSynapticConnection())
 			{
@@ -392,60 +428,68 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		SegmentGroup axonGroup = null;
 		SegmentGroup dendriteGroup = null;
 
-		for(SegmentGroup sg : morphology.getSegmentGroup())
+		if(morphology.getSegmentGroup().isEmpty())
 		{
-			// three hardcoded groups :(
-			if(sg.getId().equals(SOMA_GROUP))
+			// there are no segment groups
+			entities.add(allSegments);
+		}
+		else
+		{
+			for(SegmentGroup sg : morphology.getSegmentGroup())
 			{
-				somaGroup = sg;
-			}
-			else if(sg.getId().equals(AXON_GROUP))
-			{
-				axonGroup = sg;
-			}
-			else if(sg.getId().equals(DENDRITE_GROUP))
-			{
-				dendriteGroup = sg;
-			}
-			else
-			{
+				// three hardcoded groups :(
+				if(sg.getId().equals(SOMA_GROUP))
+				{
+					somaGroup = sg;
+				}
+				else if(sg.getId().equals(AXON_GROUP))
+				{
+					axonGroup = sg;
+				}
+				else if(sg.getId().equals(DENDRITE_GROUP))
+				{
+					dendriteGroup = sg;
+				}
+
 				if(!sg.getMember().isEmpty())
 				{
 					segmentGeometries.put(sg.getId(), getGeometriesForGroup(sg, allSegments));
 				}
+
 			}
-		}
 
-		if(somaGroup != null)
-		{
-			Entity entity = createEntityForMacroGroup(somaGroup, segmentGeometries);
-			entity.setId(getGroupId(cellId, somaGroup.getId()));
-			entities.add(entity);
-		}
-		if(axonGroup != null)
-		{
-			Entity entity = createEntityForMacroGroup(axonGroup, segmentGeometries);
-			entity.setId(getGroupId(cellId, axonGroup.getId()));
-			entities.add(entity);
-		}
-		if(dendriteGroup != null)
-		{
-			Entity entity = createEntityForMacroGroup(dendriteGroup, segmentGeometries);
-			entity.setId(getGroupId(cellId, dendriteGroup.getId()));
-			entities.add(entity);
-		}
+			if(somaGroup != null)
+			{
+				Entity entity = createEntityForMacroGroup(somaGroup, segmentGeometries, allSegments.getGeometries());
+				entity.setId(getGroupId(cellId, somaGroup.getId()));
+				entities.add(entity);
+			}
+			if(axonGroup != null)
+			{
+				Entity entity = createEntityForMacroGroup(axonGroup, segmentGeometries, allSegments.getGeometries());
+				entity.setId(getGroupId(cellId, axonGroup.getId()));
+				entities.add(entity);
+			}
+			if(dendriteGroup != null)
+			{
+				Entity entity = createEntityForMacroGroup(dendriteGroup, segmentGeometries, allSegments.getGeometries());
+				entity.setId(getGroupId(cellId, dendriteGroup.getId()));
+				entities.add(entity);
+			}
 
-		// this adds all segment groups not contained in the macro groups if any
-		for(String sgId : segmentGeometries.keySet())
-		{
-			Entity entity = new Entity();
-			entity.getGeometries().addAll(segmentGeometries.get(sgId));
-			entity.setAdditionalProperties(GROUP_PROPERTY, sgId);
-			entity.setId(getGroupId(cellId, sgId));
-			entities.add(entity);
+			// this adds all segment groups not contained in the macro groups if any
+			for(String sgId : segmentGeometries.keySet())
+			{
+				Entity entity = new Entity();
+				entity.getGeometries().addAll(segmentGeometries.get(sgId));
+				entity.setAdditionalProperties(GROUP_PROPERTY, sgId);
+				entity.setId(getGroupId(cellId, sgId));
+				entities.add(entity);
+			}
 		}
 		return entities;
 	}
+
 
 	/**
 	 * @param cellId
@@ -461,7 +505,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param somaGroup
 	 * @param segmentGeometries
 	 */
-	private Entity createEntityForMacroGroup(SegmentGroup macroGroup, Map<String, List<AGeometry>> segmentGeometries)
+	private Entity createEntityForMacroGroup(SegmentGroup macroGroup, Map<String, List<AGeometry>> segmentGeometries, List<AGeometry> allSegments)
 	{
 		Entity entity = new Entity();
 		entity.setAdditionalProperties(GROUP_PROPERTY, macroGroup.getId());
@@ -470,9 +514,21 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			if(segmentGeometries.containsKey(i.getSegmentGroup()))
 			{
 				entity.getGeometries().addAll(segmentGeometries.get(i.getSegmentGroup()));
-				segmentGeometries.remove(i.getSegmentGroup());
 			}
 		}
+		for(Member m : macroGroup.getMember())
+		{
+			for(AGeometry g : allSegments)
+			{
+				if(g.getId().equals(m.getSegment().toString()))
+				{
+					entity.getGeometries().add(g);
+					allSegments.remove(g);
+					break;
+				}
+			}
+		}
+		segmentGeometries.remove(macroGroup.getId());
 		return entity;
 	}
 

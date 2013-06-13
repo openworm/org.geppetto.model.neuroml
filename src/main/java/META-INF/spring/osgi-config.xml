@@ -12,5 +12,11 @@
 			<entry key="discoverableID" value="neuroMLModelInterpreter" />
 		</osgi:service-properties>
 	</osgi:service>
+	
+		<osgi:service id="LEMSModelExporter" ref="LEMSModelInterpreterService" interface="org.geppetto.core.model.IModelInterpreter">
+		<osgi:service-properties>
+			<entry key="discoverableID" value="lemsModelInterpreter" />
+		</osgi:service-properties>
+	</osgi:service>
 
 </beans>
