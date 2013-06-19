@@ -60,7 +60,7 @@ public class LEMSModelInterpreterServiceTest
 	public void testReadModel() throws MalformedURLException, ModelInterpreterException
 	{
 		LEMSModelInterpreterService modelInterpreter = new LEMSModelInterpreterService();
-		URL url = new URL("https://www.dropbox.com/s/qzqhdthror8435e/LEMS_NML2_Ex5_DetCell.xml?dl=1");
+		URL url = new URL("https://dl.dropboxusercontent.com/u/7538688/GeppettoSimulations/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml?dl=1");
 		ModelWrapper model;
 
 		model = (ModelWrapper) modelInterpreter.readModel(url);
