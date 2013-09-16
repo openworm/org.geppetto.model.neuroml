@@ -100,6 +100,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	private static final String URL_ID = "url";
 
 	private static Log logger = LogFactory.getLog(NeuroMLModelInterpreterService.class);
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -144,34 +145,41 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		}
 		return lemsWrapper;
 	}
-	
-	//FIXME This is a temporary HACK before we refactor the interpreter
-	//We need the design to allow storing the scene so that at every cycle
-	//we just update the scene without recreating it from scratch.
+
+	// FIXME This is a temporary HACK before we refactor the interpreter
+	// We need the design to allow storing the scene so that at every cycle
+	// we just update the scene without recreating it from scratch.
 	private static Scene scene = null;
+	private static int modelHash=0;
+
 	private Scene getScene(IModel model) throws Exception
 	{
-		if(scene==null)
+		if(scene == null || modelHash!=model.hashCode())
 		{
 			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NEUROML_ID);
 			URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
-			scene=new Scene();
+			modelHash=model.hashCode();
+			scene = new Scene();
 			scene.getEntities().addAll(getEntitiesFromMorphologies(neuroml)); // if there's any morphology
 			scene.getEntities().addAll(getEntitiesFromNetwork(neuroml, url));
 		}
 		return scene;
 	}
-	//END_HACK
+
+	// END_HACK
 
 	@Override
 	public Scene getSceneFromModel(IModel model, StateTreeRoot stateTree) throws ModelInterpreterException
 	{
 		try
 		{
-			double start=System.currentTimeMillis();
-			AddStatesToSceneVisitor addStatesToSceneVisitor=new AddStatesToSceneVisitor(getScene(model).getEntities());
-			stateTree.apply(addStatesToSceneVisitor);
-			logger.info("NeuroML Model to Scene took:"+(System.currentTimeMillis()-start)+"ms");
+			double start = System.currentTimeMillis();
+			if(stateTree != null)
+			{
+				AddStatesToSceneVisitor addStatesToSceneVisitor = new AddStatesToSceneVisitor(getScene(model).getEntities());
+				stateTree.apply(addStatesToSceneVisitor);
+			}
+			logger.info("NeuroML Model to Scene took:" + (System.currentTimeMillis() - start) + "ms");
 			return scene;
 		}
 		catch(Exception e)
@@ -249,7 +257,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				}
 				if(localCell)
 				{
-					//TODO What do we do?
+					// TODO What do we do?
 				}
 				else
 				{
@@ -489,7 +497,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		}
 		return entities;
 	}
-
 
 	/**
 	 * @param cellId
