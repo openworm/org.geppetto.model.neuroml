@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 
@@ -67,6 +68,7 @@ import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.Cell;
+import org.neuroml.model.ChannelDensity;
 import org.neuroml.model.Include;
 import org.neuroml.model.Member;
 import org.neuroml.model.Morphology;
@@ -77,6 +79,7 @@ import org.neuroml.model.Population;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
 import org.neuroml.model.SynapticConnection;
+import org.neuroml.model.ValueAcrossSegOrSegGroup;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.springframework.stereotype.Service;
 
@@ -100,6 +103,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	private static final String URL_ID = "url";
 
 	private static Log logger = LogFactory.getLog(NeuroMLModelInterpreterService.class);
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -144,34 +148,41 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		}
 		return lemsWrapper;
 	}
-	
-	//FIXME This is a temporary HACK before we refactor the interpreter
-	//We need the design to allow storing the scene so that at every cycle
-	//we just update the scene without recreating it from scratch.
+
+	// FIXME This is a temporary HACK before we refactor the interpreter
+	// We need the design to allow storing the scene so that at every cycle
+	// we just update the scene without recreating it from scratch.
 	private static Scene scene = null;
+	private static int modelHash = 0;
+
 	private Scene getScene(IModel model) throws Exception
 	{
-		if(scene==null)
+		if(scene == null || modelHash != model.hashCode())
 		{
 			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NEUROML_ID);
 			URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
-			scene=new Scene();
+			modelHash = model.hashCode();
+			scene = new Scene();
 			scene.getEntities().addAll(getEntitiesFromMorphologies(neuroml)); // if there's any morphology
 			scene.getEntities().addAll(getEntitiesFromNetwork(neuroml, url));
 		}
 		return scene;
 	}
-	//END_HACK
+
+	// END_HACK
 
 	@Override
 	public Scene getSceneFromModel(IModel model, StateTreeRoot stateTree) throws ModelInterpreterException
 	{
 		try
 		{
-			double start=System.currentTimeMillis();
-			AddStatesToSceneVisitor addStatesToSceneVisitor=new AddStatesToSceneVisitor(getScene(model).getEntities());
-			stateTree.apply(addStatesToSceneVisitor);
-			logger.info("NeuroML Model to Scene took:"+(System.currentTimeMillis()-start)+"ms");
+			double start = System.currentTimeMillis();
+			if(stateTree != null)
+			{
+				AddStatesToSceneVisitor addStatesToSceneVisitor = new AddStatesToSceneVisitor(getScene(model).getEntities());
+				stateTree.apply(addStatesToSceneVisitor);
+			}
+			logger.info("NeuroML Model to Scene took:" + (System.currentTimeMillis() - start) + "ms");
 			return scene;
 		}
 		catch(Exception e)
@@ -249,7 +260,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				}
 				if(localCell)
 				{
-					//TODO What do we do?
+					// TODO What do we do?
 				}
 				else
 				{
@@ -357,26 +368,21 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				Metadata membraneProperties = new Metadata();
 				if(c.getBiophysicalProperties().getMembraneProperties() != null)
 				{
-					if(c.getBiophysicalProperties().getMembraneProperties().getChannelDensity() != null && c.getBiophysicalProperties().getMembraneProperties().getChannelDensity().size() > 0)
+					List<JAXBElement<?>> membranePropertiesPart = c.getBiophysicalProperties().getMembraneProperties().getChannelPopulationOrChannelDensityOrChannelDensityNernst();
+					if(membranePropertiesPart != null)
 					{
-						membraneProperties.setAdditionalProperties(Resources.COND_DENSITY.get(), c.getBiophysicalProperties().getMembraneProperties().getChannelDensity().get(0).getCondDensity());
+						for(JAXBElement<?> e : membranePropertiesPart)
+						{
+							if(e.getName().equals("channelDensity"))
+							{
+								membraneProperties.setAdditionalProperties(Resources.COND_DENSITY.get(), ((ChannelDensity)e.getValue()).getCondDensity());
+							}
+							else if(e.getName().equals("specificCapacitance"))
+							{
+								membraneProperties.setAdditionalProperties(Resources.SPECIFIC_CAPACITANCE.get(), ((ValueAcrossSegOrSegGroup)e.getValue()).getValue());
+							}
+						}
 					}
-					// if(c.getBiophysicalProperties().getMembraneProperties().getSpikeThresh()!=null && c.getBiophysicalProperties().getMembraneProperties().getSpikeThresh().size()>0)
-					// {
-					// membraneProperties.setAdditionalProperties(Resources.SPIKE_THRESHOLD.get(), c.getBiophysicalProperties().getMembraneProperties().getSpikeThresh().get(0).getValue());
-					// }
-					if(c.getBiophysicalProperties().getMembraneProperties().getSpecificCapacitance() != null
-							&& c.getBiophysicalProperties().getMembraneProperties().getSpecificCapacitance().size() > 0)
-					{
-						membraneProperties.setAdditionalProperties(Resources.SPECIFIC_CAPACITANCE.get(), c.getBiophysicalProperties().getMembraneProperties().getSpecificCapacitance().get(0)
-								.getValue());
-					}
-					// if(c.getBiophysicalProperties().getMembraneProperties().getInitMembPotential()!=null && c.getBiophysicalProperties().getMembraneProperties().getInitMembPotential().size()>0)
-					// {
-					// membraneProperties.setAdditionalProperties(Resources.INIT_MEMBRANE_POTENTIAL.get(),
-					// c.getBiophysicalProperties().getMembraneProperties().getInitMembPotential().get(0).getValue());
-					// }
-
 				}
 
 				Metadata intracellularProperties = new Metadata();
@@ -490,7 +496,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		return entities;
 	}
 
-
 	/**
 	 * @param cellId
 	 * @param segmentGroupId
@@ -574,7 +579,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				parentDistal = distalPoints.get(idSegmentParent);
 			}
 			entity.getGeometries().add(getCylinderFromSegment(s, parentDistal));
-			distalPoints.put(s.getId(), s.getDistal());
+			distalPoints.put(s.getId().toString(), s.getDistal());
 		}
 		return entity;
 	}
@@ -606,13 +611,13 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			Sphere sphere = new Sphere();
 			sphere.setRadius(proximal.getDiameter() / 2);
 			sphere.setPosition(getPoint(proximal));
-			sphere.setId(s.getId());
+			sphere.setId(s.getId().toString());
 			return sphere;
 		}
 		else
 		{
 			Cylinder cyl = new Cylinder();
-			cyl.setId(s.getId());
+			cyl.setId(s.getId().toString());
 			if(proximal != null)
 			{
 				cyl.setPosition(getPoint(proximal));
