@@ -176,14 +176,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	{
 		try
 		{
-			double start = System.currentTimeMillis();
-			if(stateTree != null)
-			{
-				AddStatesToSceneVisitor addStatesToSceneVisitor = new AddStatesToSceneVisitor(getScene(model).getEntities());
-				stateTree.apply(addStatesToSceneVisitor);
-			}
-			logger.info("NeuroML Model to Scene took:" + (System.currentTimeMillis() - start) + "ms");
-			return scene;
+			return getScene(model);
 		}
 		catch(Exception e)
 		{
