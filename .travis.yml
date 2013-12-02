@@ -9,6 +9,10 @@ install:
     - cd jLEMS
     - mvn install
     - cd ..    
+    - git clone https://github.com/NeuroML/org.neuroml.model.injectingplugin.git -b master
+    - cd org.neuroml.model.injectingplugin
+    - mvn install
+    - cd ..
     - git clone https://github.com/NeuroML/org.neuroml.model.git -b master
     - cd org.neuroml.model
     - mvn install
