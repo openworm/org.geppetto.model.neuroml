@@ -1,0 +1,26 @@
+language: java
+
+install:
+    - git clone https://github.com/openworm/org.geppetto.core.git -b $TRAVIS_BRANCH
+    - cd org.geppetto.core
+    - mvn install
+    - cd ..
+    - git clone https://github.com/LEMS/jLEMS.git -b api
+    - cd jLEMS
+    - mvn install
+    - cd ..    
+    - git clone https://github.com/NeuroML/org.neuroml.model.injectingplugin.git -b master
+    - cd org.neuroml.model.injectingplugin
+    - mvn install
+    - cd ..
+    - git clone https://github.com/NeuroML/org.neuroml.model.git -b master
+    - cd org.neuroml.model
+    - mvn install
+    - cd ..
+    
+    
+    
+ 
+ 
+
+
