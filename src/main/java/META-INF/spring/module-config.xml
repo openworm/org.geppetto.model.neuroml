@@ -13,12 +13,12 @@
 	<context:component-scan base-package="org.geppetto.model.neuroml.services" />
 	<bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
 		<property name="scopes">
-			<map>
-				<entry key="session">
-					<bean class="org.springframework.context.support.SimpleThreadScope" />
+			<map>		
+				<entry key="thread">
+					<ref bean="threadScope" />
 				</entry>
 			</map>
 		</property>
 	</bean>
-		
+	<bean id="threadScope" class="org.geppetto.core.scope.ThreadScope"/>
 </beans>

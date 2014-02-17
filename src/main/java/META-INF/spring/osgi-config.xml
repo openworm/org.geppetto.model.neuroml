@@ -17,7 +17,7 @@
 			<entry key="discoverableID" value="neuroMLModelInterpreter" />
 		</osgi:service-properties>
 	</osgi:service>
-	<bean id="neuroMLModelInterpreterService" scope="session" class="org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService">
+	<bean id="neuroMLModelInterpreterService" scope="thread" class="org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService">
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	
