@@ -159,12 +159,15 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	{
 		if(scene == null || modelHash != model.hashCode())
 		{
-			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NEUROML_ID);
-			URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
-			modelHash = model.hashCode();
 			scene = new Scene();
-			scene.getEntities().addAll(getEntitiesFromMorphologies(neuroml)); // if there's any morphology
-			scene.getEntities().addAll(getEntitiesFromNetwork(neuroml, url));
+			modelHash = model.hashCode();
+			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NEUROML_ID);
+			if(neuroml != null)
+			{
+				URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
+				scene.getEntities().addAll(getEntitiesFromMorphologies(neuroml)); // if there's any morphology
+				scene.getEntities().addAll(getEntitiesFromNetwork(neuroml, url));
+			}
 		}
 		return scene;
 	}
@@ -368,11 +371,11 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 						{
 							if(e.getName().equals("channelDensity"))
 							{
-								membraneProperties.setAdditionalProperties(Resources.COND_DENSITY.get(), ((ChannelDensity)e.getValue()).getCondDensity());
+								membraneProperties.setAdditionalProperties(Resources.COND_DENSITY.get(), ((ChannelDensity) e.getValue()).getCondDensity());
 							}
 							else if(e.getName().equals("specificCapacitance"))
 							{
-								membraneProperties.setAdditionalProperties(Resources.SPECIFIC_CAPACITANCE.get(), ((ValueAcrossSegOrSegGroup)e.getValue()).getValue());
+								membraneProperties.setAdditionalProperties(Resources.SPECIFIC_CAPACITANCE.get(), ((ValueAcrossSegOrSegGroup) e.getValue()).getValue());
 							}
 						}
 					}
