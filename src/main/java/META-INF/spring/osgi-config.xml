@@ -27,7 +27,7 @@
 			<entry key="discoverableID" value="lemsModelInterpreter" />
 		</osgi:service-properties>
 	</osgi:service>
-	<bean id="LEMSModelInterpreterService" scope="session" class="org.geppetto.model.neuroml.services.LEMSModelInterpreterService">
+	<bean id="LEMSModelInterpreterService" scope="thread" class="org.geppetto.model.neuroml.services.LEMSModelInterpreterService">
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	
