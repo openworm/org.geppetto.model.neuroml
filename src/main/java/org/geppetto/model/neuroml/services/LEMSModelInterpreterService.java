@@ -64,6 +64,7 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 	private static final String LEMS_ID = "lems";
 	private static final String NEUROML_ID = "neuroml";
 	private static final String URL_ID = "url";
+	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
 
 	/*
 	 * (non-Javadoc)
@@ -129,8 +130,7 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 	@Override
 	public Scene getSceneFromModel(IModel model, StateTreeRoot stateTree) throws ModelInterpreterException
 	{
-		NeuroMLModelInterpreterService neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
-		return neuroMLModelInterpreter.getSceneFromModel(model, stateTree);
+		return _neuroMLModelInterpreter.getSceneFromModel(model, stateTree);
 	}
 
 }
