@@ -64,6 +64,7 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 	private static final String LEMS_ID = "lems";
 	private static final String NEUROML_ID = "neuroml";
 	private static final String URL_ID = "url";
+	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
 
 	/*
 	 * (non-Javadoc)
@@ -75,7 +76,7 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 		ModelWrapper lemsWrapper = null;
 		try
 		{
-			String lemsString=new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A").next();
+			String lemsString = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A").next();
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument document = lemsReader.readModel(url);
 
@@ -83,10 +84,13 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 			URL neuroMLURL = getNeuroMLURL(lemsString);
-			NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(neuroMLURL);
-
-			// two different representation of the same file, one used to simulate the other used to visualize
-			lemsWrapper.wrapModel(NEUROML_ID, neuroml);
+			if(neuroMLURL != null)
+			{
+				NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(neuroMLURL);
+				// two different representation of the same file, one used to
+				// simulate the other used to visualize
+				lemsWrapper.wrapModel(NEUROML_ID, neuroml);
+			}
 			lemsWrapper.wrapModel(LEMS_ID, document);
 			lemsWrapper.wrapModel(URL_ID, url);
 
@@ -108,20 +112,25 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 
 	private URL getNeuroMLURL(String lemsString) throws MalformedURLException
 	{
-		//FIXME This is a HACK. Importers from a LemsDocument will have to be written, see issue on GitHub https://github.com/NeuroML/org.neuroml.import/issues/1
-		int end=lemsString.indexOf(".nml");
-		end=lemsString.indexOf("\"", end);
-		String header=lemsString.substring(0, end);
-		int start=header.lastIndexOf("url=")+5;
-		String url=header.substring(start, end);
-		return new URL(url);
+		// FIXME This is a HACK. Importers from a LemsDocument will have to be
+		// written, see issue on GitHub
+		// https://github.com/NeuroML/org.neuroml.import/issues/1
+		if(lemsString.contains(".nml"))
+		{
+			int end = lemsString.indexOf(".nml");
+			end = lemsString.indexOf("\"", end);
+			String header = lemsString.substring(0, end);
+			int start = header.lastIndexOf("url=") + 5;
+			String url = header.substring(start, end);
+			return new URL(url);
+		}
+		return null;
 	}
 
 	@Override
 	public Scene getSceneFromModel(IModel model, StateTreeRoot stateTree) throws ModelInterpreterException
 	{
-		NeuroMLModelInterpreterService neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
-		return neuroMLModelInterpreter.getSceneFromModel(model, stateTree);
+		return _neuroMLModelInterpreter.getSceneFromModel(model, stateTree);
 	}
 
 }

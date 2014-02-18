@@ -5,7 +5,7 @@
 	<groupId>org.geppetto</groupId>
 	<artifactId>model.neuroml</artifactId>
 	<name>Geppetto NeuroML Model bundle</name>
-	<version>0.0.9</version>
+	<version>0.1.0</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<spring.version>3.0.0.RELEASE</spring.version>
@@ -20,12 +20,12 @@
 		<dependency>
 			<groupId>org.lemsml</groupId>
 			<artifactId>jlems</artifactId>
-			<version>0.9.5.2</version>
+			<version>0.9.5.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geppetto</groupId>
 			<artifactId>core</artifactId>
-			<version>0.0.9</version>
+			<version>0.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -108,6 +108,9 @@
 						<Include-Resource>
 							{maven-resources},META-INF/spring=src/main/java/META-INF/spring
 						</Include-Resource>
+						<Import-Package>
+							org.geppetto.core.scope,org.aopalliance.aop,org.springframework.aop,,org.springframework.aop.scope,org.springframework.aop.framework,*
+						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

@@ -102,8 +102,10 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	private static final String NEUROML_ID = "neuroml";
 	private static final String URL_ID = "url";
 
-	private static Log logger = LogFactory.getLog(NeuroMLModelInterpreterService.class);
-
+	private static Log _logger = LogFactory.getLog(NeuroMLModelInterpreterService.class);
+	private Scene _scene = null;
+	private int _modelHash = 0;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -149,24 +151,21 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		return lemsWrapper;
 	}
 
-	// FIXME This is a temporary HACK before we refactor the interpreter
-	// We need the design to allow storing the scene so that at every cycle
-	// we just update the scene without recreating it from scratch.
-	private static Scene scene = null;
-	private static int modelHash = 0;
-
 	private Scene getScene(IModel model) throws Exception
 	{
-		if(scene == null || modelHash != model.hashCode())
+		if(_scene == null || _modelHash != model.hashCode())
 		{
+			_scene = new Scene();
+			_modelHash = model.hashCode();
 			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NEUROML_ID);
-			URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
-			modelHash = model.hashCode();
-			scene = new Scene();
-			scene.getEntities().addAll(getEntitiesFromMorphologies(neuroml)); // if there's any morphology
-			scene.getEntities().addAll(getEntitiesFromNetwork(neuroml, url));
+			if(neuroml != null)
+			{
+				URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
+				_scene.getEntities().addAll(getEntitiesFromMorphologies(neuroml)); // if there's any morphology
+				_scene.getEntities().addAll(getEntitiesFromNetwork(neuroml, url));
+			}
 		}
-		return scene;
+		return _scene;
 	}
 
 	// END_HACK
@@ -368,11 +367,11 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 						{
 							if(e.getName().equals("channelDensity"))
 							{
-								membraneProperties.setAdditionalProperties(Resources.COND_DENSITY.get(), ((ChannelDensity)e.getValue()).getCondDensity());
+								membraneProperties.setAdditionalProperties(Resources.COND_DENSITY.get(), ((ChannelDensity) e.getValue()).getCondDensity());
 							}
 							else if(e.getName().equals("specificCapacitance"))
 							{
-								membraneProperties.setAdditionalProperties(Resources.SPECIFIC_CAPACITANCE.get(), ((ValueAcrossSegOrSegGroup)e.getValue()).getValue());
+								membraneProperties.setAdditionalProperties(Resources.SPECIFIC_CAPACITANCE.get(), ((ValueAcrossSegOrSegGroup) e.getValue()).getValue());
 							}
 						}
 					}
