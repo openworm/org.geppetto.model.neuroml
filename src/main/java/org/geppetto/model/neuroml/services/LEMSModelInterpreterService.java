@@ -43,8 +43,9 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.simulation.Aspect;
 import org.geppetto.core.model.state.StateTreeRoot;
-import org.geppetto.core.visualisation.model.Scene;
+import org.geppetto.core.visualisation.model.CEntity;
 import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
@@ -110,6 +111,11 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 		return lemsWrapper;
 	}
 
+	/**
+	 * @param lemsString
+	 * @return
+	 * @throws MalformedURLException
+	 */
 	private URL getNeuroMLURL(String lemsString) throws MalformedURLException
 	{
 		// FIXME This is a HACK. Importers from a LemsDocument will have to be
@@ -127,10 +133,13 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.geppetto.core.model.IModelInterpreter#getVisualEntity(org.geppetto.core.model.IModel, org.geppetto.core.model.simulation.Aspect, org.geppetto.core.model.state.StateTreeRoot)
+	 */
 	@Override
-	public Scene getSceneFromModel(IModel model, StateTreeRoot stateTree) throws ModelInterpreterException
+	public CEntity getVisualEntity(IModel model, Aspect aspect, StateTreeRoot stateTree) throws ModelInterpreterException
 	{
-		return _neuroMLModelInterpreter.getSceneFromModel(model, stateTree);
+		return _neuroMLModelInterpreter.getVisualEntity(model, aspect, stateTree);
 	}
 
 }
