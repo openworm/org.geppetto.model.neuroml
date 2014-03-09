@@ -234,6 +234,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		cEntity.setId(id);
 		CAspect cAspect = new CAspect();
 		cAspect.setId(_aspectId);
+		cEntity.getAspects().add(cAspect);
 		return cEntity;
 	}
 
