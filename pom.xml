@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>org.neuroml.model</groupId>
 			<artifactId>org.neuroml.model</artifactId>
-			<version>1.0.8</version>
+			<version>1.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.lemsml</groupId>

@@ -72,6 +72,7 @@ import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
+import org.neuroml.model.SpecificCapacitance;
 import org.neuroml.model.Include;
 import org.neuroml.model.Instance;
 import org.neuroml.model.Location;
@@ -490,20 +491,12 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				Metadata membraneProperties = new Metadata();
 				if(c.getBiophysicalProperties().getMembraneProperties() != null)
 				{
-					List<JAXBElement<?>> membranePropertiesPart = c.getBiophysicalProperties().getMembraneProperties().getChannelPopulationOrChannelDensityOrChannelDensityNernst();
-					if(membranePropertiesPart != null)
-					{
-						for(JAXBElement<?> e : membranePropertiesPart)
-						{
-							if(e.getName().equals("channelDensity"))
-							{
-								membraneProperties.setAdditionalProperties(Resources.COND_DENSITY.get(), ((ChannelDensity) e.getValue()).getCondDensity());
-							}
-							else if(e.getName().equals("specificCapacitance"))
-							{
-								membraneProperties.setAdditionalProperties(Resources.SPECIFIC_CAPACITANCE.get(), ((ValueAcrossSegOrSegGroup) e.getValue()).getValue());
-							}
-						}
+					for(ChannelDensity channelDensity : c.getBiophysicalProperties().getMembraneProperties().getChannelDensity()) {
+						membraneProperties.setAdditionalProperties(Resources.COND_DENSITY.get(), channelDensity.getCondDensity());
+					}
+
+					for(SpecificCapacitance specificCapacitance : c.getBiophysicalProperties().getMembraneProperties().getSpecificCapacitance()) {
+						membraneProperties.setAdditionalProperties(Resources.SPECIFIC_CAPACITANCE.get(), specificCapacitance.getValue());
 					}
 				}
 
