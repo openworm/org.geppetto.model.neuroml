@@ -44,7 +44,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 
@@ -72,7 +71,6 @@ import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
-import org.neuroml.model.SpecificCapacitance;
 import org.neuroml.model.Include;
 import org.neuroml.model.Instance;
 import org.neuroml.model.Location;
@@ -85,8 +83,8 @@ import org.neuroml.model.Population;
 import org.neuroml.model.PopulationTypes;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
+import org.neuroml.model.SpecificCapacitance;
 import org.neuroml.model.SynapticConnection;
-import org.neuroml.model.ValueAcrossSegOrSegGroup;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.springframework.stereotype.Service;
 
@@ -99,11 +97,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 {
 
 	private static final String GROUP_PROPERTY = "group";
-
-	// neuroml hardcoded concepts
-	private static final String DENDRITE_GROUP = "dendrite_group";
-	private static final String AXON_GROUP = "axon_group";
-	private static final String SOMA_GROUP = "soma_group";
 
 	private static final String LEMS_ID = "lems";
 	private static final String NEUROML_ID = "neuroml";
@@ -186,8 +179,19 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 					_visualEntity.getChildren().addAll(getEntitiesFromNetwork(neuroml, url));
 				}
+				return _visualEntity;
 			}
-			return _visualEntity;
+			else
+			{
+				//if we already sent once the update every other time it's going to be empty unless it changes
+				//as the geometry won't change
+				CEntity empty = new CEntity();
+				CAspect visualAspect = new CAspect();
+				visualAspect.setId(aspect.getId());
+				empty.getAspects().add(visualAspect);
+				return empty;
+			}
+			
 		}
 		catch(Exception e)
 		{
@@ -311,8 +315,9 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				Morphology cellmorphology = c.getMorphology();
 				if(cellmorphology != null)
 				{
-					CEntity entity = getNewNeuronalEntity(c.getId());
-					entity.getAspects().get(0).getVisualModel().addAll(getVisualModelsFromMorphologyBySegmentGroup(cellmorphology, c.getId()));
+					String cellId=(_aspectId+"."+c.getId()).toLowerCase();
+					CEntity entity = getNewNeuronalEntity(cellId);
+					entity.getAspects().get(0).getVisualModel().addAll(getVisualModelsFromMorphologyBySegmentGroup(cellmorphology, cellId));
 					augmentWithMetaData(entity, c);
 					entities.add(entity);
 				}
@@ -537,9 +542,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 		List<VisualModel> visualModels = new ArrayList<VisualModel>();
 		Map<String, List<AVisualObject>> segmentGeometries = new HashMap<String, List<AVisualObject>>();
-		SegmentGroup somaGroup = null;
-		SegmentGroup axonGroup = null;
-		SegmentGroup dendriteGroup = null;
+
 
 		if(morphology.getSegmentGroup().isEmpty())
 		{
@@ -548,47 +551,32 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		}
 		else
 		{
+			
+			Map<String, List<String>> subgroupsMap = new HashMap<String, List<String>>();
 			for(SegmentGroup sg : morphology.getSegmentGroup())
 			{
-				// three hardcoded groups :(
-				if(sg.getId().equals(SOMA_GROUP))
+				for(Include include : sg.getInclude())
 				{
-					somaGroup = sg;
+					// the map is <containedGroup,containerGroup>
+					if(!subgroupsMap.containsKey(include.getSegmentGroup()))
+					{
+						subgroupsMap.put(include.getSegmentGroup(), new ArrayList<String>());
+					}
+					subgroupsMap.get(include.getSegmentGroup()).add(sg.getId());
 				}
-				else if(sg.getId().equals(AXON_GROUP))
-				{
-					axonGroup = sg;
-				}
-				else if(sg.getId().equals(DENDRITE_GROUP))
-				{
-					dendriteGroup = sg;
-				}
-
 				if(!sg.getMember().isEmpty())
 				{
 					segmentGeometries.put(sg.getId(), getVisualObjectsForGroup(sg, allSegments));
 				}
+			}
+			for(String sg : segmentGeometries.keySet())
+			{
+				for(AVisualObject vo : segmentGeometries.get(sg))
+				{
+					vo.setAdditionalProperties("segment_groups", getAllGroupsString(sg, subgroupsMap, ""));
+				}
+			}
 
-			}
-
-			if(somaGroup != null)
-			{
-				VisualModel visualModel = createVisualModelForMacroGroup(somaGroup, segmentGeometries, allSegments.getObjects());
-				visualModel.setId(getGroupId(cellId, somaGroup.getId()));
-				visualModels.add(visualModel);
-			}
-			if(axonGroup != null)
-			{
-				VisualModel visualModel = createVisualModelForMacroGroup(axonGroup, segmentGeometries, allSegments.getObjects());
-				visualModel.setId(getGroupId(cellId, axonGroup.getId()));
-				visualModels.add(visualModel);
-			}
-			if(dendriteGroup != null)
-			{
-				VisualModel visualModel = createVisualModelForMacroGroup(dendriteGroup, segmentGeometries, allSegments.getObjects());
-				visualModel.setId(getGroupId(cellId, dendriteGroup.getId()));
-				visualModels.add(visualModel);
-			}
 
 			// this adds all segment groups not contained in the macro groups if any
 			for(String sgId : segmentGeometries.keySet())
@@ -599,8 +587,33 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				visualModel.setId(getGroupId(cellId, sgId));
 				visualModels.add(visualModel);
 			}
+			
+
 		}
 		return visualModels;
+		
+	}
+	
+	
+	/**
+	 * @param targetSg
+	 * @param subgroupsMap
+	 * @param allGroupsStringp
+	 * @return a semicolon separated string containing all the subgroups that contain a given subgroup
+	 */
+	private String getAllGroupsString(String targetSg, Map<String, List<String>> subgroupsMap, String allGroupsStringp)
+	{
+		if(subgroupsMap.containsKey(targetSg))
+		{
+			StringBuilder allGroupsString = new StringBuilder(allGroupsStringp);
+			for(String containerGroup : subgroupsMap.get(targetSg))
+			{
+				allGroupsString.append(containerGroup + "; ");
+				allGroupsString.append(getAllGroupsString(containerGroup, subgroupsMap, ""));
+			}
+			return allGroupsString.toString();
+		}
+		return allGroupsStringp.trim();
 	}
 
 	/**
@@ -610,7 +623,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 */
 	private String getGroupId(String cellId, String segmentGroupId)
 	{
-		return cellId + " " + segmentGroupId;
+		return cellId + "." + segmentGroupId;
 	}
 
 	/**
