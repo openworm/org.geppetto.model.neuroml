@@ -50,7 +50,7 @@ import org.junit.Test;
 public class LEMSModelInterpreterServiceTest
 {
 
-	/**
+	/**""
 	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
 	 * 
 	 * @throws MalformedURLException
@@ -63,7 +63,7 @@ public class LEMSModelInterpreterServiceTest
 		URL url = new URL("https://dl.dropboxusercontent.com/u/7538688/GeppettoSimulations/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml?dl=1");
 		ModelWrapper model;
 
-		model = (ModelWrapper) modelInterpreter.readModel(url);
+		model = (ModelWrapper) modelInterpreter.readModel(url, null, "");
 		assertNotNull(model);
 		assertNotNull(model.getModel("url"));
 		assertNotNull(model.getModel("lems"));

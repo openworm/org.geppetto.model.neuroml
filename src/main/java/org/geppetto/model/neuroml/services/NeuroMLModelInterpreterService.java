@@ -114,7 +114,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * 
 	 * @see org.openworm.simulationengine.core.model.IModelProvider#readModel(java .lang.String)
 	 */
-	public IModel readModel(URL url) throws ModelInterpreterException
+	public IModel readModel(URL url, List<URL> recordings, String instancePath) throws ModelInterpreterException
 	{
 		ModelWrapper lemsWrapper = null;
 		try
@@ -131,6 +131,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
 
 			lemsWrapper = new ModelWrapper(UUID.randomUUID().toString());
+			lemsWrapper.setInstancePath(instancePath);
 			// two different interpretations of the same file, one used to simulate the other used to visualize
 			lemsWrapper.wrapModel(LEMS_ID, document);
 			lemsWrapper.wrapModel(NEUROML_ID, neuroml);

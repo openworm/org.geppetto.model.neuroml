@@ -36,6 +36,7 @@ package org.geppetto.model.neuroml.services;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -72,17 +73,20 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 	 * 
 	 * @see org.openworm.simulationengine.core.model.IModelProvider#readModel(java .lang.String)
 	 */
-	public IModel readModel(URL url) throws ModelInterpreterException
+	public IModel readModel(URL url, List<URL> recordings, String instancePath) throws ModelInterpreterException
 	{
 		ModelWrapper lemsWrapper = null;
 		try
 		{
-			String lemsString = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A").next();
+			Scanner scanner=new Scanner(url.openStream(), "UTF-8");
+			String lemsString = scanner.useDelimiter("\\A").next();
+			scanner.close();
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument document = lemsReader.readModel(url);
 
 			lemsWrapper = new ModelWrapper(UUID.randomUUID().toString());
-
+			lemsWrapper.setInstancePath(instancePath);
+			
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 			URL neuroMLURL = getNeuroMLURL(lemsString);
 			if(neuroMLURL != null)
