@@ -36,6 +36,7 @@ package org.geppetto.model.neuroml.services;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -43,8 +44,9 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.simulation.Aspect;
 import org.geppetto.core.model.state.StateTreeRoot;
-import org.geppetto.core.visualisation.model.Scene;
+import org.geppetto.core.visualisation.model.CEntity;
 import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
@@ -71,17 +73,20 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 	 * 
 	 * @see org.openworm.simulationengine.core.model.IModelProvider#readModel(java .lang.String)
 	 */
-	public IModel readModel(URL url) throws ModelInterpreterException
+	public IModel readModel(URL url, List<URL> recordings, String instancePath) throws ModelInterpreterException
 	{
 		ModelWrapper lemsWrapper = null;
 		try
 		{
-			String lemsString = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A").next();
+			Scanner scanner=new Scanner(url.openStream(), "UTF-8");
+			String lemsString = scanner.useDelimiter("\\A").next();
+			scanner.close();
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument document = lemsReader.readModel(url);
 
 			lemsWrapper = new ModelWrapper(UUID.randomUUID().toString());
-
+			lemsWrapper.setInstancePath(instancePath);
+			
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 			URL neuroMLURL = getNeuroMLURL(lemsString);
 			if(neuroMLURL != null)
@@ -110,6 +115,11 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 		return lemsWrapper;
 	}
 
+	/**
+	 * @param lemsString
+	 * @return
+	 * @throws MalformedURLException
+	 */
 	private URL getNeuroMLURL(String lemsString) throws MalformedURLException
 	{
 		// FIXME This is a HACK. Importers from a LemsDocument will have to be
@@ -127,10 +137,13 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.geppetto.core.model.IModelInterpreter#getVisualEntity(org.geppetto.core.model.IModel, org.geppetto.core.model.simulation.Aspect, org.geppetto.core.model.state.StateTreeRoot)
+	 */
 	@Override
-	public Scene getSceneFromModel(IModel model, StateTreeRoot stateTree) throws ModelInterpreterException
+	public CEntity getVisualEntity(IModel model, Aspect aspect, StateTreeRoot stateTree) throws ModelInterpreterException
 	{
-		return _neuroMLModelInterpreter.getSceneFromModel(model, stateTree);
+		return _neuroMLModelInterpreter.getVisualEntity(model, aspect, stateTree);
 	}
 
 }

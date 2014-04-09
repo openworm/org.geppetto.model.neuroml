@@ -36,7 +36,7 @@ import java.util.List;
 
 import org.geppetto.core.model.state.SimpleStateNode;
 import org.geppetto.core.model.state.visitors.DefaultStateVisitor;
-import org.geppetto.core.visualisation.model.Entity;
+import org.geppetto.core.visualisation.model.CEntity;
 
 /**
  * @author matteocantarelli
@@ -44,9 +44,9 @@ import org.geppetto.core.visualisation.model.Entity;
  */
 public class AddStatesToSceneVisitor extends DefaultStateVisitor
 {
-	private List<Entity> _entities;
+	private List<CEntity> _entities;
 
-	public AddStatesToSceneVisitor(List<Entity> entities)
+	public AddStatesToSceneVisitor(List<CEntity> entities)
 	{
 		_entities=entities;
 	}

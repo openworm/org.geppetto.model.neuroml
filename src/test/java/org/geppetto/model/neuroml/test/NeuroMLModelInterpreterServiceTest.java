@@ -34,7 +34,6 @@
 package org.geppetto.model.neuroml.test;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.net.URL;
 
@@ -59,7 +58,7 @@ public class NeuroMLModelInterpreterServiceTest
 	{
 		NeuroMLModelInterpreterService modelInterpreter = new NeuroMLModelInterpreterService();
 		URL url = this.getClass().getResource("/NML2_FullCell.nml");
-		ModelWrapper model = (ModelWrapper) modelInterpreter.readModel(url);
+		ModelWrapper model = (ModelWrapper) modelInterpreter.readModel(url,null,"");
 		assertNotNull(model);
 		assertNotNull(model.getModel("url"));
 		assertNotNull(model.getModel("lems"));
