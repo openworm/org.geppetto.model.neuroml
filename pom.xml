@@ -5,7 +5,7 @@
 	<groupId>org.geppetto</groupId>
 	<artifactId>model.neuroml</artifactId>
 	<name>Geppetto NeuroML Model bundle</name>
-	<version>0.1.1</version>
+	<version>0.1.2</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<spring.version>3.0.0.RELEASE</spring.version>
@@ -20,12 +20,12 @@
 		<dependency>
 			<groupId>org.lemsml</groupId>
 			<artifactId>jlems</artifactId>
-			<version>0.9.6.0</version>
+			<version>0.9.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geppetto</groupId>
 			<artifactId>core</artifactId>
-			<version>0.1.1</version>
+			<version>0.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -76,6 +76,14 @@
 			<id>com.springsource.repository.libraries.external</id>
 			<name>SpringSource Enterprise Bundle Repository - External Library Releases</name>
 			<url>http://repository.springsource.com/maven/libraries/external</url>
+		</repository>
+		<repository>
+			<id>org.geppetto-mvn-repo</id>
+			<url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
 		</repository>
 	</repositories>
 
