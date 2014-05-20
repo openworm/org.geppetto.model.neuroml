@@ -69,8 +69,10 @@ import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
+import org.neuroml.model.BaseCell;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
+import org.neuroml.model.IafCell;
 import org.neuroml.model.Include;
 import org.neuroml.model.Instance;
 import org.neuroml.model.Location;
@@ -108,6 +110,10 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	private int _modelHash = 0;
 
 	private String _aspectId;
+
+	private Map<String, BaseCell> _discoveredCells = new HashMap<String, BaseCell>();
+
+	private String _parentInstancePath;
 
 	/*
 	 * (non-Javadoc)
@@ -162,6 +168,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	{
 		Entity currentEntity = aspect.getParentEntity();
 		_aspectId = aspect.getId();
+		_parentInstancePath=aspect.getParentEntity().getInstancePath();
 		try
 		{
 			if(_visualEntity == null || _modelHash != model.hashCode())
@@ -176,7 +183,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				{
 					URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
 
-					populateEntity(neuroml, _visualEntity, currentEntity);
+					populateEntity(neuroml, _visualEntity, currentEntity, url);
 
 					_visualEntity.getChildren().addAll(getEntitiesFromNetwork(neuroml, url));
 				}
@@ -184,15 +191,15 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			}
 			else
 			{
-				//if we already sent once the update every other time it's going to be empty unless it changes
-				//as the geometry won't change
+				// if we already sent once the update every other time it's going to be empty unless it changes
+				// as the geometry won't change
 				CEntity empty = new CEntity();
 				CAspect visualAspect = new CAspect();
 				visualAspect.setId(aspect.getId());
 				empty.getAspects().add(visualAspect);
 				return empty;
 			}
-			
+
 		}
 		catch(Exception e)
 		{
@@ -205,7 +212,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param visualEntity
 	 * @param currentEntity
 	 */
-	private void populateEntity(NeuroMLDocument neuroml, CEntity visualEntity, Entity currentEntity)
+	private void populateEntity(NeuroMLDocument neuroml, CEntity visualEntity, Entity currentEntity, URL url)
 	{
 
 		// We try to figure out here what kind of neuroml file we are looking at
@@ -213,7 +220,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 		// C. If it contains a network if the other cells are separately available as geppetto entities it will just add information about their connection
 
-		List<CEntity> discoveredEntities = getCEntitiesFromNeuroMLDocument(neuroml);
+		List<CEntity> discoveredEntities = getCEntitiesFromNeuroMLDocument(neuroml, url);
 
 		if(discoveredEntities.size() == 1)
 		{
@@ -238,8 +245,10 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	{
 		CEntity cEntity = new CEntity();
 		cEntity.setId(id);
+		cEntity.setInstancePath(_parentInstancePath+"."+_aspectId+"."+id);
 		CAspect cAspect = new CAspect();
 		cAspect.setId(_aspectId);
+		cAspect.setInstancePath(_parentInstancePath+"."+_aspectId+"."+id);
 		cEntity.getAspects().add(cAspect);
 		return cEntity;
 	}
@@ -295,7 +304,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param neuroml
 	 * @return
 	 */
-	public List<CEntity> getCEntitiesFromNeuroMLDocument(NeuroMLDocument neuroml)
+	public List<CEntity> getCEntitiesFromNeuroMLDocument(NeuroMLDocument neuroml, URL url)
 	{
 		List<CEntity> entities = new ArrayList<CEntity>();
 		List<Morphology> morphologies = neuroml.getMorphology();
@@ -313,18 +322,120 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		{
 			for(Cell c : cells)
 			{
-				Morphology cellmorphology = c.getMorphology();
-				if(cellmorphology != null)
-				{
-					String cellId=(_aspectId+"."+c.getId()).toLowerCase();
-					CEntity entity = getNewNeuronalEntity(cellId);
-					entity.getAspects().get(0).getVisualModel().addAll(getVisualModelsFromMorphologyBySegmentGroup(cellmorphology, cellId));
-					augmentWithMetaData(entity, c);
-					entities.add(entity);
-				}
+				_discoveredCells.put(c.getId(), c);
+				CEntity entity = getCEntityfromCell(c);
+				entities.add(entity);
+			}
+		}
+		List<IafCell> iafCells = neuroml.getIafCell();
+		if(iafCells != null)
+		{
+			for(IafCell iafCell : iafCells)
+			{
+				_discoveredCells.put(iafCell.getId(), iafCell);
 			}
 		}
 		return entities;
+	}
+
+	/**
+	 * @param c
+	 * @return
+	 */
+	private CEntity getCEntityfromCell(Cell c)
+	{
+		CEntity entity = getNewNeuronalEntity(c.getId());
+		Morphology cellmorphology = c.getMorphology();
+		entity.getAspects().get(0).getVisualModel().addAll(getVisualModelsFromMorphologyBySegmentGroup(cellmorphology, c.getId()));
+		augmentWithMetaData(entity, c);
+		return entity;
+	}
+
+	/**
+	 * @param c
+	 * @param id 
+	 * @return
+	 */
+	private CEntity getCEntityfromCell(BaseCell c, String id)
+	{
+		CEntity entity = getNewNeuronalEntity(id);
+		VisualModel visualModel = new VisualModel();
+		Sphere sphere = new Sphere();
+		sphere.setRadius(1d);
+		Point origin=new Point();
+		origin.setX(0d);
+		origin.setY(0d);
+		origin.setZ(0d);
+		sphere.setPosition(origin);
+		sphere.setId("abstract");
+		visualModel.getObjects().add(sphere);
+		entity.getAspects().get(0).getVisualModel().add(visualModel);
+		return entity;
+	}
+
+	/**
+	 * @param componentId
+	 * @param url
+	 * @return
+	 */
+	private BaseCell retrieveNeuroMLCell(String componentId, URL url) throws Exception
+	{
+		if(_discoveredCells.containsKey(componentId))
+		{
+			return _discoveredCells.get(componentId);
+		}
+		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+		boolean attemptConnection = true;
+		String baseURL = url.getFile();
+		if(url.getFile().endsWith("nml"))
+		{
+			baseURL = baseURL.substring(0, baseURL.lastIndexOf("/") + 1);
+		}
+		int attempts = 0;
+		NeuroMLDocument neuromlDocument = null;
+		while(attemptConnection)
+		{
+			try
+			{
+				attemptConnection = false;
+				attempts++;
+				URL componentURL = new URL(url.getProtocol() + "://" + url.getAuthority() + baseURL + componentId + ".nml");
+
+				neuromlDocument = neuromlConverter.urlToNeuroML(componentURL);
+
+				List<Cell> cells = neuromlDocument.getCell();
+				if(cells != null)
+				{
+					for(Cell c : cells)
+					{
+						_discoveredCells.put(componentId, c);
+						if(c.getId().equals(componentId))
+						{
+							return c;
+						}
+					}
+				}
+			}
+			catch(MalformedURLException e)
+			{
+				throw e;
+			}
+			catch(UnmarshalException e)
+			{
+				if(e.getLinkedException() instanceof IOException)
+				{
+					if(attempts < MAX_ATTEMPTS)
+					{
+						attemptConnection = true;
+					}
+				}
+			}
+			catch(Exception e)
+			{
+				throw e;
+			}
+		}
+		return null;
 	}
 
 	private static final int MAX_ATTEMPTS = 3;
@@ -338,148 +449,96 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	private Collection<CEntity> getEntitiesFromNetwork(NeuroMLDocument neuroml, URL url) throws Exception
 	{
 		Map<String, CEntity> entities = new HashMap<String, CEntity>();
-		String baseURL = url.getFile();
-		if(url.getFile().endsWith("nml"))
-		{
-			baseURL = baseURL.substring(0, baseURL.lastIndexOf("/") + 1);
-		}
 		List<Network> networks = neuroml.getNetwork();
-		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+
 		for(Network n : networks)
 		{
 			for(Population p : n.getPopulation())
 			{
-				boolean localCell = false;
-				for(Cell c : neuroml.getCell())
+				BaseCell cell = retrieveNeuroMLCell(p.getComponent(), url);
 
+				if(p.getType() != null && p.getType().equals(PopulationTypes.POPULATION_LIST))
 				{
-					if(c.getId().equals(p.getComponent()))
+					int i = 0;
+					for(Instance instance : p.getInstance())
 					{
-						localCell = true;
-						break;
+						CEntity e = getCEntityfromCell(cell, p.getId());
+
+						if(instance.getLocation() != null)
+						{
+							e.setPosition(getPoint(instance.getLocation()));
+						}
+						if(p.getInstance().size()>1)
+						{
+							e.setId(p.getId()+"["+i+"]");
+						}
+						else
+						{
+							e.setId(p.getId());
+						}						
+						entities.put(e.getId(), e);
 					}
-				}
-				if(localCell)
-				{
-					// TODO What do we do?
+					i++;
+
 				}
 				else
 				{
-					boolean attemptConnection = true;
-					int attempts = 0;
-					NeuroMLDocument neuromlComponent = null;
-					String component = p.getComponent();
-					while(attemptConnection)
-					{
-						try
-						{
-							attemptConnection = false;
-							attempts++;
-							URL componentURL = new URL(url.getProtocol() + "://" + url.getAuthority() + baseURL + component + ".nml");
+					int size = p.getSize().intValue();
 
-							neuromlComponent = neuromlConverter.urlToNeuroML(componentURL);
-						}
-						catch(MalformedURLException e)
-						{
-							throw e;
-						}
-						catch(UnmarshalException e)
-						{
-							if(e.getLinkedException() instanceof IOException)
-							{
-								if(attempts < MAX_ATTEMPTS)
-								{
-									attemptConnection = true;
-								}
-							}
-						}
-						catch(Exception e)
-						{
-							throw e;
-						}
-					}
-					if(neuromlComponent == null)
+					for(int i = 0; i < size; i++)
 					{
-						continue;
-					}
-					if(p.getType() != null && p.getType().equals(PopulationTypes.POPULATION_LIST))
-					{
-						int i = 0;
-						for(Instance instance : p.getInstance())
-						{
-							List<CEntity> localEntities = getCEntitiesFromNeuroMLDocument(neuromlComponent);
-							for(CEntity e : localEntities)
-							{
-								if(instance.getLocation() != null)
-								{
-									e.setPosition(getPoint(instance.getLocation()));
-								}
-								e.setId(e.getId() + "[" + i + "]");
-								entities.put(e.getId(), e);
-							}
-							i++;
-						}
-					}
-					else
-					{
-						int size = p.getSize().intValue();
+						// FIXME the position of the population within the network needs to be specified in neuroml
+						CEntity e = getCEntityfromCell(cell, cell.getId());
 
-						for(int i = 0; i < size; i++)
-						{
-							// FIXME the position of the population within the network needs to be specified in neuroml
-							List<CEntity> localEntities = getCEntitiesFromNeuroMLDocument(neuromlComponent);
-							for(CEntity e : localEntities)
-							{
-								e.setId(e.getId() + "[" + i + "]");
-								entities.put(e.getId(), e);
-							}
-						}
+						e.setId(e.getId() + "[" + i + "]");
+						entities.put(e.getId(), e);
 					}
-
-					// FIXME what's the purpose of the id here?
-					String id = p.getId();
-
 				}
-				for(SynapticConnection c : n.getSynapticConnection())
+
+				// FIXME what's the purpose of the id here?
+				String id = p.getId();
+
+			}
+			for(SynapticConnection c : n.getSynapticConnection())
+			{
+				String from = c.getFrom();
+				String to = c.getTo();
+
+				Metadata mPost = new Metadata();
+				mPost.setAdditionalProperties(Resources.SYNAPSE.get(), c.getSynapse());
+				mPost.setAdditionalProperties(Resources.CONNECTION_TYPE.get(), Resources.POST_SYNAPTIC.get());
+				Connection rPost = new Connection();
+				rPost.setEntityId(to);
+				rPost.setMetadata(mPost);
+				rPost.setType(Resources.POST_SYNAPTIC.get());
+
+				Metadata mPre = new Metadata();
+				mPre.setAdditionalProperties(Resources.SYNAPSE.get(), c.getSynapse());
+				mPre.setAdditionalProperties(Resources.CONNECTION_TYPE.get(), Resources.PRE_SYNAPTIC.get());
+				Connection rPre = new Connection();
+				rPre.setEntityId(from);
+				rPre.setMetadata(mPre);
+				rPost.setType(Resources.PRE_SYNAPTIC.get());
+
+				if(entities.containsKey(from))
 				{
-					String from = c.getFrom();
-					String to = c.getTo();
+					entities.get(from).getConnections().add(rPost);
+				}
+				else
+				{
+					throw new Exception("Connection not found." + from + " was not found in the path of the network file");
+				}
 
-					Metadata mPost = new Metadata();
-					mPost.setAdditionalProperties(Resources.SYNAPSE.get(), c.getSynapse());
-					mPost.setAdditionalProperties(Resources.CONNECTION_TYPE.get(), Resources.POST_SYNAPTIC.get());
-					Connection rPost = new Connection();
-					rPost.setEntityId(to);
-					rPost.setMetadata(mPost);
-					rPost.setType(Resources.POST_SYNAPTIC.get());
-
-					Metadata mPre = new Metadata();
-					mPre.setAdditionalProperties(Resources.SYNAPSE.get(), c.getSynapse());
-					mPre.setAdditionalProperties(Resources.CONNECTION_TYPE.get(), Resources.PRE_SYNAPTIC.get());
-					Connection rPre = new Connection();
-					rPre.setEntityId(from);
-					rPre.setMetadata(mPre);
-					rPost.setType(Resources.PRE_SYNAPTIC.get());
-
-					if(entities.containsKey(from))
-					{
-						entities.get(from).getConnections().add(rPost);
-					}
-					else
-					{
-						throw new Exception("Connection not found." + from + " was not found in the path of the network file");
-					}
-
-					if(entities.containsKey(to))
-					{
-						entities.get(to).getConnections().add(rPre);
-					}
-					else
-					{
-						throw new Exception("Connection not found." + to + " was not found in the path of the network file");
-					}
+				if(entities.containsKey(to))
+				{
+					entities.get(to).getConnections().add(rPre);
+				}
+				else
+				{
+					throw new Exception("Connection not found." + to + " was not found in the path of the network file");
 				}
 			}
+
 		}
 		return entities.values();
 	}
@@ -497,11 +556,13 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				Metadata membraneProperties = new Metadata();
 				if(c.getBiophysicalProperties().getMembraneProperties() != null)
 				{
-					for(ChannelDensity channelDensity : c.getBiophysicalProperties().getMembraneProperties().getChannelDensity()) {
+					for(ChannelDensity channelDensity : c.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
+					{
 						membraneProperties.setAdditionalProperties(Resources.COND_DENSITY.get(), channelDensity.getCondDensity());
 					}
 
-					for(SpecificCapacitance specificCapacitance : c.getBiophysicalProperties().getMembraneProperties().getSpecificCapacitance()) {
+					for(SpecificCapacitance specificCapacitance : c.getBiophysicalProperties().getMembraneProperties().getSpecificCapacitance())
+					{
 						membraneProperties.setAdditionalProperties(Resources.SPECIFIC_CAPACITANCE.get(), specificCapacitance.getValue());
 					}
 				}
@@ -544,7 +605,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		List<VisualModel> visualModels = new ArrayList<VisualModel>();
 		Map<String, List<AVisualObject>> segmentGeometries = new HashMap<String, List<AVisualObject>>();
 
-
 		if(morphology.getSegmentGroup().isEmpty())
 		{
 			// there are no segment groups
@@ -552,7 +612,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		}
 		else
 		{
-			
+
 			Map<String, List<String>> subgroupsMap = new HashMap<String, List<String>>();
 			for(SegmentGroup sg : morphology.getSegmentGroup())
 			{
@@ -578,7 +638,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				}
 			}
 
-
 			// this adds all segment groups not contained in the macro groups if any
 			for(String sgId : segmentGeometries.keySet())
 			{
@@ -588,14 +647,12 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				visualModel.setId(getGroupId(cellId, sgId));
 				visualModels.add(visualModel);
 			}
-			
 
 		}
 		return visualModels;
-		
+
 	}
-	
-	
+
 	/**
 	 * @param targetSg
 	 * @param subgroupsMap

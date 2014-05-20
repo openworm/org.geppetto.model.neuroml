@@ -42,6 +42,15 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.junit.Test;
+import org.lemsml.jlems.core.api.LEMSBuildConfiguration;
+import org.lemsml.jlems.core.api.LEMSBuildException;
+import org.lemsml.jlems.core.api.LEMSBuildOptions;
+import org.lemsml.jlems.core.api.LEMSBuildOptionsEnum;
+import org.lemsml.jlems.core.api.LEMSBuilder;
+import org.lemsml.jlems.core.api.interfaces.ILEMSBuildConfiguration;
+import org.lemsml.jlems.core.api.interfaces.ILEMSBuildOptions;
+import org.lemsml.jlems.core.api.interfaces.ILEMSBuilder;
+import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 
 /**
  * @author matteocantarelli
@@ -55,12 +64,13 @@ public class LEMSModelInterpreterServiceTest
 	 * 
 	 * @throws MalformedURLException
 	 * @throws ModelInterpreterException
+	 * @throws LEMSBuildException 
 	 */
 	@Test
-	public void testReadModel() throws MalformedURLException, ModelInterpreterException
+	public void testReadModel() throws MalformedURLException, ModelInterpreterException, LEMSBuildException
 	{
 		LEMSModelInterpreterService modelInterpreter = new LEMSModelInterpreterService();
-		URL url = new URL("https://dl.dropboxusercontent.com/u/7538688/GeppettoSimulations/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml?dl=1");
+		URL url = new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml");
 		ModelWrapper model;
 
 		model = (ModelWrapper) modelInterpreter.readModel(url, null, "");
@@ -68,6 +78,52 @@ public class LEMSModelInterpreterServiceTest
 		assertNotNull(model.getModel("url"));
 		assertNotNull(model.getModel("lems"));
 		assertNotNull(model.getModel("neuroml"));
+		
+		ILEMSBuilder builder = new LEMSBuilder();
+		// TODO Refactor simulators to deal with more than one model!
+		ILEMSDocument lemsDocument = (ILEMSDocument) (model).getModel("lems");
+
+		builder.addDocument(lemsDocument);
+
+		ILEMSBuildOptions options = new LEMSBuildOptions();
+		options.addBuildOption(LEMSBuildOptionsEnum.FLATTEN);
+
+		ILEMSBuildConfiguration config = new LEMSBuildConfiguration();
+		builder.build(config, options); // pre-build to read the run configuration and target from the file
+
+	}
+	
+	/**""
+	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
+	 * 
+	 * @throws MalformedURLException
+	 * @throws ModelInterpreterException
+	 * @throws LEMSBuildException 
+	 */
+	@Test
+	public void testReadC302Model() throws MalformedURLException, ModelInterpreterException, LEMSBuildException
+	{
+		LEMSModelInterpreterService modelInterpreter = new LEMSModelInterpreterService();
+		URL url = new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/C302/LEMS_c302_A.xml");
+		ModelWrapper model;
+
+		model = (ModelWrapper) modelInterpreter.readModel(url, null, "");
+		assertNotNull(model);
+		assertNotNull(model.getModel("url"));
+		assertNotNull(model.getModel("lems"));
+		assertNotNull(model.getModel("neuroml"));
+		
+		ILEMSBuilder builder = new LEMSBuilder();
+		// TODO Refactor simulators to deal with more than one model!
+		ILEMSDocument lemsDocument = (ILEMSDocument) (model).getModel("lems");
+
+		builder.addDocument(lemsDocument);
+
+		ILEMSBuildOptions options = new LEMSBuildOptions();
+		options.addBuildOption(LEMSBuildOptionsEnum.FLATTEN);
+
+		ILEMSBuildConfiguration config = new LEMSBuildConfiguration();
+		builder.build(config, options); // pre-build to read the run configuration and target from the file
 
 	}
 
