@@ -34,7 +34,7 @@ package org.geppetto.model.neuroml.services;
 
 import java.util.List;
 
-import org.geppetto.core.model.state.ASimpleStateNode;
+import org.geppetto.core.model.state.SimpleStateNode;
 import org.geppetto.core.model.state.visitors.DefaultStateVisitor;
 import org.geppetto.core.visualisation.model.CEntity;
 
@@ -52,7 +52,7 @@ public class AddStatesToSceneVisitor extends DefaultStateVisitor
 	}
 
 	@Override
-	public boolean visitSimpleStateNode(ASimpleStateNode node)
+	public boolean visitSimpleStateNode(SimpleStateNode node)
 	{
 		//TODO This is just a hacked implementation just to try, it's mapping all the states to the first entity
 		//because we know there's only one. The real implementation will have to associate the different states
