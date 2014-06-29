@@ -45,8 +45,9 @@ import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.simulation.Aspect;
-import org.geppetto.core.model.state.StateTreeRoot;
-import org.geppetto.core.visualisation.model.CEntity;
+import org.geppetto.core.model.state.AspectNode;
+import org.geppetto.core.model.state.AspectTreeNode;
+import org.geppetto.core.model.state.EntityNode;
 import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
@@ -141,9 +142,27 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 	 * @see org.geppetto.core.model.IModelInterpreter#getVisualEntity(org.geppetto.core.model.IModel, org.geppetto.core.model.simulation.Aspect, org.geppetto.core.model.state.StateTreeRoot)
 	 */
 	@Override
-	public CEntity getVisualEntity(IModel model, Aspect aspect, StateTreeRoot stateTree) throws ModelInterpreterException
+	public EntityNode getVisualEntity(IModel model, Aspect aspect, AspectTreeNode stateTree) throws ModelInterpreterException
 	{
 		return _neuroMLModelInterpreter.getVisualEntity(model, aspect, stateTree);
+	}
+
+	@Override
+	public boolean populateVisualTree(AspectNode aspectNode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean populateModelTree(AspectNode aspectNode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean populateRuntimeTree(AspectNode aspectNode) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

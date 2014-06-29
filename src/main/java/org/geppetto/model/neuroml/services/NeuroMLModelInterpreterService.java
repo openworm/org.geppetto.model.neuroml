@@ -55,13 +55,15 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.simulation.Aspect;
 import org.geppetto.core.model.simulation.Entity;
-import org.geppetto.core.model.state.StateTreeRoot;
+import org.geppetto.core.model.state.ACompositeStateNode;
+import org.geppetto.core.model.state.AVisualNode;
+import org.geppetto.core.model.state.AspectNode;
+import org.geppetto.core.model.state.AspectTreeNode;
+import org.geppetto.core.model.state.EntityNode;
+import org.geppetto.core.model.state.EntityNode.Connection;
+import org.geppetto.core.model.state.TextMetadataNode;
 import org.geppetto.core.visualisation.model.AVisualObject;
-import org.geppetto.core.visualisation.model.CAspect;
-import org.geppetto.core.visualisation.model.CEntity;
-import org.geppetto.core.visualisation.model.Connection;
 import org.geppetto.core.visualisation.model.Cylinder;
-import org.geppetto.core.visualisation.model.Metadata;
 import org.geppetto.core.visualisation.model.Point;
 import org.geppetto.core.visualisation.model.Sphere;
 import org.geppetto.core.visualisation.model.VisualModel;
@@ -106,7 +108,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 	private static Log _logger = LogFactory.getLog(NeuroMLModelInterpreterService.class);
 
-	private CEntity _visualEntity = null;
+	private EntityNode _visualEntity = null;
 	private int _modelHash = 0;
 
 	private String _aspectId;
@@ -164,7 +166,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	}
 
 	@Override
-	public CEntity getVisualEntity(IModel model, Aspect aspect, StateTreeRoot stateTree) throws ModelInterpreterException
+	public EntityNode getVisualEntity(IModel model, Aspect aspect, AspectTreeNode stateTree) throws ModelInterpreterException
 	{
 		Entity currentEntity = aspect.getParentEntity();
 		_aspectId = aspect.getId();
@@ -173,8 +175,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		{
 			if(_visualEntity == null || _modelHash != model.hashCode())
 			{
-				_visualEntity = new CEntity();
-				CAspect visualAspect = new CAspect();
+				_visualEntity = new EntityNode();
+				AspectNode visualAspect = new AspectNode();
 				visualAspect.setId(aspect.getId());
 				_visualEntity.getAspects().add(visualAspect);
 				_modelHash = model.hashCode();
@@ -193,8 +195,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			{
 				// if we already sent once the update every other time it's going to be empty unless it changes
 				// as the geometry won't change
-				CEntity empty = new CEntity();
-				CAspect visualAspect = new CAspect();
+				EntityNode empty = new EntityNode();
+				AspectNode visualAspect = new AspectNode();
 				visualAspect.setId(aspect.getId());
 				empty.getAspects().add(visualAspect);
 				return empty;
@@ -212,7 +214,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param visualEntity
 	 * @param currentEntity
 	 */
-	private void populateEntity(NeuroMLDocument neuroml, CEntity visualEntity, Entity currentEntity, URL url)
+	private void populateEntity(NeuroMLDocument neuroml, EntityNode visualEntity, Entity currentEntity, URL url)
 	{
 
 		// We try to figure out here what kind of neuroml file we are looking at
@@ -220,7 +222,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 		// C. If it contains a network if the other cells are separately available as geppetto entities it will just add information about their connection
 
-		List<CEntity> discoveredEntities = getCEntitiesFromNeuroMLDocument(neuroml, url);
+		List<EntityNode> discoveredEntities = getCEntitiesFromNeuroMLDocument(neuroml, url);
 
 		if(discoveredEntities.size() == 1)
 		{
@@ -241,25 +243,25 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param id
 	 * @return
 	 */
-	private CEntity getNewNeuronalEntity(String id)
+	private EntityNode getNewNeuronalEntity(String id)
 	{
-		CEntity cEntity = new CEntity();
-		cEntity.setId(id);
-		cEntity.setInstancePath(_parentInstancePath+"."+_aspectId+"."+id);
-		CAspect cAspect = new CAspect();
+		EntityNode EntityNode = new EntityNode();
+		EntityNode.setId(id);
+		EntityNode.setInstancePath(_parentInstancePath+"."+_aspectId+"."+id);
+		AspectNode cAspect = new AspectNode();
 		cAspect.setId(_aspectId);
 		cAspect.setInstancePath(_parentInstancePath+"."+_aspectId+"."+id);
-		cEntity.getAspects().add(cAspect);
-		return cEntity;
+		EntityNode.getAspects().add(cAspect);
+		return EntityNode;
 	}
 
 	/**
 	 * @param visualEntity
 	 * @param morphology
 	 */
-	private CEntity populateCEntityFromMorphology(CEntity visualEntity, Morphology morphology)
+	private EntityNode populateEntityNodeFromMorphology(EntityNode visualEntity, Morphology morphology)
 	{
-		return populateCEntityFromListOfSegments(visualEntity, morphology.getSegment());
+		return populateEntityNodeFromListOfSegments(visualEntity, morphology.getSegment());
 
 	}
 
@@ -267,7 +269,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param list
 	 * @return
 	 */
-	private CEntity populateCEntityFromListOfSegments(CEntity entity, List<Segment> list)
+	private EntityNode populateEntityNodeFromListOfSegments(EntityNode entity, List<Segment> list)
 	{
 		VisualModel visualModel = getVisualModelFromListOfSegments(list);
 		entity.getAspects().get(0).getVisualModel().add(visualModel);
@@ -304,16 +306,16 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param neuroml
 	 * @return
 	 */
-	public List<CEntity> getCEntitiesFromNeuroMLDocument(NeuroMLDocument neuroml, URL url)
+	public List<EntityNode> getCEntitiesFromNeuroMLDocument(NeuroMLDocument neuroml, URL url)
 	{
-		List<CEntity> entities = new ArrayList<CEntity>();
+		List<EntityNode> entities = new ArrayList<EntityNode>();
 		List<Morphology> morphologies = neuroml.getMorphology();
 		if(morphologies != null)
 		{
 			for(Morphology m : morphologies)
 			{
-				CEntity entity = getNewNeuronalEntity(m.getId());
-				populateCEntityFromMorphology(entity, m);
+				EntityNode entity = getNewNeuronalEntity(m.getId());
+				populateEntityNodeFromMorphology(entity, m);
 				entities.add(entity);
 			}
 		}
@@ -323,7 +325,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			for(Cell c : cells)
 			{
 				_discoveredCells.put(c.getId(), c);
-				CEntity entity = getCEntityfromCell(c);
+				EntityNode entity = getEntityNodefromCell(c);
 				entities.add(entity);
 			}
 		}
@@ -342,9 +344,9 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param c
 	 * @return
 	 */
-	private CEntity getCEntityfromCell(Cell c)
+	private EntityNode getEntityNodefromCell(Cell c)
 	{
-		CEntity entity = getNewNeuronalEntity(c.getId());
+		EntityNode entity = getNewNeuronalEntity(c.getId());
 		Morphology cellmorphology = c.getMorphology();
 		entity.getAspects().get(0).getVisualModel().addAll(getVisualModelsFromMorphologyBySegmentGroup(cellmorphology, c.getId()));
 		augmentWithMetaData(entity, c);
@@ -356,9 +358,9 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param id 
 	 * @return
 	 */
-	private CEntity getCEntityfromCell(BaseCell c, String id)
+	private EntityNode getEntityNodefromCell(BaseCell c, String id)
 	{
-		CEntity entity = getNewNeuronalEntity(id);
+		EntityNode entity = getNewNeuronalEntity(id);
 		VisualModel visualModel = new VisualModel();
 		Sphere sphere = new Sphere();
 		sphere.setRadius(1d);
@@ -446,9 +448,9 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param url
 	 * @throws Exception
 	 */
-	private Collection<CEntity> getEntitiesFromNetwork(NeuroMLDocument neuroml, URL url) throws Exception
+	private Collection<EntityNode> getEntitiesFromNetwork(NeuroMLDocument neuroml, URL url) throws Exception
 	{
-		Map<String, CEntity> entities = new HashMap<String, CEntity>();
+		Map<String, EntityNode> entities = new HashMap<String, EntityNode>();
 		List<Network> networks = neuroml.getNetwork();
 
 		for(Network n : networks)
@@ -462,7 +464,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 					int i = 0;
 					for(Instance instance : p.getInstance())
 					{
-						CEntity e = getCEntityfromCell(cell, p.getId());
+						EntityNode e = getEntityNodefromCell(cell, p.getId());
 
 						if(instance.getLocation() != null)
 						{
@@ -488,7 +490,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 					for(int i = 0; i < size; i++)
 					{
 						// FIXME the position of the population within the network needs to be specified in neuroml
-						CEntity e = getCEntityfromCell(cell, cell.getId());
+						EntityNode e = getEntityNodefromCell(cell, cell.getId());
 
 						e.setId(e.getId() + "[" + i + "]");
 						entities.put(e.getId(), e);
@@ -504,7 +506,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				String from = c.getFrom();
 				String to = c.getTo();
 
-				Metadata mPost = new Metadata();
+				TextMetadataNode mPost = new TextMetadataNode();
 				mPost.setAdditionalProperties(Resources.SYNAPSE.get(), c.getSynapse());
 				mPost.setAdditionalProperties(Resources.CONNECTION_TYPE.get(), Resources.POST_SYNAPTIC.get());
 				Connection rPost = new Connection();
@@ -512,7 +514,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				rPost.setMetadata(mPost);
 				rPost.setType(Resources.POST_SYNAPTIC.get());
 
-				Metadata mPre = new Metadata();
+				TextMetadataNode mPre = new TextMetadataNode();
 				mPre.setAdditionalProperties(Resources.SYNAPSE.get(), c.getSynapse());
 				mPre.setAdditionalProperties(Resources.CONNECTION_TYPE.get(), Resources.PRE_SYNAPTIC.get());
 				Connection rPre = new Connection();
@@ -547,13 +549,13 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param entity
 	 * @param c
 	 */
-	private void augmentWithMetaData(CEntity entity, Cell c)
+	private void augmentWithMetaData(EntityNode entity, Cell c)
 	{
 		try
 		{
 			if(c.getBiophysicalProperties() != null)
 			{
-				Metadata membraneProperties = new Metadata();
+				TextMetadataNode membraneProperties = new TextMetadataNode();
 				if(c.getBiophysicalProperties().getMembraneProperties() != null)
 				{
 					for(ChannelDensity channelDensity : c.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
@@ -567,7 +569,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 					}
 				}
 
-				Metadata intracellularProperties = new Metadata();
+				TextMetadataNode intracellularProperties = new TextMetadataNode();
 				if(c.getBiophysicalProperties().getIntracellularProperties() != null)
 				{
 					if(c.getBiophysicalProperties().getIntracellularProperties().getResistivity() != null && c.getBiophysicalProperties().getIntracellularProperties().getResistivity().size() > 0)
@@ -581,7 +583,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				// externalResources.setAdditionalProperties("Worm Atlas", "URL:http://www.wormatlas.org/neurons/Individual%20Neurons/PVDmainframe.htm");
 				// externalResources.setAdditionalProperties("WormBase", "URL:https://www.wormbase.org/tools/tree/run?name=PVDR;class=Cell");
 
-				entity.setMetadata(new Metadata());
+				entity.setMetadata(new TextMetadataNode());
 				entity.getMetadata().setAdditionalProperties(Resources.MEMBRANE_P.get(), membraneProperties);
 				entity.getMetadata().setAdditionalProperties(Resources.INTRACELLULAR_P.get(), intracellularProperties);
 				// entity.getMetadata().setAdditionalProperties("External Resources", externalResources);
@@ -634,7 +636,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			{
 				for(AVisualObject vo : segmentGeometries.get(sg))
 				{
-					vo.setAdditionalProperties("segment_groups", getAllGroupsString(sg, subgroupsMap, ""));
+					vo.setAdditionalProperty("segment_groups", getAllGroupsString(sg, subgroupsMap, ""));
 				}
 			}
 
@@ -643,7 +645,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			{
 				VisualModel visualModel = new VisualModel();
 				visualModel.getObjects().addAll(segmentGeometries.get(sgId));
-				visualModel.setAdditionalProperties(GROUP_PROPERTY, sgId);
+				visualModel.setAdditionalProperty(GROUP_PROPERTY, sgId);
 				visualModel.setId(getGroupId(cellId, sgId));
 				visualModels.add(visualModel);
 			}
@@ -691,7 +693,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	private VisualModel createVisualModelForMacroGroup(SegmentGroup macroGroup, Map<String, List<AVisualObject>> segmentGeometries, List<AVisualObject> allSegments)
 	{
 		VisualModel visualModel = new VisualModel();
-		visualModel.setAdditionalProperties(GROUP_PROPERTY, macroGroup.getId());
+		visualModel.setAdditionalProperty(GROUP_PROPERTY, macroGroup.getId());
 		for(Include i : macroGroup.getInclude())
 		{
 			if(segmentGeometries.containsKey(i.getSegmentGroup()))
@@ -725,11 +727,13 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		List<AVisualObject> geometries = new ArrayList<AVisualObject>();
 		for(Member m : sg.getMember())
 		{
-			for(AVisualObject g : allSegments.getObjects())
+			List<AVisualNode> segments = allSegments.getObjects();
+			
+			for(AVisualNode g : segments )
 			{
-				if(g.getId().equals(m.getSegment().toString()))
+				if(((AVisualObject) g).getId().equals(m.getSegment().toString()))
 				{
-					geometries.add(g);
+					geometries.add((AVisualObject) g);
 				}
 			}
 		}
@@ -811,6 +815,24 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		point.setY(location.getY().doubleValue());
 		point.setZ(location.getZ().doubleValue());
 		return point;
+	}
+
+	@Override
+	public boolean populateVisualTree(AspectNode aspectNode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean populateModelTree(AspectNode aspectNode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean populateRuntimeTree(AspectNode aspectNode) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
