@@ -55,18 +55,16 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.simulation.Aspect;
 import org.geppetto.core.model.simulation.Entity;
-import org.geppetto.core.model.state.ACompositeStateNode;
-import org.geppetto.core.model.state.AVisualNode;
+import org.geppetto.core.model.state.AVisualObjectNode;
 import org.geppetto.core.model.state.AspectNode;
 import org.geppetto.core.model.state.AspectTreeNode;
+import org.geppetto.core.model.state.CylinderNode;
 import org.geppetto.core.model.state.EntityNode;
 import org.geppetto.core.model.state.EntityNode.Connection;
+import org.geppetto.core.model.state.SphereNode;
 import org.geppetto.core.model.state.TextMetadataNode;
-import org.geppetto.core.visualisation.model.AVisualObject;
-import org.geppetto.core.visualisation.model.Cylinder;
+import org.geppetto.core.model.state.VisualModelNode;
 import org.geppetto.core.visualisation.model.Point;
-import org.geppetto.core.visualisation.model.Sphere;
-import org.geppetto.core.visualisation.model.VisualModel;
 import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
@@ -227,7 +225,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		if(discoveredEntities.size() == 1)
 		{
 			// A. If it is a single cell we populate the visual entity with information and visual model about this cell
-			List<VisualModel> discoveredVisualModels = discoveredEntities.get(0).getAspects().get(0).getVisualModel();
+			List<VisualModelNode> discoveredVisualModels = discoveredEntities.get(0).getAspects().get(0).getVisualModel();
 			visualEntity.getAspects().get(0).getVisualModel().addAll(discoveredVisualModels);
 			visualEntity.setMetadata(discoveredEntities.get(0).getMetadata());
 		}
@@ -271,7 +269,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 */
 	private EntityNode populateEntityNodeFromListOfSegments(EntityNode entity, List<Segment> list)
 	{
-		VisualModel visualModel = getVisualModelFromListOfSegments(list);
+		VisualModelNode visualModel = getVisualModelFromListOfSegments(list);
 		entity.getAspects().get(0).getVisualModel().add(visualModel);
 		return entity;
 	}
@@ -280,9 +278,9 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param list
 	 * @return
 	 */
-	private VisualModel getVisualModelFromListOfSegments(List<Segment> list)
+	private VisualModelNode getVisualModelFromListOfSegments(List<Segment> list)
 	{
-		VisualModel visualModel = new VisualModel();
+		VisualModelNode visualModel = new VisualModelNode();
 		Map<String, Point3DWithDiam> distalPoints = new HashMap<String, Point3DWithDiam>();
 		for(Segment s : list)
 		{
@@ -361,8 +359,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	private EntityNode getEntityNodefromCell(BaseCell c, String id)
 	{
 		EntityNode entity = getNewNeuronalEntity(id);
-		VisualModel visualModel = new VisualModel();
-		Sphere sphere = new Sphere();
+		VisualModelNode visualModel = new VisualModelNode();
+		SphereNode sphere = new SphereNode();
 		sphere.setRadius(1d);
 		Point origin=new Point();
 		origin.setX(0d);
@@ -600,12 +598,12 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param cellId
 	 * @return
 	 */
-	private List<VisualModel> getVisualModelsFromMorphologyBySegmentGroup(Morphology morphology, String cellId)
+	private List<VisualModelNode> getVisualModelsFromMorphologyBySegmentGroup(Morphology morphology, String cellId)
 	{
-		VisualModel allSegments = getVisualModelFromListOfSegments(morphology.getSegment());
+		VisualModelNode allSegments = getVisualModelFromListOfSegments(morphology.getSegment());
 
-		List<VisualModel> visualModels = new ArrayList<VisualModel>();
-		Map<String, List<AVisualObject>> segmentGeometries = new HashMap<String, List<AVisualObject>>();
+		List<VisualModelNode> visualModels = new ArrayList<VisualModelNode>();
+		Map<String, List<AVisualObjectNode>> segmentGeometries = new HashMap<String, List<AVisualObjectNode>>();
 
 		if(morphology.getSegmentGroup().isEmpty())
 		{
@@ -634,20 +632,26 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			}
 			for(String sg : segmentGeometries.keySet())
 			{
-				for(AVisualObject vo : segmentGeometries.get(sg))
+				for(AVisualObjectNode vo : segmentGeometries.get(sg))
 				{
-					vo.setAdditionalProperty("segment_groups", getAllGroupsString(sg, subgroupsMap, ""));
+					TextMetadataNode text = new TextMetadataNode();
+					text.setAdditionalProperty("segment_groups", getAllGroupsString(sg, subgroupsMap, ""));
+					
 				}
 			}
 
 			// this adds all segment groups not contained in the macro groups if any
 			for(String sgId : segmentGeometries.keySet())
 			{
-				VisualModel visualModel = new VisualModel();
+				VisualModelNode visualModel = new VisualModelNode();
 				visualModel.getObjects().addAll(segmentGeometries.get(sgId));
-				visualModel.setAdditionalProperty(GROUP_PROPERTY, sgId);
+				
+				TextMetadataNode text = new TextMetadataNode();
+				text.setAdditionalProperty(GROUP_PROPERTY, sgId);
+				
 				visualModel.setId(getGroupId(cellId, sgId));
 				visualModels.add(visualModel);
+				visualModel.addChild(text);
 			}
 
 		}
@@ -690,10 +694,14 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param somaGroup
 	 * @param segmentGeometries
 	 */
-	private VisualModel createVisualModelForMacroGroup(SegmentGroup macroGroup, Map<String, List<AVisualObject>> segmentGeometries, List<AVisualObject> allSegments)
+	private VisualModelNode createVisualModelForMacroGroup(SegmentGroup macroGroup, Map<String, List<AVisualObjectNode>> segmentGeometries, List<AVisualObjectNode> allSegments)
 	{
-		VisualModel visualModel = new VisualModel();
-		visualModel.setAdditionalProperty(GROUP_PROPERTY, macroGroup.getId());
+		VisualModelNode visualModel = new VisualModelNode();
+		
+		TextMetadataNode text = new TextMetadataNode();
+		text.setAdditionalProperty(GROUP_PROPERTY, macroGroup.getId());
+		visualModel.addChild(text);
+		
 		for(Include i : macroGroup.getInclude())
 		{
 			if(segmentGeometries.containsKey(i.getSegmentGroup()))
@@ -703,7 +711,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		}
 		for(Member m : macroGroup.getMember())
 		{
-			for(AVisualObject g : allSegments)
+			for(AVisualObjectNode g : allSegments)
 			{
 				if(g.getId().equals(m.getSegment().toString()))
 				{
@@ -722,18 +730,18 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param allSegments
 	 * @return
 	 */
-	private List<AVisualObject> getVisualObjectsForGroup(SegmentGroup sg, VisualModel allSegments)
+	private List<AVisualObjectNode> getVisualObjectsForGroup(SegmentGroup sg, VisualModelNode allSegments)
 	{
-		List<AVisualObject> geometries = new ArrayList<AVisualObject>();
+		List<AVisualObjectNode> geometries = new ArrayList<AVisualObjectNode>();
 		for(Member m : sg.getMember())
 		{
-			List<AVisualNode> segments = allSegments.getObjects();
+			List<AVisualObjectNode> segments = allSegments.getObjects();
 			
-			for(AVisualNode g : segments )
+			for(AVisualObjectNode g : segments )
 			{
-				if(((AVisualObject) g).getId().equals(m.getSegment().toString()))
+				if(((AVisualObjectNode) g).getId().equals(m.getSegment().toString()))
 				{
-					geometries.add((AVisualObject) g);
+					geometries.add((AVisualObjectNode) g);
 				}
 			}
 		}
@@ -755,7 +763,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param parentDistal
 	 * @return
 	 */
-	private AVisualObject getCylinderFromSegment(Segment s, Point3DWithDiam parentDistal)
+	private AVisualObjectNode getCylinderFromSegment(Segment s, Point3DWithDiam parentDistal)
 	{
 
 		Point3DWithDiam proximal = s.getProximal() == null ? parentDistal : s.getProximal();
@@ -764,7 +772,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		if(samePoint(proximal, distal)) // ideally an equals but the objects
 										// are generated. hassle postponed.
 		{
-			Sphere sphere = new Sphere();
+			SphereNode sphere = new SphereNode();
 			sphere.setRadius(proximal.getDiameter() / 2);
 			sphere.setPosition(getPoint(proximal));
 			sphere.setId(s.getId().toString());
@@ -772,7 +780,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		}
 		else
 		{
-			Cylinder cyl = new Cylinder();
+			CylinderNode cyl = new CylinderNode();
 			cyl.setId(s.getId().toString());
 			if(proximal != null)
 			{
