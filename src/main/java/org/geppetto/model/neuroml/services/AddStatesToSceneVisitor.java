@@ -34,9 +34,9 @@ package org.geppetto.model.neuroml.services;
 
 import java.util.List;
 
-import org.geppetto.core.model.state.ASimpleStateNode;
-import org.geppetto.core.model.state.EntityNode;
-import org.geppetto.core.model.state.StateVariableNode;
+import org.geppetto.core.model.runtime.ASimpleStateNode;
+import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.model.runtime.StateVariableNode;
 import org.geppetto.core.model.state.visitors.DefaultStateVisitor;
 
 /**
@@ -59,7 +59,7 @@ public class AddStatesToSceneVisitor extends DefaultStateVisitor
 		//because we know there's only one. The real implementation will have to associate the different states
 		//to the pertinent entities we are streaming to the frontend.
 		String value=node.consumeFirstValue().getStringValue();
-		_entities.get(0).getMetadata().setAdditionalProperties(node.getFullName(), value);
+		_entities.get(0).getMetadata().setAdditionalProperties(node.getInstancePath(), value);
 		if(node.getName().equals("v"))
 		{
 			System.out.println("V:"+value);
