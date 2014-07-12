@@ -34,7 +34,7 @@ package org.geppetto.model.neuroml.services;
 
 import java.util.List;
 
-import org.geppetto.core.model.runtime.ASimpleStateNode;
+import org.geppetto.core.model.runtime.ASimpleNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.StateVariableNode;
 import org.geppetto.core.model.state.visitors.DefaultStateVisitor;
