@@ -43,19 +43,21 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode.ASPECTTREE;
+import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -73,9 +75,11 @@ NeuroMLModelInterpreterService implements IModelInterpreter
 
 	private static Log _logger = LogFactory.getLog(NeuroMLModelInterpreterService.class);
 
-	private int _modelHash = 0;
-	private PopulateVisualTree populateVisualTree = new PopulateVisualTree();
+	//helper class to populate model tree
 	private PopulateModelTree populateModelTree = new PopulateModelTree();
+	
+	@Autowired
+	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
 
 	/*
 	 * (non-Javadoc)
@@ -125,46 +129,22 @@ NeuroMLModelInterpreterService implements IModelInterpreter
 		return lemsWrapper;
 	}
 
-
-	@Override
-	public boolean populateVisualTree(AspectNode aspectNode) throws ModelInterpreterException {
-		
-		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(ASPECTTREE.VISUALIZATION_TREE);
-
-		IModel model = aspectNode.getModel();
-		
-		try
-		{
-			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NEUROML_ID);
-			if(neuroml != null)
-			{
-				URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
-
-				populateVisualTree.createNodesFromNeuroMLDocument(visualizationTree, neuroml, url);					
-				populateVisualTree.createNodesFromNetwork(visualizationTree, neuroml, url);
-			}
-		}
-		catch(Exception e)
-		{
-			throw new ModelInterpreterException(e);
-		}
-		return true;
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto.core.model.runtime.AspectNode)
+	 */
 	@Override
 	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException {
-		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(ASPECTTREE.MODEL_TREE);
+		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
 
-		IModel model = aspectNode.getModel();
-		
+		IModel model = aspectNode.getModel();		
 		try
 		{
 			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NEUROML_ID);
 			if(neuroml != null)
 			{
-				URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
-
-				this.populateModelTree.populateModelTree(modelTree,neuroml, url);
+				//Use local class to populate model tree
+				populateModelTree.populateModelTree(modelTree,neuroml);
 			}
 
 		}
@@ -175,15 +155,24 @@ NeuroMLModelInterpreterService implements IModelInterpreter
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.geppetto.core.model.IModelInterpreter#populateRuntimeTree(org.geppetto.core.model.runtime.AspectNode)
+	 */
 	@Override
-	public boolean populateRuntimeTree(AspectNode aspectNode) {
-		AspectSubTreeNode runTimeTree = new AspectSubTreeNode();
-		
-		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(ASPECTTREE.MODEL_TREE);
-		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(ASPECTTREE.VISUALIZATION_TREE);
-		AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(ASPECTTREE.WATCH_TREE);
+	public boolean populateRuntimeTree(AspectNode aspectNode) {		
+		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
+		AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.WATCH_TREE);
 		
 		return true;
+	}
+
+
+	@Override
+	public String getName()
+	{
+		return this.neuroMLModelInterpreterConfig.getModelInterpreterName();
 	}
 
 }

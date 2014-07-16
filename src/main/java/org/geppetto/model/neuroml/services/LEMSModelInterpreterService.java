@@ -30,7 +30,6 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-
 package org.geppetto.model.neuroml.services;
 
 import java.io.IOException;
@@ -40,6 +39,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
+import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
@@ -51,6 +51,7 @@ import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -65,6 +66,9 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 	private static final String NEUROML_ID = "neuroml";
 	private static final String URL_ID = "url";
 	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
+
+	@Autowired
+	private ModelInterpreterConfig jlemsModelInterpreterConfig;
 
 	/*
 	 * (non-Javadoc)
@@ -135,20 +139,28 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 		return null;
 	}
 
-	@Override
-	public boolean populateVisualTree(AspectNode aspectNode) throws ModelInterpreterException {
-		_neuroMLModelInterpreter.populateVisualTree(aspectNode);
-		return false;
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto.core.model.runtime.AspectNode)
+	 */
 	@Override
 	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException {
 		return _neuroMLModelInterpreter.populateModelTree(aspectNode);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.geppetto.core.model.IModelInterpreter#populateRuntimeTree(org.geppetto.core.model.runtime.AspectNode)
+	 */
 	@Override
 	public boolean populateRuntimeTree(AspectNode aspectNode) {
 		return _neuroMLModelInterpreter.populateRuntimeTree(aspectNode);
+	}
+
+	@Override
+	public String getName()
+	{
+		return this.jlemsModelInterpreterConfig.getModelInterpreterName();
 	}
 
 }
