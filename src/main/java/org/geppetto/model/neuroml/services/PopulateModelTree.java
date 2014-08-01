@@ -34,9 +34,13 @@ package org.geppetto.model.neuroml.services;
 
 import java.util.List;
 
+import org.geppetto.core.model.quantities.PhysicalQuantity;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeVariableNode;
-import org.geppetto.core.model.runtime.ParameterNode;
+import org.geppetto.core.model.runtime.DynamicsSpecificationNode;
+import org.geppetto.core.model.runtime.FunctionNode;
+import org.geppetto.core.model.runtime.ParameterSpecificationNode;
+import org.geppetto.core.model.values.StringValue;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
@@ -52,21 +56,8 @@ import org.neuroml.model.SpecificCapacitance;
  *
  */
 public class PopulateModelTree {
-	
-	/*
-	 * Properties for NeuroML model. We will be looking for this and populating
-	 * model tree using the values extracted from the NeuroML.
-	 */
-	private static final String condDensity = "condDensity";
-	private static final String id = "id";
-	private static final String ionChannel = "ionChannel";
-	private static final String ion = "ion";
-	private static final String segment = "segment";
-	private static final String segmentGroup = "segmentGroup";
-	private static final String neurolexid = "neurolexid";
-	private static final String erev = "erev";
-	private static final String capacitanceValue = "value";
 
+	
 	public PopulateModelTree() {		
 	}
 	
@@ -78,6 +69,7 @@ public class PopulateModelTree {
 	 */
 	public void populateModelTree(AspectSubTreeNode modelTree, NeuroMLDocument neuroml)
 	{
+		//FIXME : Remove and apply data accurately
  		List<Cell> cells = neuroml.getCell();
  		for(Cell c : cells){
  			addProperties(modelTree, c.getBiophysicalProperties());
@@ -92,6 +84,7 @@ public class PopulateModelTree {
 	 * @param properties - Model properties extracted from neuroml document object
 	 */
 	public void addProperties(AspectSubTreeNode modelTree,BiophysicalProperties properties){
+		//FIXME : Remove and apply data accurately
 		if(properties != null)
 		{
 			CompositeVariableNode props = new CompositeVariableNode(properties.getId());
@@ -104,41 +97,45 @@ public class PopulateModelTree {
 
 				for(ChannelDensity m : channelDensities)
 				{
-					ParameterNode density = new ParameterNode(m.getId());
-					density.addProperty(this.condDensity,m.getCondDensity());
-					density.addProperty(this.id, m.getId());
-					density.addProperty(this.ionChannel, m.getIonChannel());
-					density.addProperty(this.segmentGroup, m.getSegmentGroup());
-					density.addProperty(this.erev, m.getErev());
-					density.addProperty(this.ion, m.getIon());
-					density.addProperty(this.neurolexid, m.getNeuroLexId());
-					density.addProperty(this.segment, m.getSegment());
+					DynamicsSpecificationNode density = new DynamicsSpecificationNode(m.getId());
+
+					PhysicalQuantity value = new PhysicalQuantity();
+					value.setScalingFactor(m.getSegmentGroup());
+					value.setUnit(m.getIon());
+					value.setValue(new StringValue(m.getErev()));
+					density.setInitialConditions(value);
+					
+					FunctionNode dynamics = new FunctionNode(m.getId());
+					dynamics.setExpression(m.getErev());
+					density.setDynamics(dynamics);
 
 					props.addChild(density);
 				}
 
 				for(ChannelPopulation pop : channelPopulations)
 				{
-					ParameterNode population = new ParameterNode(pop.getId());
-					population.addProperty(this.id, pop.getId());
-					population.addProperty(this.ionChannel, pop.getIonChannel());
-					population.addProperty(this.segmentGroup, pop.getSegmentGroup());
-					population.addProperty(this.erev, pop.getErev());
-					population.addProperty(this.ion, pop.getIon());
-					population.addProperty(this.neurolexid, pop.getNeuroLexId());
-					population.addProperty(this.segment, pop.getSegment());
+					ParameterSpecificationNode population = new ParameterSpecificationNode(pop.getId());
+
+					PhysicalQuantity value = new PhysicalQuantity();
+					value.setScalingFactor(pop.getSegmentGroup());
+					value.setUnit(pop.getIon());
+					value.setValue(new StringValue(pop.getErev()));
+					population.setValue(value);
 
 					props.addChild(population);
 				}
 
 				for(SpecificCapacitance s : specs)
 				{
-					ParameterNode sCap = new ParameterNode("Specific Capacitance");
-					sCap.addProperty(this.segmentGroup, s.getSegmentGroup());
-					sCap.addProperty(this.segment, s.getSegment());
-					sCap.addProperty(this.capacitanceValue, s.getValue());
+					ParameterSpecificationNode population = new ParameterSpecificationNode(s.getSegmentGroup());
 
-					props.addChild(sCap);
+					PhysicalQuantity value = new PhysicalQuantity();
+					value.setScalingFactor(s.getSegmentGroup());
+					value.setUnit(s.getSegmentGroup());
+					value.setValue(new StringValue(s.getValue()));
+					population.setValue(value);
+
+					props.addChild(population);
 				}
 			}
 
