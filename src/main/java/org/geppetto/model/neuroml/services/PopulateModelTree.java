@@ -36,7 +36,7 @@ import java.util.List;
 
 import org.geppetto.core.model.quantities.PhysicalQuantity;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
-import org.geppetto.core.model.runtime.CompositeVariableNode;
+import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.DynamicsSpecificationNode;
 import org.geppetto.core.model.runtime.FunctionNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
@@ -87,7 +87,7 @@ public class PopulateModelTree {
 		//FIXME : Remove and apply data accurately
 		if(properties != null)
 		{
-			CompositeVariableNode props = new CompositeVariableNode(properties.getId());
+			CompositeNode props = new CompositeNode(properties.getId());
 			MembraneProperties memProperties = properties.getMembraneProperties();
 			if(memProperties != null)
 			{
