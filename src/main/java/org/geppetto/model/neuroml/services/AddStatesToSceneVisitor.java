@@ -34,9 +34,9 @@ package org.geppetto.model.neuroml.services;
 
 import java.util.List;
 
-import org.geppetto.core.model.state.SimpleStateNode;
+import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.model.runtime.VariableNode;
 import org.geppetto.core.model.state.visitors.DefaultStateVisitor;
-import org.geppetto.core.visualisation.model.CEntity;
 
 /**
  * @author matteocantarelli
@@ -44,26 +44,26 @@ import org.geppetto.core.visualisation.model.CEntity;
  */
 public class AddStatesToSceneVisitor extends DefaultStateVisitor
 {
-	private List<CEntity> _entities;
+	private List<EntityNode> _entities;
 
-	public AddStatesToSceneVisitor(List<CEntity> entities)
+	public AddStatesToSceneVisitor(List<EntityNode> entities)
 	{
 		_entities=entities;
 	}
 
 	@Override
-	public boolean visitSimpleStateNode(SimpleStateNode node)
+	public boolean visitVariableNode(VariableNode node)
 	{
 		//TODO This is just a hacked implementation just to try, it's mapping all the states to the first entity
 		//because we know there's only one. The real implementation will have to associate the different states
 		//to the pertinent entities we are streaming to the frontend.
-		String value=node.consumeFirstValue().getStringValue();
-		_entities.get(0).getMetadata().setAdditionalProperties(node.getFullName(), value);
+		String value=node.consumeFirstValue().getValue().getStringValue();
+		_entities.get(0).getMetadata().setAdditionalProperties(node.getInstancePath(), value);
 		if(node.getName().equals("v"))
 		{
 			System.out.println("V:"+value);
 		}
-		return super.visitSimpleStateNode(node);
+		return super.visitVariableNode(node);
 	}
 
 }
