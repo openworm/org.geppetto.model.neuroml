@@ -135,6 +135,9 @@ NeuroMLModelInterpreterService implements IModelInterpreter
 	 */
 	@Override
 	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException {
+		
+		boolean modified = false;
+		
 		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
 
 		IModel model = aspectNode.getModel();		
@@ -144,7 +147,8 @@ NeuroMLModelInterpreterService implements IModelInterpreter
 			if(neuroml != null)
 			{
 				//Use local class to populate model tree
-				populateModelTree.populateModelTree(modelTree,neuroml);
+				modified = populateModelTree.populateModelTree(modelTree,neuroml);
+				modelTree.setModified(modified);
 			}
 
 		}
@@ -152,7 +156,7 @@ NeuroMLModelInterpreterService implements IModelInterpreter
 		{
 			throw new ModelInterpreterException(e);
 		}
-		return true;
+		return modified;
 	}
 
 	/*
@@ -163,7 +167,6 @@ NeuroMLModelInterpreterService implements IModelInterpreter
 	public boolean populateRuntimeTree(AspectNode aspectNode) {		
 		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
 		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
-		AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.WATCH_TREE);
 		
 		return true;
 	}

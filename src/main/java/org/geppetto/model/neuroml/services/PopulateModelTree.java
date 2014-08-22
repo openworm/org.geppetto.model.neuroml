@@ -57,6 +57,7 @@ import org.neuroml.model.SpecificCapacitance;
  */
 public class PopulateModelTree {
 
+	private boolean _populated = false;
 	
 	public PopulateModelTree() {		
 	}
@@ -66,14 +67,17 @@ public class PopulateModelTree {
 	 * 
 	 * @param modelTree - Model tree that is to be populated
 	 * @param neuroml - NeuroMLDocument used to populate the tree, values are in here
+	 * @return 
 	 */
-	public void populateModelTree(AspectSubTreeNode modelTree, NeuroMLDocument neuroml)
-	{
+	public boolean populateModelTree(AspectSubTreeNode modelTree, NeuroMLDocument neuroml)
+	{		
 		//FIXME : Remove and apply data accurately
  		List<Cell> cells = neuroml.getCell();
  		for(Cell c : cells){
  			addProperties(modelTree, c.getBiophysicalProperties());
  		}
+ 		
+ 		return _populated;
 	}
 
 	/**
@@ -139,10 +143,9 @@ public class PopulateModelTree {
 				}
 			}
 
+			_populated = true;
 			modelTree.addChild(props);
 
 		}
 	}
-
-	
 }
