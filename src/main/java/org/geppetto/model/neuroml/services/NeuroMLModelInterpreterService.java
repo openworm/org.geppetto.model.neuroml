@@ -44,8 +44,8 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
-import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
@@ -66,7 +66,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class
-NeuroMLModelInterpreterService implements IModelInterpreter
+NeuroMLModelInterpreterService extends AModelInterpreter
 {
 
 	private static final String LEMS_ID = "lems";
@@ -108,6 +108,7 @@ NeuroMLModelInterpreterService implements IModelInterpreter
 			lemsWrapper.wrapModel(LEMS_ID, document);
 			lemsWrapper.wrapModel(NEUROML_ID, neuroml);
 			lemsWrapper.wrapModel(URL_ID, url);
+			addRecordings(recordings, instancePath, lemsWrapper);
 
 		}
 		catch(IOException e)

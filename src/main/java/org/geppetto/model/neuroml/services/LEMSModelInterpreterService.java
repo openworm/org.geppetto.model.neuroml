@@ -40,8 +40,8 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
-import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
@@ -59,7 +59,7 @@ import org.springframework.stereotype.Service;
  * 
  */
 @Service
-public class LEMSModelInterpreterService implements IModelInterpreter
+public class LEMSModelInterpreterService extends AModelInterpreter
 {
 
 	private static final String LEMS_ID = "lems";
@@ -100,6 +100,7 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 			}
 			lemsWrapper.wrapModel(LEMS_ID, document);
 			lemsWrapper.wrapModel(URL_ID, url);
+			addRecordings(recordings, instancePath, lemsWrapper);
 
 		}
 		catch(IOException e)
