@@ -139,6 +139,7 @@ NeuroMLModelInterpreterService implements IModelInterpreter
 		boolean modified = false;
 		
 		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+		modelTree.setId(AspectTreeType.MODEL_TREE.toString());
 
 		IModel model = aspectNode.getModel();		
 		try
