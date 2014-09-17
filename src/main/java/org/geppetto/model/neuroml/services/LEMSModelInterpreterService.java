@@ -70,9 +70,6 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
 
-	// Cached model, the service is recreated for each simulation
-	private ModelWrapper _model;
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -80,47 +77,44 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 	 */
 	public IModel readModel(URL url, List<URL> recordings, String instancePath) throws ModelInterpreterException
 	{
-		if(_model == null)
+		ModelWrapper model = new ModelWrapper(instancePath);
+		try
 		{
-			try
-			{
-				Scanner scanner = new Scanner(url.openStream(), "UTF-8");
-				String lemsString = scanner.useDelimiter("\\A").next();
-				scanner.close();
-				ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-				ILEMSDocument document = lemsReader.readModel(url);
+			Scanner scanner = new Scanner(url.openStream(), "UTF-8");
+			String lemsString = scanner.useDelimiter("\\A").next();
+			scanner.close();
+			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
+			ILEMSDocument document = lemsReader.readModel(url);
 
-				_model = new ModelWrapper(UUID.randomUUID().toString());
-				_model.setInstancePath(instancePath);
+			model = new ModelWrapper(UUID.randomUUID().toString());
+			model.setInstancePath(instancePath);
 
-				NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-				URL neuroMLURL = getNeuroMLURL(lemsString);
-				if(neuroMLURL != null)
-				{
-					NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(neuroMLURL);
-					// two different representation of the same file, one used to
-					// simulate the other used to visualize
-					_model.wrapModel(NEUROML_ID, neuroml);
-				}
-				_model.wrapModel(LEMS_ID, document);
-				_model.wrapModel(URL_ID, url);
+			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+			URL neuroMLURL = getNeuroMLURL(lemsString);
+			if(neuroMLURL != null)
+			{
+				NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(neuroMLURL);
+				// two different representation of the same file, one used to
+				// simulate the other used to visualize
+				model.wrapModel(NEUROML_ID, neuroml);
+			}
+			model.wrapModel(LEMS_ID, document);
+			model.wrapModel(URL_ID, url);
 
-			}
-			catch(IOException e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-			catch(ContentError e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-			catch(Exception e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-			_neuroMLModelInterpreter.setModel(_model);
 		}
-		return _model;
+		catch(IOException e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+		catch(ContentError e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+		catch(Exception e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+		return model;
 	}
 
 	/**

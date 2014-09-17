@@ -34,6 +34,7 @@
 package org.geppetto.model.neuroml.services;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -94,8 +95,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	@Autowired
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
 
-	// Cached model, the service is recreated for each simulation
-	private ModelWrapper _model;
 	private Map<String, BaseCell> _discoveredCells = new HashMap<String, BaseCell>();
 	private static final int MAX_ATTEMPTS = 3;
 
@@ -106,47 +105,45 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 */
 	public IModel readModel(URL url, List<URL> recordings, String instancePath) throws ModelInterpreterException
 	{
-		if(_model == null)
+		ModelWrapper model = new ModelWrapper(instancePath);
+		try
 		{
-			try
-			{
-				Scanner scanner = new Scanner(url.openStream(), "UTF-8");
-				String neuroMLString = scanner.useDelimiter("\\A").next();
-				scanner.close();
-				String lemsString = NeuroMLConverter.convertNeuroML2ToLems(neuroMLString);
+			Scanner scanner = new Scanner(url.openStream(), "UTF-8");
+			String neuroMLString = scanner.useDelimiter("\\A").next();
+			scanner.close();
+			String lemsString = NeuroMLConverter.convertNeuroML2ToLems(neuroMLString);
 
-				ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-				ILEMSDocument document = lemsReader.readModel(lemsString);
+			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
+			ILEMSDocument document = lemsReader.readModel(lemsString);
 
-				NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-				NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
+			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+			NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
 
-				_model = new ModelWrapper(UUID.randomUUID().toString());
-				_model.setInstancePath(instancePath);
-				// two different interpretations of the same file, one used to simulate the other used to visualize
-				_model.wrapModel(LEMS_ID, document);
-				_model.wrapModel(NEUROML_ID, neuroml);
-				_model.wrapModel(URL_ID, url);
+			model = new ModelWrapper(UUID.randomUUID().toString());
+			model.setInstancePath(instancePath);
+			// two different interpretations of the same file, one used to simulate the other used to visualize
+			model.wrapModel(LEMS_ID, document);
+			model.wrapModel(NEUROML_ID, neuroml);
+			model.wrapModel(URL_ID, url);
 
-			}
-			catch(IOException e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-			catch(ContentError e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-			catch(JAXBException e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-			catch(Exception e)
-			{
-				throw new ModelInterpreterException(e);
-			}
 		}
-		return _model;
+		catch(IOException e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+		catch(ContentError e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+		catch(JAXBException e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+		catch(Exception e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+		return model;
 	}
 
 	/*
@@ -195,26 +192,25 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 		modelTree.setId(AspectTreeType.MODEL_TREE.toString());
 		visualizationTree.setId(AspectTreeType.VISUALIZATION_TREE.toString());
-		populateSubEntities(aspectNode, _model);
+		populateSubEntities(aspectNode);
 		return true;
-	}
-
-	public void setModel(ModelWrapper model)
-	{
-		this._model = model;
 	}
 
 	/**
 	 * @param aspectNode
 	 * @param _model
-	 * @throws ModelInterpreterException 
+	 * @throws ModelInterpreterException
 	 * @throws MalformedURLException
 	 * @throws JAXBException
 	 */
-	private void populateSubEntities(AspectNode aspectNode, ModelWrapper _model) throws ModelInterpreterException  
+	/**
+	 * @param aspectNode
+	 * @throws ModelInterpreterException
+	 */
+	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
-		NeuroMLDocument neuroml = (NeuroMLDocument) _model.getModel(NEUROML_ID);
-		URL url = (URL) _model.getModel(URL_ID);
+		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(NEUROML_ID);
+		URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(URL_ID);
 
 		List<Network> networks = neuroml.getNetwork();
 		if(networks.size() > 1)
@@ -247,36 +243,17 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 */
 	private void addNetworkSubEntities(Network n, EntityNode parentEntity, URL url, AspectNode aspect, NeuroMLDocument neuroml) throws ModelInterpreterException
 	{
-
+		if(n.getPopulation().size()==1 && parentEntity.getName().equals(n.getPopulation().get(0).getComponent()) && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
+		{
+			//there's only one cell whose name is the same as the geppetto entity, don't create any subentities
+			return;
+		}
 		for(Population p : n.getPopulation())
 		{
-			//let's first check if the cell is of a predefined neuroml type
-			BaseCell cell = NeuroMLAccessUtility.getCellById(p.getComponent(), neuroml);
-
-			if(cell == null)
-			{
-				try
-				{
-					//otherwise let's check if it's defined in the same folder as the current component 
-					cell = retrieveNeuroMLCell(p.getComponent(), url);
-				}
-				catch(MalformedURLException e)
-				{
-					throw new ModelInterpreterException(e);
-				}
-				catch(JAXBException e)
-				{
-					throw new ModelInterpreterException(e);
-				}
-			}
-			if(cell == null)
-			{
-				//sorry no luck!
-				throw new ModelInterpreterException("Can't find the cell " + p.getComponent());
-			}
+			BaseCell cell = getCell(p, neuroml, url);
 			if(p.getType() != null && p.getType().equals(PopulationTypes.POPULATION_LIST))
 			{
-				int i = 0;
+				int i = 0;		
 				for(Instance instance : p.getInstance())
 				{
 					EntityNode e = getEntityNodefromCell(cell, p.getId(), aspect);
@@ -315,6 +292,49 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	}
 
 	/**
+	 * @param p
+	 * @param neuroml
+	 * @param url
+	 * @return
+	 * @throws ModelInterpreterException 
+	 */
+	private BaseCell getCell(Population p, NeuroMLDocument neuroml, URL url) throws ModelInterpreterException
+	{
+		if(_discoveredCells.containsKey(p.getComponent()))
+		{
+			return _discoveredCells.get(p.getComponent());
+		}
+		// let's first check if the cell is of a predefined neuroml type
+		BaseCell cell = NeuroMLAccessUtility.getCellById(p.getComponent(), neuroml);
+
+		if(cell == null)
+		{
+			try
+			{
+				// otherwise let's check if it's defined in the same folder as the current component
+				cell = retrieveNeuroMLCell(p.getComponent(), url);
+			}
+			catch(MalformedURLException e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+			catch(JAXBException e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+		}
+		if(cell == null)
+		{
+			// sorry no luck!
+			throw new ModelInterpreterException("Can't find the cell " + p.getComponent());
+		}
+		_discoveredCells.put(p.getComponent(), cell);
+		return cell;
+	}
+
+
+
+	/**
 	 * @param c
 	 * @param id
 	 * @param aspect
@@ -348,10 +368,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 */
 	private BaseCell retrieveNeuroMLCell(String componentId, URL url) throws JAXBException, MalformedURLException
 	{
-		if(_discoveredCells.containsKey(componentId))
-		{
-			return _discoveredCells.get(componentId);
-		}
 		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 		boolean attemptConnection = true;
 		String baseURL = url.getFile();
@@ -376,7 +392,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				{
 					for(Cell c : cells)
 					{
-						_discoveredCells.put(componentId, c);
 						if(c.getId().equals(componentId))
 						{
 							return c;
