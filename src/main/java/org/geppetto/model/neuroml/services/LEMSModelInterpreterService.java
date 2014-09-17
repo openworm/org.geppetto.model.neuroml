@@ -70,6 +70,9 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
 
+	// Cached model, the service is recreated for each simulation
+	private ModelWrapper _model;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -77,44 +80,47 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 	 */
 	public IModel readModel(URL url, List<URL> recordings, String instancePath) throws ModelInterpreterException
 	{
-		ModelWrapper lemsWrapper = null;
-		try
+		if(_model == null)
 		{
-			Scanner scanner=new Scanner(url.openStream(), "UTF-8");
-			String lemsString = scanner.useDelimiter("\\A").next();
-			scanner.close();
-			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			ILEMSDocument document = lemsReader.readModel(url);
-
-			lemsWrapper = new ModelWrapper(UUID.randomUUID().toString());
-			lemsWrapper.setInstancePath(instancePath);
-			
-			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-			URL neuroMLURL = getNeuroMLURL(lemsString);
-			if(neuroMLURL != null)
+			try
 			{
-				NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(neuroMLURL);
-				// two different representation of the same file, one used to
-				// simulate the other used to visualize
-				lemsWrapper.wrapModel(NEUROML_ID, neuroml);
-			}
-			lemsWrapper.wrapModel(LEMS_ID, document);
-			lemsWrapper.wrapModel(URL_ID, url);
+				Scanner scanner = new Scanner(url.openStream(), "UTF-8");
+				String lemsString = scanner.useDelimiter("\\A").next();
+				scanner.close();
+				ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
+				ILEMSDocument document = lemsReader.readModel(url);
 
+				_model = new ModelWrapper(UUID.randomUUID().toString());
+				_model.setInstancePath(instancePath);
+
+				NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+				URL neuroMLURL = getNeuroMLURL(lemsString);
+				if(neuroMLURL != null)
+				{
+					NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(neuroMLURL);
+					// two different representation of the same file, one used to
+					// simulate the other used to visualize
+					_model.wrapModel(NEUROML_ID, neuroml);
+				}
+				_model.wrapModel(LEMS_ID, document);
+				_model.wrapModel(URL_ID, url);
+
+			}
+			catch(IOException e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+			catch(ContentError e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+			catch(Exception e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+			_neuroMLModelInterpreter.setModel(_model);
 		}
-		catch(IOException e)
-		{
-			throw new ModelInterpreterException(e);
-		}
-		catch(ContentError e)
-		{
-			throw new ModelInterpreterException(e);
-		}
-		catch(Exception e)
-		{
-			throw new ModelInterpreterException(e);
-		}
-		return lemsWrapper;
+		return _model;
 	}
 
 	/**
@@ -141,19 +147,23 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto.core.model.runtime.AspectNode)
 	 */
 	@Override
-	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException {
+	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException
+	{
 		return _neuroMLModelInterpreter.populateModelTree(aspectNode);
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.geppetto.core.model.IModelInterpreter#populateRuntimeTree(org.geppetto.core.model.runtime.AspectNode)
 	 */
 	@Override
-	public boolean populateRuntimeTree(AspectNode aspectNode) {
+	public boolean populateRuntimeTree(AspectNode aspectNode) throws ModelInterpreterException
+	{
 		return _neuroMLModelInterpreter.populateRuntimeTree(aspectNode);
 	}
 
