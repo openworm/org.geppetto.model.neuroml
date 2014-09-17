@@ -40,14 +40,18 @@ import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.DynamicsSpecificationNode;
 import org.geppetto.core.model.runtime.FunctionNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
+import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.values.StringValue;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
 import org.neuroml.model.ChannelPopulation;
+import org.neuroml.model.InitMembPotential;
+import org.neuroml.model.IntracellularProperties;
 import org.neuroml.model.MembraneProperties;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.SpecificCapacitance;
+import org.neuroml.model.SpikeThresh;
 
 /**
  * Populates the Model Tree of Aspect
@@ -91,60 +95,95 @@ public class PopulateModelTree {
 		//FIXME : Remove and apply data accurately
 		if(properties != null)
 		{
-			CompositeNode props = new CompositeNode(properties.getId());
-			MembraneProperties memProperties = properties.getMembraneProperties();
-			if(memProperties != null)
+			CompositeNode biophysicalPropertiesNode = new CompositeNode(properties.getId());
+			biophysicalPropertiesNode.setId(properties.getId());
+			
+			MembraneProperties membraneProperties = properties.getMembraneProperties();
+			if(membraneProperties != null)
 			{
-				List<ChannelDensity> channelDensities = memProperties.getChannelDensity();
-				List<ChannelPopulation> channelPopulations = memProperties.getChannelPopulation();
-				List<SpecificCapacitance> specs = memProperties.getSpecificCapacitance();
+				CompositeNode membranePropertiesNode = new CompositeNode("membraneProperties");
+				membranePropertiesNode.setId("membraneProperties");
+				
+				List<ChannelDensity> channelDensities = membraneProperties.getChannelDensity();
+				List<ChannelPopulation> channelPopulations = membraneProperties.getChannelPopulation();
+				List<SpecificCapacitance> specificCapacitance = membraneProperties.getSpecificCapacitance();
+				List<SpikeThresh> spikeThresh = membraneProperties.getSpikeThresh();
+				List<InitMembPotential> initMembPotential = membraneProperties.getInitMembPotential();
 
-				for(ChannelDensity m : channelDensities)
+				for(ChannelDensity channelDensity : channelDensities)
 				{
-					DynamicsSpecificationNode density = new DynamicsSpecificationNode(m.getId());
-
-					PhysicalQuantity value = new PhysicalQuantity();
-					value.setScalingFactor(m.getSegmentGroup());
-					value.setUnit(m.getIon());
-					value.setValue(new StringValue(m.getErev()));
-					density.setInitialConditions(value);
+					CompositeNode channelDensityNode = new CompositeNode(channelDensity.getId());
+					channelDensityNode.setId(channelDensity.getId());
 					
-					FunctionNode dynamics = new FunctionNode(m.getId());
-					dynamics.setExpression(m.getErev());
-					density.setDynamics(dynamics);
-
-					props.addChild(density);
+					ParameterSpecificationNode condDensityNode = new ParameterSpecificationNode("condDensity");
+					condDensityNode.setId("condDensity");
+					String[] condDensityValueArray = channelDensity.getCondDensity().split(" ");
+					PhysicalQuantity condDensityValue = new PhysicalQuantity();
+					condDensityValue.setUnit(condDensityValueArray[1]);
+					condDensityValue.setValue(new StringValue(condDensityValueArray[0]));
+					condDensityNode.setValue(condDensityValue);
+					channelDensityNode.addChild(condDensityNode);
+					
+					TextMetadataNode textMetadataNode = new TextMetadataNode("ion");
+					textMetadataNode.setId("ion");
+					textMetadataNode.setValue(new StringValue(channelDensity.getIon()));
+					channelDensityNode.addChild(textMetadataNode);
+					
+					//TODO: We need to work on this nested element
+					CompositeNode ionChannelNode = new CompositeNode(channelDensity.getIonChannel());
+					ionChannelNode.setId(channelDensity.getIonChannel());
+					channelDensityNode.addChild(ionChannelNode);
+										
+					ParameterSpecificationNode erevNode = new ParameterSpecificationNode("erev");
+					erevNode.setId("erev");
+					String[] erevValueArray = channelDensity.getErev().split(" ");
+					PhysicalQuantity erevValue = new PhysicalQuantity();
+					erevValue.setUnit(erevValueArray[1]);
+					erevValue.setValue(new StringValue(erevValueArray[0]));
+					erevNode.setValue(erevValue);
+					channelDensityNode.addChild(erevNode);
+					
+					membranePropertiesNode.addChild(channelDensityNode);
 				}
 
-				for(ChannelPopulation pop : channelPopulations)
-				{
-					ParameterSpecificationNode population = new ParameterSpecificationNode(pop.getId());
-
-					PhysicalQuantity value = new PhysicalQuantity();
-					value.setScalingFactor(pop.getSegmentGroup());
-					value.setUnit(pop.getIon());
-					value.setValue(new StringValue(pop.getErev()));
-					population.setValue(value);
-
-					props.addChild(population);
-				}
-
-				for(SpecificCapacitance s : specs)
-				{
-					ParameterSpecificationNode population = new ParameterSpecificationNode(s.getSegmentGroup());
-
-					PhysicalQuantity value = new PhysicalQuantity();
-					value.setScalingFactor(s.getSegmentGroup());
-					value.setUnit(s.getSegmentGroup());
-					value.setValue(new StringValue(s.getValue()));
-					population.setValue(value);
-
-					props.addChild(population);
-				}
+//				for(ChannelPopulation pop : channelPopulations)
+//				{
+//					ParameterSpecificationNode population = new ParameterSpecificationNode(pop.getId());
+//
+//					PhysicalQuantity value = new PhysicalQuantity();
+//					value.setScalingFactor(pop.getSegmentGroup());
+//					value.setUnit(pop.getIon());
+//					value.setValue(new StringValue(pop.getErev()));
+//					population.setValue(value);
+//
+//					props.addChild(population);
+//				}
+//
+//				for(SpecificCapacitance s : specs)
+//				{
+//					ParameterSpecificationNode population = new ParameterSpecificationNode(s.getSegmentGroup());
+//
+//					PhysicalQuantity value = new PhysicalQuantity();
+//					value.setScalingFactor(s.getSegmentGroup());
+//					value.setUnit(s.getSegmentGroup());
+//					value.setValue(new StringValue(s.getValue()));
+//					population.setValue(value);
+//
+//					props.addChild(population);
+//				}
+				
+				
+				biophysicalPropertiesNode.addChild(membranePropertiesNode);
+			}
+			
+			IntracellularProperties intracellularProperties = properties.getIntracellularProperties();
+			if(intracellularProperties != null)
+			{
+				
 			}
 
 			_populated = true;
-			modelTree.addChild(props);
+			modelTree.addChild(biophysicalPropertiesNode);
 
 		}
 	}
