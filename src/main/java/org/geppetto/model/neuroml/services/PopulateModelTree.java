@@ -41,6 +41,7 @@ import org.geppetto.core.model.runtime.DynamicsSpecificationNode;
 import org.geppetto.core.model.runtime.FunctionNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
+import org.geppetto.core.model.values.FloatValue;
 import org.geppetto.core.model.values.StringValue;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.Cell;
@@ -50,8 +51,13 @@ import org.neuroml.model.InitMembPotential;
 import org.neuroml.model.IntracellularProperties;
 import org.neuroml.model.MembraneProperties;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.Resistivity;
+import org.neuroml.model.Species;
 import org.neuroml.model.SpecificCapacitance;
 import org.neuroml.model.SpikeThresh;
+import org.springframework.beans.factory.parsing.EmptyReaderEventListener;
+import org.geppetto.model.neuroml.services.PopulateModelTreeUtils;
+import org.geppetto.model.neuroml.services.Resources;
 
 /**
  * Populates the Model Tree of Aspect
@@ -92,86 +98,63 @@ public class PopulateModelTree {
 	 * @param properties - Model properties extracted from neuroml document object
 	 */
 	public void addProperties(AspectSubTreeNode modelTree,BiophysicalProperties properties){
-		//FIXME : Remove and apply data accurately
 		if(properties != null)
 		{
-			CompositeNode biophysicalPropertiesNode = new CompositeNode(properties.getId());
-			biophysicalPropertiesNode.setId(properties.getId());
+			CompositeNode biophysicalPropertiesNode = new CompositeNode(Resources.BIOPHYSICAL_PROPERTIES.get(), properties.getId());
 			
 			MembraneProperties membraneProperties = properties.getMembraneProperties();
 			if(membraneProperties != null)
 			{
-				CompositeNode membranePropertiesNode = new CompositeNode("membraneProperties");
-				membranePropertiesNode.setId("membraneProperties");
+				CompositeNode membranePropertiesNode = new CompositeNode(Resources.MEMBRANE_P.get(), "Membrane Properties");
+				
 				
 				List<ChannelDensity> channelDensities = membraneProperties.getChannelDensity();
-				List<ChannelPopulation> channelPopulations = membraneProperties.getChannelPopulation();
-				List<SpecificCapacitance> specificCapacitance = membraneProperties.getSpecificCapacitance();
-				List<SpikeThresh> spikeThresh = membraneProperties.getSpikeThresh();
-				List<InitMembPotential> initMembPotential = membraneProperties.getInitMembPotential();
+//				List<ChannelPopulation> channelPopulations = membraneProperties.getChannelPopulation();
+				List<SpecificCapacitance> specificCapacitances = membraneProperties.getSpecificCapacitance();
+				List<SpikeThresh> spikeThreshs = membraneProperties.getSpikeThresh();
+				List<InitMembPotential> initMembPotentials = membraneProperties.getInitMembPotential();
 
+				// Channel Density
 				for(ChannelDensity channelDensity : channelDensities)
 				{
-					CompositeNode channelDensityNode = new CompositeNode(channelDensity.getId());
-					channelDensityNode.setId(channelDensity.getId());
+					CompositeNode channelDensityNode = new CompositeNode(Resources.CHANNEL_DENSITY.get() + "_" + channelDensity.getId(), channelDensity.getId());
 					
-					ParameterSpecificationNode condDensityNode = new ParameterSpecificationNode("condDensity");
-					condDensityNode.setId("condDensity");
-					String[] condDensityValueArray = channelDensity.getCondDensity().split(" ");
-					PhysicalQuantity condDensityValue = new PhysicalQuantity();
-					condDensityValue.setUnit(condDensityValueArray[1]);
-					condDensityValue.setValue(new StringValue(condDensityValueArray[0]));
-					condDensityNode.setValue(condDensityValue);
-					channelDensityNode.addChild(condDensityNode);
+					// Passive conductance density				
+					channelDensityNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY, "condDensity_"+channelDensity.getId(), channelDensity.getCondDensity()));
 					
-					TextMetadataNode textMetadataNode = new TextMetadataNode("ion");
-					textMetadataNode.setId("ion");
-					textMetadataNode.setValue(new StringValue(channelDensity.getIon()));
-					channelDensityNode.addChild(textMetadataNode);
+					// ION	
+					channelDensityNode.addChild(new TextMetadataNode(Resources.ION.get(), "ion_"+channelDensity.getId(),  new StringValue(channelDensity.getIon())));
 					
+					// Ion Channel
 					//TODO: We need to work on this nested element
-					CompositeNode ionChannelNode = new CompositeNode(channelDensity.getIonChannel());
-					ionChannelNode.setId(channelDensity.getIonChannel());
-					channelDensityNode.addChild(ionChannelNode);
+					channelDensityNode.addChild(new CompositeNode(Resources.ION_CHANNEL.get(), channelDensity.getIonChannel()));
 										
-					ParameterSpecificationNode erevNode = new ParameterSpecificationNode("erev");
-					erevNode.setId("erev");
-					String[] erevValueArray = channelDensity.getErev().split(" ");
-					PhysicalQuantity erevValue = new PhysicalQuantity();
-					erevValue.setUnit(erevValueArray[1]);
-					erevValue.setValue(new StringValue(erevValueArray[0]));
-					erevNode.setValue(erevValue);
-					channelDensityNode.addChild(erevNode);
+					// Reverse Potential					
+					channelDensityNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.EREV, "erev_"+channelDensity.getId(), channelDensity.getErev()));
+					
+					// Segment Group
+					//TODO: Point to a visualization group?
 					
 					membranePropertiesNode.addChild(channelDensityNode);
 				}
 
-//				for(ChannelPopulation pop : channelPopulations)
-//				{
-//					ParameterSpecificationNode population = new ParameterSpecificationNode(pop.getId());
-//
-//					PhysicalQuantity value = new PhysicalQuantity();
-//					value.setScalingFactor(pop.getSegmentGroup());
-//					value.setUnit(pop.getIon());
-//					value.setValue(new StringValue(pop.getErev()));
-//					population.setValue(value);
-//
-//					props.addChild(population);
-//				}
-//
-//				for(SpecificCapacitance s : specs)
-//				{
-//					ParameterSpecificationNode population = new ParameterSpecificationNode(s.getSegmentGroup());
-//
-//					PhysicalQuantity value = new PhysicalQuantity();
-//					value.setScalingFactor(s.getSegmentGroup());
-//					value.setUnit(s.getSegmentGroup());
-//					value.setValue(new StringValue(s.getValue()));
-//					population.setValue(value);
-//
-//					props.addChild(population);
-//				}
+				// Spike threshold
+				for(int i = 0; i < spikeThreshs.size(); i++)
+				{
+					membranePropertiesNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.SPIKE_THRESHOLD, "spikeThresh_"+i, spikeThreshs.get(i).getValue()));
+				}
+
+				// Specific Capacitance
+				for(int i = 0; i < specificCapacitances.size(); i++)
+				{
+					membranePropertiesNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.SPECIFIC_CAPACITANCE, "specificCapacitance_"+i, specificCapacitances.get(i).getValue()));
+				}
 				
+				// Initial Membrance Potentials
+				for(int i = 0; i < initMembPotentials.size(); i++)
+				{
+					membranePropertiesNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_MEMBRANE_POTENTIAL, "initMembPotential_"+i, initMembPotentials.get(i).getValue()));
+				}
 				
 				biophysicalPropertiesNode.addChild(membranePropertiesNode);
 			}
@@ -179,7 +162,36 @@ public class PopulateModelTree {
 			IntracellularProperties intracellularProperties = properties.getIntracellularProperties();
 			if(intracellularProperties != null)
 			{
+				CompositeNode intracellularPropertiesNode = new CompositeNode(Resources.INTRACELLULAR_P.get(), "intracellularProperties");
 				
+				List<Resistivity> resistivities = intracellularProperties.getResistivity();
+				List<Species> species = intracellularProperties.getSpecies();
+				
+				// Resistivity
+				for(int i = 0; i < resistivities.size(); i++)
+				{
+					intracellularPropertiesNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.RESISTIVITY, "resistivity_"+i, resistivities.get(i).getValue()));
+				}
+				
+				// Specie
+				for(Species specie : species)
+				{
+					CompositeNode specieNode = new CompositeNode(Resources.SPECIES.get(), specie.getId());
+					
+					// Initial Concentration
+					specieNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_CONCENTRATION, "initialConcentration_"+specie.getId(), specie.getInitialConcentration()));
+					
+					// Initial External Concentration
+					specieNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_EXT_CONCENTRATION, "initialExtConcentration_"+specie.getId(), specie.getInitialExtConcentration()));
+					
+					// Ion
+					specieNode.addChild(new TextMetadataNode(Resources.ION.get(), "ion_"+specie.getId(),  new StringValue(specie.getIon())));
+					
+					// Concentration Model
+					//TODO: We need to work on this nested element
+					specieNode.addChild(new CompositeNode(Resources.CONCENTRATION_MODEL.get(),specie.getConcentrationModel()));
+				}
+				biophysicalPropertiesNode.addChild(intracellularPropertiesNode);
 			}
 
 			_populated = true;
