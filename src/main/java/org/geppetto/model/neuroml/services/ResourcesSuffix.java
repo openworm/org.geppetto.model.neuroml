@@ -38,35 +38,13 @@ package org.geppetto.model.neuroml.services;
  * @author matteocantarelli
  *
  */
-public enum Resources
+public enum ResourcesSuffix
 {
-	COND_DENSITY("Passive conductance density"),
-	SPIKE_THRESHOLD("Spike Threshold"),
-	EREV("Reverse Potential"),
-	SPECIFIC_CAPACITANCE("Specific Capacitance"),
-	INIT_MEMBRANE_POTENTIAL("Initial Membrane Potential"),
-	RESISTIVITY("Resistivity"),
-	MEMBRANE_P("Membrane Properties"),
-	MEMBRANE_P_SOMA("Membrane Properties (Soma)"),
-	INTRACELLULAR_P("Intracellular Properties"),
-	INTRACELLULAR_P_SOMA("Intracellular Properties (Soma)"), 
-	SYNAPSE("Synapse Type"), 
-	CONNECTION_TYPE("Connection Type"),
-	PRE_SYNAPTIC("Input"),
-	POST_SYNAPTIC("Output"),
-	ION("Ion"),
-	ION_CHANNEL("Ion Channel"),
-	CHANNEL_DENSITY("Channel Density"),
-	SPECIES("Species"),
-	INIT_CONCENTRATION("Initial Concentration"),
-	INIT_EXT_CONCENTRATION("Initial External Concentration"),
-	CONCENTRATION_MODEL("Concentration Model"),
-	BIOPHYSICAL_PROPERTIES("Biophysical Properties"),
-	ANOTATION("Anotation");
+	ION_CHANNEL("channel");
 	
 	private String _value;
 	
-	private Resources(String value)
+	private ResourcesSuffix(String value)
 	{
 		_value=value;
 	}

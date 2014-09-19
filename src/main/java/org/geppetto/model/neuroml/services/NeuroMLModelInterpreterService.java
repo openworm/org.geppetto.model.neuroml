@@ -169,8 +169,9 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NEUROML_ID);
 			if(neuroml != null)
 			{
+				URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
 				// Use local class to populate model tree
-				modified = populateModelTree.populateModelTree(modelTree, neuroml);
+				modified = populateModelTree.populateModelTree(modelTree, neuroml, url);
 				modelTree.setModified(modified);
 			}
 
