@@ -32,8 +32,17 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.services;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.UnmarshalException;
+
+import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.quantities.PhysicalQuantity;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
@@ -43,29 +52,40 @@ import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.values.FloatValue;
 import org.geppetto.core.model.values.StringValue;
+import org.neuroml.model.Base;
+import org.neuroml.model.BaseCell;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
 import org.neuroml.model.ChannelPopulation;
 import org.neuroml.model.InitMembPotential;
 import org.neuroml.model.IntracellularProperties;
+import org.neuroml.model.IonChannel;
 import org.neuroml.model.MembraneProperties;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Resistivity;
 import org.neuroml.model.Species;
 import org.neuroml.model.SpecificCapacitance;
 import org.neuroml.model.SpikeThresh;
+import org.neuroml.model.util.NeuroMLConverter;
 import org.springframework.beans.factory.parsing.EmptyReaderEventListener;
 
 /**
  * Populates the Model Tree of Aspect
  * 
  * @author  Jesus R. Martinez (jesus@metacell.us)
- *
+ * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
+ * 
  */
 public class PopulateModelTree {
 
 	private boolean _populated = false;
+	
+	private URL url;
+	
+	private NeuroMLDocument neuroml;
+	
+	private NeuroMLUtils neuroMLUtils = new NeuroMLUtils();
 	
 	public PopulateModelTree() {		
 	}
@@ -76,9 +96,13 @@ public class PopulateModelTree {
 	 * @param modelTree - Model tree that is to be populated
 	 * @param neuroml - NeuroMLDocument used to populate the tree, values are in here
 	 * @return 
+	 * @throws ModelInterpreterException 
 	 */
-	public boolean populateModelTree(AspectSubTreeNode modelTree, NeuroMLDocument neuroml)
+	public boolean populateModelTree(AspectSubTreeNode modelTree, NeuroMLDocument neuroml, URL url) throws ModelInterpreterException
 	{		
+		this.url = url;
+		this.neuroml = neuroml;
+		
 		//FIXME : Remove and apply data accurately
  		List<Cell> cells = neuroml.getCell();
  		for(Cell c : cells){
@@ -94,8 +118,9 @@ public class PopulateModelTree {
 	 * 
 	 * @param modelTree - Object containing model tree
 	 * @param properties - Model properties extracted from neuroml document object
+	 * @throws ModelInterpreterException 
 	 */
-	public void addProperties(AspectSubTreeNode modelTree,BiophysicalProperties properties){
+	public void addProperties(AspectSubTreeNode modelTree,BiophysicalProperties properties) throws ModelInterpreterException{
 		if(properties != null)
 		{
 			CompositeNode biophysicalPropertiesNode = new CompositeNode(Resources.BIOPHYSICAL_PROPERTIES.get(), properties.getId());
@@ -124,9 +149,19 @@ public class PopulateModelTree {
 					channelDensityNode.addChild(new TextMetadataNode(Resources.ION.get(), "ion_"+channelDensity.getId(),  new StringValue(channelDensity.getIon())));
 					
 					// Ion Channel
-					//TODO: We need to work on this nested element
-					channelDensityNode.addChild(new CompositeNode(Resources.ION_CHANNEL.get(), channelDensity.getIonChannel()));
-										
+					CompositeNode ionChannelNode = new CompositeNode(Resources.ION_CHANNEL.get(), channelDensity.getIonChannel());
+					try {
+						//IonChannel ionChannel = (IonChannel)neuroMLUtils.retrieveNeuroMLComponent(channelDensity.getIonChannel(), "channel", url);
+						//neuroMLUtils.getComponent(channelDensity.getIonChannel(), this.neuroml, this.url, ResourcesSuffix.ION_CHANNEL);
+						
+						//TODO: Read an annotation node properly
+						//ionChannelNode.addChild(new TextMetadataNode(Resources.ANOTATION.get(), "anotation",  new StringValue(ionChannel.getAnnotation().getAny().get(0).getTextContent()))); 
+					} catch (Exception e) {
+						throw new ModelInterpreterException(e);
+					}
+					
+					
+					
 					// Reverse Potential					
 					channelDensityNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.EREV, "erev_"+channelDensity.getId(), channelDensity.getErev()));
 					
@@ -197,4 +232,6 @@ public class PopulateModelTree {
 
 		}
 	}
+	
+	
 }
