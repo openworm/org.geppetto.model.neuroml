@@ -1,11 +1,12 @@
 /**
  * 
  */
-package org.geppetto.model.neuroml.services;
+package org.geppetto.model.neuroml.utils;
 
 import java.util.Map;
 
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.Cell;

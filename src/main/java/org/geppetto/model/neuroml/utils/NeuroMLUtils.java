@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.geppetto.model.neuroml.services;
+package org.geppetto.model.neuroml.utils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

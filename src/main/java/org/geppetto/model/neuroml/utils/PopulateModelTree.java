@@ -30,45 +30,27 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE 
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package org.geppetto.model.neuroml.services;
+package org.geppetto.model.neuroml.utils;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
 
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.quantities.PhysicalQuantity;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
-import org.geppetto.core.model.runtime.DynamicsSpecificationNode;
-import org.geppetto.core.model.runtime.FunctionNode;
-import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
-import org.geppetto.core.model.values.FloatValue;
 import org.geppetto.core.model.values.StringValue;
-import org.neuroml.model.Base;
-import org.neuroml.model.BaseCell;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
-import org.neuroml.model.ChannelPopulation;
 import org.neuroml.model.InitMembPotential;
 import org.neuroml.model.IntracellularProperties;
-import org.neuroml.model.IonChannel;
 import org.neuroml.model.MembraneProperties;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Resistivity;
 import org.neuroml.model.Species;
 import org.neuroml.model.SpecificCapacitance;
 import org.neuroml.model.SpikeThresh;
-import org.neuroml.model.util.NeuroMLConverter;
-import org.springframework.beans.factory.parsing.EmptyReaderEventListener;
 
 /**
  * Populates the Model Tree of Aspect

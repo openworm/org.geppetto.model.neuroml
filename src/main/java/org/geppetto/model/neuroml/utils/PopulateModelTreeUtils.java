@@ -1,4 +1,4 @@
-package org.geppetto.model.neuroml.services;
+package org.geppetto.model.neuroml.utils;
 
 import org.geppetto.core.model.quantities.PhysicalQuantity;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
