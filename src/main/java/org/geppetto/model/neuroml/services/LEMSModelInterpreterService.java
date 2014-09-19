@@ -35,6 +35,7 @@ package org.geppetto.model.neuroml.services;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
@@ -45,10 +46,12 @@ import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
+import org.geppetto.core.model.runtime.EntityNode;
 import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
+import org.neuroml.model.BaseCell;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +65,7 @@ import org.springframework.stereotype.Service;
 public class LEMSModelInterpreterService implements IModelInterpreter
 {
 
-	private static final String LEMS_ID = "lems";
-	private static final String NEUROML_ID = "neuroml";
-	private static final String URL_ID = "url";
+
 	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
 
 	@Autowired
@@ -96,11 +97,12 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 				NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(neuroMLURL);
 				// two different representation of the same file, one used to
 				// simulate the other used to visualize
-				model.wrapModel(NEUROML_ID, neuroml);
+				model.wrapModel(NeuroMLModelInterpreterService.NEUROML_ID, neuroml);
+				model.wrapModel(NeuroMLModelInterpreterService.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell,EntityNode>());
+				model.wrapModel(NeuroMLModelInterpreterService.DISCOVERED_COMPONENTS, new HashMap<String, BaseCell>());
 			}
-			model.wrapModel(LEMS_ID, document);
-			model.wrapModel(URL_ID, url);
-
+			model.wrapModel(NeuroMLModelInterpreterService.LEMS_ID, document);
+			model.wrapModel(NeuroMLModelInterpreterService.URL_ID, url);
 		}
 		catch(IOException e)
 		{
