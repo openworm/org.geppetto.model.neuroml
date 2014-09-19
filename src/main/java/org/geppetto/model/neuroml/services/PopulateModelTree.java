@@ -56,8 +56,6 @@ import org.neuroml.model.Species;
 import org.neuroml.model.SpecificCapacitance;
 import org.neuroml.model.SpikeThresh;
 import org.springframework.beans.factory.parsing.EmptyReaderEventListener;
-import org.geppetto.model.neuroml.services.PopulateModelTreeUtils;
-import org.geppetto.model.neuroml.services.Resources;
 
 /**
  * Populates the Model Tree of Aspect

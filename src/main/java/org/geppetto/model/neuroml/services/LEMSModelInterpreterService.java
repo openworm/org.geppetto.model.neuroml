@@ -37,8 +37,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 import java.util.UUID;
+
+import javax.xml.bind.JAXBException;
 
 import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.model.IModel;
@@ -65,7 +66,6 @@ import org.springframework.stereotype.Service;
 public class LEMSModelInterpreterService implements IModelInterpreter
 {
 
-
 	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
 
 	@Autowired
@@ -81,26 +81,28 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 		ModelWrapper model = new ModelWrapper(instancePath);
 		try
 		{
-			Scanner scanner = new Scanner(url.openStream(), "UTF-8");
-			String lemsString = scanner.useDelimiter("\\A").next();
-			scanner.close();
-			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			ILEMSDocument document = lemsReader.readModel(url);
+			OptimizedLEMSReader reader = new OptimizedLEMSReader();
+			String lemsString = reader.read(url);
 
+			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
+			long start = System.currentTimeMillis();
+			ILEMSDocument document = lemsReader.readModel(lemsString);
+			System.out.println(System.currentTimeMillis() - start);
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 
-			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-			URL neuroMLURL = getNeuroMLURL(lemsString);
-			if(neuroMLURL != null)
+			// two different representation of the same file, one used to
+			// simulate the other used to visualize
+			if(reader.getNeuroMLs().size() == 1)
 			{
-				NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(neuroMLURL);
-				// two different representation of the same file, one used to
-				// simulate the other used to visualize
-				model.wrapModel(NeuroMLModelInterpreterService.NEUROML_ID, neuroml);
-				model.wrapModel(NeuroMLModelInterpreterService.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell,EntityNode>());
-				model.wrapModel(NeuroMLModelInterpreterService.DISCOVERED_COMPONENTS, new HashMap<String, BaseCell>());
+				model.wrapModel(NeuroMLModelInterpreterService.NEUROML_ID, reader.getNeuroMLs().values().toArray()[0]);
 			}
+			else
+			{
+				model.wrapModel(NeuroMLModelInterpreterService.NEUROML_ID, reader.getNeuroMLs());
+			}
+			model.wrapModel(NeuroMLModelInterpreterService.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
+			model.wrapModel(NeuroMLModelInterpreterService.DISCOVERED_COMPONENTS, new HashMap<String, BaseCell>());
 			model.wrapModel(NeuroMLModelInterpreterService.LEMS_ID, document);
 			model.wrapModel(NeuroMLModelInterpreterService.URL_ID, url);
 		}
@@ -112,34 +114,10 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 		{
 			throw new ModelInterpreterException(e);
 		}
-		catch(Exception e)
-		{
-			throw new ModelInterpreterException(e);
-		}
 		return model;
 	}
 
-	/**
-	 * @param lemsString
-	 * @return
-	 * @throws MalformedURLException
-	 */
-	private URL getNeuroMLURL(String lemsString) throws MalformedURLException
-	{
-		// FIXME This is a HACK. Importers from a LemsDocument will have to be
-		// written, see issue on GitHub
-		// https://github.com/NeuroML/org.neuroml.import/issues/1
-		if(lemsString.contains(".nml"))
-		{
-			int end = lemsString.indexOf(".nml");
-			end = lemsString.indexOf("\"", end);
-			String header = lemsString.substring(0, end);
-			int start = header.lastIndexOf("url=") + 5;
-			String url = header.substring(start, end);
-			return new URL(url);
-		}
-		return null;
-	}
+
 
 	/*
 	 * (non-Javadoc)
