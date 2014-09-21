@@ -86,9 +86,9 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 			String lemsString = reader.read(url);
 
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			long start = System.currentTimeMillis();
+			//long start = System.currentTimeMillis();
 			ILEMSDocument document = lemsReader.readModel(lemsString);
-			System.out.println(System.currentTimeMillis() - start);
+			//System.out.println(System.currentTimeMillis() - start);
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 
