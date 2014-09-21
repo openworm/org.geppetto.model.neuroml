@@ -20,6 +20,8 @@ import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.Cell;
 import org.neuroml.model.IafCell;
+import org.neuroml.model.IonChannel;
+import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Population;
 import org.neuroml.model.Standalone;
@@ -153,6 +155,21 @@ public class NeuroMLUtils
 		
 		switch (componentType) {
 		case ION_CHANNEL:
+			for (IonChannel ionChannel : doc.getIonChannel()){
+				if(ionChannel.getId().equals(componentId))
+				{
+					this.discoveredComponents.put(ionChannel.getId(), ionChannel);
+					return ionChannel;
+				}
+			}
+			for (IonChannelHH ionChannelHH : doc.getIonChannelHH()){
+				if(ionChannelHH.getId().equals(componentId))
+				{
+					this.discoveredComponents.put(ionChannelHH.getId(), ionChannelHH);
+					return ionChannelHH;
+				}
+			}
+		case CELL:	
 			
 			for(AdExIaFCell c : doc.getAdExIaFCell())
 			{
@@ -180,6 +197,9 @@ public class NeuroMLUtils
 			}
 			return null;
 
+		case HHRATE:
+			doc.getHHCondExp();
+			
 		default:
 			break;
 		}

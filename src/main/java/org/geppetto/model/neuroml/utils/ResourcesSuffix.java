@@ -40,7 +40,9 @@ package org.geppetto.model.neuroml.utils;
  */
 public enum ResourcesSuffix
 {
-	ION_CHANNEL("channel");
+	ION_CHANNEL(".channel"),
+	HHRATE(""),
+	CELL(".cell");
 	
 	private String _value;
 	
