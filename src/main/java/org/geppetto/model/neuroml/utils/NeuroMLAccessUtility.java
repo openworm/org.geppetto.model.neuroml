@@ -3,74 +3,233 @@
  */
 package org.geppetto.model.neuroml.utils;
 
-import java.util.Map;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.UnmarshalException;
+
+import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.neuroml.model.AdExIaFCell;
-import org.neuroml.model.BaseCell;
+import org.neuroml.model.Base;
 import org.neuroml.model.Cell;
 import org.neuroml.model.IafCell;
+import org.neuroml.model.IonChannel;
+import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.util.NeuroMLConverter;
 
 /**
- * @author matteocantarelli
+ * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  * 
  */
 public class NeuroMLAccessUtility
 {
 
-	public static BaseCell discoverAllCells(NeuroMLDocument doc, ModelWrapper model)
-	{
-		Map<String, BaseCell> discoveredComponents = (Map<String, BaseCell>) model.getModel(NeuroMLModelInterpreterService.DISCOVERED_COMPONENTS);
+	public static final String LEMS_ID = "lems";
+	public static final String NEUROML_ID = "neuroml";
+	public static final String URL_ID = "url";
+	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
+	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
+	
+	
+	
+	private int maxAttempts = 3;
+	
+	
+	
+	public NeuroMLAccessUtility(int maxAttempts) {
+		super();
+		this.maxAttempts = maxAttempts;
+	}
 
-		for(AdExIaFCell c : doc.getAdExIaFCell())
+
+
+	public NeuroMLAccessUtility() {
+		super();
+	}
+
+
+
+	/**
+	 * @param p
+	 * @param neuroml
+	 * @param url
+	 * @return
+	 * @throws ModelInterpreterException 
+	 */
+	public Base getComponent(String componentId, ModelWrapper model, ResourcesSuffix componentType) throws ModelInterpreterException
+	{
+		// let's first check if the cell is of a predefined neuroml type
+		Base component = getComponentById(componentId, model, componentType);
+
+		if(component == null)
 		{
-			discoveredComponents.put(c.getId(), c);
+			try
+			{
+				// otherwise let's check if it's defined in the same folder as the current component
+				component = retrieveNeuroMLComponent(componentId, componentType, model);
+			}
+			catch(MalformedURLException e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+			catch(JAXBException e)
+			{
+				throw new ModelInterpreterException(e);
+			}
 		}
-		for(IafCell c : doc.getIafCell())
+		if(component == null)
 		{
-			discoveredComponents.put(c.getId(), c);
+			// sorry no luck!
+			throw new ModelInterpreterException("Can't find the componet " + componentId);
 		}
-		for(Cell c : doc.getCell())
+		return component;
+	}
+	
+	/**
+	 * @param componentId
+	 * @param url
+	 * @return
+	 * @throws JAXBException
+	 * @throws MalformedURLException
+	 */
+	public Base retrieveNeuroMLComponent(String componentId, ResourcesSuffix componentType, ModelWrapper model) throws JAXBException, MalformedURLException
+	{
+		URL url = (URL) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.URL_ID);
+		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+		boolean attemptConnection = true;
+		String baseURL = url.getFile();
+		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
+		if(url.getFile().endsWith("nml"))
 		{
-			discoveredComponents.put(c.getId(), c);
+			baseURL = baseURL.substring(0, baseURL.lastIndexOf("/") + 1);
+		}
+		int attempts = 0;
+		NeuroMLDocument neuromlDocument = null;
+		while(attemptConnection)
+		{
+			try
+			{
+				attemptConnection = false;
+				attempts++;
+				URL componentURL = new URL(url.getProtocol() + "://" + url.getAuthority() + baseURL + componentId + componentType.get() + ".nml");
+
+				neuromlDocument = neuromlConverter.urlToNeuroML(componentURL);
+
+				List<? extends Base> components = null;
+				
+				switch (componentType) {
+				case ION_CHANNEL:
+					components = neuromlDocument.getIonChannel();
+				default:
+					break;
+				}
+				
+				if(components != null)
+				{
+					
+					
+					for(Base c : neuromlDocument.getIonChannel())
+					{
+						_discoveredComponents.put(componentId, c);
+						if(((Base)c).getId().equals(componentId))
+						{
+							return c;
+						}
+					}
+				}
+			}
+			catch(MalformedURLException e)
+			{
+				throw e;
+			}
+			catch(UnmarshalException e)
+			{
+				if(e.getLinkedException() instanceof IOException)
+				{
+					if(attempts < maxAttempts)
+					{
+						attemptConnection = true;
+					}
+				}
+			}
+			catch(Exception e)
+			{
+				throw e;
+			}
 		}
 		return null;
 	}
 
-	public static BaseCell getCellById(String componentId, NeuroMLDocument doc, ModelWrapper model)
+	private Base getComponentById(String componentId, ModelWrapper model, ResourcesSuffix componentType)
 	{
-		Map<String, BaseCell> discoveredComponents = (Map<String, BaseCell>) model.getModel(NeuroMLModelInterpreterService.DISCOVERED_COMPONENTS);
-		if(discoveredComponents.containsKey(componentId))
+		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
+		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
+				
+		//TODO Can we have the same id for two different components 
+		if(_discoveredComponents.containsKey(componentId))
 		{
-			return discoveredComponents.get(componentId);
+			return _discoveredComponents.get(componentId);
 		}
+		
+		switch (componentType) {
+		case ION_CHANNEL:
+			for (IonChannel ionChannel : doc.getIonChannel()){
+				if(ionChannel.getId().equals(componentId))
+				{
+					_discoveredComponents.put(ionChannel.getId(), ionChannel);
+					return ionChannel;
+				}
+			}
+			for (IonChannelHH ionChannelHH : doc.getIonChannelHH()){
+				if(ionChannelHH.getId().equals(componentId))
+				{
+					_discoveredComponents.put(ionChannelHH.getId(), ionChannelHH);
+					return ionChannelHH;
+				}
+			}
+		case CELL:	
+			
+			for(AdExIaFCell c : doc.getAdExIaFCell())
+			{
+				if(c.getId().equals(componentId))
+				{
+					_discoveredComponents.put(c.getId(), c);
+					return c;
+				}
+			}
+			for(IafCell c : doc.getIafCell())
+			{
+				if(c.getId().equals(componentId))
+				{
+					_discoveredComponents.put(c.getId(), c);
+					return c;
+				}
+			}
+			for(Cell c : doc.getCell())
+			{
+				if(c.getId().equals(componentId))
+				{
+					_discoveredComponents.put(c.getId(), c);
+					return c;
+				}
+			}
+			return null;
 
-		for(AdExIaFCell c : doc.getAdExIaFCell())
-		{
-			if(c.getId().equals(componentId))
-			{
-				discoveredComponents.put(c.getId(), c);
-				return c;
-			}
+		case HHRATE:
+			doc.getHHCondExp();
+			
+		default:
+			break;
 		}
-		for(IafCell c : doc.getIafCell())
-		{
-			if(c.getId().equals(componentId))
-			{
-				discoveredComponents.put(c.getId(), c);
-				return c;
-			}
-		}
-		for(Cell c : doc.getCell())
-		{
-			if(c.getId().equals(componentId))
-			{
-				discoveredComponents.put(c.getId(), c);
-				return c;
-			}
-		}
+		
 		return null;
+
 	}
+	
 }

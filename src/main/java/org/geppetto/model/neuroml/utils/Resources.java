@@ -62,7 +62,11 @@ public enum Resources
 	INIT_EXT_CONCENTRATION("Initial External Concentration"),
 	CONCENTRATION_MODEL("Concentration Model"),
 	BIOPHYSICAL_PROPERTIES("Biophysical Properties"),
-	ANOTATION("Anotation");
+	ANOTATION("Anotation"),
+	FW_RATE_FN("Forward Rate Dynamics"),
+	MIDPOINT("Midpoint"),
+	RATE("Rate"),
+	SCALE("Scale");
 	
 	private String _value;
 	

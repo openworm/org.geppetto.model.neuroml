@@ -36,15 +36,20 @@ import java.net.URL;
 import java.util.List;
 
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.values.StringValue;
+import org.neuroml.model.Annotation;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
+import org.neuroml.model.GateHHUndetermined;
+import org.neuroml.model.HHRate;
 import org.neuroml.model.InitMembPotential;
 import org.neuroml.model.IntracellularProperties;
+import org.neuroml.model.IonChannel;
 import org.neuroml.model.MembraneProperties;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Resistivity;
@@ -63,11 +68,11 @@ public class PopulateModelTree {
 
 	private boolean _populated = false;
 	
-	private URL url;
+//	private URL url;
 	
-	private NeuroMLDocument neuroml;
+//	private NeuroMLDocument neuroml;
 	
-	private NeuroMLUtils neuroMLUtils = new NeuroMLUtils();
+	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
 	
 	public PopulateModelTree() {		
 	}
@@ -80,15 +85,16 @@ public class PopulateModelTree {
 	 * @return 
 	 * @throws ModelInterpreterException 
 	 */
-	public boolean populateModelTree(AspectSubTreeNode modelTree, NeuroMLDocument neuroml, URL url) throws ModelInterpreterException
+	public boolean populateModelTree(AspectSubTreeNode modelTree, ModelWrapper model) throws ModelInterpreterException
 	{		
-		this.url = url;
-		this.neuroml = neuroml;
+		
+//		this.url = (URL) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.URL_ID);
+		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
 		
 		//FIXME : Remove and apply data accurately
  		List<Cell> cells = neuroml.getCell();
  		for(Cell c : cells){
- 			addProperties(modelTree, c.getBiophysicalProperties());
+ 			addProperties(modelTree, c.getBiophysicalProperties(), model);
  		}
  		
  		return _populated;
@@ -102,7 +108,7 @@ public class PopulateModelTree {
 	 * @param properties - Model properties extracted from neuroml document object
 	 * @throws ModelInterpreterException 
 	 */
-	public void addProperties(AspectSubTreeNode modelTree,BiophysicalProperties properties) throws ModelInterpreterException{
+	public void addProperties(AspectSubTreeNode modelTree,BiophysicalProperties properties, ModelWrapper model) throws ModelInterpreterException{
 		if(properties != null)
 		{
 			CompositeNode biophysicalPropertiesNode = new CompositeNode(Resources.BIOPHYSICAL_PROPERTIES.get(), properties.getId());
@@ -134,14 +140,52 @@ public class PopulateModelTree {
 					CompositeNode ionChannelNode = new CompositeNode(Resources.ION_CHANNEL.get(), channelDensity.getIonChannel());
 					try {
 						//IonChannel ionChannel = (IonChannel)neuroMLUtils.retrieveNeuroMLComponent(channelDensity.getIonChannel(), "channel", url);
-						//neuroMLUtils.getComponent(channelDensity.getIonChannel(), this.neuroml, this.url, ResourcesSuffix.ION_CHANNEL);
+						IonChannel ionChannel = (IonChannel) this.neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, ResourcesSuffix.ION_CHANNEL);
 						
 						//TODO: Read an annotation node properly
-						//ionChannelNode.addChild(new TextMetadataNode(Resources.ANOTATION.get(), "anotation",  new StringValue(ionChannel.getAnnotation().getAny().get(0).getTextContent()))); 
+						Annotation annotation = ionChannel.getAnnotation();
+						if (annotation != null){
+							ionChannelNode.addChild(new TextMetadataNode(Resources.ANOTATION.get(), "anotation",  new StringValue(ionChannel.getAnnotation().getAny().get(0).getTextContent())));
+						}
+						
+						for (GateHHUndetermined gateHHUndetermined : ionChannel.getGate()){
+							HHRate hhForwardRate = gateHHUndetermined.getForwardRate();
+							
+						
+							//neuroMLUtils.getComponent(hhForwardRate.getType(), this.neuroml, this.url, ResourcesSuffix.HHRATE);
+							
+//							PopulateModelTreeUtils.createParameterSpecificationNode(Resources.MIDPOINT, "midPoint", hhForwardRate.getMidpoint());
+//							PopulateModelTreeUtils.createParameterSpecificationNode(Resources.RATE, "rate", hhForwardRate.getRate());
+//							PopulateModelTreeUtils.createParameterSpecificationNode(Resources.SCALE, "scale", hhForwardRate.getScale());
+							
+							HHRate hhReverseRate = gateHHUndetermined.getReverseRate();
+							
+							
+							
+							gateHHUndetermined.getInstances();
+							gateHHUndetermined.getQ10Settings();
+							gateHHUndetermined.getSteadyState();
+							gateHHUndetermined.getTimeCourse();
+							gateHHUndetermined.getType();
+							
+						}
+						
+						
+						
+						ionChannel.getGateHHrates();
+						ionChannel.getGateHHratesInf();
+						ionChannel.getGateHHratesTau();
+						ionChannel.getGateHHtauInf();
+						
+						ionChannel.getConductance();
+						ionChannel.getSpecies();
+						ionChannel.getType();
+
+						
 					} catch (Exception e) {
 						throw new ModelInterpreterException(e);
 					}
-					
+					channelDensityNode.addChild(ionChannelNode);
 					
 					
 					// Reverse Potential					

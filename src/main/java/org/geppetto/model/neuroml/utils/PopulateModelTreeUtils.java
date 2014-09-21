@@ -9,6 +9,7 @@ public class PopulateModelTreeUtils {
 	public static ParameterSpecificationNode createParameterSpecificationNode(Resources name, String id, String value){
 		ParameterSpecificationNode parameterSpecificationNode = new ParameterSpecificationNode(name.get(), id);
 		
+//		value.contains(" ")
 		String[] valueArray = value.split(" ");
 		PhysicalQuantity physicalQuantity = new PhysicalQuantity();
 		physicalQuantity.setUnit(valueArray[1]);
