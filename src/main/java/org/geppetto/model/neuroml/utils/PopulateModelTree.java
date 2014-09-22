@@ -153,11 +153,17 @@ public class PopulateModelTree {
 							
 						
 							//neuroMLUtils.getComponent(hhForwardRate.getType(), this.neuroml, this.url, ResourcesSuffix.HHRATE);
-							
-//							PopulateModelTreeUtils.createParameterSpecificationNode(Resources.MIDPOINT, "midPoint", hhForwardRate.getMidpoint());
-//							PopulateModelTreeUtils.createParameterSpecificationNode(Resources.RATE, "rate", hhForwardRate.getRate());
-//							PopulateModelTreeUtils.createParameterSpecificationNode(Resources.SCALE, "scale", hhForwardRate.getScale());
-							
+							if (hhForwardRate != null){
+								if (hhForwardRate.getMidpoint() != null){
+									PopulateModelTreeUtils.createParameterSpecificationNode(Resources.MIDPOINT, "midPoint", hhForwardRate.getMidpoint());
+								}
+								if (hhForwardRate.getRate() != null){
+									PopulateModelTreeUtils.createParameterSpecificationNode(Resources.RATE, "rate", hhForwardRate.getRate());
+								}
+								if (hhForwardRate.getScale() != null){
+									PopulateModelTreeUtils.createParameterSpecificationNode(Resources.SCALE, "scale", hhForwardRate.getScale());
+								}
+							}
 							HHRate hhReverseRate = gateHHUndetermined.getReverseRate();
 							
 							
