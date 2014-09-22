@@ -84,7 +84,7 @@ public class OptimizedLEMSReader
 					_simulationIncluded = true;
 				}
 			}
-			else if(url.toExternalForm().contains(simulationInclusion))
+			else if(url.toExternalForm().equals(simulationInclusion) || url.toExternalForm().endsWith("/"+simulationInclusion))
 			{
 				// use the local version
 				if(!_simulationIncluded)

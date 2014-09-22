@@ -213,27 +213,30 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 */
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
-		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(NEUROML_ID);
-		URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(URL_ID);
+		if(((ModelWrapper) aspectNode.getModel()).getModel(NEUROML_ID) instanceof NeuroMLDocument)
+		{
+			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(NEUROML_ID);
+			URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(URL_ID);
 
-		List<Network> networks = neuroml.getNetwork();
-		if(networks == null || networks.size() == 0)
-		{
-			// What do we do?
-		}
-		else if(networks.size() == 1)
-		{
-			// there's only one network, we consider the entity for it our network entity
-			addNetworkSubEntities(networks.get(0), (EntityNode) aspectNode.getParentEntity(), url, aspectNode, (ModelWrapper) aspectNode.getModel());
-		}
-		else if(networks.size() > 1)
-		{
-			// there's more than one network, each network will become an entity
-			for(Network n : networks)
+			List<Network> networks = neuroml.getNetwork();
+			if(networks == null || networks.size() == 0)
 			{
-				EntityNode networkEntity = new EntityNode(n.getId());
-				addNetworkSubEntities(n, networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
-				aspectNode.getChildren().add(networkEntity);
+				// What do we do?
+			}
+			else if(networks.size() == 1)
+			{
+				// there's only one network, we consider the entity for it our network entity
+				addNetworkSubEntities(networks.get(0), (EntityNode) aspectNode.getParentEntity(), url, aspectNode, (ModelWrapper) aspectNode.getModel());
+			}
+			else if(networks.size() > 1)
+			{
+				// there's more than one network, each network will become an entity
+				for(Network n : networks)
+				{
+					EntityNode networkEntity = new EntityNode(n.getId());
+					addNetworkSubEntities(n, networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
+					aspectNode.getChildren().add(networkEntity);
+				}
 			}
 		}
 	}
@@ -265,7 +268,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				int i = 0;
 				for(Instance instance : p.getInstance())
 				{
-					String id=VariablePathSerializer.getArrayName(p.getId(), i);
+					String id = VariablePathSerializer.getArrayName(p.getId(), i);
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
 
 					if(instance.getLocation() != null)
@@ -285,7 +288,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				for(int i = 0; i < size; i++)
 				{
 					// FIXME the position of the population within the network needs to be specified in neuroml
-					String id=VariablePathSerializer.getArrayName(cell.getId(), i);
+					String id = VariablePathSerializer.getArrayName(cell.getId(), i);
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
 					e.setId(id);
 					parentEntity.addChild(e);
