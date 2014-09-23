@@ -148,11 +148,12 @@ public class PopulateModelTree {
 							ionChannelNode.addChild(new TextMetadataNode(Resources.ANOTATION.get(), "anotation",  new StringValue(ionChannel.getAnnotation().getAny().get(0).getTextContent())));
 						}
 						
-						for (GateHHUndetermined gateHHUndetermined : ionChannel.getGate()){
-							HHRate hhForwardRate = gateHHUndetermined.getForwardRate();
-							
 						
-							//neuroMLUtils.getComponent(hhForwardRate.getType(), this.neuroml, this.url, ResourcesSuffix.HHRATE);
+						for (GateHHUndetermined gateHHUndetermined : ionChannel.getGate()){
+							CompositeNode gateHHUndeterminedNode = new CompositeNode(Resources.GATE.get(), gateHHUndetermined.getId());
+
+							HHRate hhForwardRate = gateHHUndetermined.getForwardRate();
+							this.neuroMLAccessUtility.getComponent(hhForwardRate.getType(), model, ResourcesSuffix.HHRATE);
 							if (hhForwardRate != null){
 								if (hhForwardRate.getMidpoint() != null){
 									PopulateModelTreeUtils.createParameterSpecificationNode(Resources.MIDPOINT, "midPoint", hhForwardRate.getMidpoint());
@@ -172,8 +173,8 @@ public class PopulateModelTree {
 							gateHHUndetermined.getQ10Settings();
 							gateHHUndetermined.getSteadyState();
 							gateHHUndetermined.getTimeCourse();
-							gateHHUndetermined.getType();
 							
+							ionChannelNode.addChild(gateHHUndeterminedNode);
 						}
 						
 						

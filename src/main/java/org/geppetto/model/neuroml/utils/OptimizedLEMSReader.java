@@ -24,7 +24,7 @@ import org.neuroml.model.util.NeuroMLConverter;
 public class OptimizedLEMSReader
 {
 	private static final List<String> NeuroMLInclusions = Arrays.asList("https://raw.github.com/NeuroML/NeuroML2/master/NeuroML2CoreTypes/NeuroML2CoreTypes.xml", "NeuroML2CoreTypes.xml",
-			"NeuroMLCoreCompTypes.xml", "NeuroMLCoreDimensions.xml", "Cells.xml", "Networks.xml", "Synapes.xml", "Inputs.xml", "Channels.xml");
+			"NeuroMLCoreCompTypes.xml", "NeuroMLCoreDimensions.xml", "Cells.xml", "Networks.xml", "Synapes.xml", "Inputs.xml", "Channels.xml", "PyNN.xml");
 	private static final String simulationInclusion = "Simulation.xml";
 	private boolean _neuroMLIncluded = false;
 	private boolean _simulationIncluded = false;
@@ -56,7 +56,7 @@ public class OptimizedLEMSReader
 	 * @throws IOException
 	 * @throws JAXBException 
 	 */
-	private String processLEMSInclusions(String lemsString) throws IOException, JAXBException
+	public String processLEMSInclusions(String lemsString) throws IOException, JAXBException
 	{
 		String processedLEMSString = lemsString;
 		String URLInclusion = "<Include ";

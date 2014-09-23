@@ -14,6 +14,9 @@ import javax.xml.bind.UnmarshalException;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.lemsml.jlems.core.sim.ContentError;
+import org.lemsml.jlems.core.type.Lems;
+import org.lemsml.jlems.core.type.Component;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.Base;
 import org.neuroml.model.Cell;
@@ -35,6 +38,8 @@ public class NeuroMLAccessUtility
 	public static final String URL_ID = "url";
 	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
 	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
+	public static final String LEMS_UTILS_ID = "lemsUtils";
+	public static final String DISCOVERED_LEMS_COMPONENTS = "discoveredLEMSComponents";
 	
 	
 	
@@ -61,11 +66,17 @@ public class NeuroMLAccessUtility
 	 * @param url
 	 * @return
 	 * @throws ModelInterpreterException 
+	 * @throws ContentError 
 	 */
 	public Base getComponent(String componentId, ModelWrapper model, ResourcesSuffix componentType) throws ModelInterpreterException
 	{
 		// let's first check if the cell is of a predefined neuroml type
-		Base component = getComponentById(componentId, model, componentType);
+		Base component;
+		try {
+			component = getComponentById(componentId, model, componentType);
+		} catch (ContentError e1) {
+			throw new ModelInterpreterException("Can't find the componet " + componentId);
+		}
 
 		if(component == null)
 		{
@@ -166,10 +177,13 @@ public class NeuroMLAccessUtility
 		return null;
 	}
 
-	private Base getComponentById(String componentId, ModelWrapper model, ResourcesSuffix componentType)
+	private Base getComponentById(String componentId, ModelWrapper model, ResourcesSuffix componentType) throws ContentError
 	{
 		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
+//		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
+		
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
+//		HashMap<String, Component> _discoveredLEMSComponents = ((HashMap<String, Component>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_LEMS_COMPONENTS));
 				
 		//TODO Can we have the same id for two different components 
 		if(_discoveredComponents.containsKey(componentId))
@@ -222,7 +236,8 @@ public class NeuroMLAccessUtility
 			return null;
 
 		case HHRATE:
-			doc.getHHCondExp();
+//			_discoveredLEMSComponents.put(componentId, lems.getComponent(componentId));
+			
 			
 		default:
 			break;

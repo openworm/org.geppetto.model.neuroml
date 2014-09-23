@@ -66,7 +66,8 @@ public enum Resources
 	FW_RATE_FN("Forward Rate Dynamics"),
 	MIDPOINT("Midpoint"),
 	RATE("Rate"),
-	SCALE("Scale");
+	SCALE("Scale"),
+	GATE("Gate");
 	
 	private String _value;
 	

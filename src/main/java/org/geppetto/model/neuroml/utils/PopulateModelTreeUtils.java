@@ -1,5 +1,8 @@
 package org.geppetto.model.neuroml.utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.geppetto.core.model.quantities.PhysicalQuantity;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.values.FloatValue;
@@ -9,23 +12,19 @@ public class PopulateModelTreeUtils {
 	public static ParameterSpecificationNode createParameterSpecificationNode(Resources name, String id, String value){
 		ParameterSpecificationNode parameterSpecificationNode = new ParameterSpecificationNode(name.get(), id);
 		
-		String[] valueArray = new String[2];
-		if (value.contains(" ")){
-			valueArray = value.split(" ");
-		}
-		else{
-			
-			for (int i = 0; i < value.length(); i++){
-			    if (!Character.isDigit(value.charAt(i)) && value.charAt(i)!='.' &&  value.charAt(i)!='-' && value.charAt(i)!='e' || (value.charAt(i)=='e' &&!Character.isDigit(value.charAt(i+1)) &&  value.charAt(i+1)!='-')){
-			    	valueArray[0] = value.substring(0,i);
-			    	valueArray[1] = value.substring(i);
-			    	break;
-			    }
+		
+		String regExp = "\\s*([0-9]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
+		
+		Pattern pattern = Pattern.compile(regExp);
+		Matcher matcher = pattern.matcher(value);
+		
+		PhysicalQuantity physicalQuantity = new PhysicalQuantity();
+		if (matcher.find()) {
+			physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
+			if (matcher.group(1)!=null){
+				physicalQuantity.setUnit(matcher.group(2));
 			}
 		}
-		PhysicalQuantity physicalQuantity = new PhysicalQuantity();
-		physicalQuantity.setUnit(valueArray[1]);
-		physicalQuantity.setValue(new FloatValue(Float.parseFloat(valueArray[0])));
 		parameterSpecificationNode.setValue(physicalQuantity);
 		
 		return parameterSpecificationNode;

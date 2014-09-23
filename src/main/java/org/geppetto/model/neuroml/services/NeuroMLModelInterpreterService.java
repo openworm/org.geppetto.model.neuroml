@@ -44,7 +44,6 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,12 +59,14 @@ import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
+import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.PopulateModelTree;
 import org.geppetto.model.neuroml.utils.ResourcesSuffix;
 import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
+import org.lemsml.jlems.core.type.Component;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.Instance;
@@ -115,7 +116,14 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			String lemsString = NeuroMLConverter.convertNeuroML2ToLems(neuroMLString);
 
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			ILEMSDocument document = lemsReader.readModel(lemsString);
+//			ILEMSDocument document = lemsReader.readModel(lemsString);
+
+			OptimizedLEMSReader reader = new OptimizedLEMSReader();
+			String lemsStringOptimized = reader.processLEMSInclusions(lemsString);
+			ILEMSDocument document = lemsReader.readModel(lemsStringOptimized);
+			
+//			String lemsStringUtils = URLReader.readStringFromURL(this.getClass().getResource("/NEUROML2BETA"));
+//			ILEMSDocument documentLemsUtils = lemsReader.readModel(lemsStringUtils);
 
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 			NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
@@ -128,6 +136,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<String, EntityNode>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
+//			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Component>());
 		}
 		catch(IOException e)
 		{
@@ -246,6 +255,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @throws MalformedURLException
 	 * @throws JAXBException
 	 * @throws ModelInterpreterException
+	 * @throws ContentError 
 	 */
 	private void addNetworkSubEntities(Network n, EntityNode parentEntity, URL url, AspectNode aspect, ModelWrapper model) throws ModelInterpreterException
 	{
