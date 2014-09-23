@@ -39,7 +39,6 @@ public class NeuroMLAccessUtility
 	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
 	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
 	public static final String LEMS_UTILS_ID = "lemsUtils";
-	public static final String DISCOVERED_LEMS_COMPONENTS = "discoveredLEMSComponents";
 	
 	
 	
@@ -235,8 +234,6 @@ public class NeuroMLAccessUtility
 			}
 			return null;
 
-		case HHRATE:
-//			_discoveredLEMSComponents.put(componentId, lems.getComponent(componentId));
 			
 			
 		default:

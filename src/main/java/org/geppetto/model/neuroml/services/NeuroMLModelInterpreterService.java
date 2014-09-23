@@ -58,6 +58,7 @@ import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
+import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.PopulateModelTree;
@@ -136,7 +137,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<String, EntityNode>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
-//			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Component>());
+			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Component>());
 		}
 		catch(IOException e)
 		{

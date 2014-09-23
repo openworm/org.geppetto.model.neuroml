@@ -32,15 +32,17 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.utils;
 
-import java.net.URL;
 import java.util.List;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
+import org.geppetto.core.model.runtime.FunctionNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.values.StringValue;
+import org.lemsml.jlems.core.type.ComponentType;
+import org.lemsml.jlems.core.type.dynamics.DerivedVariable;
 import org.neuroml.model.Annotation;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.Cell;
@@ -73,6 +75,8 @@ public class PopulateModelTree {
 //	private NeuroMLDocument neuroml;
 	
 	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
+	
+	private LEMSAccessUtility lemsAccessUtility = new LEMSAccessUtility();
 	
 	public PopulateModelTree() {		
 	}
@@ -139,7 +143,6 @@ public class PopulateModelTree {
 					// Ion Channel
 					CompositeNode ionChannelNode = new CompositeNode(Resources.ION_CHANNEL.get(), channelDensity.getIonChannel());
 					try {
-						//IonChannel ionChannel = (IonChannel)neuroMLUtils.retrieveNeuroMLComponent(channelDensity.getIonChannel(), "channel", url);
 						IonChannel ionChannel = (IonChannel) this.neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, ResourcesSuffix.ION_CHANNEL);
 						
 						//TODO: Read an annotation node properly
@@ -148,23 +151,40 @@ public class PopulateModelTree {
 							ionChannelNode.addChild(new TextMetadataNode(Resources.ANOTATION.get(), "anotation",  new StringValue(ionChannel.getAnnotation().getAny().get(0).getTextContent())));
 						}
 						
-						
+						//Read Gates
 						for (GateHHUndetermined gateHHUndetermined : ionChannel.getGate()){
 							CompositeNode gateHHUndeterminedNode = new CompositeNode(Resources.GATE.get(), gateHHUndetermined.getId());
 
+							//Forward Rate							
 							HHRate hhForwardRate = gateHHUndetermined.getForwardRate();
-							this.neuroMLAccessUtility.getComponent(hhForwardRate.getType(), model, ResourcesSuffix.HHRATE);
+							
 							if (hhForwardRate != null){
+								
+								if (hhForwardRate.getType() != null){
+									ComponentType typeRate = this.lemsAccessUtility.getComponent(hhForwardRate.getType(), model);
+								
+									FunctionNode  forwardRateFunctionNode = new FunctionNode(hhForwardRate.getType()); 
+									for (DerivedVariable derivedVariables:typeRate.getDynamics().getDerivedVariables()){
+										forwardRateFunctionNode.setExpression(derivedVariables.getValueExpression());
+										//derivedVariables.getName();
+										//TODO: Do we want to store the dimension and the exposure? 										
+										//derivedVariables.getDimension();
+										//derivedVariables.getExposure();
+									}
+									gateHHUndeterminedNode.addChild(forwardRateFunctionNode);
+								}
 								if (hhForwardRate.getMidpoint() != null){
-									PopulateModelTreeUtils.createParameterSpecificationNode(Resources.MIDPOINT, "midPoint", hhForwardRate.getMidpoint());
+									gateHHUndeterminedNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.MIDPOINT, "midPoint", hhForwardRate.getMidpoint()));
 								}
 								if (hhForwardRate.getRate() != null){
-									PopulateModelTreeUtils.createParameterSpecificationNode(Resources.RATE, "rate", hhForwardRate.getRate());
+									gateHHUndeterminedNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.RATE, "rate", hhForwardRate.getRate()));
 								}
 								if (hhForwardRate.getScale() != null){
-									PopulateModelTreeUtils.createParameterSpecificationNode(Resources.SCALE, "scale", hhForwardRate.getScale());
+									gateHHUndeterminedNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.SCALE, "scale", hhForwardRate.getScale()));
 								}
 							}
+							
+							//Reverse Rate
 							HHRate hhReverseRate = gateHHUndetermined.getReverseRate();
 							
 							
