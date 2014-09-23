@@ -31,7 +31,7 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
 
-package org.geppetto.model.neuroml.services;
+package org.geppetto.model.neuroml.utils;
 
 /**
  * Class to hold resources used in the visualiser. This elements will be displayed to the user.
@@ -42,15 +42,27 @@ public enum Resources
 {
 	COND_DENSITY("Passive conductance density"),
 	SPIKE_THRESHOLD("Spike Threshold"),
+	EREV("Reverse Potential"),
 	SPECIFIC_CAPACITANCE("Specific Capacitance"),
 	INIT_MEMBRANE_POTENTIAL("Initial Membrane Potential"),
 	RESISTIVITY("Resistivity"),
-	MEMBRANE_P("Membrane Properties (Soma)"),
-	INTRACELLULAR_P("Intracellular Properties (Soma)"), 
+	MEMBRANE_P("Membrane Properties"),
+	MEMBRANE_P_SOMA("Membrane Properties (Soma)"),
+	INTRACELLULAR_P("Intracellular Properties"),
+	INTRACELLULAR_P_SOMA("Intracellular Properties (Soma)"), 
 	SYNAPSE("Synapse Type"), 
 	CONNECTION_TYPE("Connection Type"),
 	PRE_SYNAPTIC("Input"),
-	POST_SYNAPTIC("Output");
+	POST_SYNAPTIC("Output"),
+	ION("Ion"),
+	ION_CHANNEL("Ion Channel"),
+	CHANNEL_DENSITY("Channel Density"),
+	SPECIES("Species"),
+	INIT_CONCENTRATION("Initial Concentration"),
+	INIT_EXT_CONCENTRATION("Initial External Concentration"),
+	CONCENTRATION_MODEL("Concentration Model"),
+	BIOPHYSICAL_PROPERTIES("Biophysical Properties"),
+	ANOTATION("Anotation");
 	
 	private String _value;
 	

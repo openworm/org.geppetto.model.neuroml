@@ -59,18 +59,19 @@ import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 public class LEMSModelInterpreterServiceTest
 {
 
-	/**""
-	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
+	/**
+	 * "" Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
 	 * 
 	 * @throws MalformedURLException
 	 * @throws ModelInterpreterException
-	 * @throws LEMSBuildException 
+	 * @throws LEMSBuildException
 	 */
 	@Test
 	public void testReadModel() throws MalformedURLException, ModelInterpreterException, LEMSBuildException
 	{
 		LEMSModelInterpreterService modelInterpreter = new LEMSModelInterpreterService();
 		URL url = new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml");
+		//URL url=this.getClass().getResource("/LEMS_NML2_Ex5_DetCell.xml");
 		ModelWrapper model;
 
 		model = (ModelWrapper) modelInterpreter.readModel(url, null, "");
@@ -92,13 +93,13 @@ public class LEMSModelInterpreterServiceTest
 		builder.build(config, options); // pre-build to read the run configuration and target from the file
 
 	}
-	
-	/**""
-	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
+
+	/**
+	 * "" Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
 	 * 
 	 * @throws MalformedURLException
 	 * @throws ModelInterpreterException
-	 * @throws LEMSBuildException 
+	 * @throws LEMSBuildException
 	 */
 	@Test
 	public void testReadC302Model() throws MalformedURLException, ModelInterpreterException, LEMSBuildException
@@ -112,7 +113,7 @@ public class LEMSModelInterpreterServiceTest
 		assertNotNull(model.getModel("url"));
 		assertNotNull(model.getModel("lems"));
 		assertNotNull(model.getModel("neuroml"));
-		
+
 		ILEMSBuilder builder = new LEMSBuilder();
 		// TODO Refactor simulators to deal with more than one model!
 		ILEMSDocument lemsDocument = (ILEMSDocument) (model).getModel("lems");
