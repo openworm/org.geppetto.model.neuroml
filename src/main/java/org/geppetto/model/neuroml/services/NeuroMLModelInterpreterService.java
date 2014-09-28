@@ -56,6 +56,7 @@ import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.utilities.URLReader;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
@@ -118,16 +119,22 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 //			ILEMSDocument document = lemsReader.readModel(lemsString);
-
-			OptimizedLEMSReader reader = new OptimizedLEMSReader();
-			String lemsStringOptimized = reader.processLEMSInclusions(lemsString);
-			ILEMSDocument document = lemsReader.readModel(lemsStringOptimized);
 			
-//			String lemsStringUtils = URLReader.readStringFromURL(this.getClass().getResource("/NEUROML2BETA"));
-//			ILEMSDocument documentLemsUtils = lemsReader.readModel(lemsStringUtils);
+			int index=url.toString().lastIndexOf('/');
+			String urlBase = url.toString().substring(0,index+1);
+			OptimizedLEMSReader reader = new OptimizedLEMSReader(urlBase);
+			String lemsStringOptimized = reader.processLEMSInclusions(lemsString);
+			lemsStringOptimized = reader.processLEMSInclusions(lemsStringOptimized, false);
+			ILEMSDocument document = lemsReader.readModel(lemsStringOptimized);
 
+//			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+//			NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
+			
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-			NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
+			String neuromlString = URLReader.readStringFromURL(url);
+			String neuromlStringOptimized = reader.processLEMSInclusions(neuromlString, false);
+			neuromlStringOptimized = reader.processLEMSInclusions(neuromlStringOptimized);
+			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(neuromlStringOptimized);
 
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);

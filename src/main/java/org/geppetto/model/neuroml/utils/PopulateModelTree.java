@@ -76,7 +76,8 @@ public class PopulateModelTree {
 	
 	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
 	
-	private LEMSAccessUtility lemsAccessUtility = new LEMSAccessUtility();
+	
+	
 	
 	public PopulateModelTree() {		
 	}
@@ -161,7 +162,7 @@ public class PopulateModelTree {
 							if (hhForwardRate != null){
 								
 								if (hhForwardRate.getType() != null){
-									ComponentType typeRate = this.lemsAccessUtility.getComponent(hhForwardRate.getType(), model);
+									ComponentType typeRate = (ComponentType) this.neuroMLAccessUtility.getComponent(hhForwardRate.getType(), model, ResourcesSuffix.COMPONENT_TYPE);
 								
 									FunctionNode  forwardRateFunctionNode = new FunctionNode(hhForwardRate.getType()); 
 									for (DerivedVariable derivedVariables:typeRate.getDynamics().getDerivedVariables()){

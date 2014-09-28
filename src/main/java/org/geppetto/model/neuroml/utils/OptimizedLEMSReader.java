@@ -29,9 +29,18 @@ public class OptimizedLEMSReader
 	private boolean _neuroMLIncluded = false;
 	private boolean _simulationIncluded = false;
 	private Map<String,NeuroMLDocument> _neuroMLs = new HashMap<String,NeuroMLDocument>();
+	
+	private String urlBase;
 			
+	public OptimizedLEMSReader() {
+		super();
+	}
 
 
+	public OptimizedLEMSReader(String urlBase) {
+		super();
+		this.urlBase = urlBase;
+	}
 
 	/**
 	 * @param url
@@ -58,8 +67,24 @@ public class OptimizedLEMSReader
 	 */
 	public String processLEMSInclusions(String lemsString) throws IOException, JAXBException
 	{
+		return processLEMSInclusions(lemsString, true);
+	}	
+	/**
+	 * @param lemsString
+	 * @return
+	 * @throws IOException
+	 * @throws JAXBException 
+	 */
+	public String processLEMSInclusions(String lemsString, Boolean includeNeuroml) throws IOException, JAXBException
+	{
 		String processedLEMSString = lemsString;
-		String URLInclusion = "<Include ";
+		String includeClause = "Include "; 
+		if (!includeNeuroml){
+			includeClause = "include href";
+		}
+		
+		String URLInclusion = "<"+ includeClause;
+		
 		while(processedLEMSString.contains(URLInclusion))
 		{
 			int inclusionStart = processedLEMSString.indexOf(URLInclusion);
@@ -68,9 +93,12 @@ public class OptimizedLEMSReader
 			int inclusionEnd = processedLEMSString.indexOf(">", urlEnd);
 			String inclusion = processedLEMSString.substring(inclusionStart, inclusionEnd + 1);
 			String urlPath = processedLEMSString.substring(urlStart, urlEnd);
-			if(inclusion.startsWith("<Include file"))
+			if(inclusion.startsWith("<"+ includeClause + "file"))
 			{
 				urlPath = "file:///" + urlPath;
+			}
+			else if (this.urlBase != null) {
+				urlPath = urlBase + urlPath;
 			}
 			URL url = new URL(urlPath);
 			String content = "";
@@ -80,6 +108,7 @@ public class OptimizedLEMSReader
 				if(!_neuroMLIncluded)
 				{
 					content = URLReader.readStringFromURL(this.getClass().getResource("/NEUROML2BETA"));
+					
 					_neuroMLIncluded = true;
 					_simulationIncluded = true;
 				}
@@ -90,20 +119,27 @@ public class OptimizedLEMSReader
 				if(!_simulationIncluded)
 				{
 					content = URLReader.readStringFromURL(this.getClass().getResource("/SIMULATION"));
+					
+					
 					_simulationIncluded = true;
 				}
 			}
 			else
 			{
-				String s=URLReader.readStringFromURL(url);
-				if(url.toExternalForm().endsWith("nml"))
-				{
-					//it's a neuroML file
-					NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-					NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
-					_neuroMLs.put(url.getFile(), neuroml);
+				try {
+					String s=URLReader.readStringFromURL(url);
+					if(url.toExternalForm().endsWith("nml"))
+					{
+						//it's a neuroML file
+						NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+						NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
+						_neuroMLs.put(url.getFile(), neuroml);
+					}
+					content = trimOuterElement(processLEMSInclusions(s, includeNeuroml));
+				} catch (IOException e) {
+					content = "";
 				}
-				content = trimOuterElement(processLEMSInclusions(s));
+				
 			}
 			processedLEMSString = processedLEMSString.replace(inclusion, content);
 

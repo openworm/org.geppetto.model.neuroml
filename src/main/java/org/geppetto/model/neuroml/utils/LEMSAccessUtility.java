@@ -171,7 +171,7 @@ public class LEMSAccessUtility
 //		return null;
 //	}
 
-	private ComponentType getComponentById(String componentId, ModelWrapper model) throws ContentError
+	public ComponentType getComponentById(String componentId, ModelWrapper model) throws ContentError
 	{
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
 		

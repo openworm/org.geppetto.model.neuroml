@@ -16,10 +16,10 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Lems;
-import org.lemsml.jlems.core.type.Component;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.Base;
 import org.neuroml.model.Cell;
+import org.neuroml.model.ComponentType;
 import org.neuroml.model.IafCell;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
@@ -40,7 +40,7 @@ public class NeuroMLAccessUtility
 	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
 	public static final String LEMS_UTILS_ID = "lemsUtils";
 	
-	
+	private LEMSAccessUtility lemsAccessUtility = new LEMSAccessUtility();
 	
 	private int maxAttempts = 3;
 	
@@ -67,32 +67,32 @@ public class NeuroMLAccessUtility
 	 * @throws ModelInterpreterException 
 	 * @throws ContentError 
 	 */
-	public Base getComponent(String componentId, ModelWrapper model, ResourcesSuffix componentType) throws ModelInterpreterException
+	public Object getComponent(String componentId, ModelWrapper model, ResourcesSuffix componentType) throws ModelInterpreterException
 	{
 		// let's first check if the cell is of a predefined neuroml type
-		Base component;
+		Object component;
 		try {
 			component = getComponentById(componentId, model, componentType);
 		} catch (ContentError e1) {
 			throw new ModelInterpreterException("Can't find the componet " + componentId);
 		}
 
-		if(component == null)
-		{
-			try
-			{
-				// otherwise let's check if it's defined in the same folder as the current component
-				component = retrieveNeuroMLComponent(componentId, componentType, model);
-			}
-			catch(MalformedURLException e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-			catch(JAXBException e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-		}
+//		if(component == null)
+//		{
+//			try
+//			{
+//				// otherwise let's check if it's defined in the same folder as the current component
+//				component = retrieveNeuroMLComponent(componentId, componentType, model);
+//			}
+//			catch(MalformedURLException e)
+//			{
+//				throw new ModelInterpreterException(e);
+//			}
+//			catch(JAXBException e)
+//			{
+//				throw new ModelInterpreterException(e);
+//			}
+//		}
 		if(component == null)
 		{
 			// sorry no luck!
@@ -108,87 +108,95 @@ public class NeuroMLAccessUtility
 	 * @throws JAXBException
 	 * @throws MalformedURLException
 	 */
-	public Base retrieveNeuroMLComponent(String componentId, ResourcesSuffix componentType, ModelWrapper model) throws JAXBException, MalformedURLException
+//	public Base retrieveNeuroMLComponent(String componentId, ResourcesSuffix componentType, ModelWrapper model) throws JAXBException, MalformedURLException
+//	{
+//		URL url = (URL) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.URL_ID);
+//		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+//		boolean attemptConnection = true;
+//		String baseURL = url.getFile();
+//		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
+//		if(url.getFile().endsWith("nml"))
+//		{
+//			baseURL = baseURL.substring(0, baseURL.lastIndexOf("/") + 1);
+//		}
+//		int attempts = 0;
+//		NeuroMLDocument neuromlDocument = null;
+//		while(attemptConnection)
+//		{
+//			try
+//			{
+//				attemptConnection = false;
+//				attempts++;
+//				URL componentURL = new URL(url.getProtocol() + "://" + url.getAuthority() + baseURL + componentId + componentType.get() + ".nml");
+//
+//				neuromlDocument = neuromlConverter.urlToNeuroML(componentURL);
+//
+//				List<? extends Base> components = null;
+//				
+//				switch (componentType) {
+//				case ION_CHANNEL:
+//					components = neuromlDocument.getIonChannel();
+//				default:
+//					break;
+//				}
+//				
+//				if(components != null)
+//				{
+//					
+//					
+//					for(Base c : neuromlDocument.getIonChannel())
+//					{
+//						_discoveredComponents.put(componentId, c);
+//						if(((Base)c).getId().equals(componentId))
+//						{
+//							return c;
+//						}
+//					}
+//				}
+//			}
+//			catch(MalformedURLException e)
+//			{
+//				throw e;
+//			}
+//			catch(UnmarshalException e)
+//			{
+//				if(e.getLinkedException() instanceof IOException)
+//				{
+//					if(attempts < maxAttempts)
+//					{
+//						attemptConnection = true;
+//					}
+//				}
+//			}
+//			catch(Exception e)
+//			{
+//				throw e;
+//			}
+//		}
+//		return null;
+//	}
+
+	private Object getComponentById(String componentId, ModelWrapper model, ResourcesSuffix componentType) throws ContentError
 	{
-		URL url = (URL) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.URL_ID);
-		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-		boolean attemptConnection = true;
-		String baseURL = url.getFile();
-		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
-		if(url.getFile().endsWith("nml"))
-		{
-			baseURL = baseURL.substring(0, baseURL.lastIndexOf("/") + 1);
-		}
-		int attempts = 0;
-		NeuroMLDocument neuromlDocument = null;
-		while(attemptConnection)
-		{
-			try
-			{
-				attemptConnection = false;
-				attempts++;
-				URL componentURL = new URL(url.getProtocol() + "://" + url.getAuthority() + baseURL + componentId + componentType.get() + ".nml");
-
-				neuromlDocument = neuromlConverter.urlToNeuroML(componentURL);
-
-				List<? extends Base> components = null;
-				
-				switch (componentType) {
-				case ION_CHANNEL:
-					components = neuromlDocument.getIonChannel();
-				default:
-					break;
-				}
-				
-				if(components != null)
-				{
-					
-					
-					for(Base c : neuromlDocument.getIonChannel())
-					{
-						_discoveredComponents.put(componentId, c);
-						if(((Base)c).getId().equals(componentId))
-						{
-							return c;
-						}
-					}
-				}
-			}
-			catch(MalformedURLException e)
-			{
-				throw e;
-			}
-			catch(UnmarshalException e)
-			{
-				if(e.getLinkedException() instanceof IOException)
-				{
-					if(attempts < maxAttempts)
-					{
-						attemptConnection = true;
-					}
-				}
-			}
-			catch(Exception e)
-			{
-				throw e;
-			}
-		}
-		return null;
-	}
-
-	private Base getComponentById(String componentId, ModelWrapper model, ResourcesSuffix componentType) throws ContentError
-	{
-		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
-//		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
 		
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
-//		HashMap<String, Component> _discoveredLEMSComponents = ((HashMap<String, Component>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_LEMS_COMPONENTS));
 				
 		//TODO Can we have the same id for two different components 
 		if(_discoveredComponents.containsKey(componentId))
 		{
 			return _discoveredComponents.get(componentId);
 		}
+		
+		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
+		
+		HashMap<String, ComponentType> _discoveredLEMSComponents = ((HashMap<String, ComponentType>)((ModelWrapper) model).getModel(this.lemsAccessUtility.DISCOVERED_LEMS_COMPONENTS));
+		//TODO Can we have the same id for two different components 
+		if(_discoveredLEMSComponents.containsKey(componentId))
+		{
+			return _discoveredLEMSComponents.get(componentId);
+		}
+		
+		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
 		
 		switch (componentType) {
 		case ION_CHANNEL:
@@ -232,7 +240,9 @@ public class NeuroMLAccessUtility
 					return c;
 				}
 			}
-			return null;
+			
+			return this.lemsAccessUtility.getComponentById(componentId, model);
+			
 
 			
 			
@@ -240,7 +250,7 @@ public class NeuroMLAccessUtility
 			break;
 		}
 		
-		return null;
+		return this.lemsAccessUtility.getComponentById(componentId, model);
 
 	}
 	

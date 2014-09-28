@@ -42,7 +42,8 @@ public enum ResourcesSuffix
 {
 	ION_CHANNEL(".channel"),
 	HHRATE(""),
-	CELL(".cell");
+	CELL(".cell"),
+	COMPONENT_TYPE("");
 	
 	private String _value;
 	
