@@ -144,7 +144,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<String, EntityNode>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
-			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Component>());
+			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
 		}
 		catch(IOException e)
 		{
@@ -229,8 +229,10 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 */
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
-		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.NEUROML_ID);
-		URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID);
+		if(((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID) instanceof NeuroMLDocument)
+		{
+			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID);
+			URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.URL_ID);
 
 		List<Network> networks = neuroml.getNetwork();
 		if(networks == null || networks.size() == 0)
@@ -240,6 +242,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		else if(networks.size() == 1)
 		{
 			// there's only one network, we consider the entity for it our network entity
+			// taka: GETPARENT ENTITY ES NULO
 			addNetworkSubEntities(networks.get(0), (EntityNode) aspectNode.getParentEntity(), url, aspectNode, (ModelWrapper) aspectNode.getModel());
 		}
 		else if(networks.size() > 1)
@@ -251,6 +254,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				addNetworkSubEntities(n, networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
 				aspectNode.getChildren().add(networkEntity);
 			}
+		}
 		}
 	}
 
@@ -283,7 +287,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				int i = 0;
 				for(Instance instance : p.getInstance())
 				{
-					String id=VariablePathSerializer.getArrayName(p.getId(), i);
+					String id = VariablePathSerializer.getArrayName(p.getId(), i);
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
 
 					if(instance.getLocation() != null)
@@ -303,7 +307,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				for(int i = 0; i < size; i++)
 				{
 					// FIXME the position of the population within the network needs to be specified in neuroml
-					String id=VariablePathSerializer.getArrayName(cell.getId(), i);
+					String id = VariablePathSerializer.getArrayName(cell.getId(), i);
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
 					e.setId(id);
 					parentEntity.addChild(e);

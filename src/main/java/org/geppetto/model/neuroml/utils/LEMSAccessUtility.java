@@ -175,12 +175,12 @@ public class LEMSAccessUtility
 	{
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
 		
-		HashMap<String, ComponentType> _discoveredLEMSComponents = ((HashMap<String, ComponentType>)((ModelWrapper) model).getModel(DISCOVERED_LEMS_COMPONENTS));
+		HashMap<String, Object> _discoveredLEMSComponents = ((HashMap<String, Object>)((ModelWrapper) model).getModel(DISCOVERED_LEMS_COMPONENTS));
 				
 		//TODO Can we have the same id for two different components 
 		if(_discoveredLEMSComponents.containsKey(componentId))
 		{
-			return _discoveredLEMSComponents.get(componentId);
+			return (ComponentType)_discoveredLEMSComponents.get(componentId);
 		}
 		
 		ComponentType component = lems.getComponentTypeByName(componentId);
