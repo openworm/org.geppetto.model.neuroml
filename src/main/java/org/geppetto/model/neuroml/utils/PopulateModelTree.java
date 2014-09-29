@@ -76,6 +76,7 @@ public class PopulateModelTree {
 	
 	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
 	
+	private PopulateModelTreeUtils populateModelTreeUtils = new PopulateModelTreeUtils();
 	
 	
 	
@@ -121,7 +122,7 @@ public class PopulateModelTree {
 			MembraneProperties membraneProperties = properties.getMembraneProperties();
 			if(membraneProperties != null)
 			{
-				CompositeNode membranePropertiesNode = new CompositeNode(Resources.MEMBRANE_P.get(), "Membrane Properties");
+				CompositeNode membranePropertiesNode = new CompositeNode(Resources.MEMBRANE_P.get(), "MembraneProperties");
 				
 				
 				List<ChannelDensity> channelDensities = membraneProperties.getChannelDensity();
@@ -136,7 +137,7 @@ public class PopulateModelTree {
 					CompositeNode channelDensityNode = new CompositeNode(Resources.CHANNEL_DENSITY.get() + "_" + channelDensity.getId(), channelDensity.getId());
 					
 					// Passive conductance density				
-					channelDensityNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY, "condDensity_"+channelDensity.getId(), channelDensity.getCondDensity()));
+					channelDensityNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY, "condDensity_"+channelDensity.getId(), channelDensity.getCondDensity()));
 					
 					// ION	
 					channelDensityNode.addChild(new TextMetadataNode(Resources.ION.get(), "ion_"+channelDensity.getId(),  new StringValue(channelDensity.getIon())));
@@ -154,46 +155,30 @@ public class PopulateModelTree {
 						
 						//Read Gates
 						for (GateHHUndetermined gateHHUndetermined : ionChannel.getGate()){
-							CompositeNode gateHHUndeterminedNode = new CompositeNode(Resources.GATE.get(), gateHHUndetermined.getId());
+							CompositeNode gateHHUndeterminedNode = new CompositeNode(Resources.GATE.get() + "_" + gateHHUndetermined.getId(), gateHHUndetermined.getId());
 
-							//Forward Rate							
-							HHRate hhForwardRate = gateHHUndetermined.getForwardRate();
-							
-							if (hhForwardRate != null){
-								
-								if (hhForwardRate.getType() != null){
-									ComponentType typeRate = (ComponentType) this.neuroMLAccessUtility.getComponent(hhForwardRate.getType(), model, ResourcesSuffix.COMPONENT_TYPE);
-								
-									FunctionNode  forwardRateFunctionNode = new FunctionNode(hhForwardRate.getType()); 
-									for (DerivedVariable derivedVariables:typeRate.getDynamics().getDerivedVariables()){
-										forwardRateFunctionNode.setExpression(derivedVariables.getValueExpression());
-										//derivedVariables.getName();
-										//TODO: Do we want to store the dimension and the exposure? 										
-										//derivedVariables.getDimension();
-										//derivedVariables.getExposure();
-									}
-									gateHHUndeterminedNode.addChild(forwardRateFunctionNode);
-								}
-								if (hhForwardRate.getMidpoint() != null){
-									gateHHUndeterminedNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.MIDPOINT, "midPoint", hhForwardRate.getMidpoint()));
-								}
-								if (hhForwardRate.getRate() != null){
-									gateHHUndeterminedNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.RATE, "rate", hhForwardRate.getRate()));
-								}
-								if (hhForwardRate.getScale() != null){
-									gateHHUndeterminedNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.SCALE, "scale", hhForwardRate.getScale()));
-								}
+							//Forward Rate
+							if (gateHHUndetermined.getForwardRate() != null){
+								gateHHUndeterminedNode.addChild(populateModelTreeUtils.createRateGateNode(Resources.FW_RATE , "forwardRate_" + gateHHUndetermined.getId(), gateHHUndetermined.getForwardRate(), this.neuroMLAccessUtility, model));
 							}
 							
 							//Reverse Rate
-							HHRate hhReverseRate = gateHHUndetermined.getReverseRate();
+							if (gateHHUndetermined.getReverseRate() != null){
+								gateHHUndeterminedNode.addChild(populateModelTreeUtils.createRateGateNode(Resources.BW_RATE , "backwardRate_" + gateHHUndetermined.getId(), gateHHUndetermined.getReverseRate(), this.neuroMLAccessUtility, model));
+							}
 							
 							
 							
 							gateHHUndetermined.getInstances();
 							gateHHUndetermined.getQ10Settings();
-							gateHHUndetermined.getSteadyState();
-							gateHHUndetermined.getTimeCourse();
+							
+							if (gateHHUndetermined.getTimeCourse() != null){
+								gateHHUndeterminedNode.addChild(populateModelTreeUtils.createTimeCourseNode(Resources.TIMECOURSE, "timeCourse_" + gateHHUndetermined.getId(), gateHHUndetermined.getTimeCourse(), neuroMLAccessUtility, model));
+							}
+							
+							if (gateHHUndetermined.getSteadyState() != null){
+								gateHHUndeterminedNode.addChild(populateModelTreeUtils.createSteadyStateNode(Resources.STEADY_STATE, "steadyState" + gateHHUndetermined.getId(), gateHHUndetermined.getSteadyState(), neuroMLAccessUtility, model));
+							}
 							
 							ionChannelNode.addChild(gateHHUndeterminedNode);
 						}
@@ -217,7 +202,7 @@ public class PopulateModelTree {
 					
 					
 					// Reverse Potential					
-					channelDensityNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.EREV, "erev_"+channelDensity.getId(), channelDensity.getErev()));
+					channelDensityNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.EREV, "erev_"+channelDensity.getId(), channelDensity.getErev()));
 					
 					// Segment Group
 					//TODO: Point to a visualization group?
@@ -228,19 +213,19 @@ public class PopulateModelTree {
 				// Spike threshold
 				for(int i = 0; i < spikeThreshs.size(); i++)
 				{
-					membranePropertiesNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.SPIKE_THRESHOLD, "spikeThresh_"+i, spikeThreshs.get(i).getValue()));
+					membranePropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.SPIKE_THRESHOLD, "spikeThresh_"+i, spikeThreshs.get(i).getValue()));
 				}
 
 				// Specific Capacitance
 				for(int i = 0; i < specificCapacitances.size(); i++)
 				{
-					membranePropertiesNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.SPECIFIC_CAPACITANCE, "specificCapacitance_"+i, specificCapacitances.get(i).getValue()));
+					membranePropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.SPECIFIC_CAPACITANCE, "specificCapacitance_"+i, specificCapacitances.get(i).getValue()));
 				}
 				
 				// Initial Membrance Potentials
 				for(int i = 0; i < initMembPotentials.size(); i++)
 				{
-					membranePropertiesNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_MEMBRANE_POTENTIAL, "initMembPotential_"+i, initMembPotentials.get(i).getValue()));
+					membranePropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_MEMBRANE_POTENTIAL, "initMembPotential_"+i, initMembPotentials.get(i).getValue()));
 				}
 				
 				biophysicalPropertiesNode.addChild(membranePropertiesNode);
@@ -249,7 +234,7 @@ public class PopulateModelTree {
 			IntracellularProperties intracellularProperties = properties.getIntracellularProperties();
 			if(intracellularProperties != null)
 			{
-				CompositeNode intracellularPropertiesNode = new CompositeNode(Resources.INTRACELLULAR_P.get(), "intracellularProperties");
+				CompositeNode intracellularPropertiesNode = new CompositeNode(Resources.INTRACELLULAR_P.get(), "IntracellularProperties");
 				
 				List<Resistivity> resistivities = intracellularProperties.getResistivity();
 				List<Species> species = intracellularProperties.getSpecies();
@@ -257,7 +242,7 @@ public class PopulateModelTree {
 				// Resistivity
 				for(int i = 0; i < resistivities.size(); i++)
 				{
-					intracellularPropertiesNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.RESISTIVITY, "resistivity_"+i, resistivities.get(i).getValue()));
+					intracellularPropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESISTIVITY, "resistivity_"+i, resistivities.get(i).getValue()));
 				}
 				
 				// Specie
@@ -266,10 +251,10 @@ public class PopulateModelTree {
 					CompositeNode specieNode = new CompositeNode(Resources.SPECIES.get(), specie.getId());
 					
 					// Initial Concentration
-					specieNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_CONCENTRATION, "initialConcentration_"+specie.getId(), specie.getInitialConcentration()));
+					specieNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_CONCENTRATION, "initialConcentration_"+specie.getId(), specie.getInitialConcentration()));
 					
 					// Initial External Concentration
-					specieNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_EXT_CONCENTRATION, "initialExtConcentration_"+specie.getId(), specie.getInitialExtConcentration()));
+					specieNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_EXT_CONCENTRATION, "initialExtConcentration_"+specie.getId(), specie.getInitialExtConcentration()));
 					
 					// Ion
 					specieNode.addChild(new TextMetadataNode(Resources.ION.get(), "ion_"+specie.getId(),  new StringValue(specie.getIon())));

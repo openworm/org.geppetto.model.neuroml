@@ -42,7 +42,7 @@ public enum Resources
 {
 	COND_DENSITY("Passiveconductancedensity"),
 	SPIKE_THRESHOLD("SpikeThreshold"),
-	EREV("Reverse Potential"),
+	EREV("ReversePotential"),
 	SPECIFIC_CAPACITANCE("SpecificCapacitance"),
 	INIT_MEMBRANE_POTENTIAL("InitialMembranePotential"),
 	RESISTIVITY("Resistivity"),
@@ -63,11 +63,17 @@ public enum Resources
 	CONCENTRATION_MODEL("ConcentrationModel"),
 	BIOPHYSICAL_PROPERTIES("BiophysicalProperties"),
 	ANOTATION("Anotation"),
+	FW_RATE("ForwardRate"),
 	FW_RATE_FN("ForwardRateDynamics"),
+	BW_RATE("BackwardRate"),
+	BW_RATE_FN("BackwardRateDynamics"),
 	MIDPOINT("Midpoint"),
 	RATE("Rate"),
 	SCALE("Scale"),
-	GATE("Gate");
+	GATE("Gate"),
+	TIMECOURSE("TimeCourse"),
+	TAU("Tau"),
+	STEADY_STATE("SteadyState");
 	
 	private String _value;
 	
