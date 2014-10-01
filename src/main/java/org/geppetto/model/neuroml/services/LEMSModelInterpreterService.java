@@ -108,10 +108,10 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 				model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, reader.getNeuroMLs());
 			}
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
-			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
-			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
 			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
+			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
+			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
 		}
 		catch(IOException e)
 		{

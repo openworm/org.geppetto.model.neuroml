@@ -33,31 +33,18 @@ import org.neuroml.model.util.NeuroMLConverter;
 public class NeuroMLAccessUtility
 {
 
+	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
 	public static final String LEMS_ID = "lems";
 	public static final String NEUROML_ID = "neuroml";
 	public static final String URL_ID = "url";
 	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
-	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
-	public static final String LEMS_UTILS_ID = "lemsUtils";
+//	public static final String LEMS_UTILS_ID = "lemsUtils";
 	
 	private LEMSAccessUtility lemsAccessUtility = new LEMSAccessUtility();
 	
-	private int maxAttempts = 3;
-	
-	
-	
-	public NeuroMLAccessUtility(int maxAttempts) {
-		super();
-		this.maxAttempts = maxAttempts;
-	}
-
-
-
 	public NeuroMLAccessUtility() {
 		super();
 	}
-
-
 
 	/**
 	 * @param p
@@ -67,32 +54,24 @@ public class NeuroMLAccessUtility
 	 * @throws ModelInterpreterException 
 	 * @throws ContentError 
 	 */
-	public Object getComponent(String componentId, ModelWrapper model, ResourcesSuffix componentType) throws ModelInterpreterException
+	public Object getComponent(String componentId, ModelWrapper model, Resources componentType) throws ModelInterpreterException
 	{
+		//Check if we have already discovered this component
+		Object component = this.getComponentFromCache(componentId, model);
+		
+		if (component == null){
+			component = this.lemsAccessUtility.getComponentFromCache(componentId, model);
+		}
+		
 		// let's first check if the cell is of a predefined neuroml type
-		Object component;
-		try {
-			component = getComponentById(componentId, model, componentType);
-		} catch (ContentError e1) {
-			throw new ModelInterpreterException("Can't find the componet " + componentId);
+		if(component == null){
+			try {
+				component = getComponentById(componentId, model, componentType);
+			} catch (ContentError e1) {
+				throw new ModelInterpreterException("Can't find the componet " + componentId);
+			}
 		}
 
-//		if(component == null)
-//		{
-//			try
-//			{
-//				// otherwise let's check if it's defined in the same folder as the current component
-//				component = retrieveNeuroMLComponent(componentId, componentType, model);
-//			}
-//			catch(MalformedURLException e)
-//			{
-//				throw new ModelInterpreterException(e);
-//			}
-//			catch(JAXBException e)
-//			{
-//				throw new ModelInterpreterException(e);
-//			}
-//		}
 		if(component == null)
 		{
 			// sorry no luck!
@@ -100,6 +79,78 @@ public class NeuroMLAccessUtility
 		}
 		return component;
 	}
+	
+	public Base getComponentFromCache(String componentId, ModelWrapper model){
+		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
+		
+		//TODO Can we have the same id for two different components 
+		if(_discoveredComponents.containsKey(componentId))
+		{
+			return _discoveredComponents.get(componentId);
+		}
+		
+		return null;
+	}
+	
+	
+	private Object getComponentById(String componentId, ModelWrapper model, Resources componentType) throws ContentError
+	{
+		
+//		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
+		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
+		
+		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
+		
+		switch (componentType) {
+		case ION_CHANNEL:
+			for (IonChannel ionChannel : doc.getIonChannel()){
+				_discoveredComponents.put(ionChannel.getId(), ionChannel);
+				if(ionChannel.getId().equals(componentId))
+				{
+					return ionChannel;
+				}
+			}
+			for (IonChannelHH ionChannelHH : doc.getIonChannelHH()){
+				_discoveredComponents.put(ionChannelHH.getId(), ionChannelHH);
+				if(ionChannelHH.getId().equals(componentId))
+				{
+					return ionChannelHH;
+				}
+			}
+		case CELL:	
+			
+			for(AdExIaFCell c : doc.getAdExIaFCell())
+			{
+				_discoveredComponents.put(c.getId(), c);
+				if(c.getId().equals(componentId))
+				{
+					return c;
+				}
+			}
+			for(IafCell c : doc.getIafCell())
+			{
+				_discoveredComponents.put(c.getId(), c);
+				if(c.getId().equals(componentId))
+				{
+					return c;
+				}
+			}
+			for(Cell c : doc.getCell())
+			{
+				_discoveredComponents.put(c.getId(), c);
+				if(c.getId().equals(componentId))
+				{
+					return c;
+				}
+			}
+			
+		default:
+			return this.lemsAccessUtility.getComponentById(componentId, model);
+		}
+		
+		
+	}
+	
 	
 	/**
 	 * @param componentId
@@ -175,83 +226,5 @@ public class NeuroMLAccessUtility
 //		}
 //		return null;
 //	}
-
-	private Object getComponentById(String componentId, ModelWrapper model, ResourcesSuffix componentType) throws ContentError
-	{
-		
-		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
-				
-		//TODO Can we have the same id for two different components 
-		if(_discoveredComponents.containsKey(componentId))
-		{
-			return _discoveredComponents.get(componentId);
-		}
-		
-		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
-		
-		HashMap<String, Object> _discoveredLEMSComponents = ((HashMap<String, Object>)((ModelWrapper) model).getModel(this.lemsAccessUtility.DISCOVERED_LEMS_COMPONENTS));
-		//TODO Can we have the same id for two different components 
-		if(_discoveredLEMSComponents.containsKey(componentId))
-		{
-			return _discoveredLEMSComponents.get(componentId);
-		}
-		
-		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
-		
-		switch (componentType) {
-		case ION_CHANNEL:
-			for (IonChannel ionChannel : doc.getIonChannel()){
-				if(ionChannel.getId().equals(componentId))
-				{
-					_discoveredComponents.put(ionChannel.getId(), ionChannel);
-					return ionChannel;
-				}
-			}
-			for (IonChannelHH ionChannelHH : doc.getIonChannelHH()){
-				if(ionChannelHH.getId().equals(componentId))
-				{
-					_discoveredComponents.put(ionChannelHH.getId(), ionChannelHH);
-					return ionChannelHH;
-				}
-			}
-		case CELL:	
-			
-			for(AdExIaFCell c : doc.getAdExIaFCell())
-			{
-				if(c.getId().equals(componentId))
-				{
-					_discoveredComponents.put(c.getId(), c);
-					return c;
-				}
-			}
-			for(IafCell c : doc.getIafCell())
-			{
-				if(c.getId().equals(componentId))
-				{
-					_discoveredComponents.put(c.getId(), c);
-					return c;
-				}
-			}
-			for(Cell c : doc.getCell())
-			{
-				if(c.getId().equals(componentId))
-				{
-					_discoveredComponents.put(c.getId(), c);
-					return c;
-				}
-			}
-			
-			return this.lemsAccessUtility.getComponentById(componentId, model);
-			
-
-			
-			
-		default:
-			break;
-		}
-		
-		return this.lemsAccessUtility.getComponentById(componentId, model);
-
-	}
 	
 }

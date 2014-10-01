@@ -145,7 +145,7 @@ public class PopulateModelTree {
 					// Ion Channel
 					CompositeNode ionChannelNode = new CompositeNode(Resources.ION_CHANNEL.get(), channelDensity.getIonChannel());
 					try {
-						IonChannel ionChannel = (IonChannel) this.neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, ResourcesSuffix.ION_CHANNEL);
+						IonChannel ionChannel = (IonChannel) this.neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, Resources.ION_CHANNEL);
 						
 						//TODO: Read an annotation node properly
 						Annotation annotation = ionChannel.getAnnotation();

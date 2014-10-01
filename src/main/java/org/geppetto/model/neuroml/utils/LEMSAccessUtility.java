@@ -34,25 +34,10 @@ import org.neuroml.model.util.NeuroMLConverter;
 public class LEMSAccessUtility
 {
 	public static final String DISCOVERED_LEMS_COMPONENTS = "discoveredLEMSComponents";
-	
-	
-	
-	private int maxAttempts = 3;
-	
-	
-	
-	public LEMSAccessUtility(int maxAttempts) {
-		super();
-		this.maxAttempts = maxAttempts;
-	}
-
-
 
 	public LEMSAccessUtility() {
 		super();
 	}
-
-
 
 	/**
 	 * @param p
@@ -62,37 +47,48 @@ public class LEMSAccessUtility
 	 * @throws ModelInterpreterException 
 	 * @throws ContentError 
 	 */
-	public ComponentType getComponent(String componentId, ModelWrapper model) throws ModelInterpreterException
+	public Object getComponent(String componentId, ModelWrapper model) throws ModelInterpreterException
 	{
+		//Check if we have already discovered this component
+		Object component = this.getComponentFromCache(componentId, model);
+		
 		// let's first check if the cell is of a predefined neuroml type
-		ComponentType component;
-		try {
-			component = getComponentById(componentId, model);
-		} catch (ContentError e1) {
-			throw new ModelInterpreterException("Can't find the componet " + componentId);
+		if(component == null){
+			try {
+				component = getComponentById(componentId, model);
+			} catch (ContentError e1) {
+				throw new ModelInterpreterException("Can't find the componet " + componentId);
+			}
 		}
 
-//		if(component == null)
-//		{
-//			try
-//			{
-//				// otherwise let's check if it's defined in the same folder as the current component
-//				component = retrieveNeuroMLComponent(componentId, componentType, model);
-//			}
-//			catch(MalformedURLException e)
-//			{
-//				throw new ModelInterpreterException(e);
-//			}
-//			catch(JAXBException e)
-//			{
-//				throw new ModelInterpreterException(e);
-//			}
-//		}
 		if(component == null)
 		{
 			// sorry no luck!
 			throw new ModelInterpreterException("Can't find the componet " + componentId);
 		}
+		return component;
+	}
+
+	public Object getComponentFromCache(String componentId, ModelWrapper model){
+		HashMap<String, Object> _discoveredLEMSComponents = ((HashMap<String, Object>)((ModelWrapper) model).getModel(DISCOVERED_LEMS_COMPONENTS));
+		
+		//TODO Can we have the same id for two different components 
+		if(_discoveredLEMSComponents.containsKey(componentId))
+		{
+			return _discoveredLEMSComponents.get(componentId);
+		}
+		
+		return null;
+	}
+	
+	public Object getComponentById(String componentId, ModelWrapper model) throws ContentError
+	{
+		//Look for the model in the document
+		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
+		Object component = lems.getComponentTypeByName(componentId);
+		//Store the component in the cache
+		((HashMap<String, Object>)((ModelWrapper) model).getModel(DISCOVERED_LEMS_COMPONENTS)).put(componentId, component);
+		
 		return component;
 	}
 	
@@ -170,25 +166,5 @@ public class LEMSAccessUtility
 //		}
 //		return null;
 //	}
-
-	public ComponentType getComponentById(String componentId, ModelWrapper model) throws ContentError
-	{
-		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
-		
-		HashMap<String, Object> _discoveredLEMSComponents = ((HashMap<String, Object>)((ModelWrapper) model).getModel(DISCOVERED_LEMS_COMPONENTS));
-				
-		//TODO Can we have the same id for two different components 
-		if(_discoveredLEMSComponents.containsKey(componentId))
-		{
-			return (ComponentType)_discoveredLEMSComponents.get(componentId);
-		}
-		
-		ComponentType component = lems.getComponentTypeByName(componentId);
-		
-		_discoveredLEMSComponents.put(componentId, component);
-			
-		return component;
-			
-	}
 	
 }

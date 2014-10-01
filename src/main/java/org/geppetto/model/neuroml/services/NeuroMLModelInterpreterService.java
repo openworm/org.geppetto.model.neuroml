@@ -63,7 +63,7 @@ import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.PopulateModelTree;
-import org.geppetto.model.neuroml.utils.ResourcesSuffix;
+import org.geppetto.model.neuroml.utils.Resources;
 import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
@@ -274,14 +274,14 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		if(n.getPopulation().size() == 1 && parentEntity.getName().equals(n.getPopulation().get(0).getComponent()) && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
 		{
 			// there's only one cell whose name is the same as the geppetto entity, don't create any subentities
-			neuroMLAccessUtility.getComponent(n.getPopulation().get(0).getComponent(), model, ResourcesSuffix.CELL);
+			neuroMLAccessUtility.getComponent(n.getPopulation().get(0).getComponent(), model, Resources.CELL);
 			mapCellIdToEntity(parentEntity.getId(), parentEntity, aspect);
 			return;
 		}
 		for(Population p : n.getPopulation())
 		{
 			//BaseCell cell = getCell(p, url, model);
-			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, ResourcesSuffix.CELL);
+			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
 			if(p.getType() != null && p.getType().equals(PopulationTypes.POPULATION_LIST))
 			{
 				int i = 0;

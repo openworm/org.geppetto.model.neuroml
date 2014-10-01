@@ -73,7 +73,9 @@ public enum Resources
 	GATE("Gate"),
 	TIMECOURSE("TimeCourse"),
 	TAU("Tau"),
-	STEADY_STATE("SteadyState");
+	STEADY_STATE("SteadyState"),
+	CELL("CELL"),
+	COMPONENT_TYPE("Component type");
 	
 	private String _value;
 	

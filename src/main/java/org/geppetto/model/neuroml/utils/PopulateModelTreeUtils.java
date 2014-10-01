@@ -48,7 +48,7 @@ public class PopulateModelTreeUtils {
 		CompositeNode rateGateNode = new CompositeNode(name.get(), id);
 			
 		if (rate.getType() != null){
-			ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(rate.getType(), model, ResourcesSuffix.COMPONENT_TYPE);
+			ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(rate.getType(), model, Resources.COMPONENT_TYPE);
 		
 			FunctionNode  forwardRateFunctionNode = new FunctionNode(rate.getType(), rate.getType()); 
 			for (DerivedVariable derivedVariables:typeRate.getDynamics().getDerivedVariables()){
@@ -79,7 +79,7 @@ public class PopulateModelTreeUtils {
 		CompositeNode steadyStateNode = new CompositeNode(name.get(), id);
 			
 		if (variable.getType() != null){
-			ComponentType typeSteadyState = (ComponentType) neuroMLAccessUtility.getComponent(variable.getType(), model, ResourcesSuffix.COMPONENT_TYPE);
+			ComponentType typeSteadyState = (ComponentType) neuroMLAccessUtility.getComponent(variable.getType(), model, Resources.COMPONENT_TYPE);
 		
 			FunctionNode  steadyStateFunctionNode = new FunctionNode(variable.getType(), variable.getType()); 
 			for (DerivedVariable derivedVariables:typeSteadyState.getDynamics().getDerivedVariables()){
@@ -110,7 +110,7 @@ public class PopulateModelTreeUtils {
 		CompositeNode timeCourseNode = new CompositeNode(name.get(), id);
 		
 		if (timeCourse.getType() != null){
-			ComponentType typeTimeCourse = (ComponentType) neuroMLAccessUtility.getComponent(timeCourse.getType(), model, ResourcesSuffix.COMPONENT_TYPE);
+			ComponentType typeTimeCourse = (ComponentType) neuroMLAccessUtility.getComponent(timeCourse.getType(), model, Resources.COMPONENT_TYPE);
 			
 			FunctionNode  timeCourseFunctionNode = new FunctionNode(timeCourse.getType(), timeCourse.getType()); 
 			for (DerivedVariable derivedVariables:typeTimeCourse.getDynamics().getDerivedVariables()){
