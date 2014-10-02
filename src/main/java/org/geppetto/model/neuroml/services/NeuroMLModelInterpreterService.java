@@ -242,7 +242,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		else if(networks.size() == 1)
 		{
 			// there's only one network, we consider the entity for it our network entity
-			// taka: GETPARENT ENTITY ES NULO
 			addNetworkSubEntities(networks.get(0), (EntityNode) aspectNode.getParentEntity(), url, aspectNode, (ModelWrapper) aspectNode.getModel());
 		}
 		else if(networks.size() > 1)

@@ -20,6 +20,8 @@ import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.Base;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ComponentType;
+import org.neuroml.model.DecayingPoolConcentrationModel;
+import org.neuroml.model.FixedFactorConcentrationModel;
 import org.neuroml.model.IafCell;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
@@ -135,6 +137,7 @@ public class NeuroMLAccessUtility
 					return c;
 				}
 			}
+			
 			for(Cell c : doc.getCell())
 			{
 				_discoveredComponents.put(c.getId(), c);
@@ -143,6 +146,26 @@ public class NeuroMLAccessUtility
 					return c;
 				}
 			}
+			
+		case CONCENTRATION_MODEL:
+			for(FixedFactorConcentrationModel c : doc.getFixedFactorConcentrationModel())
+			{
+				_discoveredComponents.put(c.getId(), c);
+				if(c.getId().equals(componentId))
+				{
+					return c;
+				}
+			}
+			
+			for(DecayingPoolConcentrationModel c : doc.getDecayingPoolConcentrationModel())
+			{
+				_discoveredComponents.put(c.getId(), c);
+				if(c.getId().equals(componentId))
+				{
+					return c;
+				}
+			}
+			
 			
 		default:
 			return this.lemsAccessUtility.getComponentById(componentId, model);

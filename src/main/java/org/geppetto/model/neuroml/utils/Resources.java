@@ -75,7 +75,16 @@ public enum Resources
 	TAU("Tau"),
 	STEADY_STATE("SteadyState"),
 	CELL("CELL"),
-	COMPONENT_TYPE("Component type");
+	COMPONENT_TYPE("ComponentType"),
+	GATE_DYNAMICS("GateDynamics"),
+	DYNAMICS("Dynamics"),
+	CONDUCTANCE("Conductance"),
+	IONCHANNEL_DYNAMICS("IonChannelDynamics"),
+	NOTES("Notes"),
+	DECAY_CONSTANT("DecayConstant"),
+	RESTING_CONC("RestingConcentration"),
+	RHO("Rho"),
+	SHELL_THICKNESS("ShellThickness");
 	
 	private String _value;
 	

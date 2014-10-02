@@ -14,6 +14,7 @@ import org.geppetto.core.model.values.FloatValue;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.dynamics.DerivedVariable;
+import org.lemsml.jlems.core.type.dynamics.Dynamics;
 import org.neuroml.model.HHRate;
 import org.neuroml.model.HHTime;
 import org.neuroml.model.HHVariable;
@@ -42,6 +43,28 @@ public class PopulateModelTreeUtils {
 		return parameterSpecificationNode;
 	}
 	
+	//TODO: Improve to parse all the attribute in a composite node 	
+	public CompositeNode createCompositeNodeFromComponentType(String name, String id, ComponentType componentType) throws ContentError{
+		CompositeNode compositeNode = new CompositeNode(name, id);
+		
+		Dynamics dynamics =componentType.getDynamics();
+		if (dynamics != null){
+			CompositeNode dynamicsNode = new CompositeNode(Resources.DYNAMICS.get(), "Dynamics");
+			 
+			for (DerivedVariable derivedVariables : dynamics.getDerivedVariables()){
+				FunctionNode  functionNode = new FunctionNode(derivedVariables.getName(), derivedVariables.getName());
+				functionNode.setExpression(derivedVariables.getValueExpression());
+				//derivedVariables.getName();
+				//TODO: Do we want to store the dimension and the exposure? 										
+				//derivedVariables.getDimension();
+				//derivedVariables.getExposure();
+				dynamicsNode.addChild(functionNode);
+			}
+			compositeNode.addChild(dynamicsNode);
+		}
+		return compositeNode;
+	}
+	
 	public CompositeNode createRateGateNode(Resources name, String id, HHRate rate, NeuroMLAccessUtility neuroMLAccessUtility,
 			ModelWrapper model) throws ModelInterpreterException, ContentError{
 		
@@ -49,8 +72,9 @@ public class PopulateModelTreeUtils {
 			
 		if (rate.getType() != null){
 			ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(rate.getType(), model, Resources.COMPONENT_TYPE);
+			rateGateNode.addChild(createCompositeNodeFromComponentType(rate.getType(), rate.getType(), typeRate));
 		
-			FunctionNode  forwardRateFunctionNode = new FunctionNode(rate.getType(), rate.getType()); 
+			/*FunctionNode  forwardRateFunctionNode = new FunctionNode(rate.getType(), rate.getType()); 
 			for (DerivedVariable derivedVariables:typeRate.getDynamics().getDerivedVariables()){
 				forwardRateFunctionNode.setExpression(derivedVariables.getValueExpression());
 				//derivedVariables.getName();
@@ -58,7 +82,7 @@ public class PopulateModelTreeUtils {
 				//derivedVariables.getDimension();
 				//derivedVariables.getExposure();
 			}
-			rateGateNode.addChild(forwardRateFunctionNode);
+			rateGateNode.addChild(forwardRateFunctionNode);*/
 		}
 		if (rate.getMidpoint() != null){
 			rateGateNode.addChild(this.createParameterSpecificationNode(Resources.MIDPOINT, "midPoint", rate.getMidpoint()));
@@ -80,16 +104,18 @@ public class PopulateModelTreeUtils {
 			
 		if (variable.getType() != null){
 			ComponentType typeSteadyState = (ComponentType) neuroMLAccessUtility.getComponent(variable.getType(), model, Resources.COMPONENT_TYPE);
-		
-			FunctionNode  steadyStateFunctionNode = new FunctionNode(variable.getType(), variable.getType()); 
-			for (DerivedVariable derivedVariables:typeSteadyState.getDynamics().getDerivedVariables()){
-				steadyStateFunctionNode.setExpression(derivedVariables.getValueExpression());
-				//derivedVariables.getName();
-				//TODO: Do we want to store the dimension and the exposure? 										
-				//derivedVariables.getDimension();
-				//derivedVariables.getExposure();
-			}
-			steadyStateNode.addChild(steadyStateFunctionNode);
+			steadyStateNode.addChild(createCompositeNodeFromComponentType(variable.getType(), variable.getType(), typeSteadyState));
+			
+			
+//			FunctionNode  steadyStateFunctionNode = new FunctionNode(variable.getType(), variable.getType()); 
+//			for (DerivedVariable derivedVariables:typeSteadyState.getDynamics().getDerivedVariables()){
+//				steadyStateFunctionNode.setExpression(derivedVariables.getValueExpression());
+//				//derivedVariables.getName();
+//				//TODO: Do we want to store the dimension and the exposure? 										
+//				//derivedVariables.getDimension();
+//				//derivedVariables.getExposure();
+//			}
+//			steadyStateNode.addChild(steadyStateFunctionNode);
 		}
 		if (variable.getMidpoint() != null){
 			steadyStateNode.addChild(this.createParameterSpecificationNode(Resources.MIDPOINT, "midPoint", variable.getMidpoint()));
@@ -111,16 +137,17 @@ public class PopulateModelTreeUtils {
 		
 		if (timeCourse.getType() != null){
 			ComponentType typeTimeCourse = (ComponentType) neuroMLAccessUtility.getComponent(timeCourse.getType(), model, Resources.COMPONENT_TYPE);
+			timeCourseNode.addChild(createCompositeNodeFromComponentType(timeCourse.getType(), timeCourse.getType(), typeTimeCourse));
 			
-			FunctionNode  timeCourseFunctionNode = new FunctionNode(timeCourse.getType(), timeCourse.getType()); 
-			for (DerivedVariable derivedVariables:typeTimeCourse.getDynamics().getDerivedVariables()){
-				timeCourseFunctionNode.setExpression(derivedVariables.getValueExpression());
-				//derivedVariables.getName();
-				//TODO: Do we want to store the dimension and the exposure? 										
-				//derivedVariables.getDimension();
-				//derivedVariables.getExposure();
-			}
-			timeCourseNode.addChild(timeCourseFunctionNode);
+//			FunctionNode  timeCourseFunctionNode = new FunctionNode(timeCourse.getType(), timeCourse.getType()); 
+//			for (DerivedVariable derivedVariables:typeTimeCourse.getDynamics().getDerivedVariables()){
+//				timeCourseFunctionNode.setExpression(derivedVariables.getValueExpression());
+//				//derivedVariables.getName();
+//				//TODO: Do we want to store the dimension and the exposure? 										
+//				//derivedVariables.getDimension();
+//				//derivedVariables.getExposure();
+//			}
+//			timeCourseNode.addChild(timeCourseFunctionNode);
 		}
 		
 		if (timeCourse.getMidpoint() != null){
