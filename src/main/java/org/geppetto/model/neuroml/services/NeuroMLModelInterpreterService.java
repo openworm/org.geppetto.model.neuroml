@@ -253,7 +253,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 */
 	private void addNetworkSubEntities(Network n, EntityNode parentEntity, URL url, AspectNode aspect, ModelWrapper model) throws ModelInterpreterException
 	{
-		if(n.getPopulation().size() == 1 && parentEntity.getName().equals(n.getPopulation().get(0).getComponent()) && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
+		if(n.getPopulation().size() == 1 && parentEntity.getId().equals(n.getPopulation().get(0).getComponent()) && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
 		{
 			// there's only one cell whose name is the same as the geppetto entity, don't create any subentities
 			getCell(n.getPopulation().get(0), url, model);
