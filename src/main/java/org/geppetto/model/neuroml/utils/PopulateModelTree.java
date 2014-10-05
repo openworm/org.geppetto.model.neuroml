@@ -44,6 +44,7 @@ import org.geppetto.core.model.values.StringValue;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.dynamics.DerivedVariable;
+import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.Annotation;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.Cell;
@@ -53,6 +54,10 @@ import org.neuroml.model.FixedFactorConcentrationModel;
 import org.neuroml.model.GateHHUndetermined;
 import org.neuroml.model.GateTypes;
 import org.neuroml.model.HHRate;
+import org.neuroml.model.IafCell;
+import org.neuroml.model.IafRefCell;
+import org.neuroml.model.IafTauCell;
+import org.neuroml.model.IafTauRefCell;
 import org.neuroml.model.InitMembPotential;
 import org.neuroml.model.IntracellularProperties;
 import org.neuroml.model.IonChannel;
@@ -101,18 +106,62 @@ public class PopulateModelTree {
 //		this.url = (URL) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.URL_ID);
 		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
 		
+		modelTree.getParent().getParent();
+		
 		//FIXME : Remove and apply data accurately
 		try {
 	 		List<Cell> cells = neuroml.getCell();
+	 		List<AdExIaFCell> adExIaFCells = neuroml.getAdExIaFCell();
+	 		List<IafCell> iaFCells = neuroml.getIafCell();
+	 		List<IafRefCell> iafRefCells = neuroml.getIafRefCell();
+	 		List<IafTauRefCell> iafTauRefCells = neuroml.getIafTauRefCell();
+	 		List<IafTauCell> iafTauCells = neuroml.getIafTauCell();
+//	 		neuroml.getNetwork()
+	 		
 	 		for(Cell c : cells){
-	 			addProperties(modelTree, c.getBiophysicalProperties(), model);
+	 			if (c.getBiophysicalProperties() != null){
+	 				modelTree.addChild(getBiophysicalPropertiesNode(c.getBiophysicalProperties(), model));
+	 			}
+	 			modelTree.addChild(new TextMetadataNode(Resources.ANOTATION.get(), "anotation",  new StringValue(c.getNotes())));
+	 			modelTree.addChild(populateModelTreeUtils.createTextMetadataNodeFromAnnotation(c.getAnnotation()));
 	 		}
+	 		for(AdExIaFCell c : adExIaFCells){
+	 		}
+	 		for(IafRefCell c : iafRefCells){
+	 			
+	 		}
+	 		for(IafCell c : iaFCells){
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESET, "Reset", c.getReset()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.THRESH, "Thresh", c.getThresh()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_REVERSAL, "Leak Reversal", c.getLeakReversal()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_CONDUCTANCE, "Leak Conductance", c.getLeakReversal()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.C, "Capacitance", c.getC()));
+	 			
+	 		}
+	 		for(IafTauRefCell c : iafTauRefCells){
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_REVERSAL, "Leak Reversal", c.getLeakReversal()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAU, "Tau", c.getTau()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESET, "Reset", c.getReset()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.THRESH, "Thresh", c.getThresh()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.REFRACT, "Refract", c.getRefract()));
+	 		}
+	 		for(IafTauCell c : iafTauCells){
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_REVERSAL, "Leak Reversal", c.getLeakReversal()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAU, "Tau", c.getTau()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESET, "Reset", c.getReset()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.THRESH, "Thresh", c.getThresh()));
+	 		}
+	 		
+	 		_populated = true;
 		} catch (Exception e) {
+			_populated = false;
 			throw new ModelInterpreterException(e);
 		}
  		
  		return _populated;
 	}
+	
+	
 
 	/**
 	 * Using properties found in NeuroMLDocument to populate the tree, this is where 
@@ -123,186 +172,178 @@ public class PopulateModelTree {
 	 * @throws ModelInterpreterException 
 	 * @throws ContentError 
 	 */
-	public void addProperties(AspectSubTreeNode modelTree,BiophysicalProperties properties, ModelWrapper model) throws ModelInterpreterException, ContentError{
-		if(properties != null)
+	public CompositeNode getBiophysicalPropertiesNode(BiophysicalProperties properties, ModelWrapper model) throws ModelInterpreterException, ContentError{
+		CompositeNode biophysicalPropertiesNode = new CompositeNode(Resources.BIOPHYSICAL_PROPERTIES.get(), properties.getId());
+		
+		MembraneProperties membraneProperties = properties.getMembraneProperties();
+		if(membraneProperties != null)
 		{
-			CompositeNode biophysicalPropertiesNode = new CompositeNode(Resources.BIOPHYSICAL_PROPERTIES.get(), properties.getId());
+			CompositeNode membranePropertiesNode = new CompositeNode(Resources.MEMBRANE_P.get(), "MembraneProperties");
 			
-			MembraneProperties membraneProperties = properties.getMembraneProperties();
-			if(membraneProperties != null)
-			{
-				CompositeNode membranePropertiesNode = new CompositeNode(Resources.MEMBRANE_P.get(), "MembraneProperties");
-				
-				
-				List<ChannelDensity> channelDensities = membraneProperties.getChannelDensity();
+			
+			List<ChannelDensity> channelDensities = membraneProperties.getChannelDensity();
 //				List<ChannelPopulation> channelPopulations = membraneProperties.getChannelPopulation();
-				List<SpecificCapacitance> specificCapacitances = membraneProperties.getSpecificCapacitance();
-				List<SpikeThresh> spikeThreshs = membraneProperties.getSpikeThresh();
-				List<InitMembPotential> initMembPotentials = membraneProperties.getInitMembPotential();
+			List<SpecificCapacitance> specificCapacitances = membraneProperties.getSpecificCapacitance();
+			List<SpikeThresh> spikeThreshs = membraneProperties.getSpikeThresh();
+			List<InitMembPotential> initMembPotentials = membraneProperties.getInitMembPotential();
 
-				// Channel Density
-				for(ChannelDensity channelDensity : channelDensities)
-				{
-					CompositeNode channelDensityNode = new CompositeNode(Resources.CHANNEL_DENSITY.get() + "_" + channelDensity.getId(), channelDensity.getId());
-					
-					// Ion Channel
-					CompositeNode ionChannelNode = new CompositeNode(Resources.ION_CHANNEL.get(), channelDensity.getIonChannel());
-					
-					IonChannel ionChannel = (IonChannel) this.neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, Resources.ION_CHANNEL);
-					
-					//TODO: Read an annotation node properly
-					Annotation annotation = ionChannel.getAnnotation();
-					if (annotation != null){
-						ionChannelNode.addChild(new TextMetadataNode(Resources.ANOTATION.get(), "anotation",  new StringValue(ionChannel.getAnnotation().getAny().get(0).getTextContent())));
-					}
-					
-					//Read Gates
-					for (GateHHUndetermined gateHHUndetermined : ionChannel.getGate()){
-						CompositeNode gateHHUndeterminedNode = new CompositeNode(Resources.GATE.get() + "_" + gateHHUndetermined.getId(), gateHHUndetermined.getId());
-
-						//Forward Rate
-						if (gateHHUndetermined.getForwardRate() != null){
-							gateHHUndeterminedNode.addChild(populateModelTreeUtils.createRateGateNode(Resources.FW_RATE , "forwardRate_" + gateHHUndetermined.getId(), gateHHUndetermined.getForwardRate(), this.neuroMLAccessUtility, model));
-						}
-						
-						//Reverse Rate
-						if (gateHHUndetermined.getReverseRate() != null){
-							gateHHUndeterminedNode.addChild(populateModelTreeUtils.createRateGateNode(Resources.BW_RATE , "backwardRate_" + gateHHUndetermined.getId(), gateHHUndetermined.getReverseRate(), this.neuroMLAccessUtility, model));
-						}
-						
-						ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHUndetermined.getType().value(), model, Resources.COMPONENT_TYPE);
-						gateHHUndeterminedNode.addChild(populateModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), "GateDynamics", typeRate));
-						
-						
-						gateHHUndetermined.getInstances();
-						gateHHUndetermined.getQ10Settings();
-						
-						if (gateHHUndetermined.getTimeCourse() != null){
-							gateHHUndeterminedNode.addChild(populateModelTreeUtils.createTimeCourseNode(Resources.TIMECOURSE, "timeCourse_" + gateHHUndetermined.getId(), gateHHUndetermined.getTimeCourse(), neuroMLAccessUtility, model));
-						}
-						
-						if (gateHHUndetermined.getSteadyState() != null){
-							gateHHUndeterminedNode.addChild(populateModelTreeUtils.createSteadyStateNode(Resources.STEADY_STATE, "steadyState" + gateHHUndetermined.getId(), gateHHUndetermined.getSteadyState(), neuroMLAccessUtility, model));
-						}
-						
-						ionChannelNode.addChild(gateHHUndeterminedNode);
-					}
-					
-					ionChannel.getGateHHrates();
-					ionChannel.getGateHHratesInf();
-					ionChannel.getGateHHratesTau();
-					ionChannel.getGateHHtauInf();
-					
-					ionChannelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.CONDUCTANCE, "Conductance", ionChannel.getConductance()));
-					
-					ionChannel.getSpecies();
-					
-					ionChannelNode.addChild(new TextMetadataNode(Resources.NOTES.get(), "Notes",  new StringValue(ionChannel.getNotes())));
-					
-					if (ionChannel.getType() != null){
-						ComponentType typeIonChannel = (ComponentType) neuroMLAccessUtility.getComponent(ionChannel.getType().value(), model, Resources.COMPONENT_TYPE);
-						ionChannelNode.addChild(populateModelTreeUtils.createCompositeNodeFromComponentType(Resources.IONCHANNEL_DYNAMICS.get(), "IonChannelDynamics", typeIonChannel));
-					}
-			
-					channelDensityNode.addChild(ionChannelNode);
-					
-					// Passive conductance density				
-					channelDensityNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY, "condDensity_"+channelDensity.getId(), channelDensity.getCondDensity()));
-					
-					// ION	
-					channelDensityNode.addChild(new TextMetadataNode(Resources.ION.get(), "ion_"+channelDensity.getId(),  new StringValue(channelDensity.getIon())));
-					
-					// Reverse Potential					
-					channelDensityNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.EREV, "erev_"+channelDensity.getId(), channelDensity.getErev()));
-					
-					// Segment Group
-					//TODO: Point to a visualization group?
-					
-					membranePropertiesNode.addChild(channelDensityNode);
-				}
-
-				// Spike threshold
-				for(int i = 0; i < spikeThreshs.size(); i++)
-				{
-					membranePropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.SPIKE_THRESHOLD, "spikeThresh_"+i, spikeThreshs.get(i).getValue()));
-				}
-
-				// Specific Capacitance
-				for(int i = 0; i < specificCapacitances.size(); i++)
-				{
-					membranePropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.SPECIFIC_CAPACITANCE, "specificCapacitance_"+i, specificCapacitances.get(i).getValue()));
-				}
-				
-				// Initial Membrance Potentials
-				for(int i = 0; i < initMembPotentials.size(); i++)
-				{
-					membranePropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_MEMBRANE_POTENTIAL, "initMembPotential_"+i, initMembPotentials.get(i).getValue()));
-				}
-				
-				biophysicalPropertiesNode.addChild(membranePropertiesNode);
-			}
-			
-			IntracellularProperties intracellularProperties = properties.getIntracellularProperties();
-			if(intracellularProperties != null)
+			// Channel Density
+			for(ChannelDensity channelDensity : channelDensities)
 			{
-				CompositeNode intracellularPropertiesNode = new CompositeNode(Resources.INTRACELLULAR_P.get(), "IntracellularProperties");
-				CompositeNode speciesNode = new CompositeNode(Resources.SPECIES.get(), "Species");
+				CompositeNode channelDensityNode = new CompositeNode(Resources.CHANNEL_DENSITY.get() + "_" + channelDensity.getId(), channelDensity.getId());
 				
-				List<Resistivity> resistivities = intracellularProperties.getResistivity();
-				List<Species> species = intracellularProperties.getSpecies();
+				// Ion Channel
+				CompositeNode ionChannelNode = new CompositeNode(Resources.ION_CHANNEL.get(), channelDensity.getIonChannel());
 				
-				// Resistivity
-				for(int i = 0; i < resistivities.size(); i++)
-				{
-					intracellularPropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESISTIVITY, "resistivity_"+i, resistivities.get(i).getValue()));
-				}
-				biophysicalPropertiesNode.addChild(intracellularPropertiesNode);
+				IonChannel ionChannel = (IonChannel) this.neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, Resources.ION_CHANNEL);
 				
-				// Specie
-				for(Species specie : species)
-				{
-					CompositeNode speciesNodeItem = new CompositeNode(Resources.SPECIES.get(), "Species");
-					
-					// Initial Concentration
-					speciesNodeItem.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_CONCENTRATION, "initialConcentration_"+specie.getId(), specie.getInitialConcentration()));
-					
-					// Initial External Concentration
-					speciesNodeItem.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_EXT_CONCENTRATION, "initialExtConcentration_"+specie.getId(), specie.getInitialExtConcentration()));
-					
-					// Ion
-					speciesNodeItem.addChild(new TextMetadataNode(Resources.ION.get(), "ion_"+specie.getId(),  new StringValue(specie.getIon())));
-					
-					// Concentration Model
-					Object concentrationModel = neuroMLAccessUtility.getComponent(specie.getConcentrationModel(), model, Resources.CONCENTRATION_MODEL);
-					CompositeNode concentrationModelNode = new CompositeNode(Resources.CONCENTRATION_MODEL.get(),"ConcentrationModel");
-					if (concentrationModel instanceof DecayingPoolConcentrationModel){
-						DecayingPoolConcentrationModel decayingPoolConcentrationModel = (DecayingPoolConcentrationModel) concentrationModel;
-						concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.DECAY_CONSTANT, "DecayConstant", decayingPoolConcentrationModel.getDecayConstant()));
-						concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESTING_CONC, "RestingConcentration", decayingPoolConcentrationModel.getRestingConc()));
-						concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.SHELL_THICKNESS, "ShellThickness", decayingPoolConcentrationModel.getShellThickness()));
-						concentrationModelNode.addChild(new TextMetadataNode(Resources.ION.get(), "ion",  new StringValue(decayingPoolConcentrationModel.getIon())));
-						concentrationModelNode.addChild(new TextMetadataNode(Resources.NOTES.get(), "notes",  new StringValue(decayingPoolConcentrationModel.getNotes())));
-					}
-					else{
-						FixedFactorConcentrationModel fixedFactorConcentrationModel = (FixedFactorConcentrationModel) concentrationModel;
-						concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.DECAY_CONSTANT, "DecayConstant", fixedFactorConcentrationModel.getDecayConstant()));
-						concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESTING_CONC, "RestingConcentration", fixedFactorConcentrationModel.getRestingConc()));
-						concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RHO, "Rho", fixedFactorConcentrationModel.getRho()));
-						concentrationModelNode.addChild(new TextMetadataNode(Resources.ION.get(), "ion",  new StringValue(fixedFactorConcentrationModel.getIon())));
-						concentrationModelNode.addChild(new TextMetadataNode(Resources.NOTES.get(), "notes",  new StringValue(fixedFactorConcentrationModel.getNotes())));
+				//TODO: Read an annotation node properly
+				ionChannelNode.addChild(populateModelTreeUtils.createTextMetadataNodeFromAnnotation(ionChannel.getAnnotation()));
+				
+				//Read Gates
+				for (GateHHUndetermined gateHHUndetermined : ionChannel.getGate()){
+					CompositeNode gateHHUndeterminedNode = new CompositeNode(Resources.GATE.get() + "_" + gateHHUndetermined.getId(), gateHHUndetermined.getId());
+
+					//Forward Rate
+					if (gateHHUndetermined.getForwardRate() != null){
+						gateHHUndeterminedNode.addChild(populateModelTreeUtils.createRateGateNode(Resources.FW_RATE , "forwardRate_" + gateHHUndetermined.getId(), gateHHUndetermined.getForwardRate(), this.neuroMLAccessUtility, model));
 					}
 					
-					speciesNodeItem.addChild(concentrationModelNode);
-					speciesNode.addChild(speciesNodeItem);
+					//Reverse Rate
+					if (gateHHUndetermined.getReverseRate() != null){
+						gateHHUndeterminedNode.addChild(populateModelTreeUtils.createRateGateNode(Resources.BW_RATE , "backwardRate_" + gateHHUndetermined.getId(), gateHHUndetermined.getReverseRate(), this.neuroMLAccessUtility, model));
+					}
+					
+					ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHUndetermined.getType().value(), model, Resources.COMPONENT_TYPE);
+					gateHHUndeterminedNode.addChild(populateModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), "GateDynamics", typeRate));
+					
+					
+					gateHHUndetermined.getInstances();
+					gateHHUndetermined.getQ10Settings();
+					
+					if (gateHHUndetermined.getTimeCourse() != null){
+						gateHHUndeterminedNode.addChild(populateModelTreeUtils.createTimeCourseNode(Resources.TIMECOURSE, "timeCourse_" + gateHHUndetermined.getId(), gateHHUndetermined.getTimeCourse(), neuroMLAccessUtility, model));
+					}
+					
+					if (gateHHUndetermined.getSteadyState() != null){
+						gateHHUndeterminedNode.addChild(populateModelTreeUtils.createSteadyStateNode(Resources.STEADY_STATE, "steadyState" + gateHHUndetermined.getId(), gateHHUndetermined.getSteadyState(), neuroMLAccessUtility, model));
+					}
+					
+					ionChannelNode.addChild(gateHHUndeterminedNode);
 				}
 				
-				biophysicalPropertiesNode.addChild(speciesNode);
+				ionChannel.getGateHHrates();
+				ionChannel.getGateHHratesInf();
+				ionChannel.getGateHHratesTau();
+				ionChannel.getGateHHtauInf();
+				
+				ionChannelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.CONDUCTANCE, "Conductance", ionChannel.getConductance()));
+				
+				ionChannel.getSpecies();
+				
+				ionChannelNode.addChild(new TextMetadataNode(Resources.NOTES.get(), "Notes",  new StringValue(ionChannel.getNotes())));
+				
+				if (ionChannel.getType() != null){
+					ComponentType typeIonChannel = (ComponentType) neuroMLAccessUtility.getComponent(ionChannel.getType().value(), model, Resources.COMPONENT_TYPE);
+					ionChannelNode.addChild(populateModelTreeUtils.createCompositeNodeFromComponentType(Resources.IONCHANNEL_DYNAMICS.get(), "IonChannelDynamics", typeIonChannel));
+				}
+		
+				channelDensityNode.addChild(ionChannelNode);
+				
+				// Passive conductance density				
+				channelDensityNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY, "condDensity_"+channelDensity.getId(), channelDensity.getCondDensity()));
+				
+				// ION	
+				channelDensityNode.addChild(new TextMetadataNode(Resources.ION.get(), "ion_"+channelDensity.getId(),  new StringValue(channelDensity.getIon())));
+				
+				// Reverse Potential					
+				channelDensityNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.EREV, "erev_"+channelDensity.getId(), channelDensity.getErev()));
+				
+				// Segment Group
+				//TODO: Point to a visualization group?
+				
+				membranePropertiesNode.addChild(channelDensityNode);
 			}
 
-			_populated = true;
-			modelTree.addChild(biophysicalPropertiesNode);
+			// Spike threshold
+			for(int i = 0; i < spikeThreshs.size(); i++)
+			{
+				membranePropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.SPIKE_THRESHOLD, "spikeThresh_"+i, spikeThreshs.get(i).getValue()));
+			}
 
+			// Specific Capacitance
+			for(int i = 0; i < specificCapacitances.size(); i++)
+			{
+				membranePropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.SPECIFIC_CAPACITANCE, "specificCapacitance_"+i, specificCapacitances.get(i).getValue()));
+			}
+			
+			// Initial Membrance Potentials
+			for(int i = 0; i < initMembPotentials.size(); i++)
+			{
+				membranePropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_MEMBRANE_POTENTIAL, "initMembPotential_"+i, initMembPotentials.get(i).getValue()));
+			}
+			
+			biophysicalPropertiesNode.addChild(membranePropertiesNode);
 		}
+		
+		IntracellularProperties intracellularProperties = properties.getIntracellularProperties();
+		if(intracellularProperties != null)
+		{
+			CompositeNode intracellularPropertiesNode = new CompositeNode(Resources.INTRACELLULAR_P.get(), "IntracellularProperties");
+			CompositeNode speciesNode = new CompositeNode(Resources.SPECIES.get(), "Species");
+			
+			List<Resistivity> resistivities = intracellularProperties.getResistivity();
+			List<Species> species = intracellularProperties.getSpecies();
+			
+			// Resistivity
+			for(int i = 0; i < resistivities.size(); i++)
+			{
+				intracellularPropertiesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESISTIVITY, "resistivity_"+i, resistivities.get(i).getValue()));
+			}
+			biophysicalPropertiesNode.addChild(intracellularPropertiesNode);
+			
+			// Specie
+			for(Species specie : species)
+			{
+				CompositeNode speciesNodeItem = new CompositeNode(Resources.SPECIES.get(), "Species");
+				
+				// Initial Concentration
+				speciesNodeItem.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_CONCENTRATION, "initialConcentration_"+specie.getId(), specie.getInitialConcentration()));
+				
+				// Initial External Concentration
+				speciesNodeItem.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_EXT_CONCENTRATION, "initialExtConcentration_"+specie.getId(), specie.getInitialExtConcentration()));
+				
+				// Ion
+				speciesNodeItem.addChild(new TextMetadataNode(Resources.ION.get(), "ion_"+specie.getId(),  new StringValue(specie.getIon())));
+				
+				// Concentration Model
+				Object concentrationModel = neuroMLAccessUtility.getComponent(specie.getConcentrationModel(), model, Resources.CONCENTRATION_MODEL);
+				CompositeNode concentrationModelNode = new CompositeNode(Resources.CONCENTRATION_MODEL.get(),"ConcentrationModel");
+				if (concentrationModel instanceof DecayingPoolConcentrationModel){
+					DecayingPoolConcentrationModel decayingPoolConcentrationModel = (DecayingPoolConcentrationModel) concentrationModel;
+					concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.DECAY_CONSTANT, "DecayConstant", decayingPoolConcentrationModel.getDecayConstant()));
+					concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESTING_CONC, "RestingConcentration", decayingPoolConcentrationModel.getRestingConc()));
+					concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.SHELL_THICKNESS, "ShellThickness", decayingPoolConcentrationModel.getShellThickness()));
+					concentrationModelNode.addChild(new TextMetadataNode(Resources.ION.get(), "ion",  new StringValue(decayingPoolConcentrationModel.getIon())));
+					concentrationModelNode.addChild(new TextMetadataNode(Resources.NOTES.get(), "notes",  new StringValue(decayingPoolConcentrationModel.getNotes())));
+				}
+				else{
+					FixedFactorConcentrationModel fixedFactorConcentrationModel = (FixedFactorConcentrationModel) concentrationModel;
+					concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.DECAY_CONSTANT, "DecayConstant", fixedFactorConcentrationModel.getDecayConstant()));
+					concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESTING_CONC, "RestingConcentration", fixedFactorConcentrationModel.getRestingConc()));
+					concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RHO, "Rho", fixedFactorConcentrationModel.getRho()));
+					concentrationModelNode.addChild(new TextMetadataNode(Resources.ION.get(), "ion",  new StringValue(fixedFactorConcentrationModel.getIon())));
+					concentrationModelNode.addChild(new TextMetadataNode(Resources.NOTES.get(), "notes",  new StringValue(fixedFactorConcentrationModel.getNotes())));
+				}
+				
+				speciesNodeItem.addChild(concentrationModelNode);
+				speciesNode.addChild(speciesNodeItem);
+			}
+			
+			biophysicalPropertiesNode.addChild(speciesNode);
+		}
+		return biophysicalPropertiesNode;
+		//modelTree.addChild(biophysicalPropertiesNode);
 	}
 	
 	

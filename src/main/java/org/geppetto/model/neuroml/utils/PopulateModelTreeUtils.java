@@ -10,11 +10,14 @@ import org.geppetto.core.model.quantities.Quantity;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.FunctionNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
+import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.values.FloatValue;
+import org.geppetto.core.model.values.StringValue;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.dynamics.DerivedVariable;
 import org.lemsml.jlems.core.type.dynamics.Dynamics;
+import org.neuroml.model.Annotation;
 import org.neuroml.model.HHRate;
 import org.neuroml.model.HHTime;
 import org.neuroml.model.HHVariable;
@@ -42,8 +45,13 @@ public class PopulateModelTreeUtils {
 		
 		return parameterSpecificationNode;
 	}
+
+	//TODO: Improve to parse all the attribute in an annotation	
+	public TextMetadataNode createTextMetadataNodeFromAnnotation(Annotation annotation){
+		return new TextMetadataNode(Resources.ANOTATION.get(), "anotation",  new StringValue(annotation.getAny().get(0).getTextContent()));
+	}
 	
-	//TODO: Improve to parse all the attribute in a composite node 	
+	//TODO: Improve to parse all the attribute in a component type 	
 	public CompositeNode createCompositeNodeFromComponentType(String name, String id, ComponentType componentType) throws ContentError{
 		CompositeNode compositeNode = new CompositeNode(name, id);
 		

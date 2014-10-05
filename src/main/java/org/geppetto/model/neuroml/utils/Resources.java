@@ -84,7 +84,13 @@ public enum Resources
 	DECAY_CONSTANT("DecayConstant"),
 	RESTING_CONC("RestingConcentration"),
 	RHO("Rho"),
-	SHELL_THICKNESS("ShellThickness");
+	SHELL_THICKNESS("ShellThickness"),
+	THRESH("Thresh"),
+	RESET("Reset"),
+	LEAK_REVERSAL("LeakReversal"),
+	LEAK_CONDUCTANCE("LeakConductance"),
+	REFRACT("Refract"),
+	C("Capacitance");
 	
 	private String _value;
 	
