@@ -48,7 +48,10 @@ public class PopulateModelTreeUtils {
 
 	//TODO: Improve to parse all the attribute in an annotation	
 	public TextMetadataNode createTextMetadataNodeFromAnnotation(Annotation annotation){
-		return new TextMetadataNode(Resources.ANOTATION.get(), "anotation",  new StringValue(annotation.getAny().get(0).getTextContent()));
+		if (annotation != null){
+			return new TextMetadataNode(Resources.ANOTATION.get(), "anotation",  new StringValue(annotation.getAny().get(0).getTextContent()));
+		}
+		return null;
 	}
 	
 	//TODO: Improve to parse all the attribute in a component type 	
