@@ -21,10 +21,15 @@ import org.neuroml.model.Base;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ComponentType;
 import org.neuroml.model.DecayingPoolConcentrationModel;
+import org.neuroml.model.FitzHughNagumoCell;
 import org.neuroml.model.FixedFactorConcentrationModel;
 import org.neuroml.model.IafCell;
+import org.neuroml.model.IafRefCell;
+import org.neuroml.model.IafTauCell;
+import org.neuroml.model.IafTauRefCell;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
+import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
 
@@ -137,8 +142,47 @@ public class NeuroMLAccessUtility
 					return c;
 				}
 			}
-			
 			for(Cell c : doc.getCell())
+			{
+				_discoveredComponents.put(c.getId(), c);
+				if(c.getId().equals(componentId))
+				{
+					return c;
+				}
+			}
+			for(IafRefCell c : doc.getIafRefCell())
+			{
+				_discoveredComponents.put(c.getId(), c);
+				if(c.getId().equals(componentId))
+				{
+					return c;
+				}
+			}
+			for(IafTauRefCell c : doc.getIafTauRefCell())
+			{
+				_discoveredComponents.put(c.getId(), c);
+				if(c.getId().equals(componentId))
+				{
+					return c;
+				}
+			}
+			for(IafTauCell c : doc.getIafTauCell())
+			{
+				_discoveredComponents.put(c.getId(), c);
+				if(c.getId().equals(componentId))
+				{
+					return c;
+				}
+			}
+			for(FitzHughNagumoCell c : doc.getFitzHughNagumoCell())
+			{
+				_discoveredComponents.put(c.getId(), c);
+				if(c.getId().equals(componentId))
+				{
+					return c;
+				}
+			}
+			for(IzhikevichCell c : doc.getIzhikevichCell())
 			{
 				_discoveredComponents.put(c.getId(), c);
 				if(c.getId().equals(componentId))

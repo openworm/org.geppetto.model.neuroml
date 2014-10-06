@@ -32,28 +32,27 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.utils;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
-import org.geppetto.core.model.runtime.FunctionNode;
+import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.values.StringValue;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
-import org.lemsml.jlems.core.type.dynamics.DerivedVariable;
 import org.neuroml.model.AdExIaFCell;
-import org.neuroml.model.Annotation;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
 import org.neuroml.model.DecayingPoolConcentrationModel;
+import org.neuroml.model.FitzHughNagumoCell;
 import org.neuroml.model.FixedFactorConcentrationModel;
 import org.neuroml.model.GateHHUndetermined;
-import org.neuroml.model.GateTypes;
-import org.neuroml.model.HHRate;
 import org.neuroml.model.IafCell;
 import org.neuroml.model.IafRefCell;
 import org.neuroml.model.IafTauCell;
@@ -61,12 +60,16 @@ import org.neuroml.model.IafTauRefCell;
 import org.neuroml.model.InitMembPotential;
 import org.neuroml.model.IntracellularProperties;
 import org.neuroml.model.IonChannel;
+import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.MembraneProperties;
+import org.neuroml.model.Network;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.Population;
 import org.neuroml.model.Resistivity;
 import org.neuroml.model.Species;
 import org.neuroml.model.SpecificCapacitance;
 import org.neuroml.model.SpikeThresh;
+import org.neuroml.model.SynapticConnection;
 
 /**
  * Populates the Model Tree of Aspect
@@ -102,54 +105,84 @@ public class PopulateModelTree {
 	 */
 	public boolean populateModelTree(AspectSubTreeNode modelTree, ModelWrapper model) throws ModelInterpreterException
 	{		
-		
-//		this.url = (URL) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.URL_ID);
 		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
 		
-		modelTree.getParent().getParent();
-		
-		//FIXME : Remove and apply data accurately
 		try {
+			/**
+			 * CELLS
+			 */
+			
 	 		List<Cell> cells = neuroml.getCell();
 	 		List<AdExIaFCell> adExIaFCells = neuroml.getAdExIaFCell();
 	 		List<IafCell> iaFCells = neuroml.getIafCell();
 	 		List<IafRefCell> iafRefCells = neuroml.getIafRefCell();
 	 		List<IafTauRefCell> iafTauRefCells = neuroml.getIafTauRefCell();
 	 		List<IafTauCell> iafTauCells = neuroml.getIafTauCell();
-//	 		neuroml.getNetwork()
+	 		List<FitzHughNagumoCell> fitzHughNagumoCells = neuroml.getFitzHughNagumoCell();
+	 		List<IzhikevichCell> izhikevichCells = neuroml.getIzhikevichCell();
 	 		
 	 		for(Cell c : cells){
 	 			if (c.getBiophysicalProperties() != null){
 	 				modelTree.addChild(getBiophysicalPropertiesNode(c.getBiophysicalProperties(), model));
 	 			}
-	 			modelTree.addChild(new TextMetadataNode(Resources.ANOTATION.get(), "anotation",  new StringValue(c.getNotes())));
+	 			modelTree.addChild(new TextMetadataNode(Resources.ANOTATION.get(), Resources.ANOTATION.getId(),  new StringValue(c.getNotes())));
 	 			modelTree.addChild(populateModelTreeUtils.createTextMetadataNodeFromAnnotation(c.getAnnotation()));
 	 		}
 	 		for(AdExIaFCell c : adExIaFCells){
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.CAPACITANCE, Resources.CAPACITANCE.getId(), c.getC()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.EL, Resources.EL.getId(), c.getEL()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.VT, Resources.VT.getId(), c.getVT()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.A, Resources.A.getId(), c.getA()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.B, Resources.B.getId(), c.getB()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.DELT, Resources.DELT.getId(), c.getDelT()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.GL, Resources.GL.getId(), c.getGL()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.REFRACT, Resources.REFRACT.getId(), c.getRefract()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESET, Resources.RESET.getId(), c.getReset()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAUW, Resources.TAUW.getId(), c.getTauw()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.THRESH, Resources.THRESH.getId(), c.getThresh()));
 	 		}
+	 		for(FitzHughNagumoCell c : fitzHughNagumoCells){
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.I, Resources.I.getId(), c.getI()));
+	 		}
+	 		for(IzhikevichCell c : izhikevichCells){
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.A, Resources.A.getId(), c.getA()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.B, Resources.B.getId(), c.getB()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.C, Resources.C.getId(), c.getB()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.D, Resources.D.getId(), c.getB()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.v0, Resources.v0.getId(), c.getB()));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.THRESH, Resources.THRESH.getId(), c.getThresh()));
+	 		}
+	 		
 	 		for(IafRefCell c : iafRefCells){
-	 			
+	 			modelTree.addChildren(createIafCellNode(c));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.REFRACT, Resources.REFRACT.getId(), c.getRefract()));
 	 		}
 	 		for(IafCell c : iaFCells){
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESET, "Reset", c.getReset()));
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.THRESH, "Thresh", c.getThresh()));
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_REVERSAL, "Leak Reversal", c.getLeakReversal()));
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_CONDUCTANCE, "Leak Conductance", c.getLeakReversal()));
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.C, "Capacitance", c.getC()));
-	 			
+	 			modelTree.addChildren(createIafCellNode(c));
 	 		}
 	 		for(IafTauRefCell c : iafTauRefCells){
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_REVERSAL, "Leak Reversal", c.getLeakReversal()));
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAU, "Tau", c.getTau()));
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESET, "Reset", c.getReset()));
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.THRESH, "Thresh", c.getThresh()));
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.REFRACT, "Refract", c.getRefract()));
+	 			modelTree.addChildren(createIafTauCellNode(c));
+	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.REFRACT, Resources.REFRACT.getId(), c.getRefract()));
 	 		}
 	 		for(IafTauCell c : iafTauCells){
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_REVERSAL, "Leak Reversal", c.getLeakReversal()));
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAU, "Tau", c.getTau()));
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESET, "Reset", c.getReset()));
-	 			modelTree.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.THRESH, "Thresh", c.getThresh()));
+	 			modelTree.addChildren(createIafTauCellNode(c));
+	 		}
+	 		
+	 		/**
+	 		 * NETWORK
+	 		 */
+	 		List<Network> networks = neuroml.getNetwork();
+	 		for(Network n : networks){
+	 			n.getInputList();
+	 			List<Population> populations = n.getPopulation();
+	 			for(Population p : populations){
+	 				p.getComponent();
+	 				p.getId();
+	 				p.getInstance();
+	 				
+	 			}
+	 			List<SynapticConnection> synapticConnection = n.getSynapticConnection();
+	 			
 	 		}
 	 		
 	 		_populated = true;
@@ -161,7 +194,24 @@ public class PopulateModelTree {
  		return _populated;
 	}
 	
+	public Collection<ParameterSpecificationNode> createIafTauCellNode(IafTauCell c){
+		Collection<ParameterSpecificationNode> iafTauCellChildren = new ArrayList<ParameterSpecificationNode>();
+		iafTauCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_REVERSAL, Resources.LEAK_REVERSAL.getId(), c.getLeakReversal()));
+		iafTauCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAU, Resources.TAU.getId(), c.getTau()));
+		iafTauCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESET, Resources.RESET.getId(), c.getReset()));
+		iafTauCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.THRESH, Resources.THRESH.getId(), c.getThresh()));
+		return iafTauCellChildren;
+	}
 	
+	public Collection<ParameterSpecificationNode> createIafCellNode(IafCell c){
+		Collection<ParameterSpecificationNode> iafCellChildren = new ArrayList<ParameterSpecificationNode>();
+		iafCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_REVERSAL, Resources.LEAK_REVERSAL.getId(), c.getLeakReversal()));
+		iafCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_CONDUCTANCE, Resources.LEAK_CONDUCTANCE.getId(), c.getLeakReversal()));
+		iafCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.CAPACITANCE, Resources.CAPACITANCE.getId(), c.getC()));
+		iafCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESET, Resources.RESET.getId(), c.getReset()));
+		iafCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.THRESH, Resources.THRESH.getId(), c.getThresh()));
+		return iafCellChildren;
+	}
 
 	/**
 	 * Using properties found in NeuroMLDocument to populate the tree, this is where 
@@ -178,7 +228,7 @@ public class PopulateModelTree {
 		MembraneProperties membraneProperties = properties.getMembraneProperties();
 		if(membraneProperties != null)
 		{
-			CompositeNode membranePropertiesNode = new CompositeNode(Resources.MEMBRANE_P.get(), "MembraneProperties");
+			CompositeNode membranePropertiesNode = new CompositeNode(Resources.MEMBRANE_P.get(), Resources.MEMBRANE_P.getId());
 			
 			
 			List<ChannelDensity> channelDensities = membraneProperties.getChannelDensity();
@@ -190,7 +240,7 @@ public class PopulateModelTree {
 			// Channel Density
 			for(ChannelDensity channelDensity : channelDensities)
 			{
-				CompositeNode channelDensityNode = new CompositeNode(Resources.CHANNEL_DENSITY.get() + "_" + channelDensity.getId(), channelDensity.getId());
+				CompositeNode channelDensityNode = new CompositeNode(Resources.CHANNEL_DENSITY.get(), channelDensity.getId());
 				
 				// Ion Channel
 				CompositeNode ionChannelNode = new CompositeNode(Resources.ION_CHANNEL.get(), channelDensity.getIonChannel());
@@ -202,16 +252,16 @@ public class PopulateModelTree {
 				
 				//Read Gates
 				for (GateHHUndetermined gateHHUndetermined : ionChannel.getGate()){
-					CompositeNode gateHHUndeterminedNode = new CompositeNode(Resources.GATE.get() + "_" + gateHHUndetermined.getId(), gateHHUndetermined.getId());
+					CompositeNode gateHHUndeterminedNode = new CompositeNode(Resources.GATE.get(), gateHHUndetermined.getId());
 
 					//Forward Rate
 					if (gateHHUndetermined.getForwardRate() != null){
-						gateHHUndeterminedNode.addChild(populateModelTreeUtils.createRateGateNode(Resources.FW_RATE , "forwardRate_" + gateHHUndetermined.getId(), gateHHUndetermined.getForwardRate(), this.neuroMLAccessUtility, model));
+						gateHHUndeterminedNode.addChild(populateModelTreeUtils.createRateGateNode(Resources.FW_RATE, gateHHUndetermined.getForwardRate(), this.neuroMLAccessUtility, model));
 					}
 					
 					//Reverse Rate
 					if (gateHHUndetermined.getReverseRate() != null){
-						gateHHUndeterminedNode.addChild(populateModelTreeUtils.createRateGateNode(Resources.BW_RATE , "backwardRate_" + gateHHUndetermined.getId(), gateHHUndetermined.getReverseRate(), this.neuroMLAccessUtility, model));
+						gateHHUndeterminedNode.addChild(populateModelTreeUtils.createRateGateNode(Resources.BW_RATE, gateHHUndetermined.getReverseRate(), this.neuroMLAccessUtility, model));
 					}
 					
 					ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHUndetermined.getType().value(), model, Resources.COMPONENT_TYPE);

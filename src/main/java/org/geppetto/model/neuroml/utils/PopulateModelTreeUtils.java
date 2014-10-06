@@ -76,10 +76,10 @@ public class PopulateModelTreeUtils {
 		return compositeNode;
 	}
 	
-	public CompositeNode createRateGateNode(Resources name, String id, HHRate rate, NeuroMLAccessUtility neuroMLAccessUtility,
+	public CompositeNode createRateGateNode(Resources name, HHRate rate, NeuroMLAccessUtility neuroMLAccessUtility,
 			ModelWrapper model) throws ModelInterpreterException, ContentError{
 		
-		CompositeNode rateGateNode = new CompositeNode(name.get(), id);
+		CompositeNode rateGateNode = new CompositeNode(name.get(), name.getId());
 			
 		if (rate.getType() != null){
 			ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(rate.getType(), model, Resources.COMPONENT_TYPE);

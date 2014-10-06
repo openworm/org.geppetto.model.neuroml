@@ -40,67 +40,85 @@ package org.geppetto.model.neuroml.utils;
  */
 public enum Resources
 {
-	COND_DENSITY("Passiveconductancedensity"),
-	SPIKE_THRESHOLD("SpikeThreshold"),
-	EREV("ReversePotential"),
-	SPECIFIC_CAPACITANCE("SpecificCapacitance"),
-	INIT_MEMBRANE_POTENTIAL("InitialMembranePotential"),
-	RESISTIVITY("Resistivity"),
-	MEMBRANE_P("MembraneProperties"),
-	MEMBRANE_P_SOMA("MembraneProperties(Soma)"),
-	INTRACELLULAR_P("IntracellularProperties"),
-	INTRACELLULAR_P_SOMA("IntracellularProperties(Soma)"), 
-	SYNAPSE("SynapseType"), 
-	CONNECTION_TYPE("ConnectionType"),
-	PRE_SYNAPTIC("Input"),
-	POST_SYNAPTIC("Output"),
-	ION("Ion"),
-	ION_CHANNEL("IonChannel"),
-	CHANNEL_DENSITY("ChannelDensity"),
-	SPECIES("Species"),
-	INIT_CONCENTRATION("InitialConcentration"),
-	INIT_EXT_CONCENTRATION("InitialExternalConcentration"),
-	CONCENTRATION_MODEL("ConcentrationModel"),
-	BIOPHYSICAL_PROPERTIES("BiophysicalProperties"),
-	ANOTATION("Anotation"),
-	FW_RATE("ForwardRate"),
-	FW_RATE_FN("ForwardRateDynamics"),
-	BW_RATE("BackwardRate"),
-	BW_RATE_FN("BackwardRateDynamics"),
-	MIDPOINT("Midpoint"),
-	RATE("Rate"),
-	SCALE("Scale"),
-	GATE("Gate"),
-	TIMECOURSE("TimeCourse"),
-	TAU("Tau"),
-	STEADY_STATE("SteadyState"),
-	CELL("CELL"),
-	COMPONENT_TYPE("ComponentType"),
-	GATE_DYNAMICS("GateDynamics"),
-	DYNAMICS("Dynamics"),
-	CONDUCTANCE("Conductance"),
-	IONCHANNEL_DYNAMICS("IonChannelDynamics"),
-	NOTES("Notes"),
-	DECAY_CONSTANT("DecayConstant"),
-	RESTING_CONC("RestingConcentration"),
-	RHO("Rho"),
-	SHELL_THICKNESS("ShellThickness"),
-	THRESH("Thresh"),
-	RESET("Reset"),
-	LEAK_REVERSAL("LeakReversal"),
-	LEAK_CONDUCTANCE("LeakConductance"),
-	REFRACT("Refract"),
-	C("Capacitance");
+	COND_DENSITY("Passive Conductance Density", "PassiveConductanceDensity"),
+	SPIKE_THRESHOLD("Spike Threshold", "SpikeThreshold"),
+	EREV("Reverse Potential", "ReversePotential"),
+	SPECIFIC_CAPACITANCE("Specific Capacitance", "SpecificCapacitance"),
+	INIT_MEMBRANE_POTENTIAL("Initial Membrane Potential", "InitialMembranePotential"),
+	RESISTIVITY("Resistivity", "Resistivity"),
+	MEMBRANE_P("Membrane Properties", "MembraneProperties"),
+	MEMBRANE_P_SOMA("Soma Membrane Properties", "SomaMembraneProperties"),
+	INTRACELLULAR_P("Intracellular Properties", "IntracellularProperties"),
+	INTRACELLULAR_P_SOMA("Soma Intracellular Properties", "SomaIntracellularProperties"), 
+	SYNAPSE("Synapse", "Synapse"), 
+	CONNECTION("Connection", "Connection"),
+	PRE_SYNAPTIC("Input", "Input"),
+	POST_SYNAPTIC("Output", "Output"),
+	ION("Ion", "Ion"),
+	ION_CHANNEL("Ion Channel", "IonChannel"),
+	CHANNEL_DENSITY("Channel Density", "ChannelDensity"),
+	SPECIES("Species", "Species"),
+	INIT_CONCENTRATION("Initial Concentration", "InitialConcentration"),
+	INIT_EXT_CONCENTRATION("Initial External Concentration", "InitialExternalConcentration"),
+	CONCENTRATION_MODEL("Concentration Model", "ConcentrationModel"),
+	BIOPHYSICAL_PROPERTIES("Biophysical Properties", "BiophysicalProperties"),
+	ANOTATION("Anotation", "Anotation"),
+	FW_RATE("Forward Rate", "ForwardRate"),
+	FW_RATE_FN("Forward Rate Dynamics", "ForwardRateDynamics"),
+	BW_RATE("Backward Rate", "BackwardRate"),
+	BW_RATE_FN("Backward Rate Dynamics", "BackwardRateDynamics"),
+	MIDPOINT("Midpoint", "Midpoint"),
+	RATE("Rate", "Rate"),
+	SCALE("Scale", "Scale"),
+	GATE("Gate", "Gate"),
+	TIMECOURSE("Time Course", "TimeCourse"),
+	TAU("Tau", "Tau"),
+	STEADY_STATE("Steady State", "SteadyState"),
+	CELL("Cell", "Cell"),
+	COMPONENT_TYPE("Component", "Component"),
+	GATE_DYNAMICS("Gate Dynamics", "GateDynamics"),
+	DYNAMICS("Dynamics", "Dynamics"),
+	CONDUCTANCE("Conductance", "Conductance"),
+	IONCHANNEL_DYNAMICS("Ion Channel Dynamics", "IonChannelDynamics"),
+	NOTES("Notes", "Notes"),
+	DECAY_CONSTANT("Decay Constant", "DecayConstant"),
+	RESTING_CONC("Resting Concentration", "RestingConcentration"),
+	RHO("Rho", "Rho"),
+	SHELL_THICKNESS("Shell Thickness", "ShellThickness"),
+	THRESH("Thresh", "Thresh"),
+	RESET("Reset", "Reset"),
+	LEAK_REVERSAL("Leak Reversal","LeakReversal"),
+	LEAK_CONDUCTANCE("Leak Conductance", "LeakConductance"),
+	REFRACT("Refract", "Refract"),
+	CAPACITANCE("Capacitance", "Capacitance"),
+	EL("EL", "EL"),
+	VT("VT", "VT"),
+	A("a", "a"),
+	B("b", "b"),
+	C("c", "c"),
+	D("d", "d"),
+	DELT("delT", "delT"),
+	GL("gL", "gL"),
+	TAUW("tauw", "tauw"),
+	I("I", "I"),
+	v0("v0", "v0");
 	
 	private String _value;
+	private String _id;
 	
-	private Resources(String value)
+	private Resources(String value, String id)
 	{
-		_value=value;
+		_value = value;
+		_id = id;
 	}
 	
 	public String get()
 	{
 		return _value;
+	}
+	
+	public String getId()
+	{
+		return _id;
 	}
 }
