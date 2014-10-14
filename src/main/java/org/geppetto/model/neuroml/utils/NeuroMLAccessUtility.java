@@ -3,23 +3,13 @@
  */
 package org.geppetto.model.neuroml.utils;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
-
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.Base;
 import org.neuroml.model.Cell;
-import org.neuroml.model.ComponentType;
 import org.neuroml.model.DecayingPoolConcentrationModel;
 import org.neuroml.model.FitzHughNagumoCell;
 import org.neuroml.model.FixedFactorConcentrationModel;
@@ -31,7 +21,6 @@ import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.NeuroMLDocument;
-import org.neuroml.model.util.NeuroMLConverter;
 
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
@@ -43,6 +32,7 @@ public class NeuroMLAccessUtility
 	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
 	public static final String LEMS_ID = "lems";
 	public static final String NEUROML_ID = "neuroml";
+	public static final String NEUROML_ID_INCLUSIONS = "neuroml_inclusions";
 	public static final String URL_ID = "url";
 	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
 //	public static final String LEMS_UTILS_ID = "lemsUtils";
@@ -106,7 +96,10 @@ public class NeuroMLAccessUtility
 //		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
 		
-		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
+		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS);
+		if (doc == null){
+			doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
+		}
 		
 		switch (componentType) {
 		case ION_CHANNEL:

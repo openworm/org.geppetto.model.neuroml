@@ -101,7 +101,24 @@ public enum Resources
 	GL("gL", "gL"),
 	TAUW("tauw", "tauw"),
 	I("I", "I"),
-	v0("v0", "v0");
+	v0("v0", "v0"),
+	ELEMENT("Element", "Element"),
+	ID("Id", "Id"),
+	NEUROLEX_ID("NeuroLexId", "NeuroLexId"),
+	SIZE("Size", "Size"),
+	METAID("MetaId", "MetaId"),
+	POPULATION_TYPE("Population Type", "PopulationType"),
+	INSTANCES("Instances", "Instances"),
+	Q10SETTINGS("Q10 Settings", "Q10Settings"),
+	EXPERIMENTAL_TEMP("Experimental Temperature", "ExperimentalTemperature"),
+	FIXEDQ10("Fixed Q10","FixedQ10"),
+	Q10FACTOR("Q10 Factor", "Q10Factor"),
+	TYPE("Type", "Type"),
+	NAME("Name", "Name"),
+	EXTENDS("Extends", "Extends"),
+	DESCRIPTION("Description", "Description"),
+	ION_CHANNEL_HH("Ion Channel HH", "IonChannelHH"),
+	EXTRACELLULAR_P("Extracellular Properties", "ExtracellularProperties");
 	
 	private String _value;
 	private String _id;

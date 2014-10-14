@@ -88,8 +88,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class NeuroMLModelInterpreterService implements IModelInterpreter
 {
-
-
 	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
 
 	private static Log _logger = LogFactory.getLog(NeuroMLModelInterpreterService.class);
@@ -99,8 +97,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 	@Autowired
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
-	
-	
 
 	/*
 	 * (non-Javadoc)
@@ -122,6 +118,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			
 			int index=url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0,index+1);
+			
 			OptimizedLEMSReader reader = new OptimizedLEMSReader(urlBase);
 			String lemsStringOptimized = reader.processLEMSInclusions(lemsString);
 			lemsStringOptimized = reader.processLEMSInclusions(lemsStringOptimized, false);
@@ -132,15 +129,18 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 			String neuromlString = URLReader.readStringFromURL(url);
+			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(neuromlString);
+			
 			String neuromlStringOptimized = reader.processLEMSInclusions(neuromlString, false);
 			neuromlStringOptimized = reader.processLEMSInclusions(neuromlStringOptimized);
-			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(neuromlStringOptimized);
+			NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(neuromlStringOptimized);
 
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 			// two different interpretations of the same file, one used to simulate the other used to visualize
 			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
 			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml);
+			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS, neuroml_inclusions);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<String, EntityNode>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
