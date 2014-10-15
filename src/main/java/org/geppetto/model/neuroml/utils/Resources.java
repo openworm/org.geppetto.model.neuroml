@@ -118,7 +118,9 @@ public enum Resources
 	EXTENDS("Extends", "Extends"),
 	DESCRIPTION("Description", "Description"),
 	ION_CHANNEL_HH("Ion Channel HH", "IonChannelHH"),
-	EXTRACELLULAR_P("Extracellular Properties", "ExtracellularProperties");
+	EXTRACELLULAR_P("Extracellular Properties", "ExtracellularProperties"),
+	NETWORK("Network", "Network"),
+	POPULATION("Population", "Population");
 	
 	private String _value;
 	private String _id;
