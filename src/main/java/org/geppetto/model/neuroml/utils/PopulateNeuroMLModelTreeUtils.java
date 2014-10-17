@@ -240,7 +240,7 @@ public class PopulateNeuroMLModelTreeUtils {
 			// Channel Density
 			for(ChannelDensity channelDensity : channelDensities)
 			{
-				CompositeNode channelDensityNode = new CompositeNode(channelDensity.getId(), Resources.CHANNEL_DENSITY.get());
+				CompositeNode channelDensityNode = new CompositeNode(channelDensity.getId(), getUniqueName(Resources.CHANNEL_DENSITY.get(), channelDensity));
 				
 				// Ion Channel
 				IonChannel ionChannel = (IonChannel) neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, Resources.ION_CHANNEL);
@@ -384,7 +384,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	}
 
 	public CompositeNode createGateNode(Base gate) throws ModelInterpreterException, ContentError{
-		CompositeNode gateNode = new CompositeNode(gate.getId(), Resources.GATE.get());
+		CompositeNode gateNode = new CompositeNode(gate.getId(), getUniqueName(Resources.GATE.get(), gate));
 		gateNode.addChildren(createBaseChildren(gate));
 		
 		if (gate instanceof  GateHHUndetermined){
@@ -393,9 +393,10 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(createRateGateNode(Resources.FW_RATE, gateHHUndetermined.getForwardRate()));
 			gateNode.addChild(createRateGateNode(Resources.BW_RATE, gateHHUndetermined.getReverseRate()));
 			
-			//Type
-			ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHUndetermined.getType().value(), model, Resources.COMPONENT_TYPE);
-			gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+			if (gateHHUndetermined.getType() != null){
+				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHUndetermined.getType().value(), model, Resources.COMPONENT_TYPE);
+				gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+			}
 
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHUndetermined.getInstances().intValue())));
 			gateNode.addChild(createQ10SettingsNode(gateHHUndetermined.getQ10Settings()));
@@ -412,8 +413,10 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(createRateGateNode(Resources.FW_RATE, gateHHRates.getForwardRate()));
 			gateNode.addChild(createRateGateNode(Resources.BW_RATE, gateHHRates.getReverseRate()));
 
-			ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRates.getType().value(), model, Resources.COMPONENT_TYPE);
-			gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+			if (gateHHRates.getType() != null){
+				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRates.getType().value(), model, Resources.COMPONENT_TYPE);
+				gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+			}
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRates.getInstances().intValue())));
 			gateNode.addChild(createQ10SettingsNode(gateHHRates.getQ10Settings()));
 			
@@ -428,8 +431,10 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(createRateGateNode(Resources.FW_RATE, gateHHRatesInf.getForwardRate()));
 			gateNode.addChild(createRateGateNode(Resources.BW_RATE, gateHHRatesInf.getReverseRate()));
 
-			ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesInf.getType().value(), model, Resources.COMPONENT_TYPE);
-			gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+			if (gateHHRatesInf.getType() != null){
+				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesInf.getType().value(), model, Resources.COMPONENT_TYPE);
+				gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+			}
 			
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRatesInf.getInstances().intValue())));
 			gateNode.addChild(createQ10SettingsNode(gateHHRatesInf.getQ10Settings()));
@@ -445,8 +450,10 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(createRateGateNode(Resources.FW_RATE, gateHHRatesTau.getForwardRate()));
 			gateNode.addChild(createRateGateNode(Resources.BW_RATE, gateHHRatesTau.getReverseRate()));
 
-			ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesTau.getType().value(), model, Resources.COMPONENT_TYPE);
-			gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+			if (gateHHRatesTau.getType() != null){
+				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesTau.getType().value(), model, Resources.COMPONENT_TYPE);
+				gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+			}
 			
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRatesTau.getInstances().intValue())));
 			gateNode.addChild(createQ10SettingsNode(gateHHRatesTau.getQ10Settings()));
@@ -459,8 +466,10 @@ public class PopulateNeuroMLModelTreeUtils {
 		else if (gate instanceof  GateHHTauInf) {
 			GateHHTauInf gateHHTauInf = (GateHHTauInf) gate;
 			
-			ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHTauInf.getType().value(), model, Resources.COMPONENT_TYPE);
-			gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+			if (gateHHTauInf.getType() != null){
+				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHTauInf.getType().value(), model, Resources.COMPONENT_TYPE);
+				gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+			}
 			
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHTauInf.getInstances().intValue())));
 			
@@ -584,7 +593,7 @@ public class PopulateNeuroMLModelTreeUtils {
 		
 		List<Population> populations = n.getPopulation();
 		for(Population p : populations){
-			CompositeNode populationNode = new CompositeNode(p.getId(), Resources.POPULATION.get());
+			CompositeNode populationNode = new CompositeNode(p.getId(), getUniqueName(Resources.POPULATION.get(), p) );
 			
 			populationNode.addChildren(createStandaloneChildren(p));
 
@@ -652,19 +661,19 @@ public class PopulateNeuroMLModelTreeUtils {
 		synapseNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.GBASE.get(), Resources.GBASE.getId(), synapse.getGbase()));
 		
 		if (synapse instanceof ExpTwoSynapse){
-			synapseNode.setName(Resources.EXPTWOSYNAPSE.get());
+			synapseNode.setName(getUniqueName(Resources.EXPTWOSYNAPSE.get(), synapse));
 			
 			ExpTwoSynapse expTwoSynapse = (ExpTwoSynapse) synapse;
 			synapseNode.addChildren(createExpTwoSynapseChildren(expTwoSynapse));
 		}
 		else if (synapse instanceof ExpOneSynapse) {
-			synapseNode.setName(Resources.EXPONESYNAPSE.get());
+			synapseNode.setName(getUniqueName(Resources.EXPONESYNAPSE.get(), synapse));
 			
 			ExpOneSynapse expOneSynapse = (ExpOneSynapse) synapse;
 			synapseNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAUDECAY.get(), Resources.TAUDECAY.getId(), expOneSynapse.getTauDecay()));
 		}
 		else if (synapse instanceof BlockingPlasticSynapse) {
-			synapseNode.setName(Resources.BLOCKINGPLASTICSYNAPSE.get());
+			synapseNode.setName(getUniqueName(Resources.BLOCKINGPLASTICSYNAPSE.get(), synapse));
 			
 			BlockingPlasticSynapse blockingPlasticSynapse = (BlockingPlasticSynapse) synapse;
 			
@@ -702,7 +711,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	}	
 	
 	public CompositeNode createPynnSynapseNode(BasePynnSynapse pynnSynapse) throws ContentError, ModelInterpreterException {
-		CompositeNode pynnSynapsesNode = new CompositeNode(pynnSynapse.getId(), Resources.SYNAPSE.get());
+		CompositeNode pynnSynapsesNode = new CompositeNode(pynnSynapse.getId(), getUniqueName(Resources.SYNAPSE.get(), pynnSynapse));
 		
 		pynnSynapsesNode.addChildren(createStandaloneChildren(pynnSynapse));
 		
@@ -757,5 +766,9 @@ public class PopulateNeuroMLModelTreeUtils {
 			baseChildren.add(new TextMetadataNode(Resources.NEUROLEX_ID.get(), Resources.NEUROLEX_ID.getId(),  new StringValue(baseComponent.getNeuroLexId())));
 		}
 		return baseChildren;
+	}
+	
+	public String getUniqueName(String label, Base base){
+		return label + " - " + base.getId();
 	}
 }
