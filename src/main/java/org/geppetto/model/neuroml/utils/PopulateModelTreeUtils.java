@@ -10,10 +10,12 @@ public class PopulateModelTreeUtils {
 		ParameterSpecificationNode parameterSpecificationNode = new ParameterSpecificationNode(name.get(), id);
 		
 		String[] valueArray = value.split(" ");
-		PhysicalQuantity physicalQuantity = new PhysicalQuantity();
-		physicalQuantity.setUnit(valueArray[1]);
-		physicalQuantity.setValue(new FloatValue(Float.parseFloat(valueArray[0])));
-		parameterSpecificationNode.setValue(physicalQuantity);
+		if(valueArray.length>1){
+			PhysicalQuantity physicalQuantity = new PhysicalQuantity();
+			physicalQuantity.setUnit(valueArray[1]);
+			physicalQuantity.setValue(new FloatValue(Float.parseFloat(valueArray[0])));
+			parameterSpecificationNode.setValue(physicalQuantity);
+		}
 		
 		return parameterSpecificationNode;
 	}
