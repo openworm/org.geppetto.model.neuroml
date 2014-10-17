@@ -23,6 +23,7 @@ import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.DerivedParameter;
 import org.lemsml.jlems.core.type.Parameter;
+import org.lemsml.jlems.core.type.dynamics.ConditionalDerivedVariable;
 import org.lemsml.jlems.core.type.dynamics.DerivedVariable;
 import org.lemsml.jlems.core.type.dynamics.Dynamics;
 import org.neuroml.model.AdExIaFCell;
@@ -92,23 +93,27 @@ public class PopulateLEMSModelTreeUtils {
 			CompositeNode dynamicsNode = new CompositeNode(Resources.DYNAMICS.get(), "Dynamics");
 			 
 			
-			//TODO: Check nulls in derived variables
-			for (DerivedVariable derivedVariables : dynamics.getDerivedVariables()){
-				FunctionNode  functionNode = new FunctionNode(derivedVariables.getName(), derivedVariables.getName());
-				if (derivedVariables.getValueExpression() != null){
-					functionNode.setExpression(derivedVariables.getValueExpression());
+			for (DerivedVariable derivedVariable : dynamics.getDerivedVariables()){
+				FunctionNode  functionNode = new FunctionNode(derivedVariable.getName(), derivedVariable.getName());
+				if (derivedVariable.getValueExpression() != null){
+					functionNode.setExpression(derivedVariable.getValueExpression());
 				}
-				//derivedVariables.getName();
-				//TODO: Do we want to store the dimension and the exposure? 										
-				//derivedVariables.getDimension();
-				//derivedVariables.getExposure();
+				//TODO: Do we want to store the dimension? 										
+//				derivedVariable.getDimensionString();
 				dynamicsNode.addChild(functionNode);
 			}
+			
+			//TODO: We need to implement events
+			for (ConditionalDerivedVariable conditionalDerivedVariable : dynamics.getConditionalDerivedVariables()){
+				
+			}
+			
 			compositeNode.addChild(dynamicsNode);
 		}
 		
+		//TODO: In a Parameter the value comes from the instance (component)
 //		for (Parameter parameter : componentType.getParameters()){
-//			compositeNode.addChild(createParameterNode(Resources.PARAMETER, Resources.PARAMETER + "_" +  parameter.getName(), ));
+//			compositeNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.PARAMETER, Resources.PARAMETER + "_" +  parameter.getName(), ));
 //			parameter.getName();
 //			parameter.getDimension();
 //		}
@@ -117,11 +122,10 @@ public class PopulateLEMSModelTreeUtils {
 			compositeNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(derivedParameter.getName(), derivedParameter.getName(), derivedParameter.getValue(), derivedParameter.getDimension().getName()));
 		}
 		
-//		componentType.get
-		
-		
 		return compositeNode;
 	}
+	
+	
 	
 	
 }

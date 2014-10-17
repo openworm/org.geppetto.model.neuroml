@@ -49,8 +49,12 @@ import org.geppetto.core.model.values.StringValue;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.BaseCell;
+import org.neuroml.model.BiophysicalProperties;
+import org.neuroml.model.BlockingPlasticSynapse;
 import org.neuroml.model.Cell;
 import org.neuroml.model.DecayingPoolConcentrationModel;
+import org.neuroml.model.ExpOneSynapse;
+import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.ExplicitInput;
 import org.neuroml.model.ExtracellularProperties;
 import org.neuroml.model.FitzHughNagumoCell;
@@ -101,6 +105,7 @@ public class PopulateModelTree {
 	public boolean populateModelTree(AspectSubTreeNode modelTree, ModelWrapper model) throws ModelInterpreterException
 	{		
 		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
+		
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
 		Map<String, ANode> discoveredNodesInNeuroML = new HashMap<String, ANode>();
 		
@@ -111,6 +116,8 @@ public class PopulateModelTree {
 			//If it is not a subentity we will go first for the networks
 			if (entityNode == null){
 
+				//TODO: Shall we go through all the stand alone element or check the lem component?
+				
 				/**
 		 		 * NETWORKS
 		 		 */
@@ -158,19 +165,58 @@ public class PopulateModelTree {
 		 		 * Concentration Model
 		 		 */
 		 		for (DecayingPoolConcentrationModel decayingPoolConcentrationModel : neuroml.getDecayingPoolConcentrationModel()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createConcentrationModel(decayingPoolConcentrationModel);
+		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createConcentrationModelNode(decayingPoolConcentrationModel);
 		 			discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
 		 		}
 		 		for (FixedFactorConcentrationModel fixedFactorConcentrationModel : neuroml.getFixedFactorConcentrationModel()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createConcentrationModel(fixedFactorConcentrationModel);
+		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createConcentrationModelNode(fixedFactorConcentrationModel);
 		 			discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
 		 		}
+		 		
+		 		/**
+		 		 * Synapses Types
+		 		 */
+		 		for (ExpTwoSynapse expTwoSynapse : neuroml.getExpTwoSynapse()){
+		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createSynapseNode(expTwoSynapse);
+		 			discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
+		 			
+		 		}
+		 		for (ExpOneSynapse expOneSynapse : neuroml.getExpOneSynapse()){
+		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createSynapseNode(expOneSynapse);
+		 			discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
+		 			
+		 		}
+		 		for (BlockingPlasticSynapse blockingPlasticSynapse : neuroml.getBlockingPlasticSynapse()){
+		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createSynapseNode(blockingPlasticSynapse);
+		 			discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
+		 			
+		 		}
+		 		
+		 		/**
+		 		 * PyNN Synapses Types
+		 		 */
+		 		neuroml.getAlphaCondSynapse();
+		 		neuroml.getExpCondSynapse();
+		 		neuroml.getExpCurrSynapse();
+		 		neuroml.getAlphaCurrSynapse();
+		 		
+		 		
+		 		/**
+		 		 * Biophysical Properties
+		 		 */
+		 		for (BiophysicalProperties biophysicalProperties : neuroml.getBiophysicalProperties()){
+		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createBiophysicalPropertiesNode(biophysicalProperties);
+		 			discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
+		 		}
+		 		
+		 		
+		 		
 			}
 			else{
 //				int endIndex = entityNode.getId().lastIndexOf("_");
 //			    if (endIndex != -1)  
 //			    {
-//			        String newstr = str.substring(0, endIndex); // not forgot to put check if(endIndex != -1)
+//			        String newstr = entityNode.getId().substring(0, endIndex);
 //			    }
 				
 				//neuroMLAccessUtility.getComponent(componentId, model, Resources.CELL);

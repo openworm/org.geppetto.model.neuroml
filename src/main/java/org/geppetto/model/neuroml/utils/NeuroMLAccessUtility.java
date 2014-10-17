@@ -4,6 +4,7 @@
 package org.geppetto.model.neuroml.utils;
 
 import java.util.HashMap;
+
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -20,7 +21,9 @@ import org.neuroml.model.IafTauRefCell;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.IzhikevichCell;
+import org.neuroml.model.Network;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.Population;
 
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
@@ -53,21 +56,27 @@ public class NeuroMLAccessUtility
 	 */
 	public Object getComponent(String componentId, ModelWrapper model, Resources componentType) throws ModelInterpreterException
 	{
+		Object component;
 		//Check if we have already discovered this component
-		Object component = this.getComponentFromCache(componentId, model);
-		
-		if (component == null){
-			component = this.lemsAccessUtility.getComponentFromCache(componentId, model);
+		if (componentType == Resources.COMPONENT_TYPE){
+			component = this.lemsAccessUtility.getComponent(componentId, model);
 		}
-		
-		// let's first check if the cell is of a predefined neuroml type
-		if(component == null){
-			try {
-				component = getComponentById(componentId, model, componentType);
-			} catch (ContentError e1) {
-				throw new ModelInterpreterException("Can't find the componet " + componentId);
+		else{
+			component = this.getComponentFromCache(componentId, model);
+			
+//			if (component == null){
+//				component = this.lemsAccessUtility.getComponentFromCache(componentId, model);
+//			}
+			
+			// let's first check if the cell is of a predefined neuroml type
+			if(component == null){
+				try {
+					component = getComponentById(componentId, model, componentType);
+				} catch (ContentError e1) {
+					throw new ModelInterpreterException("Can't find the componet " + componentId);
+				}
 			}
-		}
+		}	
 
 		if(component == null)
 		{
@@ -203,6 +212,14 @@ public class NeuroMLAccessUtility
 				}
 			}
 			
+		case POPULATION:	
+			for(Network n : doc.getNetwork()){
+				for (Population p : n.getPopulation()){
+					if (p.getId().equals(componentId)){
+						return p;
+					}
+				}
+			}
 			
 		default:
 			return this.lemsAccessUtility.getComponentById(componentId, model);

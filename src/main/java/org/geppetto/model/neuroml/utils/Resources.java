@@ -120,7 +120,22 @@ public enum Resources
 	ION_CHANNEL_HH("Ion Channel HH", "IonChannelHH"),
 	EXTRACELLULAR_P("Extracellular Properties", "ExtracellularProperties"),
 	NETWORK("Network", "Network"),
-	POPULATION("Population", "Population");
+	POPULATION("Population", "Population"),
+	PARAMETER("Parameter", "Parameter"),
+	GBASE("GBase", "GBase"), 
+	TAUDECAY("Tau Decay", "TauDecay"),
+	TAURISE("Tau Rise", "TauRise"),
+	EXPTWOSYNAPSE("Exp Two Synapse", "ExpTwoSynapse"),
+	EXPONESYNAPSE("Exp One Synapse", "ExpOneSynapse"),
+	BLOCKINGPLASTICSYNAPSE("Blocking Plastic Synapse", "BlockingPlasticSynapse"),
+	PLASTICITYMECHANISM("Plasticity Mechanism", "PlasticityMechanism"),
+	INITRELEASEPROB("Init Release Probability", "InitReleaseProb"),
+	TAUFAC("Tau Fac", "TauFac"),
+	TAUREC("Tau Rec", "TauRec"),
+	BLOCKMECHANISM("Block Mechanism", "BlockMechanism"),
+	SCALINGCONC("Scaling Concentration", "ScalingConc"),
+	BLOCKCONCENTRATION("Block Concentration", "BlockConcentration"),
+	SCALINGVOLT("Scaling Voltage", "ScalingVolt");
 	
 	private String _value;
 	private String _id;

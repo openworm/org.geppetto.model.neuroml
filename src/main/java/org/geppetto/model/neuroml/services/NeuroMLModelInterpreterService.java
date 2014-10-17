@@ -69,6 +69,7 @@ import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Component;
+import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.Instance;
@@ -113,8 +114,9 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			scanner.close();
 			String lemsString = NeuroMLConverter.convertNeuroML2ToLems(neuroMLString);
 
+			
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-//			ILEMSDocument document = lemsReader.readModel(lemsString);
+			//ILEMSDocument document = lemsReader.readModel(lemsString);
 			
 			int index=url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0,index+1);
@@ -295,8 +297,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 					}
 					e.setId(id);
 					parentEntity.addChild(e);
+					i++;
 				}
-				i++;
 
 			}
 			else

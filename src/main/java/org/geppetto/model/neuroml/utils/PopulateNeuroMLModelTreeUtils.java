@@ -8,22 +8,33 @@ import java.util.Map;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ANode;
+import org.geppetto.core.model.runtime.AspectNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
+import org.geppetto.core.model.simulation.Aspect;
+import org.geppetto.core.model.simulation.Entity;
 import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
+import org.geppetto.core.utilities.VariablePathSerializer;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.Annotation;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
+import org.neuroml.model.BaseConductanceBasedSynapse;
 import org.neuroml.model.BiophysicalProperties;
+import org.neuroml.model.BlockMechanism;
+import org.neuroml.model.BlockingPlasticSynapse;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
 import org.neuroml.model.DecayingPoolConcentrationModel;
+import org.neuroml.model.ExpOneSynapse;
+import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.ExplicitInput;
 import org.neuroml.model.ExtracellularProperties;
 import org.neuroml.model.FitzHughNagumoCell;
@@ -48,7 +59,9 @@ import org.neuroml.model.IonChannel;
 import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.MembraneProperties;
 import org.neuroml.model.Network;
+import org.neuroml.model.PlasticityMechanism;
 import org.neuroml.model.Population;
+import org.neuroml.model.PopulationTypes;
 import org.neuroml.model.Projection;
 import org.neuroml.model.Q10Settings;
 import org.neuroml.model.Region;
@@ -84,8 +97,8 @@ public class PopulateNeuroMLModelTreeUtils {
 			
 		if (rate != null){
 			if (rate.getType() != null){
-				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(rate.getType(), model, Resources.COMPONENT_TYPE);
-				rateGateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(rate.getType(), rate.getType(), typeRate));
+//				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(rate.getType(), model, Resources.COMPONENT_TYPE);
+				rateGateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(rate.getType(), rate.getType(), (ComponentType) neuroMLAccessUtility.getComponent(rate.getType(), model, Resources.COMPONENT_TYPE)));
 			}
 
 			rateGateNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.MIDPOINT.get(), Resources.MIDPOINT.getId(), rate.getMidpoint()));
@@ -338,14 +351,14 @@ public class PopulateNeuroMLModelTreeUtils {
 			
 			// Concentration Model
 			Object concentrationModel = neuroMLAccessUtility.getComponent(specie.getConcentrationModel(), model, Resources.CONCENTRATION_MODEL);
-			speciesNodeItem.addChild(createConcentrationModel(concentrationModel));
+			speciesNodeItem.addChild(createConcentrationModelNode(concentrationModel));
 			
 			speciesNodeList.add(speciesNodeItem);
 		}
 		return speciesNodeList;
 	}
 	
-	public CompositeNode createConcentrationModel(Object concentrationModel) {
+	public CompositeNode createConcentrationModelNode(Object concentrationModel) {
 		if (concentrationModel != null){
 			CompositeNode concentrationModelNode = new CompositeNode(Resources.CONCENTRATION_MODEL.get(), Resources.CONCENTRATION_MODEL.getId());
 			if (concentrationModel instanceof DecayingPoolConcentrationModel){
@@ -543,11 +556,163 @@ public class PopulateNeuroMLModelTreeUtils {
 	public Collection<ParameterSpecificationNode> createIafCellChildren(IafCell c){
 		Collection<ParameterSpecificationNode> iafCellChildren = new ArrayList<ParameterSpecificationNode>();
 		iafCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_REVERSAL.get(), Resources.LEAK_REVERSAL.getId(), c.getLeakReversal()));
-		iafCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_CONDUCTANCE.get(), Resources.LEAK_CONDUCTANCE.getId(), c.getLeakReversal()));
+		iafCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.LEAK_CONDUCTANCE.get(), Resources.LEAK_CONDUCTANCE.getId(), c.getLeakConductance()));
 		iafCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.CAPACITANCE.get(), Resources.CAPACITANCE.getId(), c.getC()));
 		iafCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.RESET.get(), Resources.RESET.getId(), c.getReset()));
 		iafCellChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.THRESH.get(), Resources.THRESH.getId(), c.getThresh()));
 		return iafCellChildren;
+	}
+	
+	
+	public CompositeNode createNetworkNode(Network n) throws ModelInterpreterException, ContentError {
+
+		CompositeNode networkNode = new CompositeNode(Resources.NETWORK.get(), Resources.NETWORK.getId());
+		
+		networkNode.addChildren(createStandaloneChildren(n));
+		
+		for(InputList i : n.getInputList()){
+			
+		}
+		
+		for(ExplicitInput e : n.getExplicitInput()){
+			
+		}
+		
+		for(Region r : n.getRegion()){
+			
+		}
+		
+		for(Projection p : n.getProjection()){
+			
+		}
+		
+		//Iterate through the entities in order to fill the model document
+		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
+		
+		List<Population> populations = n.getPopulation();
+		for(Population p : populations){
+			CompositeNode populationNode = new CompositeNode(Resources.POPULATION.get(), p.getId());
+			
+			populationNode.addChildren(createStandaloneChildren(p));
+
+			BaseCell baseCell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
+			populationNode.addChild(createCellNode(baseCell));
+			
+			if (p.getSize() != null){
+				populationNode.addChild(new TextMetadataNode(Resources.SIZE.get(), Resources.SIZE.getId(),  new IntValue(p.getSize().intValue())));
+			}
+			
+			
+			
+			PopulationTypes populationType = p.getType();
+			if(populationType != null){
+				populationNode.addChild(new TextMetadataNode(Resources.POPULATION_TYPE.get(), Resources.POPULATION_TYPE.getId(),  new StringValue(populationType.value())));
+
+				if(populationType.equals(PopulationTypes.POPULATION_LIST))
+				{
+					
+					BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
+					for(int i=0; i < p.getInstance().size(); i++)
+					{
+						String id = VariablePathSerializer.getArrayName(p.getId(), i);
+						EntityNode entityNode = mapping.get(id);
+						
+						
+						//TODO: Do we add the model tree to every aspect?
+						for (AspectNode aspectNode : entityNode.getAspects()){
+							AspectSubTreeNode modelTree = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+							modelTree.addChildren(createCellNode(cell).getChildren());
+							modelTree.setModified(true);
+						}
+						
+					}
+				
+				}
+				
+			}
+			else{
+				
+			}
+			
+			//TODO: Just reading the number of instances and displaying as a text metadata node 				
+			List<Instance> instanceList = p.getInstance();
+			if (instanceList != null && instanceList.size() != 0){
+				populationNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(instanceList.size())));
+			}
+			networkNode.addChild(populationNode);
+		}
+		
+		List<SynapticConnection> synapticConnections = n.getSynapticConnection();
+		for(SynapticConnection s : synapticConnections){
+			
+		}
+		
+		return networkNode;
+	}
+
+	public CompositeNode createSynapseNode(BaseConductanceBasedSynapse synapse) throws ContentError, ModelInterpreterException {
+		CompositeNode synapseNode = new CompositeNode(synapse.getId());
+		
+		synapseNode.addChildren(createStandaloneChildren(synapse));
+		
+		synapseNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.EREV.get(), Resources.EREV.getId(), synapse.getErev()));
+		synapseNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.GBASE.get(), Resources.GBASE.getId(), synapse.getGbase()));
+		
+		if (synapse instanceof ExpTwoSynapse){
+			synapseNode.setName(Resources.EXPTWOSYNAPSE.get());
+			
+			ExpTwoSynapse expTwoSynapse = (ExpTwoSynapse) synapse;
+			synapseNode.addChildren(createExpTwoSynapseChildren(expTwoSynapse));
+		}
+		else if (synapse instanceof ExpOneSynapse) {
+			synapseNode.setName(Resources.EXPONESYNAPSE.get());
+			
+			ExpOneSynapse expOneSynapse = (ExpOneSynapse) synapse;
+			synapseNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAUDECAY.get(), Resources.TAUDECAY.getId(), expOneSynapse.getTauDecay()));
+		}
+		else if (synapse instanceof BlockingPlasticSynapse) {
+			synapseNode.setName(Resources.BLOCKINGPLASTICSYNAPSE.get());
+			
+			BlockingPlasticSynapse blockingPlasticSynapse = (BlockingPlasticSynapse) synapse;
+			
+			synapseNode.addChildren(createExpTwoSynapseChildren(blockingPlasticSynapse));
+			
+			PlasticityMechanism plasticityMechanism = blockingPlasticSynapse.getPlasticityMechanism();
+			if (plasticityMechanism != null){
+				CompositeNode plasticityMechanismNode = new CompositeNode(Resources.PLASTICITYMECHANISM.getId(), Resources.PLASTICITYMECHANISM.get());
+				
+				plasticityMechanismNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INITRELEASEPROB.get(), Resources.INITRELEASEPROB.getId(), String.valueOf(plasticityMechanism.getInitReleaseProb())));
+				plasticityMechanismNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAUFAC.get(), Resources.TAUFAC.getId(), plasticityMechanism.getTauFac()));
+				plasticityMechanismNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAUREC.get(), Resources.TAUREC.getId(), plasticityMechanism.getTauRec()));
+				
+				plasticityMechanismNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.TYPE.get(), Resources.TYPE.getId(), (ComponentType) neuroMLAccessUtility.getComponent(plasticityMechanism.getType().value(), model, Resources.COMPONENT_TYPE)));
+				
+				synapseNode.addChild(plasticityMechanismNode);
+				
+			}
+			BlockMechanism blockMechanism = blockingPlasticSynapse.getBlockMechanism();
+			if (blockMechanism != null){
+				CompositeNode blockMechanismNode = new CompositeNode(Resources.BLOCKMECHANISM.getId(), Resources.BLOCKMECHANISM.get());
+				
+				blockMechanismNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.SCALINGCONC.get(), Resources.SCALINGCONC.getId(), blockMechanism.getScalingConc()));
+				blockMechanismNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.BLOCKCONCENTRATION.get(), Resources.BLOCKCONCENTRATION.getId(), blockMechanism.getBlockConcentration()));
+				blockMechanismNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.SCALINGVOLT.get(), Resources.SCALINGVOLT.getId(), blockMechanism.getScalingVolt()));
+				blockMechanismNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.SPECIES.get(), Resources.SPECIES.getId(), blockMechanism.getSpecies()));
+				
+				blockMechanismNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.TYPE.get(), Resources.TYPE.getId(), (ComponentType) neuroMLAccessUtility.getComponent(blockMechanism.getType().value(), model, Resources.COMPONENT_TYPE)));
+				
+				synapseNode.addChild(blockMechanismNode);
+			}
+		}
+		
+		return null;
+	}	
+	
+	public Collection<ANode> createExpTwoSynapseChildren(ExpTwoSynapse expTwoSynapse){
+		Collection<ANode> expTwoSynapseChildren = new ArrayList<ANode>();
+		expTwoSynapseChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAUDECAY.get(), Resources.TAUDECAY.getId(), expTwoSynapse.getTauDecay()));
+		expTwoSynapseChildren.add(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAURISE.get(), Resources.TAURISE.getId(), expTwoSynapse.getTauRise()));
+		return expTwoSynapseChildren;
 	}
 	
 	public Collection<ANode> createStandaloneChildren(Standalone standaloneComponent){
@@ -584,81 +749,4 @@ public class PopulateNeuroMLModelTreeUtils {
 		}
 		return baseChildren;
 	}
-	public CompositeNode createNetworkNode(Network n) throws ModelInterpreterException, ContentError {
-
-		CompositeNode networkNode = new CompositeNode(Resources.NETWORK.get(), Resources.NETWORK.getId());
-		
-		networkNode.addChildren(createStandaloneChildren(n));
-		
-		for(InputList i : n.getInputList()){
-			
-		}
-		
-		for(ExplicitInput e : n.getExplicitInput()){
-			
-		}
-		
-		for(Region r : n.getRegion()){
-			
-		}
-		
-		for(Projection p : n.getProjection()){
-			
-		}
-		
-		List<Population> populations = n.getPopulation();
-		for(Population p : populations){
-			CompositeNode populationNode = new CompositeNode(Resources.POPULATION.get(), p.getId());
-			
-			populationNode.addChildren(createStandaloneChildren(p));
-
-			BaseCell baseCell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
-			populationNode.addChild(createCellNode(baseCell));
-			//Iterate through the entities in order to fill the model document
-			Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
-//			mapping.get()
-			
-			
-			if (p.getSize() != null){
-				populationNode.addChild(new TextMetadataNode(Resources.SIZE.get(), Resources.SIZE.getId(),  new IntValue(p.getSize().intValue())));
-			}
-			
-			if(p.getType() != null){
-				populationNode.addChild(new TextMetadataNode(Resources.POPULATION_TYPE.get(), Resources.POPULATION_TYPE.getId(),  new StringValue(p.getType().value())));
-			}
-			
-			//TODO: Just reading the number of instances and displaying as a text metadata node 				
-			List<Instance> instanceList = p.getInstance();
-			if (instanceList != null && instanceList.size() != 0){
-				populationNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(instanceList.size())));
-			}
-			networkNode.addChild(populationNode);
-		}
-		
-		List<SynapticConnection> synapticConnections = n.getSynapticConnection();
-		for(SynapticConnection s : synapticConnections){
-			
-		}
-		
-		return networkNode;
-		
-		
-	}
-
-
-	
-//	public Collection<ANode> createConcentrationModelChildren(Standalone concentrationModel){
-//		Collection<ANode> concentrationModelChildren = new ArrayList();
-//		if (concentrationModel instanceof DecayingPoolConcentrationModel){
-//			DecayingPoolConcentrationModel decayingPoolConcentrationModel = (DecayingPoolConcentrationModel) concentrationModel;
-//			concentrationModelChildren.add(new TextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(decayingPoolConcentrationModel.getIon())));
-//			concentrationModelChildren.add(createParameterSpecificationNode(Resources.DECAY_CONSTANT, "DecayConstant", decayingPoolConcentrationModel.getDecayConstant()));
-//			
-//		}
-//		else{
-//			
-//		}
-//		return concentrationModelChildren;
-//	}
-	
 }
