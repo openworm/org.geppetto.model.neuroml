@@ -10,7 +10,7 @@ import org.geppetto.core.model.values.FloatValue;
 
 public class PopulateModelTreeUtils {
 	
-	public ParameterSpecificationNode createParameterSpecificationNode(String name, String id, String value){
+	public static ParameterSpecificationNode createParameterSpecificationNode(String name, String id, String value){
 		if (value != null){
 //			ParameterSpecificationNode parameterSpecificationNode = new ParameterSpecificationNode(name.get(), id);
 			
@@ -33,7 +33,7 @@ public class PopulateModelTreeUtils {
 		}
 		return null;
 	}
-	public ParameterSpecificationNode createParameterSpecificationNode(String name, String id, String value, String unit){
+	public static ParameterSpecificationNode createParameterSpecificationNode(String name, String id, String value, String unit){
 		if (value != null){
 			ParameterSpecificationNode parameterSpecificationNode = new ParameterSpecificationNode(name, id);
 			

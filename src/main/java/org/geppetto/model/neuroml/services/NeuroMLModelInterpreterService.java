@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
@@ -116,7 +118,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 			
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			//ILEMSDocument document = lemsReader.readModel(lemsString);
+			ILEMSDocument document = lemsReader.readModel(lemsString);
 			
 			int index=url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0,index+1);
@@ -124,7 +126,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			OptimizedLEMSReader reader = new OptimizedLEMSReader(urlBase);
 			String lemsStringOptimized = reader.processLEMSInclusions(lemsString);
 			lemsStringOptimized = reader.processLEMSInclusions(lemsStringOptimized, false);
-			ILEMSDocument document = lemsReader.readModel(lemsStringOptimized);
+			ILEMSDocument document_inclusions = lemsReader.readModel(lemsStringOptimized);
 
 //			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 //			NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
@@ -141,12 +143,15 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			model.setInstancePath(instancePath);
 			// two different interpretations of the same file, one used to simulate the other used to visualize
 			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
+			model.wrapModel(NeuroMLAccessUtility.LEMS_ID_INCLUSIONS, document_inclusions);
 			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml);
 			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS, neuroml_inclusions);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<String, EntityNode>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
+			
+			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 		}
 		catch(IOException e)
 		{

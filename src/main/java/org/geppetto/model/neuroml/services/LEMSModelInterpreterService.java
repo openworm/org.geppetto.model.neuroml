@@ -35,6 +35,7 @@ package org.geppetto.model.neuroml.services;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -46,6 +47,7 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
@@ -112,6 +114,8 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
+			
+			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 		}
 		catch(IOException e)
 		{

@@ -3,10 +3,14 @@
  */
 package org.geppetto.model.neuroml.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.runtime.ANode;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.Base;
@@ -35,10 +39,13 @@ public class NeuroMLAccessUtility
 	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
 	public static final String LEMS_ID = "lems";
 	public static final String NEUROML_ID = "neuroml";
-	public static final String NEUROML_ID_INCLUSIONS = "neuroml_inclusions";
+	public static final String NEUROML_ID_INCLUSIONS = "neuromlInclusions";
 	public static final String URL_ID = "url";
 	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
 //	public static final String LEMS_UTILS_ID = "lemsUtils";
+	public static final String LEMS_ID_INCLUSIONS = "lemsInclusions";
+//	public static final String DISCOVERED_NODES = "discovered_nodes";
+	public static final String DISCOVERED_NESTED_COMPONENTS_ID = "discoveredNestedComponents";
 	
 	private LEMSAccessUtility lemsAccessUtility = new LEMSAccessUtility();
 	
@@ -88,10 +95,14 @@ public class NeuroMLAccessUtility
 	
 	public Base getComponentFromCache(String componentId, ModelWrapper model){
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
+		List<String> _discoveredNestedComponentsId = ((ArrayList<String>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID));
 		
-		//TODO Can we have the same id for two different components 
+		//TODO We may think about storing nodes instead of components
 		if(_discoveredComponents.containsKey(componentId))
 		{
+			if (!_discoveredNestedComponentsId.contains(componentId)){
+				_discoveredNestedComponentsId.add(componentId);
+			}
 			return _discoveredComponents.get(componentId);
 		}
 		
