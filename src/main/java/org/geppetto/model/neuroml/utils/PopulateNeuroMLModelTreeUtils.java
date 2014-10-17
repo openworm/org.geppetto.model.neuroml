@@ -15,24 +15,25 @@ import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
-import org.geppetto.core.model.simulation.Aspect;
-import org.geppetto.core.model.simulation.Entity;
 import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.neuroml.model.AdExIaFCell;
+import org.neuroml.model.AlphaCondSynapse;
 import org.neuroml.model.Annotation;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.BaseConductanceBasedSynapse;
+import org.neuroml.model.BasePynnSynapse;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.BlockMechanism;
 import org.neuroml.model.BlockingPlasticSynapse;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
 import org.neuroml.model.DecayingPoolConcentrationModel;
+import org.neuroml.model.ExpCondSynapse;
 import org.neuroml.model.ExpOneSynapse;
 import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.ExplicitInput;
@@ -93,7 +94,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	
 	public CompositeNode createRateGateNode(Resources name, HHRate rate) throws ModelInterpreterException, ContentError{
 		
-		CompositeNode rateGateNode = new CompositeNode(name.get(), name.getId());
+		CompositeNode rateGateNode = new CompositeNode(name.getId(), name.get());
 			
 		if (rate != null){
 			if (rate.getType() != null){
@@ -113,7 +114,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	public CompositeNode createSteadyStateNode(HHVariable variable) throws ModelInterpreterException, ContentError{
 		
 		if (variable != null){
-			CompositeNode steadyStateNode = new CompositeNode(Resources.STEADY_STATE.get(), Resources.STEADY_STATE.getId());
+			CompositeNode steadyStateNode = new CompositeNode(Resources.STEADY_STATE.getId(), Resources.STEADY_STATE.get());
 				
 			if (variable.getType() != null){
 				ComponentType typeSteadyState = (ComponentType) neuroMLAccessUtility.getComponent(variable.getType(), model, Resources.COMPONENT_TYPE);
@@ -134,7 +135,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	public CompositeNode createTimeCourseNode(HHTime timeCourse) throws ModelInterpreterException, ContentError{
 		
 		if (timeCourse != null){
-			CompositeNode timeCourseNode = new CompositeNode(Resources.TIMECOURSE.get(), Resources.TIMECOURSE.getId());
+			CompositeNode timeCourseNode = new CompositeNode(Resources.TIMECOURSE.getId(), Resources.TIMECOURSE.get());
 			
 			if (timeCourse.getType() != null){
 				ComponentType typeTimeCourse = (ComponentType) neuroMLAccessUtility.getComponent(timeCourse.getType(), model, Resources.COMPONENT_TYPE);
@@ -152,7 +153,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	}
 	
 	public CompositeNode createCellNode(BaseCell c) throws ModelInterpreterException, ContentError{
-		CompositeNode cellNode = new CompositeNode(Resources.CELL.get(), Resources.CELL.getId());
+		CompositeNode cellNode = new CompositeNode(Resources.CELL.getId(), Resources.CELL.get());
 		
 		if (c instanceof Cell){
 			Cell cell = (Cell) c;
@@ -222,12 +223,12 @@ public class PopulateNeuroMLModelTreeUtils {
 	 * @throws ContentError 
 	 */
 	public CompositeNode createBiophysicalPropertiesNode(BiophysicalProperties properties) throws ModelInterpreterException, ContentError{
-		CompositeNode biophysicalPropertiesNode = new CompositeNode(Resources.BIOPHYSICAL_PROPERTIES.get(), properties.getId());
+		CompositeNode biophysicalPropertiesNode = new CompositeNode(properties.getId(), Resources.BIOPHYSICAL_PROPERTIES.get());
 		
 		MembraneProperties membraneProperties = properties.getMembraneProperties();
 		if(membraneProperties != null)
 		{
-			CompositeNode membranePropertiesNode = new CompositeNode(Resources.MEMBRANE_P.get(), Resources.MEMBRANE_P.getId());
+			CompositeNode membranePropertiesNode = new CompositeNode(Resources.MEMBRANE_P.getId(), Resources.MEMBRANE_P.get());
 			
 			
 			List<ChannelDensity> channelDensities = membraneProperties.getChannelDensity();
@@ -239,20 +240,20 @@ public class PopulateNeuroMLModelTreeUtils {
 			// Channel Density
 			for(ChannelDensity channelDensity : channelDensities)
 			{
-				CompositeNode channelDensityNode = new CompositeNode(Resources.CHANNEL_DENSITY.get(), channelDensity.getId());
+				CompositeNode channelDensityNode = new CompositeNode(channelDensity.getId(), Resources.CHANNEL_DENSITY.get());
 				
 				// Ion Channel
 				IonChannel ionChannel = (IonChannel) neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, Resources.ION_CHANNEL);
 				channelDensityNode.addChild(createChannelNode(ionChannel));
 				
 				// Passive conductance density				
-				channelDensityNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY.get(), Resources.COND_DENSITY.getId() + "_" +channelDensity.getId(), channelDensity.getCondDensity()));
+				channelDensityNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY.get(), Resources.COND_DENSITY.getId(), channelDensity.getCondDensity()));
 				
 				// ION	
-				channelDensityNode.addChild(new TextMetadataNode(Resources.ION.get(), Resources.ION.getId() + "_" + channelDensity.getId(),  new StringValue(channelDensity.getIon())));
+				channelDensityNode.addChild(new TextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(channelDensity.getIon())));
 				
 				// Reverse Potential					
-				channelDensityNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.EREV.get(), Resources.EREV.getId() + "_" + channelDensity.getId(), channelDensity.getErev()));
+				channelDensityNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.EREV.get(), Resources.EREV.getId(), channelDensity.getErev()));
 				
 				// Segment Group
 				//TODO: Point to a visualization group?
@@ -338,16 +339,16 @@ public class PopulateNeuroMLModelTreeUtils {
 		// Specie
 		for(Species specie : species)
 		{
-			CompositeNode speciesNodeItem = new CompositeNode(Resources.SPECIES.get(), Resources.SPECIES.getId());
+			CompositeNode speciesNodeItem = new CompositeNode(Resources.SPECIES.getId(), Resources.SPECIES.get());
 			
 			// Initial Concentration
-			speciesNodeItem.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_CONCENTRATION.get(), Resources.INIT_CONCENTRATION.getId() + "_" + specie.getId(), specie.getInitialConcentration()));
+			speciesNodeItem.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_CONCENTRATION.get(), Resources.INIT_CONCENTRATION.getId(), specie.getInitialConcentration()));
 			
 			// Initial External Concentration
-			speciesNodeItem.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_EXT_CONCENTRATION.get(), Resources.INIT_EXT_CONCENTRATION.getId() + "_" + specie.getId(), specie.getInitialExtConcentration()));
+			speciesNodeItem.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.INIT_EXT_CONCENTRATION.get(), Resources.INIT_EXT_CONCENTRATION.getId(), specie.getInitialExtConcentration()));
 			
 			// Ion
-			speciesNodeItem.addChild(new TextMetadataNode(Resources.ION.get(), Resources.ION.getId() + "_" + specie.getId(),  new StringValue(specie.getIon())));
+			speciesNodeItem.addChild(new TextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(specie.getIon())));
 			
 			// Concentration Model
 			Object concentrationModel = neuroMLAccessUtility.getComponent(specie.getConcentrationModel(), model, Resources.CONCENTRATION_MODEL);
@@ -360,7 +361,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	
 	public CompositeNode createConcentrationModelNode(Object concentrationModel) {
 		if (concentrationModel != null){
-			CompositeNode concentrationModelNode = new CompositeNode(Resources.CONCENTRATION_MODEL.get(), Resources.CONCENTRATION_MODEL.getId());
+			CompositeNode concentrationModelNode = new CompositeNode(Resources.CONCENTRATION_MODEL.getId(), Resources.CONCENTRATION_MODEL.get());
 			if (concentrationModel instanceof DecayingPoolConcentrationModel){
 				DecayingPoolConcentrationModel decayingPoolConcentrationModel = (DecayingPoolConcentrationModel) concentrationModel;
 				concentrationModelNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.DECAY_CONSTANT.get(), Resources.DECAY_CONSTANT.getId(), decayingPoolConcentrationModel.getDecayConstant()));
@@ -383,32 +384,27 @@ public class PopulateNeuroMLModelTreeUtils {
 	}
 
 	public CompositeNode createGateNode(Base gate) throws ModelInterpreterException, ContentError{
-		CompositeNode gateNode = new CompositeNode(Resources.GATE.get(), gate.getId());
+		CompositeNode gateNode = new CompositeNode(gate.getId(), Resources.GATE.get());
+		gateNode.addChildren(createBaseChildren(gate));
+		
 		if (gate instanceof  GateHHUndetermined){
 			GateHHUndetermined gateHHUndetermined = (GateHHUndetermined) gate;
 	
-			//Forward Rate
 			gateNode.addChild(createRateGateNode(Resources.FW_RATE, gateHHUndetermined.getForwardRate()));
-			
-			//Reverse Rate
 			gateNode.addChild(createRateGateNode(Resources.BW_RATE, gateHHUndetermined.getReverseRate()));
 			
 			//Type
 			ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHUndetermined.getType().value(), model, Resources.COMPONENT_TYPE);
 			gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
-			
-			//Instances
+
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHUndetermined.getInstances().intValue())));
-			
-			//Q10Settings
 			gateNode.addChild(createQ10SettingsNode(gateHHUndetermined.getQ10Settings()));
-			
-			//Time Course
 			gateNode.addChild(createTimeCourseNode(gateHHUndetermined.getTimeCourse()));
-			//Steady State
 			gateNode.addChild(createSteadyStateNode(gateHHUndetermined.getSteadyState()));
 			
-			gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHUndetermined.getNotes())));
+			if (gateHHUndetermined.getNotes() != null){
+				gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHUndetermined.getNotes())));
+			}	
 		}
 		else if (gate instanceof  GateHHRates) {
 			GateHHRates gateHHRates = (GateHHRates) gate;
@@ -418,12 +414,12 @@ public class PopulateNeuroMLModelTreeUtils {
 
 			ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRates.getType().value(), model, Resources.COMPONENT_TYPE);
 			gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
-			
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRates.getInstances().intValue())));
-			
 			gateNode.addChild(createQ10SettingsNode(gateHHRates.getQ10Settings()));
 			
-			gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRates.getNotes())));
+			if (gateHHRates.getNotes() != null){
+				gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRates.getNotes())));
+			}	
 			
 		}
 		else if (gate instanceof  GateHHRatesInf) {
@@ -436,12 +432,12 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
 			
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRatesInf.getInstances().intValue())));
-			
 			gateNode.addChild(createQ10SettingsNode(gateHHRatesInf.getQ10Settings()));
-			
-			gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRatesInf.getNotes())));
-			
 			gateNode.addChild(createSteadyStateNode(gateHHRatesInf.getSteadyState()));
+			
+			if (gateHHRatesInf.getNotes() != null){
+				gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRatesInf.getNotes())));
+			}	
 		}
 		else if (gate instanceof  GateHHRatesTau) {
 			GateHHRatesTau gateHHRatesTau = (GateHHRatesTau) gate;
@@ -453,13 +449,12 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(populateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
 			
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRatesTau.getInstances().intValue())));
-			
 			gateNode.addChild(createQ10SettingsNode(gateHHRatesTau.getQ10Settings()));
-			
-			gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRatesTau.getNotes())));
-			
 			gateNode.addChild(createTimeCourseNode(gateHHRatesTau.getTimeCourse()));
 			
+			if (gateHHRatesTau.getNotes() != null){
+				gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRatesTau.getNotes())));
+			}
 		}
 		else if (gate instanceof  GateHHTauInf) {
 			GateHHTauInf gateHHTauInf = (GateHHTauInf) gate;
@@ -470,22 +465,20 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHTauInf.getInstances().intValue())));
 			
 			gateNode.addChild(createQ10SettingsNode(gateHHTauInf.getQ10Settings()));
-			
-			gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHTauInf.getNotes())));
-			
 			gateNode.addChild(createTimeCourseNode(gateHHTauInf.getTimeCourse()));
-			
 			gateNode.addChild(createSteadyStateNode(gateHHTauInf.getSteadyState()));
+			
+			if (gateHHTauInf.getNotes() != null){
+				gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHTauInf.getNotes())));
+			}	
 		}
-
 		
-		gateNode.addChildren(createBaseChildren(gate));
 		return gateNode;
 	}
 
 	private CompositeNode createQ10SettingsNode(Q10Settings q10Settings)	throws ModelInterpreterException, ContentError {
 		if (q10Settings != null) {
-			CompositeNode q10SettingsNode = new CompositeNode(Resources.Q10SETTINGS.get(), Resources.Q10SETTINGS.getId());
+			CompositeNode q10SettingsNode = new CompositeNode(Resources.Q10SETTINGS.getId(), Resources.Q10SETTINGS.get());
 			if (q10Settings.getExperimentalTemp() != null){
 				q10SettingsNode.addChild(new TextMetadataNode(Resources.EXPERIMENTAL_TEMP.get(), Resources.EXPERIMENTAL_TEMP.getId(),  new StringValue(q10Settings.getExperimentalTemp())));
 			}
@@ -566,7 +559,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	
 	public CompositeNode createNetworkNode(Network n) throws ModelInterpreterException, ContentError {
 
-		CompositeNode networkNode = new CompositeNode(Resources.NETWORK.get(), Resources.NETWORK.getId());
+		CompositeNode networkNode = new CompositeNode(Resources.NETWORK.getId(), Resources.NETWORK.get());
 		
 		networkNode.addChildren(createStandaloneChildren(n));
 		
@@ -591,7 +584,7 @@ public class PopulateNeuroMLModelTreeUtils {
 		
 		List<Population> populations = n.getPopulation();
 		for(Population p : populations){
-			CompositeNode populationNode = new CompositeNode(Resources.POPULATION.get(), p.getId());
+			CompositeNode populationNode = new CompositeNode(p.getId(), Resources.POPULATION.get());
 			
 			populationNode.addChildren(createStandaloneChildren(p));
 
@@ -705,8 +698,24 @@ public class PopulateNeuroMLModelTreeUtils {
 			}
 		}
 		
-		return null;
+		return synapseNode;
 	}	
+	
+	public CompositeNode createPynnSynapseNode(BasePynnSynapse pynnSynapse) throws ContentError, ModelInterpreterException {
+		CompositeNode pynnSynapsesNode = new CompositeNode(pynnSynapse.getId(), Resources.SYNAPSE.get());
+		
+		pynnSynapsesNode.addChildren(createStandaloneChildren(pynnSynapse));
+		
+		pynnSynapsesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.TAUSYN.get(), Resources.TAUSYN.getId(), String.valueOf(pynnSynapse.getTauSyn())));
+		
+		if (pynnSynapse instanceof AlphaCondSynapse){
+			pynnSynapsesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.EREV.get(), Resources.EREV.getId(), String.valueOf(((AlphaCondSynapse) pynnSynapse).getERev())));
+		}
+		else if (pynnSynapse instanceof ExpCondSynapse){
+			pynnSynapsesNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(Resources.EREV.get(), Resources.EREV.getId(), String.valueOf(((AlphaCondSynapse) pynnSynapse).getERev())));
+		}
+		return pynnSynapsesNode;
+	}
 	
 	public Collection<ANode> createExpTwoSynapseChildren(ExpTwoSynapse expTwoSynapse){
 		Collection<ANode> expTwoSynapseChildren = new ArrayList<ANode>();
@@ -723,7 +732,7 @@ public class PopulateNeuroMLModelTreeUtils {
 		//TODO: Improve to parse all the attribute in an annotation	
 		Annotation annotation = standaloneComponent.getAnnotation();
 		if (annotation != null){
-			CompositeNode annotationNode = new CompositeNode(Resources.ANOTATION.get(), Resources.ANOTATION.getId());
+			CompositeNode annotationNode = new CompositeNode(Resources.ANOTATION.getId(), Resources.ANOTATION.get());
 			for (Element element : annotation.getAny()){
 				annotationNode.addChild(new TextMetadataNode(Resources.ELEMENT.get(), Resources.ELEMENT.getId(),  new StringValue(element.getTextContent())));
 			}

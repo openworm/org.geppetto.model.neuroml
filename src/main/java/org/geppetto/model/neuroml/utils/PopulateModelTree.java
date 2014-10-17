@@ -39,6 +39,7 @@ import java.util.Map;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.runtime.ACompositeNode;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
@@ -48,11 +49,15 @@ import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.AdExIaFCell;
+import org.neuroml.model.AlphaCondSynapse;
+import org.neuroml.model.AlphaCurrSynapse;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.BlockingPlasticSynapse;
 import org.neuroml.model.Cell;
 import org.neuroml.model.DecayingPoolConcentrationModel;
+import org.neuroml.model.ExpCondSynapse;
+import org.neuroml.model.ExpCurrSynapse;
 import org.neuroml.model.ExpOneSynapse;
 import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.ExplicitInput;
@@ -195,11 +200,26 @@ public class PopulateModelTree {
 		 		/**
 		 		 * PyNN Synapses Types
 		 		 */
-		 		neuroml.getAlphaCondSynapse();
-		 		neuroml.getExpCondSynapse();
-		 		neuroml.getExpCurrSynapse();
-		 		neuroml.getAlphaCurrSynapse();
-		 		
+		 		for (AlphaCondSynapse alphaCondSynapse : neuroml.getAlphaCondSynapse()){
+		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createPynnSynapseNode(alphaCondSynapse);
+		 			discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
+		 			
+		 		}
+		 		for (ExpCondSynapse expCondSynapse : neuroml.getExpCondSynapse()){
+		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createPynnSynapseNode(expCondSynapse);
+		 			discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
+		 			
+		 		}
+		 		for (ExpCurrSynapse expCurrSynapse : neuroml.getExpCurrSynapse()){
+		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createPynnSynapseNode(expCurrSynapse);
+		 			discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
+		 			
+		 		}
+		 		for (AlphaCurrSynapse alphaCurrSynapse : neuroml.getAlphaCurrSynapse()){
+		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createPynnSynapseNode(alphaCurrSynapse);
+		 			discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
+		 			
+		 		}
 		 		
 		 		/**
 		 		 * Biophysical Properties
@@ -225,11 +245,18 @@ public class PopulateModelTree {
 				}
 			}
 			
-	 		for (Map.Entry<String, ANode> entry : discoveredNodesInNeuroML.entrySet()) {
-	 		    String key = entry.getKey();
-	 		    modelTree.addChild(entry.getValue());
-	 		}
-	 		
+			
+		 		for (Map.Entry<String, ANode> entry : discoveredNodesInNeuroML.entrySet()) {
+		 		    String key = entry.getKey();
+		 		   if (discoveredNodesInNeuroML.size() == 1){
+		 			  Object node = discoveredNodesInNeuroML.values().toArray()[0];
+		 			   if (node instanceof ACompositeNode){
+		 				  modelTree.addChildren(((ACompositeNode)node).getChildren());
+		 				  break;
+		 			   }
+					}
+		 		    modelTree.addChild(entry.getValue());
+		 		}
 	 		
 	 		
 	 		_populated = true;

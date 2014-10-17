@@ -90,17 +90,19 @@ public class PopulateLEMSModelTreeUtils {
 		
 		Dynamics dynamics = componentType.getDynamics();
 		if (dynamics != null){
-			CompositeNode dynamicsNode = new CompositeNode(Resources.DYNAMICS.get(), "Dynamics");
-			 
+			CompositeNode dynamicsNode = new CompositeNode(Resources.DYNAMICS.get(), Resources.DYNAMICS.getId());
+			
 			
 			for (DerivedVariable derivedVariable : dynamics.getDerivedVariables()){
-				FunctionNode  functionNode = new FunctionNode(derivedVariable.getName(), derivedVariable.getName());
+				
 				if (derivedVariable.getValueExpression() != null){
+					FunctionNode  functionNode = new FunctionNode(derivedVariable.getName(), derivedVariable.getName());
 					functionNode.setExpression(derivedVariable.getValueExpression());
+					dynamicsNode.addChild(functionNode);
 				}
 				//TODO: Do we want to store the dimension? 										
 //				derivedVariable.getDimensionString();
-				dynamicsNode.addChild(functionNode);
+				
 			}
 			
 			//TODO: We need to implement events
@@ -119,7 +121,9 @@ public class PopulateLEMSModelTreeUtils {
 //		}
 		
 		for (DerivedParameter derivedParameter : componentType.getDerivedParameters()){
-			compositeNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(derivedParameter.getName(), derivedParameter.getName(), derivedParameter.getValue(), derivedParameter.getDimension().getName()));
+			if (derivedParameter.getValue() != null){
+				compositeNode.addChild(populateModelTreeUtils.createParameterSpecificationNode(derivedParameter.getName(), derivedParameter.getName(), derivedParameter.getValue(), derivedParameter.getDimension().getName()));
+			}
 		}
 		
 		return compositeNode;

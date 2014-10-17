@@ -135,7 +135,8 @@ public enum Resources
 	BLOCKMECHANISM("Block Mechanism", "BlockMechanism"),
 	SCALINGCONC("Scaling Concentration", "ScalingConc"),
 	BLOCKCONCENTRATION("Block Concentration", "BlockConcentration"),
-	SCALINGVOLT("Scaling Voltage", "ScalingVolt");
+	SCALINGVOLT("Scaling Voltage", "ScalingVolt"),
+	TAUSYN("Tau Syn", "TauSyn");
 	
 	private String _value;
 	private String _id;
