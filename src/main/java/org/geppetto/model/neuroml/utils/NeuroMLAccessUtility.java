@@ -43,7 +43,7 @@ public class NeuroMLAccessUtility
 	public static final String URL_ID = "url";
 	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
 //	public static final String LEMS_UTILS_ID = "lemsUtils";
-	public static final String LEMS_ID_INCLUSIONS = "lemsInclusions";
+//	public static final String LEMS_ID_INCLUSIONS = "lemsInclusions";
 //	public static final String DISCOVERED_NODES = "discovered_nodes";
 	public static final String DISCOVERED_NESTED_COMPONENTS_ID = "discoveredNestedComponents";
 	

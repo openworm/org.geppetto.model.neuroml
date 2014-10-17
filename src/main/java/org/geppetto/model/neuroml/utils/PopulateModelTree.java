@@ -128,8 +128,8 @@ public class PopulateModelTree {
 		populateNeuroMLModelTreeUtils.setModel((ModelWrapper) model);
 		
 		try {
-			EntityNode entityNode = mapping.get(modelTree.getParent().getParent().getId());
-			if (entityNode == null){
+//			EntityNode entityNode = mapping.get(modelTree.getParent().getParent().getId());
+//			if (entityNode == null){
 
 				//TODO: Shall we go through all the stand alone element or check the lem component?
 				
@@ -310,8 +310,8 @@ public class PopulateModelTree {
 //		 			}
 //		 		}
 		 		
-			}
-			else{
+//			}
+//			else{
 //				int endIndex = entityNode.getId().lastIndexOf("_");
 //			    if (endIndex != -1)  
 //			    {
@@ -322,7 +322,7 @@ public class PopulateModelTree {
 //				for (CompositeNode compositeNode : getCells(model)){
 //	 				discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
 //				}
-			}
+//			}
 			
 			
 		 		for (Map.Entry<String, ANode> entry : _discoveredNodesInNeuroML.entrySet()) {

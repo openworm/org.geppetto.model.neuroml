@@ -84,7 +84,7 @@ public class LEMSAccessUtility
 	public Object getComponentById(String componentId, ModelWrapper model) throws ContentError
 	{
 		//Look for the model in the document
-		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID_INCLUSIONS);
+		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
 		Object component = lems.getComponentTypeByName(componentId);
 		//Store the component in the cache
 		((HashMap<String, Object>)((ModelWrapper) model).getModel(DISCOVERED_LEMS_COMPONENTS)).put(componentId, component);

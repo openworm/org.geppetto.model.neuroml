@@ -118,7 +118,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 			
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			ILEMSDocument document = lemsReader.readModel(lemsString);
+			//ILEMSDocument document = lemsReader.readModel(lemsString);
 			
 			int index=url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0,index+1);
@@ -126,7 +126,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			OptimizedLEMSReader reader = new OptimizedLEMSReader(urlBase);
 			String lemsStringOptimized = reader.processLEMSInclusions(lemsString);
 			lemsStringOptimized = reader.processLEMSInclusions(lemsStringOptimized, false);
-			ILEMSDocument document_inclusions = lemsReader.readModel(lemsStringOptimized);
+			ILEMSDocument document = lemsReader.readModel(lemsStringOptimized);
 
 //			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 //			NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
@@ -143,7 +143,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			model.setInstancePath(instancePath);
 			// two different interpretations of the same file, one used to simulate the other used to visualize
 			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
-			model.wrapModel(NeuroMLAccessUtility.LEMS_ID_INCLUSIONS, document_inclusions);
+			//model.wrapModel(NeuroMLAccessUtility.LEMS_ID_INCLUSIONS, document_inclusions);
 			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml);
 			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS, neuroml_inclusions);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
