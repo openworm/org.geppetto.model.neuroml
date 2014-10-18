@@ -250,7 +250,9 @@ public class PopulateNeuroMLModelTreeUtils {
 				channelDensityNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY.get(), Resources.COND_DENSITY.getId(), channelDensity.getCondDensity()));
 				
 				// ION	
-				channelDensityNode.addChild(new TextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(channelDensity.getIon())));
+				if (channelDensity.getIon() != null){
+					channelDensityNode.addChild(new TextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(channelDensity.getIon())));
+				}
 				
 				// Reverse Potential					
 				channelDensityNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.EREV.get(), Resources.EREV.getId(), channelDensity.getErev()));
@@ -536,7 +538,9 @@ public class PopulateNeuroMLModelTreeUtils {
 		
 		ionChannelNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.CONDUCTANCE.get(), Resources.CONDUCTANCE.getId(), ionChannel.getConductance()));
 		
-		ionChannelNode.addChild(new TextMetadataNode(Resources.SPECIES.get(), Resources.SPECIES.getId(), new StringValue(ionChannel.getSpecies())));
+		if (ionChannel.getSpecies() != null){
+			ionChannelNode.addChild(new TextMetadataNode(Resources.SPECIES.get(), Resources.SPECIES.getId(), new StringValue(ionChannel.getSpecies())));
+		}
 		
 		if (ionChannel.getType() != null){
 			ComponentType typeIonChannel = (ComponentType) neuroMLAccessUtility.getComponent(ionChannel.getType().value(), model, Resources.COMPONENT_TYPE);
