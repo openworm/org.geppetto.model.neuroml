@@ -35,6 +35,7 @@ package org.geppetto.model.neuroml.services;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -46,13 +47,17 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
+import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
+import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
@@ -68,6 +73,8 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 {
 
 	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
+	
+	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
 
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
@@ -96,16 +103,19 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 			// simulate the other used to visualize
 			if(reader.getNeuroMLs().size() == 1)
 			{
-				model.wrapModel(NeuroMLModelInterpreterService.NEUROML_ID, reader.getNeuroMLs().values().toArray()[0]);
+				model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, reader.getNeuroMLs().values().toArray()[0]);
 			}
 			else
 			{
-				model.wrapModel(NeuroMLModelInterpreterService.NEUROML_ID, reader.getNeuroMLs());
+				model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, reader.getNeuroMLs());
 			}
-			model.wrapModel(NeuroMLModelInterpreterService.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
-			model.wrapModel(NeuroMLModelInterpreterService.DISCOVERED_COMPONENTS, new HashMap<String, BaseCell>());
-			model.wrapModel(NeuroMLModelInterpreterService.LEMS_ID, document);
-			model.wrapModel(NeuroMLModelInterpreterService.URL_ID, url);
+			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
+			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
+			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
+			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
+			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
+			
+			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 		}
 		catch(IOException e)
 		{
