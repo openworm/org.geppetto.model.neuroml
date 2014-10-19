@@ -12,6 +12,8 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.utilities.URLReader;
 import org.lemsml.jlems.core.logging.E;
 import org.neuroml.model.NeuroMLDocument;
@@ -23,6 +25,7 @@ import org.neuroml.model.util.NeuroMLConverter;
  */
 public class OptimizedLEMSReader
 {
+	private static Log _logger = LogFactory.getLog(OptimizedLEMSReader.class);
 	private static final List<String> NeuroMLInclusions = Arrays.asList("https://raw.github.com/NeuroML/NeuroML2/master/NeuroML2CoreTypes/NeuroML2CoreTypes.xml", "NeuroML2CoreTypes.xml",
 			"NeuroMLCoreCompTypes.xml", "NeuroMLCoreDimensions.xml", "Cells.xml", "Networks.xml", "Synapes.xml", "Inputs.xml", "Channels.xml", "PyNN.xml");
 	private static final String simulationInclusion = "Simulation.xml";
@@ -84,7 +87,7 @@ public class OptimizedLEMSReader
 		}
 		
 		String URLInclusion = "<"+ includeClause;
-		
+
 		while(processedLEMSString.contains(URLInclusion))
 		{
 			int inclusionStart = processedLEMSString.indexOf(URLInclusion);
@@ -137,6 +140,7 @@ public class OptimizedLEMSReader
 					}
 					content = trimOuterElement(processLEMSInclusions(s, includeNeuroml));
 				} catch (IOException e) {
+					_logger.warn(e.toString());
 					content = "";
 				}
 				
