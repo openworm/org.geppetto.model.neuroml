@@ -137,7 +137,7 @@ public class PopulateModelTree {
 		 		 * NETWORKS
 		 		 */
 				for(Network n : neuroml.getNetwork()){
-					CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createNetworkNode(n);
+					CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createNetworkNode(n, modelTree);
 					_discoveredComponents.put(n.getId(), n);
 					_discoveredNodesInNeuroML.put(n.getId(), compositeNode);
 				}

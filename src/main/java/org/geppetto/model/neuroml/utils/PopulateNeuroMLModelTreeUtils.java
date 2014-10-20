@@ -570,7 +570,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	}
 	
 	
-	public CompositeNode createNetworkNode(Network n) throws ModelInterpreterException, ContentError {
+	public CompositeNode createNetworkNode(Network n, AspectSubTreeNode modelTree) throws ModelInterpreterException, ContentError {
 
 		CompositeNode networkNode = new CompositeNode(Resources.NETWORK.getId(), Resources.NETWORK.get());
 		
@@ -626,9 +626,11 @@ public class PopulateNeuroMLModelTreeUtils {
 						
 						//TODO: Do we add the model tree to every aspect?
 						for (AspectNode aspectNode : entityNode.getAspects()){
-							AspectSubTreeNode modelTree = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-							modelTree.addChildren(createCellNode(cell).getChildren());
-							modelTree.setModified(true);
+							if (aspectNode.getId() == modelTree.getParent().getId()){
+								AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+								modelTreeSubEntity.addChildren(createCellNode(cell).getChildren());
+								modelTreeSubEntity.setModified(true);
+							}
 						}
 						
 					}
