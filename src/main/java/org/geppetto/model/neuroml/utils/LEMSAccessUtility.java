@@ -86,7 +86,6 @@ public class LEMSAccessUtility
 		//Look for the model in the document
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
 		Object component = lems.getComponentTypeByName(componentId);
-		Object component2 = lems.getComponentTypeByName("HHExpLinearRate");
 		//Store the component in the cache
 		((HashMap<String, Object>)((ModelWrapper) model).getModel(DISCOVERED_LEMS_COMPONENTS)).put(componentId, component);
 		
