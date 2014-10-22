@@ -1,4 +1,4 @@
-    <ComponentType name="Display">
+ <ComponentType name="Display">
         <Parameter name="xmin" dimension="none"/>
         <Parameter name="xmax" dimension="none"/>
         <Parameter name="ymin" dimension="none"/>
@@ -14,8 +14,6 @@
     </ComponentType>
         
 
-
-
     <ComponentType name="Line">
         <Parameter name="scale" dimension="*"/>
          <Parameter name="timeScale" dimension="*"/>
@@ -26,7 +24,6 @@
         </Simulation>
     </ComponentType>
 
-    
     
     <ComponentType name="Simulation">
         <Parameter name="length" dimension="time"/>
@@ -46,6 +43,7 @@
             <Run component="target" variable="t" increment="step" total="length"/>
         </Simulation>
     </ComponentType>
+    
     
     <ComponentType name="OutputFile">
     	
