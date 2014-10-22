@@ -136,7 +136,12 @@ public enum Resources
 	SCALINGCONC("Scaling Concentration", "ScalingConc"),
 	BLOCKCONCENTRATION("Block Concentration", "BlockConcentration"),
 	SCALINGVOLT("Scaling Voltage", "ScalingVolt"),
-	TAUSYN("Tau Syn", "TauSyn");
+	TAUSYN("Tau Syn", "TauSyn"),
+	CONNECTIONS("Connections", "Connections"),
+	PRESEGMENT("Presegment", "Presegment"),
+	POSTSEGMENT("Postsegment", "Postsegment"),
+	PREFRACTIONALONG("Prefraction Along", "Prefractionalong"),
+	POSTFRACTIONALONG("Postfraction Along", "Postfractionalong");
 	
 	private String _value;
 	private String _id;

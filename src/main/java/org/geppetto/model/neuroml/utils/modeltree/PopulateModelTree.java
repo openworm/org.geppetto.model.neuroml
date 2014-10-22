@@ -30,7 +30,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE 
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package org.geppetto.model.neuroml.utils;
+package org.geppetto.model.neuroml.utils.modeltree;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +47,7 @@ import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
+import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.ComponentType;
@@ -312,6 +313,8 @@ public class PopulateModelTree {
 		 		
 //			}
 //			else{
+		 		//TODO: Implement getModelTree for subentities
+		 		//TODO: It can be useful to implement a map between subentity and cell
 //				int endIndex = entityNode.getId().lastIndexOf("_");
 //			    if (endIndex != -1)  
 //			    {
@@ -349,62 +352,6 @@ public class PopulateModelTree {
  		
  		return _populated;
 	}
-	
-//	public void getCells(ModelWrapper model) throws ModelInterpreterException, ContentError{
-//		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
-//		
-//		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
-//		
-////		List<CompositeNode> cellNodes = new ArrayList<CompositeNode>();
-//		
-//		/**
-//		 * CELLS
-//		 */
-// 		List<Cell> cells = neuroml.getCell();
-// 		List<AdExIaFCell> adExIaFCells = neuroml.getAdExIaFCell();
-// 		List<IafCell> iaFCells = neuroml.getIafCell();
-// 		List<IafRefCell> iafRefCells = neuroml.getIafRefCell();
-// 		List<IafTauRefCell> iafTauRefCells = neuroml.getIafTauRefCell();
-// 		List<IafTauCell> iafTauCells = neuroml.getIafTauCell();
-// 		List<FitzHughNagumoCell> fitzHughNagumoCells = neuroml.getFitzHughNagumoCell();
-// 		List<IzhikevichCell> izhikevichCells = neuroml.getIzhikevichCell();
-// 		
-// 		for(Cell c : cells){
-// 			_discoveredComponents.put(c.getId(), c);
-// 			discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
-// 			cellNodes.add(populateNeuroMLModelTreeUtils.createCellNode(c));
-// 		}
-// 		for(AdExIaFCell c : adExIaFCells){
-// 			_discoveredComponents.put(c.getId(), c);
-// 			cellNodes.add(populateNeuroMLModelTreeUtils.createCellNode(c));
-// 		}
-// 		for(FitzHughNagumoCell c : fitzHughNagumoCells){
-// 			_discoveredComponents.put(c.getId(), c);
-// 			cellNodes.add(populateNeuroMLModelTreeUtils.createCellNode(c));
-// 		}
-// 		for(IzhikevichCell c : izhikevichCells){
-// 			_discoveredComponents.put(c.getId(), c);
-// 			cellNodes.add(populateNeuroMLModelTreeUtils.createCellNode(c));
-// 		}
-// 		for(IafRefCell c : iafRefCells){
-// 			_discoveredComponents.put(c.getId(), c);
-// 			cellNodes.add(populateNeuroMLModelTreeUtils.createCellNode(c));
-// 		}
-// 		for(IafCell c : iaFCells){
-// 			_discoveredComponents.put(c.getId(), c);
-// 			cellNodes.add(populateNeuroMLModelTreeUtils.createCellNode(c));
-// 		}
-// 		for(IafTauRefCell c : iafTauRefCells){
-// 			_discoveredComponents.put(c.getId(), c);
-// 			cellNodes.add(populateNeuroMLModelTreeUtils.createCellNode(c));
-// 		}
-// 		for(IafTauCell c : iafTauCells){
-// 			_discoveredComponents.put(c.getId(), c);
-// 			cellNodes.add(populateNeuroMLModelTreeUtils.createCellNode(c));
-// 		}
-// 		
-//// 		return cellNodes;
-//	}
-	
+
 	
 }

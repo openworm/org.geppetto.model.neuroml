@@ -1,4 +1,4 @@
-package org.geppetto.model.neuroml.utils;
+package org.geppetto.model.neuroml.utils.modeltree;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,7 +8,7 @@ import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.values.FloatValue;
 
 
-public class PopulateModelTreeUtils {
+public class PopulateNodesModelTreeUtils {
 	
 	public static ParameterSpecificationNode createParameterSpecificationNode(String name, String id, String value){
 		if (value != null){

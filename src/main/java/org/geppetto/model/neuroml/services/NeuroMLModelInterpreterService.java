@@ -53,33 +53,41 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
+import org.geppetto.core.model.runtime.CompositeNode;
+import org.geppetto.core.model.runtime.ConnectionNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.model.runtime.TextMetadataNode;
+import org.geppetto.core.model.simulation.ConnectionType;
+import org.geppetto.core.model.values.IntValue;
+import org.geppetto.core.model.values.StringValue;
 import org.geppetto.core.utilities.URLReader;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
-import org.geppetto.model.neuroml.utils.PopulateModelTree;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.utils.modeltree.PopulateGeneralModelTreeUtils;
+import org.geppetto.model.neuroml.utils.modeltree.PopulateModelTree;
+import org.geppetto.model.neuroml.utils.modeltree.PopulateNeuroMLModelTreeUtils;
 import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
+import org.neuroml.model.BaseConductanceBasedSynapse;
 import org.neuroml.model.Instance;
 import org.neuroml.model.Location;
 import org.neuroml.model.Network;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Population;
 import org.neuroml.model.PopulationTypes;
+import org.neuroml.model.Projection;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -100,6 +108,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 	@Autowired
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
+	
+	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils();
 
 	/*
 	 * (non-Javadoc)
@@ -111,34 +121,46 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		ModelWrapper model = new ModelWrapper(instancePath);
 		try
 		{
+			//Create urlbase in order to find dependencies and optimizedlemsreader
+			int index=url.toString().lastIndexOf('/');
+			String urlBase = url.toString().substring(0,index+1);
+			OptimizedLEMSReader reader = new OptimizedLEMSReader(urlBase);
+
+			/*
+			 * LEMS
+			 */
+			//Convert neuroml doc to lems
 			Scanner scanner = new Scanner(url.openStream(), "UTF-8");
 			String neuroMLString = scanner.useDelimiter("\\A").next();
 			scanner.close();
 			String lemsString = NeuroMLConverter.convertNeuroML2ToLems(neuroMLString);
-
-			
-			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
+			//Process LEMS inclusions and convert to a LEMS document
 			//ILEMSDocument document = lemsReader.readModel(lemsString);
-			
-			int index=url.toString().lastIndexOf('/');
-			String urlBase = url.toString().substring(0,index+1);
-			
-			OptimizedLEMSReader reader = new OptimizedLEMSReader(urlBase);
 			String lemsStringOptimized = reader.processLEMSInclusions(lemsString);
-			lemsStringOptimized = reader.processLEMSInclusions(lemsStringOptimized, false);
+			lemsStringOptimized = reader.processLEMSInclusions(lemsStringOptimized, true);
+			lemsStringOptimized = lemsStringOptimized.replace("<Lems>", "");
+			lemsStringOptimized = lemsStringOptimized.replace("</Lems>", "");
+			lemsStringOptimized = "<Lems> " + lemsStringOptimized + " </Lems>";
+			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument document = lemsReader.readModel(lemsStringOptimized);
 
+			/*
+			 * NEUROML
+			 */
 //			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 //			NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
-			
+			//Read neuroml file without inclusions
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 			String neuromlString = URLReader.readStringFromURL(url);
 			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(neuromlString);
-			
-			String neuromlStringOptimized = reader.processLEMSInclusions(neuromlString, false);
+			//Read neuroml file with inclusions
+			String neuromlStringOptimized = reader.processLEMSInclusions(neuromlString, true);
 			neuromlStringOptimized = reader.processLEMSInclusions(neuromlStringOptimized);
 			NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(neuromlStringOptimized);
 
+			/*
+			 * CREATE MODEL WRAPPER
+			 */
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 			// two different interpretations of the same file, one used to simulate the other used to visualize
@@ -148,9 +170,9 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS, neuroml_inclusions);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<String, EntityNode>());
+			
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
-			
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 		}
 		catch(IOException e)
@@ -250,6 +272,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		{
 			// there's only one network, we consider the entity for it our network entity
 			addNetworkSubEntities(networks.get(0), (EntityNode) aspectNode.getParentEntity(), url, aspectNode, (ModelWrapper) aspectNode.getModel());
+			createConnections(networks.get(0), aspectNode);
 		}
 		else if(networks.size() > 1)
 		{
@@ -258,12 +281,83 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			{
 				EntityNode networkEntity = new EntityNode(n.getId());
 				addNetworkSubEntities(n, networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
+				createConnections(n, aspectNode);
 				aspectNode.getChildren().add(networkEntity);
 			}
 		}
 		}
 	}
 
+	private void createConnections(Network network, AspectNode aspectNode) throws ModelInterpreterException{
+ 		ModelWrapper model =((ModelWrapper) aspectNode.getModel());
+		Map<String, EntityNode> mapping = (Map<String, EntityNode>) model.getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
+		
+		for (Projection projection : network.getProjection()){
+			
+			for (org.neuroml.model.Connection connection : projection.getConnection()){
+				ConnectionNode connectionNodeFrom = new ConnectionNode(projection.getId());
+				ConnectionNode connectionNodeTo = new ConnectionNode(projection.getId());
+				
+				connectionNodeFrom.setName(PopulateGeneralModelTreeUtils.getUniqueName(Resources.CONNECTIONS.get(), projection));
+				connectionNodeTo.setName(PopulateGeneralModelTreeUtils.getUniqueName(Resources.CONNECTIONS.get(), projection));
+
+				//TODO: Check if this is the right way of converting everything
+				//Remove this check and create a method that creates a textmetadatanode
+				if (connection.getPreSegmentId() != null){
+					TextMetadataNode presegment = new TextMetadataNode(Resources.PRESEGMENT.get(), Resources.PRESEGMENT.getId(), new IntValue(connection.getPreSegmentId()));
+					connectionNodeFrom.getCustomProperties().add(presegment);
+					connectionNodeTo.getCustomProperties().add(presegment);
+				}
+				if (connection.getPostSegmentId() != null){
+					TextMetadataNode postsegment = new TextMetadataNode(Resources.POSTSEGMENT.get(), Resources.POSTSEGMENT.getId(), new IntValue(connection.getPostSegmentId()));
+					connectionNodeFrom.getCustomProperties().add(postsegment);
+					connectionNodeTo.getCustomProperties().add(postsegment);
+				}	
+				if (connection.getPreFractionAlong() != null){
+					TextMetadataNode prefractionalong =  new TextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPreFractionAlong())));
+					connectionNodeFrom.getCustomProperties().add(prefractionalong);
+					connectionNodeTo.getCustomProperties().add(prefractionalong);
+				}	
+				if (connection.getPostFractionAlong() != null){
+					TextMetadataNode postFractionAlong = new TextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPostFractionAlong())));
+					connectionNodeFrom.getCustomProperties().add(postFractionAlong);
+					connectionNodeTo.getCustomProperties().add(postFractionAlong);
+				}	
+				
+					CompositeNode postFractionAlong;
+					try {
+						postFractionAlong = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse)neuroMLAccessUtility.getComponent(projection.getSynapse(), model, Resources.SYNAPSE));
+					} catch (ContentError | ModelInterpreterException e) {
+						throw new ModelInterpreterException(e);
+					}
+					connectionNodeFrom.getCustomProperties().add(postFractionAlong);
+					connectionNodeTo.getCustomProperties().add(postFractionAlong);
+				
+				
+				//TODO: What shall we do with this Id?
+				connection.getId();
+				
+				//Get connections entities
+				String preCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPreCellId());
+				String postCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPostCellId());
+				EntityNode entityNodeFrom= mapping.get(VariablePathSerializer.getArrayName(projection.getPresynapticPopulation(), preCellId));
+				EntityNode entityNodeTo= mapping.get(VariablePathSerializer.getArrayName(projection.getPostsynapticPopulation(), postCellId));
+				
+				connectionNodeFrom.setType(ConnectionType.FROM);
+				connectionNodeTo.setType(ConnectionType.TO);
+				
+				//TODO: Do we want to store the path to the entity we are pointing to?
+				connectionNodeFrom.setEntityInstancePath(entityNodeTo.getInstancePath());
+				connectionNodeFrom.setParent(entityNodeFrom);
+				connectionNodeTo.setEntityInstancePath(entityNodeFrom.getInstancePath());
+				connectionNodeTo.setParent(entityNodeTo);
+				
+				entityNodeFrom.getConnections().add(connectionNodeFrom);
+				entityNodeTo.getConnections().add(connectionNodeTo);
+			}
+		}
+	}
+	
 	/**
 	 * @param n
 	 * @param parentEntity
@@ -280,8 +374,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		if(n.getPopulation().size() == 1 && parentEntity.getId().equals(n.getPopulation().get(0).getComponent()) && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
 		{
 			// there's only one cell whose name is the same as the geppetto entity, don't create any subentities
-			neuroMLAccessUtility.getComponent(n.getPopulation().get(0).getComponent(), model, Resources.CELL);
-			mapCellIdToEntity(parentEntity.getId(), parentEntity, aspect);
+			BaseCell cell = (BaseCell)neuroMLAccessUtility.getComponent(n.getPopulation().get(0).getComponent(), model, Resources.CELL);
+			mapCellIdToEntity(parentEntity.getId(), parentEntity, aspect, cell);
 			return;
 		}
 		for(Population p : n.getPopulation())
@@ -313,7 +407,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				for(int i = 0; i < size; i++)
 				{
 					// FIXME the position of the population within the network needs to be specified in neuroml
-					String id = VariablePathSerializer.getArrayName(cell.getId(), i);
+					String id = VariablePathSerializer.getArrayName(p.getId(), i);
+					// TODO why do we need the cell?
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
 					e.setId(id);
 					parentEntity.addChild(e);
@@ -340,7 +435,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
 		modelTree.setId(AspectTreeType.MODEL_TREE.toString());
 		visualizationTree.setId(AspectTreeType.VISUALIZATION_TREE.toString());
-		mapCellIdToEntity(id, entity, parentAspectNode);
+		mapCellIdToEntity(id, entity, parentAspectNode, c);
 		return entity;
 	}
 
@@ -348,28 +443,31 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 	 * @param cell
 	 * @param entity
 	 */
-	private void mapCellIdToEntity(String id, EntityNode entity, AspectNode parentEntityAspect)
+	private void mapCellIdToEntity(String id, EntityNode entity, AspectNode parentEntityAspect, BaseCell c)
 	{
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) parentEntityAspect.getModel()).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
 		mapping.put(id, entity);
+		//TODO: This can be useful when the model is requested for a subentity
+//		Map<String, EntityNode> mapping2 = (Map<String, EntityNode>) ((ModelWrapper) parentEntityAspect.getModel()).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID2);
+//		mapping2.put(c.getId(), entity);
 	}
 
 	/**
 	 * @param cell
 	 * @return
 	 */
-	public static AspectSubTreeNode getSubEntityAspectSubTreeNode(BaseCell cell, AspectSubTreeNode.AspectTreeType type, AspectNode aspect, ModelWrapper model)
-	{
-		EntityNode entity = ((Map<BaseCell, EntityNode>) model.getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID)).get(cell);
-		for(AspectNode a : entity.getAspects())
-		{
-			if(a.getId().equals(aspect.getId()))
-			{
-				return a.getSubTree(type);
-			}
-		}
-		return null;
-	}
+//	public static AspectSubTreeNode getSubEntityAspectSubTreeNode(BaseCell cell, AspectSubTreeNode.AspectTreeType type, AspectNode aspect, ModelWrapper model)
+//	{
+//		EntityNode entity = ((Map<BaseCell, EntityNode>) model.getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID2)).get(cell);
+//		for(AspectNode a : entity.getAspects())
+//		{
+//			if(a.getId().equals(aspect.getId()))
+//			{
+//				return a.getSubTree(type);
+//			}
+//		}
+//		return null;
+//	}
 
 	/*
 	 * (non-Javadoc)

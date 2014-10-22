@@ -1,7 +1,8 @@
-package org.geppetto.model.neuroml.utils;
+package org.geppetto.model.neuroml.utils.modeltree;
 
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.FunctionNode;
+import org.geppetto.model.neuroml.utils.Resources;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.DerivedParameter;
@@ -19,12 +20,12 @@ public class PopulateLEMSModelTreeUtils {
 		CompositeNode compositeNode = new CompositeNode(name, id);
 		
 		
-		compositeNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.NAME.get(), Resources.NAME.getId(), componentType.getName()));
+		compositeNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.NAME.get(), Resources.NAME.getId(), componentType.getName()));
 		//TODO: This is needed?
 		if (componentType.getExtends() != null){
 			compositeNode.addChild(createCompositeNodeFromComponentType(Resources.EXTENDS.get(), Resources.EXTENDS.getId(), componentType.getExtends()));
 		}
-		compositeNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(Resources.DESCRIPTION.get(), Resources.DESCRIPTION.getId(), componentType.getDescription()));
+		compositeNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.DESCRIPTION.get(), Resources.DESCRIPTION.getId(), componentType.getDescription()));
 		
 		
 		Dynamics dynamics = componentType.getDynamics();
@@ -61,7 +62,7 @@ public class PopulateLEMSModelTreeUtils {
 		
 		for (DerivedParameter derivedParameter : componentType.getDerivedParameters()){
 			if (derivedParameter.getValue() != null){
-				compositeNode.addChild(PopulateModelTreeUtils.createParameterSpecificationNode(derivedParameter.getName(), derivedParameter.getName(), derivedParameter.getValue(), derivedParameter.getDimension().getName()));
+				compositeNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(derivedParameter.getName(), derivedParameter.getName(), derivedParameter.getValue(), derivedParameter.getDimension().getName()));
 			}
 		}
 		

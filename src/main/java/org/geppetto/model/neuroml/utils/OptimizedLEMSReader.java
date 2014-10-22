@@ -70,7 +70,7 @@ public class OptimizedLEMSReader
 	 */
 	public String processLEMSInclusions(String lemsString) throws IOException, JAXBException
 	{
-		return processLEMSInclusions(lemsString, true);
+		return processLEMSInclusions(lemsString, false);
 	}	
 	/**
 	 * @param lemsString
@@ -82,7 +82,7 @@ public class OptimizedLEMSReader
 	{
 		String processedLEMSString = lemsString;
 		String includeClause = "Include "; 
-		if (!includeNeuroml){
+		if (includeNeuroml){
 			includeClause = "include href";
 		}
 		
@@ -122,8 +122,6 @@ public class OptimizedLEMSReader
 				if(!_simulationIncluded)
 				{
 					content = URLReader.readStringFromURL(this.getClass().getResource("/SIMULATION"));
-					
-					
 					_simulationIncluded = true;
 				}
 			}

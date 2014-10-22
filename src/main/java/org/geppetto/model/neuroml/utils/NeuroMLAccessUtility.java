@@ -14,8 +14,11 @@ import org.geppetto.core.model.runtime.ANode;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.Base;
+import org.neuroml.model.BlockingPlasticSynapse;
 import org.neuroml.model.Cell;
 import org.neuroml.model.DecayingPoolConcentrationModel;
+import org.neuroml.model.ExpOneSynapse;
+import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.FitzHughNagumoCell;
 import org.neuroml.model.FixedFactorConcentrationModel;
 import org.neuroml.model.IafCell;
@@ -229,6 +232,29 @@ public class NeuroMLAccessUtility
 					if (p.getId().equals(componentId)){
 						return p;
 					}
+				}
+			}
+			
+		case SYNAPSE:
+			for (ExpTwoSynapse s : doc.getExpTwoSynapse()){
+				_discoveredComponents.put(s.getId(), s);
+				if(s.getId().equals(componentId))
+				{
+					return s;
+				}
+			}
+			for (ExpOneSynapse s : doc.getExpOneSynapse()){
+				_discoveredComponents.put(s.getId(), s);
+				if(s.getId().equals(componentId))
+				{
+					return s;
+				}
+			}
+			for (BlockingPlasticSynapse s : doc.getBlockingPlasticSynapse()){
+				_discoveredComponents.put(s.getId(), s);
+				if(s.getId().equals(componentId))
+				{
+					return s;
 				}
 			}
 			
