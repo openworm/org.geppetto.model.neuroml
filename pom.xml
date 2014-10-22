@@ -15,12 +15,17 @@
 		<dependency>
 			<groupId>org.neuroml.model</groupId>
 			<artifactId>org.neuroml.model</artifactId>
-			<version>1.2.1</version>
+			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.neuroml.export</groupId>
+			<artifactId>org.neuroml.export</artifactId>
+			<version>1.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.lemsml</groupId>
 			<artifactId>jlems</artifactId>
-			<version>0.9.7.0</version>
+			<version>0.9.7.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geppetto</groupId>
