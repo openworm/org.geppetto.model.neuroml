@@ -415,10 +415,10 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(createRateGateNode(Resources.FW_RATE, gateHHRates.getForwardRate()));
 			gateNode.addChild(createRateGateNode(Resources.BW_RATE, gateHHRates.getReverseRate()));
 
-			if (gateHHRates.getType() != null){
-				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRates.getType().value(), model, Resources.COMPONENT_TYPE);
-				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
-			}
+		//	if (gateHHRates.getType() != null){
+		//		ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRates.getType().value(), model, Resources.COMPONENT_TYPE);
+		//		gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+		//	}
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRates.getInstances().intValue())));
 			gateNode.addChild(createQ10SettingsNode(gateHHRates.getQ10Settings()));
 			
@@ -433,10 +433,10 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(createRateGateNode(Resources.FW_RATE, gateHHRatesInf.getForwardRate()));
 			gateNode.addChild(createRateGateNode(Resources.BW_RATE, gateHHRatesInf.getReverseRate()));
 
-			if (gateHHRatesInf.getType() != null){
-				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesInf.getType().value(), model, Resources.COMPONENT_TYPE);
-				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
-			}
+		//	if (gateHHRatesInf.getType() != null){
+		//		ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesInf.getType().value(), model, Resources.COMPONENT_TYPE);
+		//		gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+		//	}
 			
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRatesInf.getInstances().intValue())));
 			gateNode.addChild(createQ10SettingsNode(gateHHRatesInf.getQ10Settings()));
@@ -452,10 +452,10 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(createRateGateNode(Resources.FW_RATE, gateHHRatesTau.getForwardRate()));
 			gateNode.addChild(createRateGateNode(Resources.BW_RATE, gateHHRatesTau.getReverseRate()));
 
-			if (gateHHRatesTau.getType() != null){
-				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesTau.getType().value(), model, Resources.COMPONENT_TYPE);
-				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
-			}
+		//	if (gateHHRatesTau.getType() != null){
+		//		ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesTau.getType().value(), model, Resources.COMPONENT_TYPE);
+		//		gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+		//	}
 			
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRatesTau.getInstances().intValue())));
 			gateNode.addChild(createQ10SettingsNode(gateHHRatesTau.getQ10Settings()));
@@ -468,10 +468,10 @@ public class PopulateNeuroMLModelTreeUtils {
 		else if (gate instanceof  GateHHTauInf) {
 			GateHHTauInf gateHHTauInf = (GateHHTauInf) gate;
 			
-			if (gateHHTauInf.getType() != null){
-				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHTauInf.getType().value(), model, Resources.COMPONENT_TYPE);
-				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
-			}
+		//	if (gateHHTauInf.getType() != null){
+		//		ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHTauInf.getType().value(), model, Resources.COMPONENT_TYPE);
+		//		gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+		//	}
 			
 			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHTauInf.getInstances().intValue())));
 			
