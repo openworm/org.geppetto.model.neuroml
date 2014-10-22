@@ -18,6 +18,7 @@ import org.geppetto.core.utilities.URLReader;
 import org.lemsml.jlems.core.logging.E;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
+import org.neuroml.model.util.NeuroMLException;
 
 /**
  * @author matteocantarelli
@@ -56,7 +57,7 @@ public class OptimizedLEMSReader
 		{
 			return processLEMSInclusions(URLReader.readStringFromURL(url));
 		}
-		catch(JAXBException e)
+		catch(JAXBException | NeuroMLException e)
 		{
 			throw new IOException(e);
 		}
@@ -67,8 +68,9 @@ public class OptimizedLEMSReader
 	 * @return
 	 * @throws IOException
 	 * @throws JAXBException 
+	 * @throws NeuroMLException 
 	 */
-	public String processLEMSInclusions(String lemsString) throws IOException, JAXBException
+	public String processLEMSInclusions(String lemsString) throws IOException, JAXBException, NeuroMLException
 	{
 		return processLEMSInclusions(lemsString, false);
 	}	
@@ -77,8 +79,9 @@ public class OptimizedLEMSReader
 	 * @return
 	 * @throws IOException
 	 * @throws JAXBException 
+	 * @throws NeuroMLException 
 	 */
-	public String processLEMSInclusions(String lemsString, Boolean includeNeuroml) throws IOException, JAXBException
+	public String processLEMSInclusions(String lemsString, Boolean includeNeuroml) throws IOException, JAXBException, NeuroMLException
 	{
 		String processedLEMSString = lemsString;
 		String includeClause = "Include "; 

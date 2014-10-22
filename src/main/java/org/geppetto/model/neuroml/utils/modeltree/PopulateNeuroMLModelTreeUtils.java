@@ -100,7 +100,6 @@ public class PopulateNeuroMLModelTreeUtils {
 			
 		if (rate != null){
 			if (rate.getType() != null){
-//				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(rate.getType(), model, Resources.COMPONENT_TYPE);
 				rateGateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(rate.getType(), rate.getType(), (ComponentType) neuroMLAccessUtility.getComponent(rate.getType(), model, Resources.COMPONENT_TYPE)));
 			}
 
@@ -252,9 +251,7 @@ public class PopulateNeuroMLModelTreeUtils {
 				channelDensityNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY.get(), Resources.COND_DENSITY.getId(), channelDensity.getCondDensity()));
 				
 				// ION	
-				if (channelDensity.getIon() != null){
-					channelDensityNode.addChild(new TextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(channelDensity.getIon())));
-				}
+				channelDensityNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(channelDensity.getIon())));
 				
 				// Reverse Potential					
 				channelDensityNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.EREV.get(), Resources.EREV.getId(), channelDensity.getErev()));
@@ -268,19 +265,19 @@ public class PopulateNeuroMLModelTreeUtils {
 			// Spike threshold
 			for(int i = 0; i < spikeThreshs.size(); i++)
 			{
-				membranePropertiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.SPIKE_THRESHOLD.get(), Resources.SPIKE_THRESHOLD.getId() + "_" + i, spikeThreshs.get(i).getValue()));
+				membranePropertiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.SPIKE_THRESHOLD.get(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.SPIKE_THRESHOLD.getId(), i), spikeThreshs.get(i).getValue()));
 			}
 
 			// Specific Capacitance
 			for(int i = 0; i < specificCapacitances.size(); i++)
 			{
-				membranePropertiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.SPECIFIC_CAPACITANCE.get(), Resources.SPECIFIC_CAPACITANCE.getId() + "_" + i, specificCapacitances.get(i).getValue()));
+				membranePropertiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.SPECIFIC_CAPACITANCE.get(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.SPECIFIC_CAPACITANCE.getId(), i), specificCapacitances.get(i).getValue()));
 			}
 			
 			// Initial Membrance Potentials
 			for(int i = 0; i < initMembPotentials.size(); i++)
 			{
-				membranePropertiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.INIT_MEMBRANE_POTENTIAL.get(), Resources.INIT_MEMBRANE_POTENTIAL.getId() + "_" + i, initMembPotentials.get(i).getValue()));
+				membranePropertiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.INIT_MEMBRANE_POTENTIAL.get(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.INIT_MEMBRANE_POTENTIAL.getId(), i), initMembPotentials.get(i).getValue()));
 			}
 			
 			biophysicalPropertiesNode.addChild(membranePropertiesNode);
@@ -308,7 +305,7 @@ public class PopulateNeuroMLModelTreeUtils {
 			CompositeNode resistivitiesNode = new CompositeNode(Resources.RESISTIVITY.getId(), Resources.RESISTIVITY.get());
 			for(int i = 0; i < resistivities.size(); i++)
 			{
-				resistivitiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.RESISTIVITY.get(), Resources.RESISTIVITY.getId() + "_" + i, resistivities.get(i).getValue()));
+				resistivitiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.RESISTIVITY.get(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.RESISTIVITY.getId(), i), resistivities.get(i).getValue()));
 			}
 			intracellularPropertiesNode.addChild(resistivitiesNode);
 			
@@ -352,7 +349,7 @@ public class PopulateNeuroMLModelTreeUtils {
 			speciesNodeItem.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.INIT_EXT_CONCENTRATION.get(), Resources.INIT_EXT_CONCENTRATION.getId(), specie.getInitialExtConcentration()));
 			
 			// Ion
-			speciesNodeItem.addChild(new TextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(specie.getIon())));
+			speciesNodeItem.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(specie.getIon())));
 			
 			// Concentration Model
 			Object concentrationModel = neuroMLAccessUtility.getComponent(specie.getConcentrationModel(), model, Resources.CONCENTRATION_MODEL);
@@ -371,14 +368,14 @@ public class PopulateNeuroMLModelTreeUtils {
 				concentrationModelNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.DECAY_CONSTANT.get(), Resources.DECAY_CONSTANT.getId(), decayingPoolConcentrationModel.getDecayConstant()));
 				concentrationModelNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.RESTING_CONC.get(), Resources.RESTING_CONC.getId(), decayingPoolConcentrationModel.getRestingConc()));
 				concentrationModelNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.SHELL_THICKNESS.get(), Resources.SHELL_THICKNESS.getId(), decayingPoolConcentrationModel.getShellThickness()));
-				concentrationModelNode.addChild(new TextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(decayingPoolConcentrationModel.getIon())));
+				concentrationModelNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(decayingPoolConcentrationModel.getIon())));
 			}
 			else{
 				FixedFactorConcentrationModel fixedFactorConcentrationModel = (FixedFactorConcentrationModel) concentrationModel;
 				concentrationModelNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.DECAY_CONSTANT.get(), Resources.DECAY_CONSTANT.getId(), fixedFactorConcentrationModel.getDecayConstant()));
 				concentrationModelNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.RESTING_CONC.get(), Resources.RESTING_CONC.getId(), fixedFactorConcentrationModel.getRestingConc()));
 				concentrationModelNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.RHO.get(), Resources.RHO.getId(), fixedFactorConcentrationModel.getRho()));
-				concentrationModelNode.addChild(new TextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(fixedFactorConcentrationModel.getIon())));
+				concentrationModelNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.get(), Resources.ION.getId(),  new StringValue(fixedFactorConcentrationModel.getIon())));
 			}
 			concentrationModelNode.addChildren(createStandaloneChildren((Standalone)concentrationModel));
 			
@@ -402,14 +399,14 @@ public class PopulateNeuroMLModelTreeUtils {
 				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
 			}
 
-			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHUndetermined.getInstances().intValue())));
+			if (gateHHUndetermined.getInstances() != null){
+				gateNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHUndetermined.getInstances().intValue())));
+			}	
 			gateNode.addChild(createQ10SettingsNode(gateHHUndetermined.getQ10Settings()));
 			gateNode.addChild(createTimeCourseNode(gateHHUndetermined.getTimeCourse()));
 			gateNode.addChild(createSteadyStateNode(gateHHUndetermined.getSteadyState()));
 			
-			if (gateHHUndetermined.getNotes() != null){
-				gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHUndetermined.getNotes())));
-			}	
+			gateNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHUndetermined.getNotes())));
 		}
 		else if (gate instanceof  GateHHRates) {
 			GateHHRates gateHHRates = (GateHHRates) gate;
@@ -417,16 +414,16 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(createRateGateNode(Resources.FW_RATE, gateHHRates.getForwardRate()));
 			gateNode.addChild(createRateGateNode(Resources.BW_RATE, gateHHRates.getReverseRate()));
 
-			if (gateHHRates.getType() != null){
-				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRates.getType().value(), model, Resources.COMPONENT_TYPE);
-				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
-			}
-			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRates.getInstances().intValue())));
+//			if (gateHHRates.getType() != null){
+//				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRates.getType().value(), model, Resources.COMPONENT_TYPE);
+//				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+//			}
+			if (gateHHRates.getInstances() != null){
+				gateNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRates.getInstances().intValue())));
+			}	
 			gateNode.addChild(createQ10SettingsNode(gateHHRates.getQ10Settings()));
 			
-			if (gateHHRates.getNotes() != null){
-				gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRates.getNotes())));
-			}	
+			gateNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRates.getNotes())));
 			
 		}
 		else if (gate instanceof  GateHHRatesInf) {
@@ -435,17 +432,19 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(createRateGateNode(Resources.FW_RATE, gateHHRatesInf.getForwardRate()));
 			gateNode.addChild(createRateGateNode(Resources.BW_RATE, gateHHRatesInf.getReverseRate()));
 
-			if (gateHHRatesInf.getType() != null){
-				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesInf.getType().value(), model, Resources.COMPONENT_TYPE);
-				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
-			}
+//			if (gateHHRatesInf.getType() != null){
+//				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesInf.getType().value(), model, Resources.COMPONENT_TYPE);
+//				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+//			}
 			
-			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRatesInf.getInstances().intValue())));
+			if (gateHHRatesInf.getInstances() != null){
+				gateNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRatesInf.getInstances().intValue())));
+			}
 			gateNode.addChild(createQ10SettingsNode(gateHHRatesInf.getQ10Settings()));
 			gateNode.addChild(createSteadyStateNode(gateHHRatesInf.getSteadyState()));
 			
 			if (gateHHRatesInf.getNotes() != null){
-				gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRatesInf.getNotes())));
+				gateNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRatesInf.getNotes())));
 			}	
 		}
 		else if (gate instanceof  GateHHRatesTau) {
@@ -454,36 +453,36 @@ public class PopulateNeuroMLModelTreeUtils {
 			gateNode.addChild(createRateGateNode(Resources.FW_RATE, gateHHRatesTau.getForwardRate()));
 			gateNode.addChild(createRateGateNode(Resources.BW_RATE, gateHHRatesTau.getReverseRate()));
 
-			if (gateHHRatesTau.getType() != null){
-				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesTau.getType().value(), model, Resources.COMPONENT_TYPE);
-				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
-			}
+//			if (gateHHRatesTau.getType() != null){
+//				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHRatesTau.getType().value(), model, Resources.COMPONENT_TYPE);
+//				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+//			}
 			
-			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRatesTau.getInstances().intValue())));
+			if (gateHHRatesTau.getInstances() != null){
+			gateNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHRatesTau.getInstances().intValue())));
+			}
 			gateNode.addChild(createQ10SettingsNode(gateHHRatesTau.getQ10Settings()));
 			gateNode.addChild(createTimeCourseNode(gateHHRatesTau.getTimeCourse()));
 			
 			if (gateHHRatesTau.getNotes() != null){
-				gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRatesTau.getNotes())));
+				gateNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHRatesTau.getNotes())));
 			}
 		}
 		else if (gate instanceof  GateHHTauInf) {
 			GateHHTauInf gateHHTauInf = (GateHHTauInf) gate;
 			
-			if (gateHHTauInf.getType() != null){
-				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHTauInf.getType().value(), model, Resources.COMPONENT_TYPE);
-				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
-			}
+//			if (gateHHTauInf.getType() != null){
+//				ComponentType typeRate = (ComponentType) neuroMLAccessUtility.getComponent(gateHHTauInf.getType().value(), model, Resources.COMPONENT_TYPE);
+//				gateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.GATE_DYNAMICS.get(), Resources.GATE_DYNAMICS.getId(), typeRate));
+//			}
 			
-			gateNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHTauInf.getInstances().intValue())));
+			gateNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(gateHHTauInf.getInstances().intValue())));
 			
 			gateNode.addChild(createQ10SettingsNode(gateHHTauInf.getQ10Settings()));
 			gateNode.addChild(createTimeCourseNode(gateHHTauInf.getTimeCourse()));
 			gateNode.addChild(createSteadyStateNode(gateHHTauInf.getSteadyState()));
 			
-			if (gateHHTauInf.getNotes() != null){
-				gateNode.addChild(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHTauInf.getNotes())));
-			}	
+			gateNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(gateHHTauInf.getNotes())));
 		}
 		
 		return gateNode;
@@ -492,16 +491,11 @@ public class PopulateNeuroMLModelTreeUtils {
 	private CompositeNode createQ10SettingsNode(Q10Settings q10Settings)	throws ModelInterpreterException, ContentError {
 		if (q10Settings != null) {
 			CompositeNode q10SettingsNode = new CompositeNode(Resources.Q10SETTINGS.getId(), Resources.Q10SETTINGS.get());
-			if (q10Settings.getExperimentalTemp() != null){
-				q10SettingsNode.addChild(new TextMetadataNode(Resources.EXPERIMENTAL_TEMP.get(), Resources.EXPERIMENTAL_TEMP.getId(),  new StringValue(q10Settings.getExperimentalTemp())));
-			}
-			if (q10Settings.getFixedQ10() != null){
-				q10SettingsNode.addChild(new TextMetadataNode(Resources.FIXEDQ10.get(), Resources.FIXEDQ10.getId(),  new StringValue(q10Settings.getFixedQ10())));
-			}
-			if (q10Settings.getQ10Factor() != null){
-				q10SettingsNode.addChild(new TextMetadataNode(Resources.Q10FACTOR.get(), Resources.Q10FACTOR.getId(),  new StringValue(q10Settings.getQ10Factor())));
-			}
-			ComponentType typeQ10Settings = (ComponentType) neuroMLAccessUtility.getComponent(q10Settings.getType(), model, Resources.COMPONENT_TYPE);
+			q10SettingsNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.EXPERIMENTAL_TEMP.get(), Resources.EXPERIMENTAL_TEMP.getId(),  new StringValue(q10Settings.getExperimentalTemp())));
+			q10SettingsNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.FIXEDQ10.get(), Resources.FIXEDQ10.getId(),  new StringValue(q10Settings.getFixedQ10())));
+			q10SettingsNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.Q10FACTOR.get(), Resources.Q10FACTOR.getId(),  new StringValue(q10Settings.getQ10Factor())));
+
+				ComponentType typeQ10Settings = (ComponentType) neuroMLAccessUtility.getComponent(q10Settings.getType(), model, Resources.COMPONENT_TYPE);
 			q10SettingsNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.TYPE.get(), Resources.TYPE.getId(), typeQ10Settings));
 			return q10SettingsNode;
 		}
@@ -540,9 +534,7 @@ public class PopulateNeuroMLModelTreeUtils {
 		
 		ionChannelNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.CONDUCTANCE.get(), Resources.CONDUCTANCE.getId(), ionChannel.getConductance()));
 		
-		if (ionChannel.getSpecies() != null){
-			ionChannelNode.addChild(new TextMetadataNode(Resources.SPECIES.get(), Resources.SPECIES.getId(), new StringValue(ionChannel.getSpecies())));
-		}
+		ionChannelNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.SPECIES.get(), Resources.SPECIES.getId(), new StringValue(ionChannel.getSpecies())));
 		
 		if (ionChannel.getType() != null){
 			ComponentType typeIonChannel = (ComponentType) neuroMLAccessUtility.getComponent(ionChannel.getType().value(), model, Resources.COMPONENT_TYPE);
@@ -603,12 +595,12 @@ public class PopulateNeuroMLModelTreeUtils {
 			populationNode.addChild(createCellNode(baseCell));
 			
 			if (p.getSize() != null){
-				populationNode.addChild(new TextMetadataNode(Resources.SIZE.get(), Resources.SIZE.getId(),  new IntValue(p.getSize().intValue())));
+				populationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.SIZE.get(), Resources.SIZE.getId(),  new IntValue(p.getSize().intValue())));
 			}
 			
 			PopulationTypes populationType = p.getType();
 			if(populationType != null){
-				populationNode.addChild(new TextMetadataNode(Resources.POPULATION_TYPE.get(), Resources.POPULATION_TYPE.getId(),  new StringValue(populationType.value())));
+				populationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POPULATION_TYPE.get(), Resources.POPULATION_TYPE.getId(),  new StringValue(populationType.value())));
 			}	
 
 			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
@@ -634,11 +626,13 @@ public class PopulateNeuroMLModelTreeUtils {
 				{
 					String id = VariablePathSerializer.getArrayName(p.getId(), i);
 					EntityNode entityNode = mapping.get(id);
-					for (AspectNode aspectNode : entityNode.getAspects()){
-						if (aspectNode.getId() == modelTree.getParent().getId()){
-							AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-							modelTreeSubEntity.addChildren(createCellNode(cell).getChildren());
-							modelTreeSubEntity.setModified(true);
+					if (entityNode != null){
+						for (AspectNode aspectNode : entityNode.getAspects()){
+							if (aspectNode.getId() == modelTree.getParent().getId()){
+								AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+								modelTreeSubEntity.addChildren(createCellNode(cell).getChildren());
+								modelTreeSubEntity.setModified(true);
+							}
 						}
 					}
 				}
@@ -647,7 +641,7 @@ public class PopulateNeuroMLModelTreeUtils {
 			//TODO: Just reading the number of instances and displaying as a text metadata node 				
 			List<Instance> instanceList = p.getInstance();
 			if (instanceList != null && instanceList.size() != 0){
-				populationNode.addChild(new TextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(instanceList.size())));
+				populationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.INSTANCES.get(), Resources.INSTANCES.getId(),  new IntValue(instanceList.size())));
 			}
 			networkNode.addChild(populationNode);
 		}
@@ -754,28 +748,20 @@ public class PopulateNeuroMLModelTreeUtils {
 		if (annotation != null){
 			CompositeNode annotationNode = new CompositeNode(Resources.ANOTATION.getId(), Resources.ANOTATION.get());
 			for (Element element : annotation.getAny()){
-				annotationNode.addChild(new TextMetadataNode(Resources.ELEMENT.get(), Resources.ELEMENT.getId(),  new StringValue(element.getTextContent())));
+				annotationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ELEMENT.get(), Resources.ELEMENT.getId(),  new StringValue(element.getTextContent())));
 			}
 			standaloneChildren.add(annotationNode);
 		}
-		if (standaloneComponent.getNotes() != null){
-			standaloneChildren.add(new TextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(standaloneComponent.getNotes())));
-		}
-		if (standaloneComponent.getMetaid() != null){
-			standaloneChildren.add(new TextMetadataNode(Resources.METAID.get(), Resources.METAID.getId(),  new StringValue(standaloneComponent.getMetaid())));
-		}
+		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(standaloneComponent.getNotes())));
+		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.METAID.get(), Resources.METAID.getId(),  new StringValue(standaloneComponent.getMetaid())));
 		
 		return standaloneChildren;
 	}
 	
 	public Collection<ANode> createBaseChildren(Base baseComponent){
 		Collection<ANode> baseChildren = new ArrayList<ANode>();
-		if (baseComponent.getId() != null){
-			baseChildren.add(new TextMetadataNode(Resources.ID.get(), Resources.ID.getId(),  new StringValue(baseComponent.getId())));
-		}
-		if (baseComponent.getNeuroLexId() != null){
-			baseChildren.add(new TextMetadataNode(Resources.NEUROLEX_ID.get(), Resources.NEUROLEX_ID.getId(),  new StringValue(baseComponent.getNeuroLexId())));
-		}
+			baseChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ID.get(), Resources.ID.getId(),  new StringValue(baseComponent.getId())));
+			baseChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NEUROLEX_ID.get(), Resources.NEUROLEX_ID.getId(),  new StringValue(baseComponent.getNeuroLexId())));
 		return baseChildren;
 	}
 

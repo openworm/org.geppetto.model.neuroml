@@ -5,8 +5,18 @@ import org.neuroml.model.Base;
 
 public class PopulateGeneralModelTreeUtils {
 	
-	public static String getUniqueName(String label, Base base){
-		return label + " - " + base.getId();
+	public static String getUniqueName(String label, Object base){
+		String id = "";
+		if (base instanceof Base){
+			id = ((Base)base).getId();
+		}
+		else if (base instanceof Integer) {
+			id = String.valueOf((Integer)base);
+		}
+		else{
+			id = ((String)base);
+		}	
+		return label + " - " + id;
 	}
 	
 	/*

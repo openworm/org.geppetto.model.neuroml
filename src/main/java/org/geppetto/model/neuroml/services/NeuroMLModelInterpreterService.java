@@ -73,11 +73,11 @@ import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateGeneralModelTreeUtils;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateModelTree;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateNeuroMLModelTreeUtils;
+import org.geppetto.model.neuroml.utils.modeltree.PopulateNodesModelTreeUtils;
 import org.lemsml.jlems.core.api.LEMSDocumentReader;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.BaseConductanceBasedSynapse;
@@ -302,36 +302,35 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				connectionNodeTo.setName(PopulateGeneralModelTreeUtils.getUniqueName(Resources.CONNECTIONS.get(), projection));
 
 				//TODO: Check if this is the right way of converting everything
-				//Remove this check and create a method that creates a textmetadatanode
 				if (connection.getPreSegmentId() != null){
-					TextMetadataNode presegment = new TextMetadataNode(Resources.PRESEGMENT.get(), Resources.PRESEGMENT.getId(), new IntValue(connection.getPreSegmentId()));
-					connectionNodeFrom.getCustomProperties().add(presegment);
-					connectionNodeTo.getCustomProperties().add(presegment);
+					TextMetadataNode presegmentNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PRESEGMENT.get(), Resources.PRESEGMENT.getId(), new IntValue(connection.getPreSegmentId()));
+					connectionNodeFrom.getCustomProperties().add(presegmentNode);
+					connectionNodeTo.getCustomProperties().add(presegmentNode);
 				}
 				if (connection.getPostSegmentId() != null){
-					TextMetadataNode postsegment = new TextMetadataNode(Resources.POSTSEGMENT.get(), Resources.POSTSEGMENT.getId(), new IntValue(connection.getPostSegmentId()));
-					connectionNodeFrom.getCustomProperties().add(postsegment);
-					connectionNodeTo.getCustomProperties().add(postsegment);
-				}	
+					TextMetadataNode postsegmentNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POSTSEGMENT.get(), Resources.POSTSEGMENT.getId(), new IntValue(connection.getPostSegmentId()));
+					connectionNodeFrom.getCustomProperties().add(postsegmentNode);
+					connectionNodeTo.getCustomProperties().add(postsegmentNode);
+				}
 				if (connection.getPreFractionAlong() != null){
-					TextMetadataNode prefractionalong =  new TextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPreFractionAlong())));
-					connectionNodeFrom.getCustomProperties().add(prefractionalong);
-					connectionNodeTo.getCustomProperties().add(prefractionalong);
-				}	
+					TextMetadataNode prefractionalongNode =  PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPreFractionAlong())));
+					connectionNodeFrom.getCustomProperties().add(prefractionalongNode);
+					connectionNodeTo.getCustomProperties().add(prefractionalongNode);
+				}
 				if (connection.getPostFractionAlong() != null){
-					TextMetadataNode postFractionAlong = new TextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPostFractionAlong())));
-					connectionNodeFrom.getCustomProperties().add(postFractionAlong);
-					connectionNodeTo.getCustomProperties().add(postFractionAlong);
-				}	
-				
-					CompositeNode postFractionAlong;
-					try {
-						postFractionAlong = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse)neuroMLAccessUtility.getComponent(projection.getSynapse(), model, Resources.SYNAPSE));
-					} catch (ContentError | ModelInterpreterException e) {
-						throw new ModelInterpreterException(e);
-					}
-					connectionNodeFrom.getCustomProperties().add(postFractionAlong);
-					connectionNodeTo.getCustomProperties().add(postFractionAlong);
+					TextMetadataNode postFractionAlongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPostFractionAlong())));
+					connectionNodeFrom.getCustomProperties().add(postFractionAlongNode);
+					connectionNodeTo.getCustomProperties().add(postFractionAlongNode);
+				}
+			
+				CompositeNode synapsesNode;
+				try {
+					synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse)neuroMLAccessUtility.getComponent(projection.getSynapse(), model, Resources.SYNAPSE));
+				} catch (ContentError | ModelInterpreterException e) {
+					throw new ModelInterpreterException(e);
+				}
+				connectionNodeFrom.getCustomProperties().add(synapsesNode);
+				connectionNodeTo.getCustomProperties().add(synapsesNode);
 				
 				
 				//TODO: What shall we do with this Id?

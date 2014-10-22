@@ -5,6 +5,8 @@ import java.util.regex.Pattern;
 
 import org.geppetto.core.model.quantities.PhysicalQuantity;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
+import org.geppetto.core.model.runtime.TextMetadataNode;
+import org.geppetto.core.model.values.AValue;
 import org.geppetto.core.model.values.FloatValue;
 
 
@@ -44,6 +46,15 @@ public class PopulateNodesModelTreeUtils {
 			parameterSpecificationNode.setValue(physicalQuantity);
 			
 			return parameterSpecificationNode;
+		}
+		return null;
+	}
+	
+	public static TextMetadataNode createTextMetadataNode(String name, String id, AValue aValue){
+		if (aValue.getStringValue() != null && aValue.getStringValue() != ""){
+			TextMetadataNode textMetadataNode = new TextMetadataNode(name, id);
+			textMetadataNode.setValue(aValue);
+			return textMetadataNode;
 		}
 		return null;
 	}
