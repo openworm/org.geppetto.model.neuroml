@@ -304,23 +304,23 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				//TODO: Check if this is the right way of converting everything
 				if (connection.getPreSegmentId() != null){
 					TextMetadataNode presegmentNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PRESEGMENT.get(), Resources.PRESEGMENT.getId(), new IntValue(connection.getPreSegmentId()));
-					connectionNodeFrom.getCustomProperties().add(presegmentNode);
-					connectionNodeTo.getCustomProperties().add(presegmentNode);
+					connectionNodeFrom.addCustomNode(presegmentNode);
+					connectionNodeTo.addCustomNode(presegmentNode);
 				}
 				if (connection.getPostSegmentId() != null){
 					TextMetadataNode postsegmentNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POSTSEGMENT.get(), Resources.POSTSEGMENT.getId(), new IntValue(connection.getPostSegmentId()));
-					connectionNodeFrom.getCustomProperties().add(postsegmentNode);
-					connectionNodeTo.getCustomProperties().add(postsegmentNode);
+					connectionNodeFrom.addCustomNode(postsegmentNode);
+					connectionNodeTo.addCustomNode(postsegmentNode);
 				}
 				if (connection.getPreFractionAlong() != null){
 					TextMetadataNode prefractionalongNode =  PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPreFractionAlong())));
-					connectionNodeFrom.getCustomProperties().add(prefractionalongNode);
-					connectionNodeTo.getCustomProperties().add(prefractionalongNode);
+					connectionNodeFrom.addCustomNode(prefractionalongNode);
+					connectionNodeTo.addCustomNode(prefractionalongNode);
 				}
 				if (connection.getPostFractionAlong() != null){
 					TextMetadataNode postFractionAlongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPostFractionAlong())));
-					connectionNodeFrom.getCustomProperties().add(postFractionAlongNode);
-					connectionNodeTo.getCustomProperties().add(postFractionAlongNode);
+					connectionNodeFrom.addCustomNode(postFractionAlongNode);
+					connectionNodeTo.addCustomNode(postFractionAlongNode);
 				}
 			
 				CompositeNode synapsesNode;
@@ -329,8 +329,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				} catch (ContentError | ModelInterpreterException e) {
 					throw new ModelInterpreterException(e);
 				}
-				connectionNodeFrom.getCustomProperties().add(synapsesNode);
-				connectionNodeTo.getCustomProperties().add(synapsesNode);
+				connectionNodeFrom.addCustomNode(synapsesNode);
+				connectionNodeTo.addCustomNode(synapsesNode);
 				
 				
 				//TODO: What shall we do with this Id?

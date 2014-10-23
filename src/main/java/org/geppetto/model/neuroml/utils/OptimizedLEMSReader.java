@@ -50,8 +50,9 @@ public class OptimizedLEMSReader
 	 * @param url
 	 * @return
 	 * @throws IOException
+	 * @throws NeuroMLException 
 	 */
-	public String read(URL url) throws IOException
+	public String read(URL url) throws IOException, NeuroMLException
 	{
 		try
 		{
