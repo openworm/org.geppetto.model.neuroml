@@ -32,6 +32,7 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.utils.modeltree;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,11 +49,15 @@ import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
+import org.geppetto.model.neuroml.utils.Resources;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.ParamValue;
+import org.neuroml.export.info.InfoTreeCreator;
+import org.neuroml.export.info.model.InfoNode;
+import org.neuroml.export.info.model.PlotNode;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.AlphaCondSynapse;
 import org.neuroml.model.AlphaCurrSynapse;
@@ -105,6 +110,42 @@ public class PopulateModelTree {
 	public PopulateModelTree() {		
 	}
 	
+	private List<ANode> createInfoNode(InfoNode infoNode) throws ModelInterpreterException {
+		List<ANode> summaryElementList = new ArrayList<ANode>();
+//		for (Map.Entry<String, Object> entry : infoNode.getProperties().entrySet()) {
+//			CompositeNode summaryElementNode = new CompositeNode(entry.getKey().replace(" ", ""), entry.getKey());
+//		    Object value = entry.getValue();
+		    for (Map.Entry<String, Object> properties : ((InfoNode)infoNode).getProperties().entrySet()) {
+		    	
+			    String keyProperties = properties.getKey();
+			    Object valueProperties = properties.getValue();
+			    
+			    if (valueProperties instanceof String){
+			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue((String)valueProperties)));
+			    }
+			    else if (valueProperties instanceof BigInteger) {
+			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue(((BigInteger)valueProperties).toString())));
+			    }
+			    else if (valueProperties instanceof Integer) {
+			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue(Integer.toString((Integer)valueProperties))));
+			    }
+			    else if (valueProperties instanceof PlotNode) {
+					
+				}
+			    else if (valueProperties instanceof InfoNode) {
+			    	CompositeNode subSummaryElementNode = new CompositeNode(keyProperties.replace(" ", ""), keyProperties);
+			    	subSummaryElementNode.addChildren(createInfoNode((InfoNode)valueProperties));
+			    	summaryElementList.add(subSummaryElementNode);
+				}
+			    else{
+			    	throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());
+			    }
+		    }
+//		    summaryElementList.add(summaryElementNode);
+//		}  
+		return summaryElementList;
+	}
+	
 	/**
 	 * Method that is contacted to start populating the model tree
 	 * 
@@ -133,7 +174,14 @@ public class PopulateModelTree {
 //			if (entityNode == null){
 
 				//TODO: Shall we go through all the stand alone element or check the lem component?
-				
+			
+				InfoNode infoNode = InfoTreeCreator.createInfoTree(neuroml);
+				if (infoNode != null){
+					CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
+					summaryNode.addChildren(createInfoNode(infoNode));
+					_discoveredNodesInNeuroML.put(Resources.SUMMARY.getId(), summaryNode);
+				}
+			
 				/**
 		 		 * NETWORKS
 		 		 */
@@ -352,6 +400,8 @@ public class PopulateModelTree {
  		
  		return _populated;
 	}
+
+	
 
 	
 }
