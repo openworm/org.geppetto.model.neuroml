@@ -624,7 +624,7 @@ public class PopulateNeuroMLModelTreeUtils {
 		}
 		
 		//Iterate through the entities in order to fill the model document
-		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
+//		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
 		
 		List<Population> populations = n.getPopulation();
 		for(Population p : populations){
@@ -644,40 +644,40 @@ public class PopulateNeuroMLModelTreeUtils {
 				populationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POPULATION_TYPE.get(), Resources.POPULATION_TYPE.getId(),  new StringValue(populationType.value())));
 			}	
 
-			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
-			if(populationType != null && populationType.equals(PopulationTypes.POPULATION_LIST)){
-
-				for(int i=0; i < p.getInstance().size(); i++)
-				{
-					String id = VariablePathSerializer.getArrayName(p.getId(), i);
-					EntityNode entityNode = mapping.get(id);
-					
-					for (AspectNode aspectNode : entityNode.getAspects()){
-						if (aspectNode.getId() == modelTree.getParent().getId()){
-							AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-							modelTreeSubEntity.addChildren(createCellNode(cell).getChildren());
-							modelTreeSubEntity.setModified(true);
-						}
-					}
-				}
-			}
-			else{
-				int size = p.getSize().intValue();
-				for(int i = 0; i < size; i++)
-				{
-					String id = VariablePathSerializer.getArrayName(p.getId(), i);
-					EntityNode entityNode = mapping.get(id);
-					if (entityNode != null){
-						for (AspectNode aspectNode : entityNode.getAspects()){
-							if (aspectNode.getId() == modelTree.getParent().getId()){
-								AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-								modelTreeSubEntity.addChildren(createCellNode(cell).getChildren());
-								modelTreeSubEntity.setModified(true);
-							}
-						}
-					}
-				}
-			}
+//			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
+//			if(populationType != null && populationType.equals(PopulationTypes.POPULATION_LIST)){
+//
+//				for(int i=0; i < p.getInstance().size(); i++)
+//				{
+//					String id = VariablePathSerializer.getArrayName(p.getId(), i);
+//					EntityNode entityNode = mapping.get(id);
+//					
+//					for (AspectNode aspectNode : entityNode.getAspects()){
+//						if (aspectNode.getId() == modelTree.getParent().getId()){
+//							AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+//							modelTreeSubEntity.addChildren(createCellNode(cell).getChildren());
+//							modelTreeSubEntity.setModified(true);
+//						}
+//					}
+//				}
+//			}
+//			else{
+//				int size = p.getSize().intValue();
+//				for(int i = 0; i < size; i++)
+//				{
+//					String id = VariablePathSerializer.getArrayName(p.getId(), i);
+//					EntityNode entityNode = mapping.get(id);
+//					if (entityNode != null){
+//						for (AspectNode aspectNode : entityNode.getAspects()){
+//							if (aspectNode.getId() == modelTree.getParent().getId()){
+//								AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+//								modelTreeSubEntity.addChildren(createCellNode(cell).getChildren());
+//								modelTreeSubEntity.setModified(true);
+//							}
+//						}
+//					}
+//				}
+//			}
 			
 			//TODO: Just reading the number of instances and displaying as a text metadata node 				
 			List<Instance> instanceList = p.getInstance();

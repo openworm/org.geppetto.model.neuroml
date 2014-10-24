@@ -42,19 +42,16 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ACompositeNode;
 import org.geppetto.core.model.runtime.ANode;
+import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.EntityNode;
-import org.geppetto.core.model.runtime.TextMetadataNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
+import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
-import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.ComponentType;
-import org.lemsml.jlems.core.type.Lems;
-import org.lemsml.jlems.core.type.ParamValue;
 import org.neuroml.export.info.InfoTreeCreator;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotNode;
@@ -88,7 +85,7 @@ import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.Network;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Population;
-import org.neuroml.model.Projection;
+import org.neuroml.model.PopulationTypes;
 import org.neuroml.model.Region;
 import org.neuroml.model.SynapticConnection;
 
@@ -103,7 +100,7 @@ public class PopulateModelTree {
 
 	private boolean _populated = false;
 	
-//	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
+	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
 	
 	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils();
 	
@@ -112,9 +109,6 @@ public class PopulateModelTree {
 	
 	private List<ANode> createInfoNode(InfoNode infoNode) throws ModelInterpreterException {
 		List<ANode> summaryElementList = new ArrayList<ANode>();
-//		for (Map.Entry<String, Object> entry : infoNode.getProperties().entrySet()) {
-//			CompositeNode summaryElementNode = new CompositeNode(entry.getKey().replace(" ", ""), entry.getKey());
-//		    Object value = entry.getValue();
 		    for (Map.Entry<String, Object> properties : ((InfoNode)infoNode).getProperties().entrySet()) {
 		    	
 			    String keyProperties = properties.getKey();
@@ -141,8 +135,6 @@ public class PopulateModelTree {
 			    	throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());
 			    }
 		    }
-//		    summaryElementList.add(summaryElementNode);
-//		}  
 		return summaryElementList;
 	}
 	
@@ -175,6 +167,9 @@ public class PopulateModelTree {
 
 				//TODO: Shall we go through all the stand alone element or check the lem component?
 			
+				/*
+				 * Generate Summary
+				 */
 				InfoNode infoNode = InfoTreeCreator.createInfoTree(neuroml);
 				if (infoNode != null){
 					CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
@@ -183,13 +178,63 @@ public class PopulateModelTree {
 				}
 			
 				/**
-		 		 * NETWORKS
+		 		 * Generate Model Tree for Subentities (We don't as network as it has been implicit added through the entities structure)
 		 		 */
 				for(Network n : neuroml.getNetwork()){
-					CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createNetworkNode(n, modelTree);
-					_discoveredComponents.put(n.getId(), n);
-					_discoveredNodesInNeuroML.put(n.getId(), compositeNode);
+					//Iterate through the entities in order to fill the model document
+//					Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
+					
+					for(Population p : n.getPopulation()){
+						PopulationTypes populationType = p.getType();
+
+						BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
+						if(populationType != null && populationType.equals(PopulationTypes.POPULATION_LIST)){
+
+							for(int i=0; i < p.getInstance().size(); i++)
+							{
+								String id = VariablePathSerializer.getArrayName(p.getId(), i);
+								EntityNode entityNode = mapping.get(id);
+								
+								for (AspectNode aspectNode : entityNode.getAspects()){
+									if (aspectNode.getId() == modelTree.getParent().getId()){
+										AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+										modelTreeSubEntity.addChildren(populateNeuroMLModelTreeUtils.createCellNode(cell).getChildren());
+										modelTreeSubEntity.setModified(true);
+									}
+								}
+							}
+						}
+						else{
+							int size = p.getSize().intValue();
+							for(int i = 0; i < size; i++)
+							{
+								String id = VariablePathSerializer.getArrayName(p.getId(), i);
+								EntityNode entityNode = mapping.get(id);
+								if (entityNode != null){
+									for (AspectNode aspectNode : entityNode.getAspects()){
+										if (aspectNode.getId() == modelTree.getParent().getId()){
+											AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+											modelTreeSubEntity.addChildren(populateNeuroMLModelTreeUtils.createCellNode(cell).getChildren());
+											modelTreeSubEntity.setModified(true);
+										}
+									}
+								}
+							}
+						}
+					}
 				}
+				
+				
+				//TODO: We are not adding the network as it is implicitly in the entities/subentities structure but we can be lossing some info
+//				for(Network n : neuroml.getNetwork()){
+//					CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createNetworkNode(n, modelTree);
+//					_discoveredComponents.put(n.getId(), n);
+//					_discoveredNodesInNeuroML.put(n.getId(), compositeNode);
+//				}
+				
+				/**
+				 * COMPONENTS
+				 */
 				
 				/**
 		 		 * CELLS
@@ -379,13 +424,13 @@ public class PopulateModelTree {
 		 		for (Map.Entry<String, ANode> entry : _discoveredNodesInNeuroML.entrySet()) {
 		 		    String key = entry.getKey();
 		 		    
-		 		   if (_discoveredNodesInNeuroML.size() == 1){
-		 			  Object node = _discoveredNodesInNeuroML.values().toArray()[0];
-		 			   if (node instanceof ACompositeNode){
-		 				  modelTree.addChildren(((ACompositeNode)node).getChildren());
-		 				  break;
-		 			   }
-					}
+//		 		   if (_discoveredNodesInNeuroML.size() == 1){
+//		 			  Object node = _discoveredNodesInNeuroML.values().toArray()[0];
+//		 			   if (node instanceof ACompositeNode){
+//		 				  modelTree.addChildren(((ACompositeNode)node).getChildren());
+//		 				  break;
+//		 			   }
+//					}
 		 		   if (!_discoveredNestedComponentsId.contains(key)){
 		 			   modelTree.addChild(entry.getValue());
 		 		   }
