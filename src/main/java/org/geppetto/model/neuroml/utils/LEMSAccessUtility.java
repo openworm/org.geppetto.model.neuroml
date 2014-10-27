@@ -57,7 +57,7 @@ public class LEMSAccessUtility
 			try {
 				component = getComponentById(componentId, model);
 			} catch (ContentError e1) {
-				throw new ModelInterpreterException("Can't find the componet " + componentId);
+				throw new ModelInterpreterException("Can't find the componet " + componentId + ". Exception throw: " + e1.toString());
 			}
 		}
 

@@ -114,7 +114,10 @@ public class PopulateModelTree {
 			    String keyProperties = properties.getKey();
 			    Object valueProperties = properties.getValue();
 			    
-			    if (valueProperties instanceof String){
+			    if (valueProperties == null){
+			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue("")));
+			    }
+			    else if (valueProperties instanceof String){
 			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue((String)valueProperties)));
 			    }
 			    else if (valueProperties instanceof BigInteger) {
@@ -224,13 +227,14 @@ public class PopulateModelTree {
 					}
 				}
 				
-				
-				//TODO: We are not adding the network as it is implicitly in the entities/subentities structure but we can be lossing some info
-//				for(Network n : neuroml.getNetwork()){
-//					CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createNetworkNode(n, modelTree);
-//					_discoveredComponents.put(n.getId(), n);
-//					_discoveredNodesInNeuroML.put(n.getId(), compositeNode);
-//				}
+				//TODO: We are not adding the network as it is implicitly in the entities/subentities (unless there is only one cell) structure but we can be lossing some info
+				if (mapping.size() == 1){
+					for(Network n : neuroml.getNetwork()){
+						CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createNetworkNode(n, modelTree);
+						_discoveredComponents.put(n.getId(), n);
+						_discoveredNodesInNeuroML.put(n.getId(), compositeNode);
+					}
+				}
 				
 				/**
 				 * COMPONENTS

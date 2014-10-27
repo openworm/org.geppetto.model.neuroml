@@ -152,6 +152,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 //			NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
 			//Read neuroml file without inclusions
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+			reader.setInclusions(new ArrayList<String>());
 			String neuromlString = URLReader.readStringFromURL(url);
 			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(neuromlString);
 			//Read neuroml file with inclusions
@@ -310,13 +311,15 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				
 				if (connection.getPreSegmentId() != null){
 					VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPreSegmentId());
+					visualObjectReferenceNode.setName(Resources.PRESEGMENT.get());
 					visualObjectReferenceNode.setVisualObjectId(connection.getPreSegmentId().toString());
 					visualObjectReferenceNode.setAspectInstancePath(entityNodeTo.getInstancePath());
 					connectionNodeFrom.addVisualReferencesNode(visualObjectReferenceNode);
 					connectionNodeTo.addVisualReferencesNode(visualObjectReferenceNode);
 				}
 				if (connection.getPostSegmentId() != null){
-					VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPreSegmentId());
+					VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPostSegmentId());
+					visualObjectReferenceNode.setName(Resources.POSTSEGMENT.get());
 					visualObjectReferenceNode.setVisualObjectId(connection.getPostSegmentId().toString());
 					visualObjectReferenceNode.setAspectInstancePath(entityNodeFrom.getInstancePath());
 					connectionNodeFrom.addVisualReferencesNode(visualObjectReferenceNode);
