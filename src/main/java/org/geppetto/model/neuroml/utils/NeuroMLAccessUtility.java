@@ -3,14 +3,22 @@
  */
 package org.geppetto.model.neuroml.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.runtime.ANode;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.Base;
+import org.neuroml.model.BlockingPlasticSynapse;
 import org.neuroml.model.Cell;
 import org.neuroml.model.DecayingPoolConcentrationModel;
+import org.neuroml.model.ExpOneSynapse;
+import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.FitzHughNagumoCell;
 import org.neuroml.model.FixedFactorConcentrationModel;
 import org.neuroml.model.IafCell;
@@ -20,7 +28,9 @@ import org.neuroml.model.IafTauRefCell;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.IzhikevichCell;
+import org.neuroml.model.Network;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.Population;
 
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
@@ -32,10 +42,13 @@ public class NeuroMLAccessUtility
 	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
 	public static final String LEMS_ID = "lems";
 	public static final String NEUROML_ID = "neuroml";
-	public static final String NEUROML_ID_INCLUSIONS = "neuroml_inclusions";
+	public static final String NEUROML_ID_INCLUSIONS = "neuromlInclusions";
 	public static final String URL_ID = "url";
 	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
 //	public static final String LEMS_UTILS_ID = "lemsUtils";
+//	public static final String LEMS_ID_INCLUSIONS = "lemsInclusions";
+//	public static final String DISCOVERED_NODES = "discovered_nodes";
+	public static final String DISCOVERED_NESTED_COMPONENTS_ID = "discoveredNestedComponents";
 	
 	private LEMSAccessUtility lemsAccessUtility = new LEMSAccessUtility();
 	
@@ -53,36 +66,48 @@ public class NeuroMLAccessUtility
 	 */
 	public Object getComponent(String componentId, ModelWrapper model, Resources componentType) throws ModelInterpreterException
 	{
+		Object component;
 		//Check if we have already discovered this component
-		Object component = this.getComponentFromCache(componentId, model);
-		
-		if (component == null){
-			component = this.lemsAccessUtility.getComponentFromCache(componentId, model);
+		if (componentType == Resources.COMPONENT_TYPE){
+			component = this.lemsAccessUtility.getComponent(componentId, model);
 		}
-		
-		// let's first check if the cell is of a predefined neuroml type
-		if(component == null){
-			try {
-				component = getComponentById(componentId, model, componentType);
-			} catch (ContentError e1) {
-				throw new ModelInterpreterException("Can't find the componet " + componentId);
+		else{
+			component = this.getComponentFromCache(componentId, model);
+			
+//			if (component == null){
+//				component = this.lemsAccessUtility.getComponentFromCache(componentId, model);
+//			}
+			
+			// let's first check if the cell is of a predefined neuroml type
+			if(component == null){
+				try {
+					component = getComponentById(componentId, model, componentType);
+				} catch (ContentError e1) {
+					//throw new ModelInterpreterException("Can't find the componet " + componentId);
+					return null;
+				}
 			}
-		}
+		}	
 
 		if(component == null)
 		{
 			// sorry no luck!
-			throw new ModelInterpreterException("Can't find the componet " + componentId);
+			//throw new ModelInterpreterException("Can't find the componet " + componentId);
+			return null;
 		}
 		return component;
 	}
 	
 	public Base getComponentFromCache(String componentId, ModelWrapper model){
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
+		List<String> _discoveredNestedComponentsId = ((ArrayList<String>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID));
 		
-		//TODO Can we have the same id for two different components 
+		//TODO We may think about storing nodes instead of components
 		if(_discoveredComponents.containsKey(componentId))
 		{
+			if (!_discoveredNestedComponentsId.contains(componentId)){
+				_discoveredNestedComponentsId.add(componentId);
+			}
 			return _discoveredComponents.get(componentId);
 		}
 		
@@ -203,6 +228,37 @@ public class NeuroMLAccessUtility
 				}
 			}
 			
+		case POPULATION:	
+			for(Network n : doc.getNetwork()){
+				for (Population p : n.getPopulation()){
+					if (p.getId().equals(componentId)){
+						return p;
+					}
+				}
+			}
+			
+		case SYNAPSE:
+			for (ExpTwoSynapse s : doc.getExpTwoSynapse()){
+				_discoveredComponents.put(s.getId(), s);
+				if(s.getId().equals(componentId))
+				{
+					return s;
+				}
+			}
+			for (ExpOneSynapse s : doc.getExpOneSynapse()){
+				_discoveredComponents.put(s.getId(), s);
+				if(s.getId().equals(componentId))
+				{
+					return s;
+				}
+			}
+			for (BlockingPlasticSynapse s : doc.getBlockingPlasticSynapse()){
+				_discoveredComponents.put(s.getId(), s);
+				if(s.getId().equals(componentId))
+				{
+					return s;
+				}
+			}
 			
 		default:
 			return this.lemsAccessUtility.getComponentById(componentId, model);

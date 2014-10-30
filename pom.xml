@@ -5,7 +5,7 @@
 	<groupId>org.geppetto</groupId>
 	<artifactId>model.neuroml</artifactId>
 	<name>Geppetto NeuroML Model bundle</name>
-	<version>0.1.7</version>
+	<version>0.1.8</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<spring.version>3.0.0.RELEASE</spring.version>
@@ -15,17 +15,42 @@
 		<dependency>
 			<groupId>org.neuroml.model</groupId>
 			<artifactId>org.neuroml.model</artifactId>
-			<version>1.2.1</version>
+			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.neuroml.export</groupId>
+			<artifactId>org.neuroml.export</artifactId>
+			<version>1.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.lemsml</groupId>
 			<artifactId>jlems</artifactId>
-			<version>0.9.7.0</version>
+			<version>0.9.7.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geppetto</groupId>
 			<artifactId>core</artifactId>
-			<version>0.1.7</version>
+			<version>${version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-osgi</artifactId>
+			<version>2.2.11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jvnet.jaxb2_commons</groupId>
+			<artifactId>jaxb2-commons-lang</artifactId>
+			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jvnet.jaxb2_commons</groupId>
+			<artifactId>jaxb2-basics-runtime</artifactId>
+			<version>0.9.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jvnet.sorcerer</groupId>
+			<artifactId>sorcerer-javac</artifactId>
+			<version>0.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -117,7 +142,7 @@
 							{maven-resources},META-INF/spring=src/main/java/META-INF/spring
 						</Include-Resource>
 						<Import-Package>
-							org.geppetto.core.scope,org.aopalliance.aop,org.springframework.aop,,org.springframework.aop.scope,org.springframework.aop.framework,*
+							com.sun.xml.bind.v2.model.core,org.geppetto.core.scope,org.aopalliance.aop,org.springframework.aop,,org.springframework.aop.scope,org.springframework.aop.framework,*
 						</Import-Package>
 					</instructions>
 				</configuration>

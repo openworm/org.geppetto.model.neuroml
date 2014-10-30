@@ -1,5 +1,4 @@
-
- <Dimension name="time" t="1"/>
+<Dimension name="time" t="1"/>
     <Dimension name="per_time" t="-1"/>
 
     <Dimension name="voltage"     m="1" l="2" t="-3" i="-1"/>
@@ -36,18 +35,18 @@
 
     <Dimension name="idealGasConstantDims" m="1" l="2" t="-2" k="-1" n="-1"/>
     
-    
+    <!-- Note: it's unlikely that this dimension/unit for rho in fixedFactorConcentrationModel will be needed anywhere else-->
     <Dimension name="rho_factor" l="-1" n="1" i="-1" t="-1"/>
 
-    
-    
-    
+    <!-- The core units as used in NeuroML version 2.0.   -->
+    <!-- Will be used in Component definitions, e.g. duration="60ms" amplitude="0.2 nA" -->
+    <!-- Note, new units can be defined in a NeuroML file based on the dimensions above -->
 
     <Unit symbol="s" dimension="time" power="0"/>
     <Unit symbol="per_s" dimension="per_time" power="0"/>          
     <Unit symbol="Hz" dimension="per_time" power="0"/>          
-    <Unit symbol="ms" dimension="time" power="-3"/>                
-    <Unit symbol="per_ms" dimension="per_time" power="3"/>         
+    <Unit symbol="ms" dimension="time" power="-3"/>                <!-- Physiological Units -->
+    <Unit symbol="per_ms" dimension="per_time" power="3"/>         <!-- Physiological Units -->
     
     <Unit symbol="min" dimension="time" power="0" scale="60"/>
     <Unit symbol="per_min" dimension="per_time" power="0" scale="0.01666666667"/>
@@ -55,64 +54,64 @@
     <Unit symbol="per_hour" dimension="per_time" power="0" scale="0.00027777777778"/>
 
     <Unit symbol="m" dimension="length" power="0"/>
-    <Unit symbol="cm" dimension="length" power="-2"/>              
+    <Unit symbol="cm" dimension="length" power="-2"/>              <!-- Physiological Units -->
     <Unit symbol="um" dimension="length" power="-6"/>
 
     <Unit symbol="m2" dimension="area" power="0"/>
-    <Unit symbol="cm2" dimension="area" power="-4"/>               
+    <Unit symbol="cm2" dimension="area" power="-4"/>               <!-- Physiological Units -->
     <Unit symbol="um2" dimension="area" power="-12"/>
     
     <Unit symbol="m3" dimension="volume" power="0"/>
-    <Unit symbol="cm3" dimension="volume" power="-6"/>             
+    <Unit symbol="cm3" dimension="volume" power="-6"/>             <!-- Physiological Units -->
     <Unit symbol="litre" dimension="volume" power="-3"/>
     <Unit symbol="um3" dimension="volume" power="-18"/>
 
     <Unit symbol="V" dimension="voltage" power="0"/>
-    <Unit symbol="mV" dimension="voltage" power="-3"/>             
+    <Unit symbol="mV" dimension="voltage" power="-3"/>             <!-- Physiological Units -->
     <Unit symbol="per_V" dimension="per_voltage" power="0"/>
     <Unit symbol="per_mV" dimension="per_voltage" power="3"/>
 
     <Unit symbol="ohm" dimension="resistance" power="0"/>
-    <Unit symbol="kohm" dimension="resistance" power="3"/>         
+    <Unit symbol="kohm" dimension="resistance" power="3"/>         <!-- Physiological Units -->
     <Unit symbol="Mohm" dimension="resistance" power="6"/>
 
     <Unit symbol="S" dimension="conductance" power="0"/>
-    <Unit symbol="mS" dimension="conductance" power="-3"/>         
+    <Unit symbol="mS" dimension="conductance" power="-3"/>         <!-- Physiological Units -->
     <Unit symbol="uS" dimension="conductance" power="-6"/>
     <Unit symbol="nS" dimension="conductance" power="-9"/>
     <Unit symbol="pS" dimension="conductance" power="-12"/>
 
     <Unit symbol="S_per_m2" dimension="conductanceDensity" power="0"/>
-    <Unit symbol="mS_per_cm2" dimension="conductanceDensity" power="1"/>   
-    <Unit symbol="S_per_cm2" dimension="conductanceDensity" power="4"/>   
+    <Unit symbol="mS_per_cm2" dimension="conductanceDensity" power="1"/>   <!-- Physiological Units -->
+    <Unit symbol="S_per_cm2" dimension="conductanceDensity" power="4"/>   <!-- NEURON preferred Units -->
 
     <Unit symbol="F" dimension="capacitance" power="0"/>
-    <Unit symbol="uF" dimension="capacitance" power="-6"/>         
+    <Unit symbol="uF" dimension="capacitance" power="-6"/>         <!-- Physiological Units -->
     <Unit symbol="nF" dimension="capacitance" power="-9"/>
     <Unit symbol="pF" dimension="capacitance" power="-12"/>
 
     <Unit symbol="F_per_m2" dimension="specificCapacitance" power="0"/>
-    <Unit symbol="uF_per_cm2" dimension="specificCapacitance" power="-2"/>  
+    <Unit symbol="uF_per_cm2" dimension="specificCapacitance" power="-2"/>  <!-- Physiological Units -->
 
     <Unit symbol="ohm_m" dimension="resistivity" power="0"/>
-    <Unit symbol="kohm_cm" dimension="resistivity" power="1"/>    
-    <Unit symbol="ohm_cm" dimension="resistivity" power="-2"/>    
+    <Unit symbol="kohm_cm" dimension="resistivity" power="1"/>    <!-- Physiological Units -->
+    <Unit symbol="ohm_cm" dimension="resistivity" power="-2"/>    <!-- NEURON preferred Units -->
 
     <Unit symbol="C" dimension="charge" power="0"/>
 
     <Unit symbol="C_per_mol" dimension="charge_per_mole" power="0"/>
 
     <Unit symbol="A" dimension="current" power="0"/>
-    <Unit symbol="uA" dimension="current" power="-6"/>             
+    <Unit symbol="uA" dimension="current" power="-6"/>             <!-- Physiological Units -->
     <Unit symbol="nA" dimension="current" power="-9"/>
     <Unit symbol="pA" dimension="current" power="-12"/>
 
     <Unit symbol="A_per_m2" dimension="currentDensity" power="0"/>
-    <Unit symbol="uA_per_cm2" dimension="currentDensity" power="-2"/>         
-    <Unit symbol="mA_per_cm2" dimension="currentDensity" power="1"/>          
+    <Unit symbol="uA_per_cm2" dimension="currentDensity" power="-2"/>         <!-- Physiological Units -->
+    <Unit symbol="mA_per_cm2" dimension="currentDensity" power="1"/>          <!-- NEURON preferred Units -->
 
     <Unit symbol="mol_per_m3" dimension="concentration" power="0"/>
-    <Unit symbol="mol_per_cm3" dimension="concentration" power="6"/>  
+    <Unit symbol="mol_per_cm3" dimension="concentration" power="6"/>  <!-- Physiological Units -->
     <Unit symbol="M" dimension="concentration" power="3"/>
     <Unit symbol="mM" dimension="concentration" power="0"/>
     
@@ -130,23 +129,10 @@
 
     <Unit symbol="J_per_K_per_mol" dimension="idealGasConstantDims" power="0"/>
  
+    <!-- Note: it's unlikely that this dimension/unit for rho in fixedFactorConcentrationModel will be needed anywhere else-->
+    <Unit symbol="mol_per_m_per_A_per_s" dimension="rho_factor" power="0"/> <!-- SI -->
     
-    <Unit symbol="mol_per_m_per_A_per_s" dimension="rho_factor" power="0"/> 
-
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-    
-
-    
+     <!-- Potentially needed for any NeuroML 2 file...-->
     <ComponentType name="notes" description="Human readable notes on a Component">
     </ComponentType>
     
@@ -255,20 +241,16 @@
         <Parameter name="x" dimension="none" description="x coordinate of point. Note: no dimension used, see note above!"/>
         <Parameter name="y" dimension="none" description="y coordinate of point. Note: no dimension used, see note above!"/>
         <Parameter name="z" dimension="none" description="z coordinate of point. Note: no dimension used, see note above!"/>
-        <Parameter name="diameter" dimension="none" description="Diameter at point. Note: no dimension used, see note above!"/> 
+        <Parameter name="diameter" dimension="none" description="Diameter at point. Note: no dimension used, see note above!"/> <!-- TODO decide whether this or radius should be default input field!!! -->
         
         <DerivedParameter name="radius" dimension="length" value="MICRON * diameter / 2"/>
-        <DerivedParameter name="xLength" dimension="length" value="MICRON * x"/>  
-        <DerivedParameter name="yLength" dimension="length" value="MICRON * y"/>  
-        <DerivedParameter name="zLength" dimension="length" value="MICRON * z"/>  
+        <DerivedParameter name="xLength" dimension="length" value="MICRON * x"/>  <!-- conversion to SI units... -->
+        <DerivedParameter name="yLength" dimension="length" value="MICRON * y"/>  <!-- conversion to SI units... -->
+        <DerivedParameter name="zLength" dimension="length" value="MICRON * z"/>  <!-- conversion to SI units... -->
 
         <Constant name="MICRON" dimension="length" value="1um"/>
     </ComponentType>
-
-
-
     
-
     <ComponentType name="baseVoltageDepRate"
                    description="Base ComponentType for voltage dependent rate. Produces a time varying rate _r which depends on _v.">
         <Exposure name="r" dimension="per_time"/>
@@ -429,7 +411,7 @@
         <Constant name="TENDEGREES" dimension="temperature" value="10K"/>
 
         <Dynamics>
-            
+            <!-- TODO: make sure correct dimensions in exponent, even though LEMS doesn't seem to mind...-->
             <DerivedVariable name="q10" exposure="q10" dimension="none" value="q10Factor^((temperature - experimentalTemp)/TENDEGREES)"/>
         </Dynamics>
     </ComponentType>
@@ -471,10 +453,10 @@
                    description="Gate which follows the general Hodgkin Huxley formalism">
 
         <Child name="notes" type="notes"/>
-        <Child name="q10Settings" type="baseQ10Settings"/>
 
         <Child name="forwardRate" type="baseVoltageDepRate"/>
         <Child name="reverseRate" type="baseVoltageDepRate"/>
+        <Children name="q10Settings" type="baseQ10Settings"/>
 
 
         <Exposure name="alpha" dimension="per_time"/>
@@ -488,7 +470,7 @@
         <Dynamics>
             <StateVariable name="q" exposure="q" dimension="none"/>
 
-            <DerivedVariable name="rateScale" exposure="rateScale" dimension="none" select="q10Settings/q10" reduce="multiply" required="false"/>
+            <DerivedVariable name="rateScale" exposure="rateScale" dimension="none" select="q10Settings[*]/q10" reduce="multiply"/>
 
             <DerivedVariable name="alpha" dimension="per_time" exposure="alpha" select="forwardRate/r"/>
             <DerivedVariable name="beta" dimension="per_time" exposure="beta" select="reverseRate/r"/>
@@ -529,7 +511,7 @@
         <Dynamics>
             <StateVariable name="q" exposure="q" dimension="none"/>
 
-            <DerivedVariable name="rateScale" exposure="rateScale" dimension="none" select="q10Settings/q10" reduce="multiply" required="false"/>
+            <DerivedVariable name="rateScale" exposure="rateScale" dimension="none" select="q10Settings[*]/q10" reduce="multiply"/>
 
             <DerivedVariable name="fcond" exposure="fcond" dimension="none" value="q^instances"/>
 
@@ -570,7 +552,7 @@
         <Dynamics>
             <StateVariable name="q" exposure="q" dimension="none"/>
 
-            <DerivedVariable name="rateScale" exposure="rateScale" dimension="none" select="q10Settings/q10" reduce="multiply" required="false"/>
+            <DerivedVariable name="rateScale" exposure="rateScale" dimension="none" select="q10Settings[*]/q10" reduce="multiply"/>
 
             <DerivedVariable name="alpha" dimension="per_time" exposure="alpha" select="forwardRate/r"/>
             <DerivedVariable name="beta" dimension="per_time" exposure="beta" select="reverseRate/r"/>
@@ -615,7 +597,7 @@
         <Dynamics>
             <StateVariable name="q" exposure="q" dimension="none"/>
 
-            <DerivedVariable name="rateScale" exposure="rateScale" dimension="none" select="q10Settings/q10" reduce="multiply" required="false"/>
+            <DerivedVariable name="rateScale" exposure="rateScale" dimension="none" select="q10Settings[*]/q10" reduce="multiply"/>
             <DerivedVariable name="alpha" dimension="per_time" exposure="alpha" select="forwardRate/r"/>
             <DerivedVariable name="beta" dimension="per_time" exposure="beta" select="reverseRate/r"/>
             <DerivedVariable name="fcond" exposure="fcond" dimension="none" value="q^instances"/>
@@ -655,7 +637,7 @@
         <Dynamics>
             <StateVariable name="q" exposure="q" dimension="none"/>
 
-            <DerivedVariable name="rateScale" exposure="rateScale" dimension="none" select="q10Settings/q10" reduce="multiply" required="false"/>
+            <DerivedVariable name="rateScale" exposure="rateScale" dimension="none" select="q10Settings[*]/q10" reduce="multiply"/>
             <DerivedVariable name="alpha" dimension="per_time" exposure="alpha" select="forwardRate/r"/>
             <DerivedVariable name="beta" dimension="per_time" exposure="beta" select="reverseRate/r"/>
             <DerivedVariable name="inf" dimension="none" exposure="inf" select="steadyState/x"/>
@@ -699,7 +681,7 @@
 
     <ComponentType name="ionChannelHH" 
                    extends="baseIonChannel"
-                   description="Note _ionChannel_ and _ionChannelHH_ are currently functionally identical. This is needed since many existing examples use ionChannel, some use ionChannelHH. NeuroML v2beta3 will remove one of these, probably ionChannelHH.">
+                   description="Note _ionChannel_ and _ionChannelHH_ are currently functionally identical. This is needed since many existing examples use ionChannel, some use ionChannelHH. NeuroML v2beta4 should remove one of these, probably ionChannelHH.">
         <Child name="notes" type="notes"/>
         <Child name="annotation" type="annotation"/>
         
@@ -728,7 +710,7 @@
 
     <ComponentType name="ionChannel"
                    extends="ionChannelHH"
-                   description="Note _ionChannel_ and _ionChannelHH_ are currently functionally identical. This is needed since many existing examples use ionChannel, some use ionChannelHH. NeuroML v2beta3 will remove one of these, probably ionChannelHH.">
+                   description="Note _ionChannel_ and _ionChannelHH_ are currently functionally identical. This is needed since many existing examples use ionChannel, some use ionChannelHH. NeuroML v2beta4 should remove one of these, probably ionChannelHH.">
         
         <Dynamics>
             <DerivedVariable name="conductanceScale" dimension="none" select="conductanceScaling[*]/factor" reduce="multiply"/>
@@ -864,22 +846,8 @@
         </Dynamics>
     
     </ComponentType>
-
-
-
     
-
-
-    
-
-    
-    
-    
-
-    
-
-    
-    <ComponentType name="basePointCurrent"
+     <ComponentType name="basePointCurrent"
                    description="Base type for all ComponentTypes which produce a current _i (with dimension current)">
 
         <Exposure name="i" dimension="current" description="The total (time varying) current produced by this ComponentType"/>
@@ -1009,20 +977,22 @@
 
 
     <ComponentType name="pulseGenerator" extends="basePointCurrent"
-                   description="Generates a constant current pulse of a certain _amplitude for a specified _duration after a _delay"> 
+                   description="Generates a constant current pulse of a certain _amplitude for a specified _duration after a _delay"> <!-- Note: a synpase also extends basePointCurrent -->
 
         <Parameter name="delay" dimension="time" description="Delay before change in current. Current is zero  prior to this."/>
         <Parameter name="duration" dimension="time" description="Duration for holding current at amplitude. Current is zero after delay + duration."/>
         <Parameter name="amplitude" dimension="current" description="Amplitude of current pulse"/>
 
-        
+        <!--TODO: remove! Only required as EventConnection is used in explicitInput to
+        connect inputs to cells. Events aren't passed! ... -->
         <EventPort name="in" direction="in" description="Note this is not used here. Will be removed in future"/>
 
         <Dynamics>
 
             <StateVariable name="i" exposure="i" dimension="current"/>
 
-            <OnEvent port="in">
+            <OnEvent port="in"><!--TODO: remove, see above...
+            <StateAssignment variable="i" value="0"/>-->
             </OnEvent>
 
             <OnCondition test="t .lt. delay">
@@ -1042,20 +1012,21 @@
 
 
     <ComponentType name="pulseGeneratorDL" extends="basePointCurrentDL"
-                   description="Dimensionless equivalent of _pulseGenerator_. Generates a constant current pulse of a certain _amplitude for a specified _duration after a _delay"> 
+                   description="Dimensionless equivalent of _pulseGenerator_. Generates a constant current pulse of a certain _amplitude for a specified _duration after a _delay"> <!-- Note: a synpase also extends basePointCurrent -->
 
         <Parameter name="delay" dimension="time" description="Delay before change in current. Current is zero  prior to this."/>
         <Parameter name="duration" dimension="time" description="Duration for holding current at amplitude. Current is zero after delay + duration."/>
         <Parameter name="amplitude" dimension="none" description="Amplitude of current pulse"/>
 
-        
+        <!--TODO: remove! Only required as EventConnection is used in explicitInput to
+        connect inputs to cells. Events aren't passed! ... -->
         <EventPort name="in" direction="in" description="Note this is not used here. Will be removed in future"/>
 
         <Dynamics>
 
             <StateVariable name="I" exposure="I" dimension="none"/>
 
-            <OnEvent port="in">
+            <OnEvent port="in"><!--TODO: remove, see above...-->
             </OnEvent>
 
             <OnCondition test="t .lt. delay">
@@ -1089,7 +1060,7 @@
 
             <StateVariable name="i" exposure="i" dimension="current"/>
 
-            <OnEvent port="in">
+            <OnEvent port="in"><!--TODO: remove-->
             </OnEvent>
 
             <OnCondition test="t .lt. delay">
@@ -1127,7 +1098,7 @@
                 <StateAssignment variable="i" value="baselineAmplitude"/>
             </OnStart>
 
-            <OnEvent port="in">
+            <OnEvent port="in"><!--TODO: remove-->
             </OnEvent>
 
             <OnCondition test="t .lt. delay">
@@ -1165,7 +1136,7 @@
                 <StateAssignment variable="I" value="baselineAmplitude"/>
             </OnStart>
 
-            <OnEvent port="in">
+            <OnEvent port="in"><!--TODO: remove-->
             </OnEvent>
 
             <OnCondition test="t .lt. delay">
@@ -1191,17 +1162,19 @@
         <Parameter name="duration" dimension="time" description="Duration for attempting to keep parent at targetVoltage. Current is zero after delay + duration."/>
         <Parameter name="targetVoltage" dimension="voltage" description="Current will be applied to try to get parent to this target voltage"/>
         
-        
+        <!-- seriesResistance renamed to simpleSeriesResistance & factor of 1e-5 removed from calculation of current. Still being tested... -->
         <Parameter name="simpleSeriesResistance" dimension="resistance" description="Current will be calculated by the difference in voltage between the target and parent, divided by this value"/>
 
-        
+        <!--TODO: remove! Only required as EventConnection is used in explicitInput to
+        connect inputs to cells. Events aren't passed! ... -->
         <EventPort name="in" direction="in" description="Note this is not used here. Will be removed in future"/>
 
         <Dynamics>
 
             <StateVariable name="i" exposure="i" dimension="current"/>
 
-            <OnEvent port="in">
+            <OnEvent port="in"><!--TODO: remove, see above...
+            <StateAssignment variable="i" value="0"/>-->
             </OnEvent>
 
             <OnCondition test="t .lt. delay">
@@ -1209,7 +1182,7 @@
             </OnCondition>
 
             <OnCondition test="t .geq. delay">
-                
+                <!-- seriesResistance renamed to simpleSeriesResistance & factor of 1e-5 removed from calculation of current. Still being tested... -->
                 <StateAssignment variable="i" value="(targetVoltage - v) / simpleSeriesResistance"/>
             </OnCondition>
 
@@ -1278,13 +1251,10 @@
         </Structure>
 
     </ComponentType>
-
-
-
-
+    
     <ComponentType name="baseSynapse"
                    extends="baseVoltageDepPointCurrent"
-                   description="Base type for all synapses, i.e. ComponentTypes which produce a current (dimension current) and change Dynamics in response to an incoming event. cno_0000009"> 
+                   description="Base type for all synapses, i.e. ComponentTypes which produce a current (dimension current) and change Dynamics in response to an incoming event. cno_0000009"> <!-- http://bioportal.bioontology.org/ontologies/46856/?p=terms&conceptid=cno%3Acno_0000009 -->
         <Child name="notes" type="notes"/>
 
         <EventPort name="in" direction="in"/>
@@ -1294,7 +1264,7 @@
 
     <ComponentType name="baseSynapseDL"
                    extends="baseVoltageDepPointCurrentDL"
-                   description="Base type for all synapses, i.e. ComponentTypes which produce a dimensionless current and change Dynamics in response to an incoming event. cno_0000009"> 
+                   description="Base type for all synapses, i.e. ComponentTypes which produce a dimensionless current and change Dynamics in response to an incoming event. cno_0000009"> <!-- http://bioportal.bioontology.org/ontologies/46856/?p=terms&conceptid=cno%3Acno_0000009 -->
 
         <EventPort name="in" direction="in"/>
 
@@ -1353,7 +1323,7 @@
             <StateVariable name="A" dimension="none"/>
             <StateVariable name="B" dimension="none"/>
 
-            
+            <!-- TODO: catch tauRise = 0..! -->
 
             <DerivedVariable name="g" dimension="conductance" exposure="g" value="gbase * (B - A)" />
             <DerivedVariable name="i" exposure="i" dimension="current" value="g * (erev - v)" />
@@ -1568,12 +1538,8 @@
         </Dynamics>
 
     </ComponentType>
-
-
     
-
-
-    <ComponentType name="baseCell"
+     <ComponentType name="baseCell"
         description="Base type of any cell which can be used in a population">
         <Child name="notes" type="notes"/>
     </ComponentType>
@@ -1624,7 +1590,7 @@
 
         <ComponentReference name="ionChannel" type="baseIonChannel"/>
 
-        <Text name="ion"/> 
+        <Text name="ion"/> <!-- TODO: Ideally this needs to be a property of ionChannel only! But it's here as it makes it easier to select channelPopulations transmitting specific ions...-->
 
         <Dynamics>
             <DerivedVariable name="channelg" dimension="conductance" select="ionChannel/g"/>
@@ -1651,13 +1617,13 @@
 
         <ComponentReference name="ionChannel" type="baseIonChannel"/>
 
-        <Exposure name="erev" dimension="voltage"/> 
+        <Exposure name="erev" dimension="voltage"/> <!-- Calculated from caConcExt and caConc-->
 
         <Requirement name="temperature" dimension="temperature"/>
         <Requirement name="caConc" dimension="concentration"/>
         <Requirement name="caConcExt" dimension="concentration"/>
 
-        <Text name="ion"/> 
+        <Text name="ion"/> <!-- TODO: Ideally this needs to be a property of ionChannel only! But it's here as it makes it easier to select channelPopulations transmitting specific ions...-->
 
         <Dynamics>
 
@@ -1666,7 +1632,7 @@
 
             <DerivedVariable name="erev" dimension="voltage" exposure="erev" value="(R * temperature / (zCa * F)) * log(caConcExt / caConc)"/>
 
-            
+            <!--TODO: see if the check on caconcext needed: DerivedVariable name="i" dimension="current" exposure="i" value="totalConductance * (erev - v)" valueCondition="caConcExt .gt. 0" valueIfFalse="0"/>  -->
             <DerivedVariable name="i" dimension="current" exposure="i" value="totalConductance * (erev - v)"/>
 
         </Dynamics>
@@ -1730,12 +1696,13 @@
         
         <Child name="variableParameter" type="variableParameter"/>
 
-        
+        <!-- TODO: Ensure Text elements are inherited from base type -->
         <Text name="segmentGroup"/>
-        <Text name="ion"/> 
+        <Text name="ion"/> <!-- TODO: Ideally this needs to be a property of ionChannel only!
+                                But it's here as it makes it easier to select channelPopulations transmitting specific ions...-->
 
         <Dynamics>
-            
+            <!--<DerivedVariable name="iDensity"  dimension="currentDensity" exposure="iDensity" value="0"/>-->
         </Dynamics>
 
         <Structure>
@@ -1751,12 +1718,13 @@
         
         <Child name="variableParameter" type="variableParameter"/>
 
-        
+        <!-- TODO: Ensure Text elements are inherited from base type -->
         <Text name="segmentGroup"/>
-        <Text name="ion"/> 
+        <Text name="ion"/> <!-- TODO: Ideally this needs to be a property of ionChannel only!
+                                But it's here as it makes it easier to select channelPopulations transmitting specific ions...-->
 
         <Dynamics>
-            
+            <!--<DerivedVariable name="iDensity"  dimension="currentDensity" exposure="iDensity" value="0"/>-->
         </Dynamics>
 
         <Structure>
@@ -1772,9 +1740,10 @@
 
         <Parameter name="erev" dimension="voltage"/>
 
-        
+        <!-- TODO: Ensure Text elements are inherited from base type -->
         <Text name="segmentGroup"/>
-        <Text name="ion"/> 
+        <Text name="ion"/> <!-- TODO: Ideally this needs to be a property of ionChannel only!
+                                But it's here as it makes it easier to select channelPopulations transmitting specific ions...-->
 
         <Dynamics>
 
@@ -1803,15 +1772,16 @@
 
         <ComponentReference name="ionChannel" type="baseIonChannel"/>
 
-        <Exposure name="erev" dimension="voltage"/> 
+        <Exposure name="erev" dimension="voltage"/> <!-- Calculated from caConcExt and caConc-->
 
         <Requirement name="temperature" dimension="temperature"/>
         <Requirement name="caConc" dimension="concentration"/>
         <Requirement name="caConcExt" dimension="concentration"/>
 
-        
+        <!-- TODO: Ensure Text elements are inherited from base type -->
         <Text name="segmentGroup"/>
-        <Text name="ion"/> 
+        <Text name="ion"/> <!-- TODO: Ideally this needs to be a property of ionChannel only!
+                                But it's here as it makes it easier to select channelPopulations transmitting specific ions...-->
 
         <Dynamics>
 
@@ -1827,7 +1797,8 @@
             	<Case condition="caConcExt .leq. 0" value="0"/>
             </ConditionalDerivedVariable>
 
-            
+            <!-- TODO check if needed <DerivedVariable name="iDensity"  dimension="currentDensity" exposure="iDensity" 
+                                                       value="gDensity * (erev - v)" valueCondition="caConcExt .gt. 0" valueIfFalse="0"/>  -->
             <ConditionalDerivedVariable name="iDensity" dimension="currentDensity" exposure="iDensity">
             	<Case condition="caConcExt .gt. 0" value="gDensity * (erev - v)"/>
             	<Case condition="caConcExt .leq. 0" value="0"/>
@@ -1858,17 +1829,18 @@
         <Requirement name="caConc" dimension="concentration"/>
         <Requirement name="caConcExt" dimension="concentration"/>
 
-        
+        <!-- TODO: Ensure Text elements are inherited from base type -->
         <Text name="segmentGroup"/>
 
-        <Text name="ion"/> 
+        <Text name="ion"/> <!-- TODO: Ideally this needs to be a property of ionChannel only!
+                                But it's here as it makes it easier to select channelPopulations transmitting specific ions...-->
         <Dynamics>
 
             <DerivedVariable name="K" dimension="per_voltage"  value="(zCa * F) / (R * temperature)"/>
             <DerivedVariable name="expKv" dimension="none"  value="exp(-1 * K * v)"/>
             <DerivedVariable name="channelf" dimension="none" select="ionChannel/fopen"/>
 
-	    
+	    <!--TODO: used conditional var, just as in nernst above, to circumvent problems with initialization.  -->
             <ConditionalDerivedVariable name="iDensity"  dimension="currentDensity" exposure="iDensity">
 	            <Case condition="caConcExt .gt. 0" value="-1 * channelf * permeability * zCa * F * K * v * ( caConc - (caConcExt * expKv) ) / (1 - expKv)"/>
 	            <Case condition="caConcExt .leq. 0" value="0"/>
@@ -1885,7 +1857,7 @@
         extends="baseCellMembPotCap"
         description="Simple model of a conductance based cell, with no separate morphology element, just an absolute capacitance _C, and a set of channel populations">
 
-        <Parameter name="v0" dimension="voltage"/>  
+        <Parameter name="v0" dimension="voltage"/>  <!--TEMP: needs to be removed... -->
         <Parameter name="thresh" dimension="voltage"/>
 
         <Children name="populations" type="baseChannelPopulation"/>
@@ -1926,7 +1898,7 @@
         extends="baseCellMembPotCap"
         description="TEMPORARY: Point cell with conductances and Ca concentration  info. Not yet fully tested!!!">
 
-        <Parameter name="v0" dimension="voltage"/>  
+        <Parameter name="v0" dimension="voltage"/>  <!--TEMP: needs to be removed... -->
         <Parameter name="thresh" dimension="voltage"/>
 
         <Children name="populations" type="baseChannelPopulation"/>
@@ -2005,7 +1977,7 @@
         <Text name="name"/>
 
         <Dynamics>
-            
+            <!-- TODO: make all of these derived params!! -->
             <DerivedVariable name="radDist" dimension="length" exposure="radDist" select = "distal/radius"/>
 
             <DerivedVariable name="dx" dimension="length" select = "distal/xLength"/>
@@ -2017,7 +1989,7 @@
 
             <DerivedVariable name="length" dimension="length" exposure="length" value = "sqrt(((dx - px) * (dx - px) + (dy - py) * (dy - py) + (dz - pz) * (dz - pz))/(LEN * LEN)) * LEN"/>
 
-            
+            <!--<DerivedVariable name="surfaceArea" dimension="area" exposure="surfaceArea" value = "4 * radDist * radDist * 3.14159265" valueCondition="length .eq. 0" valueIfFalse = "2 * radDist * 3.14159265 * length"/>-->
 
 			<ConditionalDerivedVariable name="surfaceArea" dimension="area" exposure="surfaceArea">
             	<Case condition="length .eq. 0" value="4 * radDist * radDist * 3.14159265"/>
@@ -2036,7 +2008,7 @@
         <Children name="members" type="member"/>
         <Children name="paths" type="path"/>
         <Children name="subTrees" type="subTree"/>
-        <Children name="includes" type="include"/> 
+        <Children name="includes" type="include"/> <!-- TODO deal with <include> used also for including ext NML files... -->
         <Children name="inhomogeneousParameter" type="inhomogeneousParameter"/>
         
         <Text name="neuroLexId"/>
@@ -2060,7 +2032,7 @@
 
 
     <ComponentType name="include" description="Include all members of another _segmentGroup_ in this">
-        <Text name="href"/> 
+        <Text name="href"/> <!--TODO: sort this!!! Needed since <include> is used to include external nml files!! -->
         <Text name="segmentGroup"/>
     </ComponentType>
 
@@ -2134,7 +2106,7 @@
     <ComponentType name="membraneProperties"
        description="Properties specific to the membrane, such as the _populations of channels, _channelDensities, _specificCapacitance, etc.">
         <Child name="specificCapacitance" type="specificCapacitance"/>
-        <Child name="initMembPotential" type="initMembPotential"/>      
+        <Child name="initMembPotential" type="initMembPotential"/>      <!--TEMP: needs to be removed... -->
         <Child name="spikeThresh" type="spikeThresh"/>
         <Children name="populations" type="baseChannelPopulation"/>
         <Children name="channelDensities" type="baseChannelDensity"/>
@@ -2235,8 +2207,8 @@
         <Parameter name="restingConc" dimension="concentration"/>
         <Parameter name="decayConstant" dimension="time"/>
         <Parameter name="shellThickness" dimension="length"/>
-        
-        
+        <!--<Parameter name="radius" dimension="length"/>   needed to calc volume of pools, etc. -->
+        <!--<Exposure name="debugVal" dimension="none"/>-->
 
         <Constant name="Faraday" dimension="charge_per_mole" value="96485.3C_per_mol"/>
         <Constant name="AREA_SCALE" dimension="area" value="1m2"/>
@@ -2244,17 +2216,17 @@
 
         <Requirement name="iCa" dimension="current"/>
 
-        <Text name="ion"/> 
+        <Text name="ion"/> <!-- TODO: check why this isn't inherited from concentrationModel -->
 
         <Dynamics>
 
             <StateVariable name="concentration" exposure="concentration" dimension="concentration"/>
             <StateVariable name="extConcentration" exposure="extConcentration" dimension="concentration"/>
-            
-            
+            <!--<StateVariable name="debugVal" exposure="debugVal" dimension="none"/>-->
+            <!--<DerivedVariable name="debug" dimension="none" value="shell_volume"/>-->
 
-            
-            <DerivedVariable name="effectiveRadius" dimension="length" value="LENGTH_SCALE * sqrt(surfaceArea/(AREA_SCALE * (4 * 3.14159)))"/>  
+            <!-- TODO: make these derived vars! -->
+            <DerivedVariable name="effectiveRadius" dimension="length" value="LENGTH_SCALE * sqrt(surfaceArea/(AREA_SCALE * (4 * 3.14159)))"/>  <!-- needed to calc volume of pools, etc. -->
             <DerivedVariable name="innerRadius" dimension="length" value="effectiveRadius - shellThickness"/>
 
             <DerivedVariable name="shellVolume" dimension="volume" value="(4 * (effectiveRadius * effectiveRadius * effectiveRadius) * 3.14159 / 3) - (4 * (innerRadius * innerRadius * innerRadius) * 3.14159 / 3)"/>
@@ -2287,7 +2259,7 @@
         <Requirement name="iCa" dimension="current"/>
         <Requirement name="surfaceArea" dimension="area"/>
     
-        <Text name="species"/> 
+        <Text name="species"/> <!-- TODO: check why this isn't inherited from concentrationModel -->
 
         <Dynamics>
 
@@ -2319,7 +2291,7 @@
         <Exposure name="concentration" dimension="concentration"/>
         <Exposure name="extConcentration" dimension="concentration"/>
 
-        <Text name="ion"/> 
+        <Text name="ion"/> <!-- TODO: this should be in id!!! -->
 
         <Dynamics>
 
@@ -2372,7 +2344,7 @@
 
             <DerivedVariable name="debug" dimension="none" select="biophysicalProperties/membraneProperties/totChanCurrent"/>
             
-            
+            <!--TODO replace this with just using first segment!!-->
             <DerivedVariable name="surfaceArea" exposure="surfaceArea" dimension="area" select="morphology/segments[*]/surfaceArea" reduce="add"/>
             
             <DerivedVariable name="totSpecCap" dimension="specificCapacitance" exposure="totSpecCap" select="biophysicalProperties/totSpecCap"/>
@@ -2483,7 +2455,9 @@
                     <EventOut port="spike"/>
                     <Transition regime="refractory" />
                 </OnCondition>
-          
+          <!--<OnEvent port="in">
+            <StateAssignment variable="v" value="v + deltaV"/>
+          </OnEvent>-->
             </Regime>
 
         </Dynamics>
@@ -2494,7 +2468,7 @@
     <ComponentType name="baseIafCapCell"
         extends="baseCellMembPotCap"
         description="Base Type for all Integrate and Fire cells with a capacitance _C, threshold _thresh and reset membrane potential _reset">
-        <Parameter name="thresh" dimension="voltage"/>  
+        <Parameter name="thresh" dimension="voltage"/>  <!-- These are repeated from baseIaf since there can't yet be multiple inheritance -->
         <Parameter name="reset" dimension="voltage"/>
     </ComponentType>
 
@@ -2543,7 +2517,7 @@
             <StateVariable name="v" exposure="v" dimension="voltage"/>
             <StateVariable name="lastSpikeTime" dimension="time"/>
 
-            
+            <!-- iSyn and iMemb value is meaningless in the refractory regime -->
             <DerivedVariable name="iSyn" dimension="current" exposure="iSyn" select="synapses[*]/i" reduce="add" />
             <DerivedVariable name="iMemb" dimension="current" exposure="iMemb" value="leakConductance * (leakReversal - v) + iSyn"/>
 
@@ -2578,14 +2552,14 @@
         extends="baseCellMembPot"
         description="Cell based on the model of Izhikevich, see http://izhikevich.org/publications/spikes.htm">
 
-        <Parameter name="v0" dimension="voltage"/>  
+        <Parameter name="v0" dimension="voltage"/>  <!--TEMP: needs to be removed... -->
         <Parameter name="a" dimension="none"/>
         <Parameter name="b" dimension="none"/>
         <Parameter name="c" dimension="none"/>
         <Parameter name="d" dimension="none"/>
         <Parameter name="thresh" dimension="voltage"/>
 
-    
+    <!-- These are needed to ensure a, b, c, d, U & I remain dimensionless... -->
         <Constant name="MSEC" dimension="time" value="1ms"/>
         <Constant name="MVOLT" dimension="voltage" value="1mV"/>
 
@@ -2656,7 +2630,7 @@
             </OnStart>
 
             <Regime name="refractory">
-                
+                <!-- Note: this is important to change also during the refractory period!! -->
                 <TimeDerivative variable="w" value="(a * (v - EL) - w) / tauw"/>
                 <OnEntry>
                     <StateAssignment variable="lastSpikeTime" value="t" />
@@ -2690,7 +2664,7 @@
 
         <Parameter name="I" dimension="none"/>
 
-        
+        <!-- Needed to ensure V, W & I remain dimensionless... -->
         <Constant name="SEC" dimension="time" value="1s"/>
 
         <Exposure name="W" dimension="none"/>
@@ -2706,23 +2680,14 @@
         </Dynamics>
 
     </ComponentType>
-
-
     
-
-    
-    
-    
-    
-
-
     <ComponentType name="network" description="Network containing _population_s, _projection_s and lists of _explicitConnection_s (either directly between components of the populations or via synapses)">
 
         <Children name="regions" type="region"/>
         <Children name="populations" type="basePopulation"/>
         
         <Children name="projections" type="projection"/>
-        <Children name="synapticConnections" type="explicitConnection"/>  
+        <Children name="synapticConnections" type="explicitConnection"/>  <!-- Connection either directly between cells or to synapse attachment on post cell-->
 
         <Children name="explicitInputs" type="explicitInput"/>
         <Children name="inputs" type="inputList"/>
@@ -2739,6 +2704,7 @@
 
     <ComponentType name="basePopulation" description="A population of cells (anything which extends _baseCell_)">        
         <Child name="notes" type="notes"/>
+        <Child name="property" type="property"/>
         <Child name="annotation" type="annotation"/>
         <ComponentReference name="component" type="baseCell"/>
     </ComponentType>
@@ -2793,7 +2759,7 @@
 
     <ComponentType name="projection"
         description="Projection from one population to another. Currently it's better to define an explicit list of connections, using _explicitConnection_. Work in progress...">
-        
+        <!--TODO: allow more than one...-->
         <Child name="synapseComponent" type="synapseComponent"/>
         <Children name="connections" type="connection"/>
         <ComponentReference name="synapse" type="baseSynapse"/>
@@ -2844,7 +2810,7 @@
             <With instance="from" as="a"/>
             <With instance="to" as="b"/>
             <EventConnection from="a" to="b" receiver="synapse" receiverContainer="destination" sourcePort="sourcePort" targetPort="targetPort"/>
-            
+            <!--<EventConnection from="a" to="b" receiver="synapse"/>-->
         </Structure>
     </ComponentType>
 
@@ -2861,9 +2827,9 @@
         <Structure>
             <With instance="from" as="a"/>
             <With instance="to" as="b"/>
-            
+            <!--<EventConnection from="a" to="b" receiver="synapse" receiverContainer="destination" sourcePort="sourcePort" targetPort="targetPort" delay="delay">-->
             <EventConnection from="a" to="b" receiver="synapse" delay="delay">
-                
+                <!--TODO: put back in! -->
                 <Assign property="weight" value="weight"/>
             </EventConnection>
         </Structure>
@@ -2871,7 +2837,28 @@
     </ComponentType>
 
 
+    <!--   Not yet stable...
+
+    <Component Type name="EventConnectivity">
+        <Child name="Connections" type="ConnectionPattern"/>
+        <Link name="source" type="population"/>
+        <Link name="target" type="population"/>
+    </ComponentType>
+
+    <Component Type name="ConnectionPattern">
+    </ComponentType>
     
+    <Component Type name="AllAll" extends="ConnectionPattern">
+        <Dynamics>
+            <Build>
+                <ForEach instances="../source" as="a">
+                     <ForEach instances="../target" as="b">
+                          <EventConnection from="a" to="b"/>
+                     </ForEach>
+                </ForEach>
+            </Build>
+        </Dynamics>
+    </ComponentType>-->
 
 
     <ComponentType name="explicitInput" description="An explicit input (anything which extends _basePointCurrent_) to a target cell in a population">
@@ -2916,7 +2903,9 @@
 
     </ComponentType>
 
-
+    
+    
+    
     <ComponentType name="Display">
         <Parameter name="xmin" dimension="none"/>
         <Parameter name="xmax" dimension="none"/>
@@ -2933,8 +2922,6 @@
     </ComponentType>
         
 
-
-
     <ComponentType name="Line">
         <Parameter name="scale" dimension="*"/>
          <Parameter name="timeScale" dimension="*"/>
@@ -2945,7 +2932,6 @@
         </Simulation>
     </ComponentType>
 
-    
     
     <ComponentType name="Simulation">
         <Parameter name="length" dimension="time"/>
@@ -2965,6 +2951,7 @@
             <Run component="target" variable="t" increment="step" total="length"/>
         </Simulation>
     </ComponentType>
+    
     
     <ComponentType name="OutputFile">
     	
@@ -2986,5 +2973,4 @@
             <Record quantity="quantity"/>
         </Simulation>
     </ComponentType>
-
-       
+    
