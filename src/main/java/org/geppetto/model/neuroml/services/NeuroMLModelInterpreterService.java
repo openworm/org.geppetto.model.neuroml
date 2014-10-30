@@ -328,8 +328,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		AspectNode aspectNode = new AspectNode(parentAspectNode.getId());
 		aspectNode.setParent(entity);
 		aspectNode.setId(parentAspectNode.getId());
-		aspectNode.setModelInterpreter(parentAspectNode.getModelInterpreter());
-		aspectNode.setModel(parentAspectNode.getModel());
 		entity.getAspects().add(aspectNode);
 		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
 		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
