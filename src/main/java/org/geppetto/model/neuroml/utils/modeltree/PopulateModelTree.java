@@ -47,12 +47,14 @@ import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
+import org.geppetto.core.model.runtime.FunctionNode;
 import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.neuroml.export.info.InfoTreeCreator;
+import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotNode;
 import org.neuroml.model.AdExIaFCell;
@@ -128,6 +130,11 @@ public class PopulateModelTree {
 			    }
 			    else if (valueProperties instanceof PlotNode) {
 					
+				}
+			    else if (valueProperties instanceof ExpressionNode) {
+			    	FunctionNode  functionNode = new FunctionNode(keyProperties, keyProperties.replace(" ", ""));
+					functionNode.setExpression(((ExpressionNode)valueProperties).getExpression());
+					summaryElementList.add(functionNode);
 				}
 			    else if (valueProperties instanceof InfoNode) {
 			    	CompositeNode subSummaryElementNode = new CompositeNode(keyProperties.replace(" ", ""), keyProperties);

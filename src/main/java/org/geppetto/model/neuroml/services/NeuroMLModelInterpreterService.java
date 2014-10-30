@@ -62,7 +62,6 @@ import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.VisualObjectReferenceNode;
 import org.geppetto.core.model.simulation.ConnectionType;
-import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
 import org.geppetto.core.utilities.URLReader;
 import org.geppetto.core.utilities.VariablePathSerializer;
@@ -292,6 +291,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 
 	private void createConnections(Network network, AspectNode aspectNode) throws ModelInterpreterException{
  		ModelWrapper model =((ModelWrapper) aspectNode.getModel());
+ 		String aspectNodeName = aspectNode.getName();
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) model.getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
 		
 		for (Projection projection : network.getProjection()){
@@ -300,8 +300,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				ConnectionNode connectionNodeFrom = new ConnectionNode(projection.getId() + connection.getId());
 				ConnectionNode connectionNodeTo = new ConnectionNode(projection.getId() + connection.getId());
 				
-				connectionNodeFrom.setName(PopulateGeneralModelTreeUtils.getUniqueName(Resources.CONNECTIONS.get(), projection.getId() + " - "+ connection.getId()));
-				connectionNodeTo.setName(PopulateGeneralModelTreeUtils.getUniqueName(Resources.CONNECTIONS.get(), projection.getId() + " - "+ connection.getId()));
+				connectionNodeFrom.setName(PopulateGeneralModelTreeUtils.getUniqueName(Resources.CONNECTIONORIGIN.get(), projection.getId() + " - "+ connection.getId()));
+				connectionNodeTo.setName(PopulateGeneralModelTreeUtils.getUniqueName(Resources.CONNECTIONDESTINATION.get(), projection.getId() + " - "+ connection.getId()));
 
 				//Get connections entities
 				String preCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPreCellId());
@@ -309,11 +309,28 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				EntityNode entityNodeFrom = mapping.get(VariablePathSerializer.getArrayName(projection.getPresynapticPopulation(), preCellId));
 				EntityNode entityNodeTo = mapping.get(VariablePathSerializer.getArrayName(projection.getPostsynapticPopulation(), postCellId));
 				
+				//Extract the aspect from the origin and destinity
+				AspectNode aspectNodeFrom = null;
+				AspectNode aspectNodeTo = null;
+				for (AspectNode aspectNodeItem : entityNodeFrom.getAspects()){
+					if (aspectNodeItem.getId().equals(aspectNodeName)){
+						aspectNodeFrom = aspectNodeItem;
+						break;
+					}
+				}
+				for (AspectNode aspectNodeItem : entityNodeTo.getAspects()){
+					if (aspectNodeItem.getId().equals(aspectNodeName)){
+						aspectNodeTo = aspectNodeItem;
+						break;
+					}
+				}
+				
+				//Store PreSegment and PostSegment as VisualReferenceNode 
 				if (connection.getPreSegmentId() != null){
 					VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPreSegmentId());
 					visualObjectReferenceNode.setName(Resources.PRESEGMENT.get());
 					visualObjectReferenceNode.setVisualObjectId(connection.getPreSegmentId().toString());
-					visualObjectReferenceNode.setAspectInstancePath(entityNodeTo.getInstancePath());
+					visualObjectReferenceNode.setAspectInstancePath(aspectNodeFrom.getInstancePath());
 					connectionNodeFrom.addVisualReferencesNode(visualObjectReferenceNode);
 					connectionNodeTo.addVisualReferencesNode(visualObjectReferenceNode);
 				}
@@ -321,21 +338,24 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 					VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPostSegmentId());
 					visualObjectReferenceNode.setName(Resources.POSTSEGMENT.get());
 					visualObjectReferenceNode.setVisualObjectId(connection.getPostSegmentId().toString());
-					visualObjectReferenceNode.setAspectInstancePath(entityNodeFrom.getInstancePath());
+					visualObjectReferenceNode.setAspectInstancePath(aspectNodeTo.getInstancePath());
 					connectionNodeFrom.addVisualReferencesNode(visualObjectReferenceNode);
 					connectionNodeTo.addVisualReferencesNode(visualObjectReferenceNode);
 				}
+				
+				//Store PreFraction and PostFraction as CustomNodes
 				if (connection.getPreFractionAlong() != null){
 					TextMetadataNode prefractionalongNode =  PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPreFractionAlong())));
 					connectionNodeFrom.addCustomNode(prefractionalongNode);
 					connectionNodeTo.addCustomNode(prefractionalongNode);
 				}
 				if (connection.getPostFractionAlong() != null){
-					TextMetadataNode postFractionAlongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPostFractionAlong())));
+					TextMetadataNode postFractionAlongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POSTFRACTIONALONG.get(), Resources.POSTFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPostFractionAlong())));
 					connectionNodeFrom.addCustomNode(postFractionAlongNode);
 					connectionNodeTo.addCustomNode(postFractionAlongNode);
 				}
 			
+				//Store Synapses as CustomNodes
 				CompositeNode synapsesNode;
 				try {
 					synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse)neuroMLAccessUtility.getComponent(projection.getSynapse(), model, Resources.SYNAPSE));
@@ -352,7 +372,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				connectionNodeFrom.setType(ConnectionType.FROM);
 				connectionNodeTo.setType(ConnectionType.TO);
 				
-				//TODO: Do we want to store the path to the entity we are pointing to?
+				//Store Path to entity connection points to and set the parent
 				connectionNodeFrom.setEntityInstancePath(entityNodeTo.getInstancePath());
 				connectionNodeFrom.setParent(entityNodeFrom);
 				connectionNodeTo.setEntityInstancePath(entityNodeFrom.getInstancePath());
@@ -362,6 +382,21 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				entityNodeTo.getConnections().add(connectionNodeTo);
 			}
 		}
+		
+		//Remove because this way of defining synaptic connections is not supported anymore
+//		for (SynapticConnection synapticConnection : network.getSynapticConnection()){
+//			String from = synapticConnection.getFrom();
+//			String to = synapticConnection.getTo();
+//			
+//			String preCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(from);
+//			String postCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(to);
+//			
+//			synapticConnection.getSynapse();
+//			
+//			//TODO: This is still working?
+//			synapticConnection.getDestination();
+//		}
+		
 	}
 	
 	/**

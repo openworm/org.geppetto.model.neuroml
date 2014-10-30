@@ -83,7 +83,8 @@ public class NeuroMLAccessUtility
 				try {
 					component = getComponentById(componentId, model, componentType);
 				} catch (ContentError e1) {
-					throw new ModelInterpreterException("Can't find the componet " + componentId);
+					//throw new ModelInterpreterException("Can't find the componet " + componentId);
+					return null;
 				}
 			}
 		}	
@@ -91,7 +92,8 @@ public class NeuroMLAccessUtility
 		if(component == null)
 		{
 			// sorry no luck!
-			throw new ModelInterpreterException("Can't find the componet " + componentId);
+			//throw new ModelInterpreterException("Can't find the componet " + componentId);
+			return null;
 		}
 		return component;
 	}

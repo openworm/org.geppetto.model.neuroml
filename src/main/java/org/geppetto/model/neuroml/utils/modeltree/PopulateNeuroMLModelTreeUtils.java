@@ -107,6 +107,7 @@ import org.neuroml.model.SpikeThresh;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.SynapticConnection;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 
 
@@ -789,6 +790,15 @@ public class PopulateNeuroMLModelTreeUtils {
 		if (annotation != null){
 			CompositeNode annotationNode = new CompositeNode(Resources.ANOTATION.getId(), Resources.ANOTATION.get());
 			for (Element element : annotation.getAny()){
+				for (int i=0; i < element.getChildNodes().getLength(); i++){
+					Node node = element.getChildNodes().item(i);
+					if (node.getLocalName() == "Description"){
+						for (int j=0; j < element.getChildNodes().getLength(); j++){
+							Node subNode = element.getChildNodes().item(j);
+//							if (subNode.getNodeName() == )
+						}
+					}
+				}
 				annotationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ELEMENT.get(), Resources.ELEMENT.getId(),  new StringValue(element.getTextContent())));
 			}
 			standaloneChildren.add(annotationNode);
