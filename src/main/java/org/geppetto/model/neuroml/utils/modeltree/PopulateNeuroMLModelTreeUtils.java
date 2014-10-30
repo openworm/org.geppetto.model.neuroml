@@ -107,6 +107,7 @@ import org.neuroml.model.SpikeThresh;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.SynapticConnection;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 
@@ -792,14 +793,15 @@ public class PopulateNeuroMLModelTreeUtils {
 			for (Element element : annotation.getAny()){
 				for (int i=0; i < element.getChildNodes().getLength(); i++){
 					Node node = element.getChildNodes().item(i);
-					if (node.getLocalName() == "Description"){
-						for (int j=0; j < element.getChildNodes().getLength(); j++){
-							Node subNode = element.getChildNodes().item(j);
-//							if (subNode.getNodeName() == )
+					if (node.getLocalName() != null && node.getLocalName().equals("Description")){
+						//TODO: Still need to extract about from node component
+						CompositeNode descriptionNode = new CompositeNode(Resources.DESCRIPTION.getId(), Resources.DESCRIPTION.get());
+						for (int j=0; j < node.getChildNodes().getLength(); j++){
+							descriptionNode.addChild(createAnnotationChild(node.getChildNodes().item(j)));	
 						}
+						annotationNode.addChild(descriptionNode);
 					}
 				}
-				annotationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ELEMENT.get(), Resources.ELEMENT.getId(),  new StringValue(element.getTextContent())));
 			}
 			standaloneChildren.add(annotationNode);
 		}
@@ -808,6 +810,35 @@ public class PopulateNeuroMLModelTreeUtils {
 		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.METAID.get(), Resources.METAID.getId(),  new StringValue(standaloneComponent.getMetaid())));
 		
 		return standaloneChildren;
+	}
+
+	private CompositeNode createAnnotationChild(Node subNode) {
+		if (subNode.getLocalName() != null){
+			CompositeNode compositeNode = new CompositeNode(subNode.getLocalName(), subNode.getLocalName());
+	
+			for (int k=0; k < subNode.getChildNodes().getLength(); k++){
+				Node subsubNode = subNode.getChildNodes().item(k);
+				if (subsubNode.getLocalName() != null && subsubNode.getLocalName().equals("Bag")){
+					for (int l=0; l < subsubNode.getChildNodes().getLength(); l++){
+						Node subsubsubNode = subsubNode.getChildNodes().item(l);
+						NamedNodeMap nnm = subsubsubNode.getAttributes();
+						if (nnm != null && nnm.getLength() > 0){
+							for (int m=0; m < nnm.getLength(); m++){
+								Node nnmNode = nnm.item(m);
+								if (nnmNode.getLocalName().equals("resource")){
+									compositeNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.RESOURCE.get(), Resources.RESOURCE.getId(), new StringValue(nnmNode.getNodeValue())));
+								}
+							}
+						}
+						else if (subsubsubNode.getLocalName() != null && subsubsubNode.getLocalName().equals("li")){
+							compositeNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ELEMENT.get(), Resources.ELEMENT.getId(), new StringValue(subsubsubNode.getTextContent())));
+						}
+					}
+				}
+			}
+			return compositeNode;
+		}
+		return null;
 	}
 	
 	public Collection<ANode> createBaseChildren(Base baseComponent){

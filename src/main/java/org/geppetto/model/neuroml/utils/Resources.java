@@ -144,7 +144,9 @@ public enum Resources
 	POSTSEGMENT("Postsegment", "Postsegment"),
 	PREFRACTIONALONG("Prefraction Along", "Prefractionalong"),
 	POSTFRACTIONALONG("Postfraction Along", "Postfractionalong"),
-	SUMMARY("Summary", "Summary");
+	SUMMARY("Summary", "Summary"),
+	RESOURCE("Resource", "Resource"),
+	;
 	
 	private String _value;
 	private String _id;
