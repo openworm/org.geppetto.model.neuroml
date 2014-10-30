@@ -88,12 +88,10 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 			String lemsString = reader.read(url);
 
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			//long start = System.currentTimeMillis();
 			ILEMSDocument document = lemsReader.readModel(lemsString);
-			//System.out.println(System.currentTimeMillis() - start);
+			
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
-
 			// two different representation of the same file, one used to
 			// simulate the other used to visualize
 			if(reader.getNeuroMLs().size() == 1)
@@ -104,6 +102,7 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 			{
 				model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, reader.getNeuroMLs());
 			}
+			//TODO: This need to be changed (BaseCell, String)
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
 			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);

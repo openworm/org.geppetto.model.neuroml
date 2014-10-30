@@ -5,6 +5,7 @@ package org.geppetto.model.neuroml.utils;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,8 @@ public class OptimizedLEMSReader
 	private boolean _neuroMLIncluded = false;
 	private boolean _simulationIncluded = false;
 	private Map<String,NeuroMLDocument> _neuroMLs = new HashMap<String,NeuroMLDocument>();
+	private List<String> inclusions = new ArrayList<String>();
+	
 	
 	private String urlBase;
 			
@@ -58,7 +61,7 @@ public class OptimizedLEMSReader
 		{
 			return processLEMSInclusions(URLReader.readStringFromURL(url));
 		}
-		catch(JAXBException e)
+		catch(JAXBException | NeuroMLException e)
 		{
 			throw new IOException(e);
 		}
@@ -73,7 +76,7 @@ public class OptimizedLEMSReader
 	 */
 	public String processLEMSInclusions(String lemsString) throws IOException, JAXBException, NeuroMLException
 	{
-		return processLEMSInclusions(lemsString, true);
+		return processLEMSInclusions(lemsString, false);
 	}	
 	/**
 	 * @param lemsString
@@ -86,7 +89,7 @@ public class OptimizedLEMSReader
 	{
 		String processedLEMSString = lemsString;
 		String includeClause = "Include "; 
-		if (!includeNeuroml){
+		if (includeNeuroml){
 			includeClause = "include href";
 		}
 		
@@ -126,23 +129,27 @@ public class OptimizedLEMSReader
 				if(!_simulationIncluded)
 				{
 					content = URLReader.readStringFromURL(this.getClass().getResource("/SIMULATION"));
-					
-					
 					_simulationIncluded = true;
 				}
 			}
 			else
 			{
 				try {
-					String s=URLReader.readStringFromURL(url);
-					if(url.toExternalForm().endsWith("nml"))
-					{
-						//it's a neuroML file
-						NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-						NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
-						_neuroMLs.put(url.getFile(), neuroml);
+					if (!inclusions.contains(urlPath)){
+						inclusions.add(urlPath);
+						String s=URLReader.readStringFromURL(url);
+						if(url.toExternalForm().endsWith("nml"))
+						{
+							//it's a neuroML file
+							NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+							NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
+							_neuroMLs.put(url.getFile(), neuroml);
+						}
+						content = trimOuterElement(processLEMSInclusions(s, includeNeuroml));
 					}
-					content = trimOuterElement(processLEMSInclusions(s, includeNeuroml));
+					else{
+						content = "";
+					}
 				} catch (IOException e) {
 					_logger.warn(e.toString());
 					content = "";
@@ -241,4 +248,8 @@ public class OptimizedLEMSReader
 		return _neuroMLs;
 	}
 
+	public void setInclusions(List<String> inclusions){
+		this.inclusions = inclusions;
+	}
+	
 }
