@@ -13,6 +13,21 @@
 	</properties>
 	<dependencies>
 		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.9.13</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.13</version>
+		</dependency>
+		<dependency>
+ 			<groupId>org.apache.velocity</groupId>
+ 			<artifactId>velocity</artifactId>
+ 			<version>1.7</version>
+ 		</dependency>
+		<dependency>
 			<groupId>org.neuroml.model</groupId>
 			<artifactId>org.neuroml.model</artifactId>
 			<version>1.4.0</version>

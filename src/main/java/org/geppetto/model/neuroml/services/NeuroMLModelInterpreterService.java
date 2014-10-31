@@ -331,28 +331,28 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 					visualObjectReferenceNode.setName(Resources.PRESEGMENT.get());
 					visualObjectReferenceNode.setVisualObjectId(connection.getPreSegmentId().toString());
 					visualObjectReferenceNode.setAspectInstancePath(aspectNodeFrom.getInstancePath());
-					connectionNodeFrom.addVisualReferencesNode(visualObjectReferenceNode);
-					connectionNodeTo.addVisualReferencesNode(visualObjectReferenceNode);
+					connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
+					connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
 				}
 				if (connection.getPostSegmentId() != null){
 					VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPostSegmentId());
 					visualObjectReferenceNode.setName(Resources.POSTSEGMENT.get());
 					visualObjectReferenceNode.setVisualObjectId(connection.getPostSegmentId().toString());
 					visualObjectReferenceNode.setAspectInstancePath(aspectNodeTo.getInstancePath());
-					connectionNodeFrom.addVisualReferencesNode(visualObjectReferenceNode);
-					connectionNodeTo.addVisualReferencesNode(visualObjectReferenceNode);
+					connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
+					connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
 				}
 				
 				//Store PreFraction and PostFraction as CustomNodes
 				if (connection.getPreFractionAlong() != null){
 					TextMetadataNode prefractionalongNode =  PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPreFractionAlong())));
-					connectionNodeFrom.addCustomNode(prefractionalongNode);
-					connectionNodeTo.addCustomNode(prefractionalongNode);
+					connectionNodeFrom.getCustomNodes().add(prefractionalongNode);
+					connectionNodeTo.getCustomNodes().add(prefractionalongNode);
 				}
 				if (connection.getPostFractionAlong() != null){
 					TextMetadataNode postFractionAlongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POSTFRACTIONALONG.get(), Resources.POSTFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPostFractionAlong())));
-					connectionNodeFrom.addCustomNode(postFractionAlongNode);
-					connectionNodeTo.addCustomNode(postFractionAlongNode);
+					connectionNodeFrom.getCustomNodes().add(postFractionAlongNode);
+					connectionNodeTo.getCustomNodes().add(postFractionAlongNode);
 				}
 			
 				//Store Synapses as CustomNodes
@@ -362,8 +362,9 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				} catch (ContentError | ModelInterpreterException e) {
 					throw new ModelInterpreterException(e);
 				}
-				connectionNodeFrom.addCustomNode(synapsesNode);
-				connectionNodeTo.addCustomNode(synapsesNode);
+				connectionNodeFrom.getCustomNodes().add(synapsesNode);
+				connectionNodeTo.getCustomNodes().add(synapsesNode);
+				synapsesNode.setParent(connectionNodeFrom);
 				
 				
 				//TODO: What shall we do with this Id?
