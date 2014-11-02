@@ -49,6 +49,7 @@ public class NeuroMLAccessUtility
 //	public static final String LEMS_ID_INCLUSIONS = "lemsInclusions";
 //	public static final String DISCOVERED_NODES = "discovered_nodes";
 	public static final String DISCOVERED_NESTED_COMPONENTS_ID = "discoveredNestedComponents";
+	public static final String CELL_SUBENTITIES_MAPPING_ID = "cellEntitiesMapping";
 	
 	private LEMSAccessUtility lemsAccessUtility = new LEMSAccessUtility();
 	

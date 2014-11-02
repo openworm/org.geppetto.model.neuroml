@@ -162,6 +162,7 @@ public class PopulateModelTree {
 //		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
 		
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
+		Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
 		
 		List<String> _discoveredNestedComponentsId = ((ArrayList<String>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID));
 		
@@ -172,8 +173,9 @@ public class PopulateModelTree {
 		populateNeuroMLModelTreeUtils.setModel((ModelWrapper) model);
 		
 		try {
-//			EntityNode entityNode = mapping.get(modelTree.getParent().getParent().getId());
-//			if (entityNode == null){
+			String entityId = modelTree.getParent().getParent().getId();
+			EntityNode subEntityNode = mapping.get(entityId);
+			if (subEntityNode == null){
 
 				//TODO: Shall we go through all the stand alone element or check the lem component?
 			
@@ -190,51 +192,21 @@ public class PopulateModelTree {
 				/**
 		 		 * Generate Model Tree for Subentities (We don't as network as it has been implicit added through the entities structure)
 		 		 */
-				for(Network n : neuroml.getNetwork()){
-					//Iterate through the entities in order to fill the model document
-//					Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
-					
-					for(Population p : n.getPopulation()){
-						PopulationTypes populationType = p.getType();
-
-						BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
-						if(populationType != null && populationType.equals(PopulationTypes.POPULATION_LIST)){
-
-							for(int i=0; i < p.getInstance().size(); i++)
-							{
-								String id = VariablePathSerializer.getArrayName(p.getId(), i);
-								EntityNode entityNode = mapping.get(id);
-								
-								for (AspectNode aspectNode : entityNode.getAspects()){
-									if (aspectNode.getId() == modelTree.getParent().getId()){
-										AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-										modelTreeSubEntity.addChildren(populateNeuroMLModelTreeUtils.createCellNode(cell).getChildren());
-										modelTreeSubEntity.setModified(true);
-									}
-								}
-							}
+				for (Map.Entry<String, BaseCell> entry : cellMapping.entrySet()) {
+				    String key = entry.getKey();
+				    BaseCell value = entry.getValue();
+				    
+				    EntityNode entityNode = mapping.get(key);
+				    for (AspectNode aspectNode : entityNode.getAspects()){
+						if (aspectNode.getId() == modelTree.getParent().getId()){
+							AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+							modelTreeSubEntity.addChildren(populateNeuroMLModelTreeUtils.createCellNode(value).getChildren());
+							modelTreeSubEntity.setModified(true);
 						}
-						else{
-							int size = p.getSize().intValue();
-							for(int i = 0; i < size; i++)
-							{
-								String id = VariablePathSerializer.getArrayName(p.getId(), i);
-								EntityNode entityNode = mapping.get(id);
-								if (entityNode != null){
-									for (AspectNode aspectNode : entityNode.getAspects()){
-										if (aspectNode.getId() == modelTree.getParent().getId()){
-											AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-											modelTreeSubEntity.addChildren(populateNeuroMLModelTreeUtils.createCellNode(cell).getChildren());
-											modelTreeSubEntity.setModified(true);
-										}
-									}
-								}
-							}
-						}
-					}
+				    }	
 				}
-				
-				//TODO: We are not adding the network as it is implicitly in the entities/subentities (unless there is only one cell) structure but we can be lossing some info
+								
+				//TODO: We are not adding the network as it is implicitly in the entities/subentities (unless there is only one cell) structure but we can be losing some info
 				if (mapping.size() == 1){
 					for(Network n : neuroml.getNetwork()){
 						CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createNetworkNode(n, modelTree);
@@ -250,7 +222,6 @@ public class PopulateModelTree {
 				/**
 		 		 * CELLS
 		 		 */
-//				getCells(model);
 		 		List<Cell> cells = neuroml.getCell();
 		 		List<AdExIaFCell> adExIaFCells = neuroml.getAdExIaFCell();
 		 		List<IafCell> iaFCells = neuroml.getIafCell();
@@ -415,23 +386,6 @@ public class PopulateModelTree {
 //		 			}
 //		 		}
 		 		
-//			}
-//			else{
-		 		//TODO: Implement getModelTree for subentities
-		 		//TODO: It can be useful to implement a map between subentity and cell
-//				int endIndex = entityNode.getId().lastIndexOf("_");
-//			    if (endIndex != -1)  
-//			    {
-//			        String newstr = entityNode.getId().substring(0, endIndex);
-//			    }
-				
-				//neuroMLAccessUtility.getComponent(componentId, model, Resources.CELL);
-//				for (CompositeNode compositeNode : getCells(model)){
-//	 				discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
-//				}
-//			}
-			
-			
 		 		for (Map.Entry<String, ANode> entry : _discoveredNodesInNeuroML.entrySet()) {
 		 		    String key = entry.getKey();
 		 		    
@@ -446,8 +400,15 @@ public class PopulateModelTree {
 		 			   modelTree.addChild(entry.getValue());
 		 		   }
 		 		}
-	 		
-	 		
+		 		
+			}
+			else{
+				BaseCell cell = cellMapping.get(entityId);
+				
+				modelTree.addChildren(populateNeuroMLModelTreeUtils.createCellNode(cell).getChildren());
+				modelTree.setModified(true);
+			}
+			
 	 		_populated = true;
 		} catch (Exception e) {
 			_populated = false;

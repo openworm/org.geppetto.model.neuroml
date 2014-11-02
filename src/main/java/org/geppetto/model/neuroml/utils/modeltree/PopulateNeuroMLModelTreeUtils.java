@@ -345,14 +345,16 @@ public class PopulateNeuroMLModelTreeUtils {
 			List<Species> species = intracellularProperties.getSpecies();
 			
 			// Resistivity
-			CompositeNode resistivitiesNode = new CompositeNode(Resources.RESISTIVITY.getId(), Resources.RESISTIVITY.get());
-			for(int i = 0; i < resistivities.size(); i++)
-			{
-				resistivitiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.RESISTIVITY.get(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.RESISTIVITY.getId(), i), resistivities.get(i).getValue()));
+			if (resistivities != null && resistivities.size() > 0){
+				CompositeNode resistivitiesNode = new CompositeNode(Resources.RESISTIVITY.getId(), Resources.RESISTIVITY.get());
+				for(int i = 0; i < resistivities.size(); i++)
+				{
+					resistivitiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.RESISTIVITY.get(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.RESISTIVITY.getId(), i), resistivities.get(i).getValue()));
+				}
+				intracellularPropertiesNode.addChild(resistivitiesNode);
 			}
-			intracellularPropertiesNode.addChild(resistivitiesNode);
 			
-			if (species != null){
+			if (species != null && species.size() > 0){
 				CompositeNode speciesNode = new CompositeNode(Resources.SPECIES.getId(), Resources.SPECIES.get());
 				speciesNode.addChildren(createSpeciesNode(species));
 				intracellularPropertiesNode.addChild(speciesNode);
@@ -645,41 +647,6 @@ public class PopulateNeuroMLModelTreeUtils {
 			if(populationType != null){
 				populationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POPULATION_TYPE.get(), Resources.POPULATION_TYPE.getId(),  new StringValue(populationType.value())));
 			}	
-
-//			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
-//			if(populationType != null && populationType.equals(PopulationTypes.POPULATION_LIST)){
-//
-//				for(int i=0; i < p.getInstance().size(); i++)
-//				{
-//					String id = VariablePathSerializer.getArrayName(p.getId(), i);
-//					EntityNode entityNode = mapping.get(id);
-//					
-//					for (AspectNode aspectNode : entityNode.getAspects()){
-//						if (aspectNode.getId() == modelTree.getParent().getId()){
-//							AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-//							modelTreeSubEntity.addChildren(createCellNode(cell).getChildren());
-//							modelTreeSubEntity.setModified(true);
-//						}
-//					}
-//				}
-//			}
-//			else{
-//				int size = p.getSize().intValue();
-//				for(int i = 0; i < size; i++)
-//				{
-//					String id = VariablePathSerializer.getArrayName(p.getId(), i);
-//					EntityNode entityNode = mapping.get(id);
-//					if (entityNode != null){
-//						for (AspectNode aspectNode : entityNode.getAspects()){
-//							if (aspectNode.getId() == modelTree.getParent().getId()){
-//								AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-//								modelTreeSubEntity.addChildren(createCellNode(cell).getChildren());
-//								modelTreeSubEntity.setModified(true);
-//							}
-//						}
-//					}
-//				}
-//			}
 			
 			//TODO: Just reading the number of instances and displaying as a text metadata node 				
 			List<Instance> instanceList = p.getInstance();
@@ -688,12 +655,7 @@ public class PopulateNeuroMLModelTreeUtils {
 			}
 			networkNode.addChild(populationNode);
 		}
-		
-		List<SynapticConnection> synapticConnections = n.getSynapticConnection();
-		for(SynapticConnection s : synapticConnections){
-			
-		}
-		
+				
 		return networkNode;
 	}
 
