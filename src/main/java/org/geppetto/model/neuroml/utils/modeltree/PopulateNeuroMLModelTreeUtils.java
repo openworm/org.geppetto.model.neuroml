@@ -288,7 +288,8 @@ public class PopulateNeuroMLModelTreeUtils {
 				
 				// Ion Channel
 				IonChannel ionChannel = (IonChannel) neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, Resources.ION_CHANNEL);
-				channelDensityNode.addChild(createChannelNode(ionChannel));
+				CompositeNode channelNode = createChannelNode(ionChannel);
+				channelDensityNode.addChild(channelNode);
 				
 				// Passive conductance density				
 				channelDensityNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY.get(), Resources.COND_DENSITY.getId(), channelDensity.getCondDensity()));

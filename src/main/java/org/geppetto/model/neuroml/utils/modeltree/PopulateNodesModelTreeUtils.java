@@ -52,7 +52,7 @@ public class PopulateNodesModelTreeUtils {
 	
 	public static TextMetadataNode createTextMetadataNode(String name, String id, AValue aValue){
 		if (aValue.getStringValue() != null && aValue.getStringValue() != ""){
-			TextMetadataNode textMetadataNode = new TextMetadataNode(name, id);
+			TextMetadataNode textMetadataNode = new TextMetadataNode(name, id,aValue);
 			textMetadataNode.setValue(aValue);
 			return textMetadataNode;
 		}
