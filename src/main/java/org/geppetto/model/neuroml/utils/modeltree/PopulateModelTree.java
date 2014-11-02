@@ -112,38 +112,39 @@ public class PopulateModelTree {
 	private List<ANode> createInfoNode(InfoNode infoNode) throws ModelInterpreterException {
 		List<ANode> summaryElementList = new ArrayList<ANode>();
 		    for (Map.Entry<String, Object> properties : ((InfoNode)infoNode).getProperties().entrySet()) {
-		    	
 			    String keyProperties = properties.getKey();
 			    Object valueProperties = properties.getValue();
+			    if (!keyProperties.equals("ID")){
 			    
-			    if (valueProperties == null){
-			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue("")));
-			    }
-			    else if (valueProperties instanceof String){
-			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue((String)valueProperties)));
-			    }
-			    else if (valueProperties instanceof BigInteger) {
-			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue(((BigInteger)valueProperties).toString())));
-			    }
-			    else if (valueProperties instanceof Integer) {
-			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue(Integer.toString((Integer)valueProperties))));
-			    }
-			    else if (valueProperties instanceof PlotNode) {
-					
-				}
-			    else if (valueProperties instanceof ExpressionNode) {
-			    	FunctionNode  functionNode = new FunctionNode(keyProperties, keyProperties.replace(" ", ""));
-					functionNode.setExpression(((ExpressionNode)valueProperties).getExpression());
-					summaryElementList.add(functionNode);
-				}
-			    else if (valueProperties instanceof InfoNode) {
-			    	CompositeNode subSummaryElementNode = new CompositeNode(keyProperties.replace(" ", ""), keyProperties);
-			    	subSummaryElementNode.addChildren(createInfoNode((InfoNode)valueProperties));
-			    	summaryElementList.add(subSummaryElementNode);
-				}
-			    else{
-			    	throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());
-			    }
+				    if (valueProperties == null){
+				    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"), new StringValue("")));
+				    }
+				    else if (valueProperties instanceof String){
+				    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"), new StringValue((String)valueProperties)));
+				    }
+				    else if (valueProperties instanceof BigInteger) {
+				    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"), new StringValue(((BigInteger)valueProperties).toString())));
+				    }
+				    else if (valueProperties instanceof Integer) {
+				    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"), new StringValue(Integer.toString((Integer)valueProperties))));
+				    }
+				    else if (valueProperties instanceof PlotNode) {
+						
+					}
+				    else if (valueProperties instanceof ExpressionNode) {
+				    	FunctionNode  functionNode = new FunctionNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"));
+						functionNode.setExpression(((ExpressionNode)valueProperties).getExpression());
+						summaryElementList.add(functionNode);
+					}
+				    else if (valueProperties instanceof InfoNode) {
+				    	CompositeNode subSummaryElementNode = new CompositeNode(keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"), keyProperties);
+				    	subSummaryElementNode.addChildren(createInfoNode((InfoNode)valueProperties));
+				    	summaryElementList.add(subSummaryElementNode);
+					}
+				    else{
+				    	throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());
+				    }
+		    	}
 		    }
 		return summaryElementList;
 	}
