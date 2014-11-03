@@ -33,6 +33,7 @@
 
 package org.geppetto.model.neuroml.utils.modeltree;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -45,6 +46,7 @@ import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.model.runtime.FunctionNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
@@ -55,6 +57,9 @@ import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
+import org.neuroml.export.info.model.ExpressionNode;
+import org.neuroml.export.info.model.InfoNode;
+import org.neuroml.export.info.model.PlotNode;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.AlphaCondSynapse;
 import org.neuroml.model.Annotation;
@@ -610,7 +615,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	}
 	
 	
-	public CompositeNode createNetworkNode(Network n, AspectSubTreeNode modelTree) throws ModelInterpreterException, ContentError {
+	public CompositeNode createNetworkNode(Network n) throws ModelInterpreterException, ContentError {
 
 		CompositeNode networkNode = new CompositeNode(Resources.NETWORK.getId(), Resources.NETWORK.get());
 		
@@ -722,7 +727,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	}	
 	
 	public CompositeNode createPynnSynapseNode(BasePynnSynapse pynnSynapse) throws ContentError, ModelInterpreterException {
-		CompositeNode pynnSynapsesNode = new CompositeNode(pynnSynapse.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.SYNAPSE.get(), pynnSynapse));
+		CompositeNode pynnSynapsesNode = new CompositeNode(pynnSynapse.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.PYNN_SYNAPSE.get(), pynnSynapse));
 		
 		pynnSynapsesNode.addChildren(createStandaloneChildren(pynnSynapse));
 		
@@ -809,6 +814,46 @@ public class PopulateNeuroMLModelTreeUtils {
 			baseChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ID.get(), Resources.ID.getId(),  new StringValue(baseComponent.getId())));
 			baseChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NEUROLEX_ID.get(), Resources.NEUROLEX_ID.getId(),  new StringValue(baseComponent.getNeuroLexId())));
 		return baseChildren;
+	}
+	
+	public List<ANode> createInfoNode(InfoNode infoNode) throws ModelInterpreterException {
+		List<ANode> summaryElementList = new ArrayList<ANode>();
+		    for (Map.Entry<String, Object> properties : ((InfoNode)infoNode).getProperties().entrySet()) {
+			    String keyProperties = properties.getKey();
+			    Object valueProperties = properties.getValue();
+			    if (!keyProperties.equals("ID")){
+			    
+				    if (valueProperties == null){
+				    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"), new StringValue("")));
+				    }
+				    else if (valueProperties instanceof String){
+				    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"), new StringValue((String)valueProperties)));
+				    }
+				    else if (valueProperties instanceof BigInteger) {
+				    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"), new StringValue(((BigInteger)valueProperties).toString())));
+				    }
+				    else if (valueProperties instanceof Integer) {
+				    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"), new StringValue(Integer.toString((Integer)valueProperties))));
+				    }
+				    else if (valueProperties instanceof PlotNode) {
+						
+					}
+				    else if (valueProperties instanceof ExpressionNode) {
+				    	FunctionNode  functionNode = new FunctionNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"));
+						functionNode.setExpression(((ExpressionNode)valueProperties).getExpression());
+						summaryElementList.add(functionNode);
+					}
+				    else if (valueProperties instanceof InfoNode) {
+				    	CompositeNode subSummaryElementNode = new CompositeNode(keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"), keyProperties);
+				    	subSummaryElementNode.addChildren(createInfoNode((InfoNode)valueProperties));
+				    	summaryElementList.add(subSummaryElementNode);
+					}
+				    else{
+				    	throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());
+				    }
+		    	}
+		    }
+		return summaryElementList;
 	}
 
 }

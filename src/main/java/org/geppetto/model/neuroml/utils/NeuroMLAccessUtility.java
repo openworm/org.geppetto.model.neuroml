@@ -13,12 +13,18 @@ import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ANode;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.AdExIaFCell;
+import org.neuroml.model.AlphaCondSynapse;
+import org.neuroml.model.AlphaCurrSynapse;
 import org.neuroml.model.Base;
+import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.BlockingPlasticSynapse;
 import org.neuroml.model.Cell;
 import org.neuroml.model.DecayingPoolConcentrationModel;
+import org.neuroml.model.ExpCondSynapse;
+import org.neuroml.model.ExpCurrSynapse;
 import org.neuroml.model.ExpOneSynapse;
 import org.neuroml.model.ExpTwoSynapse;
+import org.neuroml.model.ExtracellularProperties;
 import org.neuroml.model.FitzHughNagumoCell;
 import org.neuroml.model.FixedFactorConcentrationModel;
 import org.neuroml.model.IafCell;
@@ -118,8 +124,6 @@ public class NeuroMLAccessUtility
 	
 	private Object getComponentById(String componentId, ModelWrapper model, Resources componentType) throws ContentError
 	{
-		
-//		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
 		
 		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS);
@@ -128,220 +132,193 @@ public class NeuroMLAccessUtility
 		}
 		
 		switch (componentType) {
-		case ION_CHANNEL:
-			for (IonChannel ionChannel : doc.getIonChannel()){
-				_discoveredComponents.put(ionChannel.getId(), ionChannel);
-				if(ionChannel.getId().equals(componentId))
-				{
-					return ionChannel;
-				}
-			}
-			for (IonChannelHH ionChannelHH : doc.getIonChannelHH()){
-				_discoveredComponents.put(ionChannelHH.getId(), ionChannelHH);
-				if(ionChannelHH.getId().equals(componentId))
-				{
-					return ionChannelHH;
-				}
-			}
-		case CELL:	
-			
-			for(AdExIaFCell c : doc.getAdExIaFCell())
-			{
-				_discoveredComponents.put(c.getId(), c);
-				if(c.getId().equals(componentId))
-				{
-					return c;
-				}
-			}
-			for(IafCell c : doc.getIafCell())
-			{
-				_discoveredComponents.put(c.getId(), c);
-				if(c.getId().equals(componentId))
-				{
-					return c;
-				}
-			}
-			for(Cell c : doc.getCell())
-			{
-				_discoveredComponents.put(c.getId(), c);
-				if(c.getId().equals(componentId))
-				{
-					return c;
-				}
-			}
-			for(IafRefCell c : doc.getIafRefCell())
-			{
-				_discoveredComponents.put(c.getId(), c);
-				if(c.getId().equals(componentId))
-				{
-					return c;
-				}
-			}
-			for(IafTauRefCell c : doc.getIafTauRefCell())
-			{
-				_discoveredComponents.put(c.getId(), c);
-				if(c.getId().equals(componentId))
-				{
-					return c;
-				}
-			}
-			for(IafTauCell c : doc.getIafTauCell())
-			{
-				_discoveredComponents.put(c.getId(), c);
-				if(c.getId().equals(componentId))
-				{
-					return c;
-				}
-			}
-			for(FitzHughNagumoCell c : doc.getFitzHughNagumoCell())
-			{
-				_discoveredComponents.put(c.getId(), c);
-				if(c.getId().equals(componentId))
-				{
-					return c;
-				}
-			}
-			for(IzhikevichCell c : doc.getIzhikevichCell())
-			{
-				_discoveredComponents.put(c.getId(), c);
-				if(c.getId().equals(componentId))
-				{
-					return c;
-				}
-			}
-			
-		case CONCENTRATION_MODEL:
-			for(FixedFactorConcentrationModel c : doc.getFixedFactorConcentrationModel())
-			{
-				_discoveredComponents.put(c.getId(), c);
-				if(c.getId().equals(componentId))
-				{
-					return c;
-				}
-			}
-			
-			for(DecayingPoolConcentrationModel c : doc.getDecayingPoolConcentrationModel())
-			{
-				_discoveredComponents.put(c.getId(), c);
-				if(c.getId().equals(componentId))
-				{
-					return c;
-				}
-			}
-			
-		case POPULATION:	
-			for(Network n : doc.getNetwork()){
-				for (Population p : n.getPopulation()){
-					if (p.getId().equals(componentId)){
-						return p;
+			case ION_CHANNEL:
+				for (IonChannel ionChannel : doc.getIonChannel()){
+					_discoveredComponents.put(ionChannel.getId(), ionChannel);
+					if(ionChannel.getId().equals(componentId))
+					{
+						return ionChannel;
 					}
 				}
-			}
-			
-		case SYNAPSE:
-			for (ExpTwoSynapse s : doc.getExpTwoSynapse()){
-				_discoveredComponents.put(s.getId(), s);
-				if(s.getId().equals(componentId))
-				{
-					return s;
+				for (IonChannelHH ionChannelHH : doc.getIonChannelHH()){
+					_discoveredComponents.put(ionChannelHH.getId(), ionChannelHH);
+					if(ionChannelHH.getId().equals(componentId))
+					{
+						return ionChannelHH;
+					}
 				}
-			}
-			for (ExpOneSynapse s : doc.getExpOneSynapse()){
-				_discoveredComponents.put(s.getId(), s);
-				if(s.getId().equals(componentId))
+			case CELL:	
+				
+				for(AdExIaFCell c : doc.getAdExIaFCell())
 				{
-					return s;
+					_discoveredComponents.put(c.getId(), c);
+					if(c.getId().equals(componentId))
+					{
+						return c;
+					}
 				}
-			}
-			for (BlockingPlasticSynapse s : doc.getBlockingPlasticSynapse()){
-				_discoveredComponents.put(s.getId(), s);
-				if(s.getId().equals(componentId))
+				for(IafCell c : doc.getIafCell())
 				{
-					return s;
+					_discoveredComponents.put(c.getId(), c);
+					if(c.getId().equals(componentId))
+					{
+						return c;
+					}
 				}
-			}
-			
+				for(Cell c : doc.getCell())
+				{
+					_discoveredComponents.put(c.getId(), c);
+					if(c.getId().equals(componentId))
+					{
+						return c;
+					}
+				}
+				for(IafRefCell c : doc.getIafRefCell())
+				{
+					_discoveredComponents.put(c.getId(), c);
+					if(c.getId().equals(componentId))
+					{
+						return c;
+					}
+				}
+				for(IafTauRefCell c : doc.getIafTauRefCell())
+				{
+					_discoveredComponents.put(c.getId(), c);
+					if(c.getId().equals(componentId))
+					{
+						return c;
+					}
+				}
+				for(IafTauCell c : doc.getIafTauCell())
+				{
+					_discoveredComponents.put(c.getId(), c);
+					if(c.getId().equals(componentId))
+					{
+						return c;
+					}
+				}
+				for(FitzHughNagumoCell c : doc.getFitzHughNagumoCell())
+				{
+					_discoveredComponents.put(c.getId(), c);
+					if(c.getId().equals(componentId))
+					{
+						return c;
+					}
+				}
+				for(IzhikevichCell c : doc.getIzhikevichCell())
+				{
+					_discoveredComponents.put(c.getId(), c);
+					if(c.getId().equals(componentId))
+					{
+						return c;
+					}
+				}
+				
+			case CONCENTRATION_MODEL:
+				for(FixedFactorConcentrationModel c : doc.getFixedFactorConcentrationModel())
+				{
+					_discoveredComponents.put(c.getId(), c);
+					if(c.getId().equals(componentId))
+					{
+						return c;
+					}
+				}
+				
+				for(DecayingPoolConcentrationModel c : doc.getDecayingPoolConcentrationModel())
+				{
+					_discoveredComponents.put(c.getId(), c);
+					if(c.getId().equals(componentId))
+					{
+						return c;
+					}
+				}
+				
+			case POPULATION:	
+				for(Network n : doc.getNetwork()){
+					for (Population p : n.getPopulation()){
+						if (p.getId().equals(componentId)){
+							return p;
+						}
+					}
+				}
+				
+			case SYNAPSE:
+				for (ExpTwoSynapse s : doc.getExpTwoSynapse()){
+					_discoveredComponents.put(s.getId(), s);
+					if(s.getId().equals(componentId))
+					{
+						return s;
+					}
+				}
+				for (ExpOneSynapse s : doc.getExpOneSynapse()){
+					_discoveredComponents.put(s.getId(), s);
+					if(s.getId().equals(componentId))
+					{
+						return s;
+					}
+				}
+				for (BlockingPlasticSynapse s : doc.getBlockingPlasticSynapse()){
+					_discoveredComponents.put(s.getId(), s);
+					if(s.getId().equals(componentId))
+					{
+						return s;
+					}
+				}
+				
+			case EXTRACELLULAR_P:
+			 	for (ExtracellularProperties e : doc.getExtracellularProperties()){
+			 		_discoveredComponents.put(e.getId(), e);
+					if(e.getId().equals(componentId))
+					{
+						return e;
+					}
+		 		}
+			case PYNN_SYNAPSE:
+				for (AlphaCondSynapse s : doc.getAlphaCondSynapse()){
+					_discoveredComponents.put(s.getId(), s);
+					if(s.getId().equals(componentId))
+					{
+						return s;
+					}
+		 			
+		 		}
+		 		for (ExpCondSynapse s : doc.getExpCondSynapse()){
+		 			_discoveredComponents.put(s.getId(), s);
+					if(s.getId().equals(componentId))
+					{
+						return s;
+					}
+		 			
+		 		}
+		 		for (ExpCurrSynapse s : doc.getExpCurrSynapse()){
+		 			_discoveredComponents.put(s.getId(), s);
+					if(s.getId().equals(componentId))
+					{
+						return s;
+					}
+		 			
+		 		}
+		 		for (AlphaCurrSynapse s : doc.getAlphaCurrSynapse()){
+		 			_discoveredComponents.put(s.getId(), s);
+					if(s.getId().equals(componentId))
+					{
+						return s;
+					}
+		 		}
+		 		
+			case BIOPHYSICAL_PROPERTIES:
+				for (BiophysicalProperties b : doc.getBiophysicalProperties()){
+					_discoveredComponents.put(b.getId(), b);
+					if(b.getId().equals(componentId))
+					{
+						return b;
+					}
+		 		}
+				
 		default:
 			return this.lemsAccessUtility.getComponentById(componentId, model);
 		}
 		
 		
 	}
-	
-	
-	/**
-	 * @param componentId
-	 * @param url
-	 * @return
-	 * @throws JAXBException
-	 * @throws MalformedURLException
-	 */
-//	public Base retrieveNeuroMLComponent(String componentId, ResourcesSuffix componentType, ModelWrapper model) throws JAXBException, MalformedURLException
-//	{
-//		URL url = (URL) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.URL_ID);
-//		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-//		boolean attemptConnection = true;
-//		String baseURL = url.getFile();
-//		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
-//		if(url.getFile().endsWith("nml"))
-//		{
-//			baseURL = baseURL.substring(0, baseURL.lastIndexOf("/") + 1);
-//		}
-//		int attempts = 0;
-//		NeuroMLDocument neuromlDocument = null;
-//		while(attemptConnection)
-//		{
-//			try
-//			{
-//				attemptConnection = false;
-//				attempts++;
-//				URL componentURL = new URL(url.getProtocol() + "://" + url.getAuthority() + baseURL + componentId + componentType.get() + ".nml");
-//
-//				neuromlDocument = neuromlConverter.urlToNeuroML(componentURL);
-//
-//				List<? extends Base> components = null;
-//				
-//				switch (componentType) {
-//				case ION_CHANNEL:
-//					components = neuromlDocument.getIonChannel();
-//				default:
-//					break;
-//				}
-//				
-//				if(components != null)
-//				{
-//					
-//					
-//					for(Base c : neuromlDocument.getIonChannel())
-//					{
-//						_discoveredComponents.put(componentId, c);
-//						if(((Base)c).getId().equals(componentId))
-//						{
-//							return c;
-//						}
-//					}
-//				}
-//			}
-//			catch(MalformedURLException e)
-//			{
-//				throw e;
-//			}
-//			catch(UnmarshalException e)
-//			{
-//				if(e.getLinkedException() instanceof IOException)
-//				{
-//					if(attempts < maxAttempts)
-//					{
-//						attemptConnection = true;
-//					}
-//				}
-//			}
-//			catch(Exception e)
-//			{
-//				throw e;
-//			}
-//		}
-//		return null;
-//	}
-	
 }

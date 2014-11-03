@@ -137,7 +137,6 @@ public enum Resources
 	BLOCKCONCENTRATION("Block Concentration", "BlockConcentration"),
 	SCALINGVOLT("Scaling Voltage", "ScalingVolt"),
 	TAUSYN("Tau Syn", "TauSyn"),
-	//CONNECTIONS("Connections", "Connections"),
 	CONNECTIONORIGIN("Connection Origin", "ConnectionOrigin"),
 	CONNECTIONDESTINATION("Connection Destination", "ConnectionDestination"),
 	PRESEGMENT("Presegment", "Presegment"),
@@ -146,7 +145,7 @@ public enum Resources
 	POSTFRACTIONALONG("Postfraction Along", "Postfractionalong"),
 	SUMMARY("Summary", "Summary"),
 	RESOURCE("Resource", "Resource"),
-	;
+	PYNN_SYNAPSE("Pynn Synapse", "PynnSynapse");
 	
 	private String _value;
 	private String _id;
