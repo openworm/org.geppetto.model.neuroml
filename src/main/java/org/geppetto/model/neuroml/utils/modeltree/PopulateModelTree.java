@@ -35,6 +35,7 @@ package org.geppetto.model.neuroml.utils.modeltree;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,7 @@ import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.model.runtime.FunctionNode;
 import org.geppetto.core.model.values.IntValue;
@@ -53,6 +55,11 @@ import org.geppetto.core.model.values.StringValue;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.lemsml.jlems.core.sim.LEMSException;
+import org.lemsml.jlems.core.type.Component;
+import org.lemsml.jlems.core.type.ComponentType;
+import org.lemsml.jlems.core.type.ParamValue;
+import org.neuroml.export.Utils;
 import org.neuroml.export.info.InfoTreeCreator;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
@@ -62,6 +69,8 @@ import org.neuroml.model.AlphaCondSynapse;
 import org.neuroml.model.AlphaCurrSynapse;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
+import org.neuroml.model.BaseConductanceBasedSynapse;
+import org.neuroml.model.BasePynnSynapse;
 import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.BlockingPlasticSynapse;
 import org.neuroml.model.Cell;
@@ -89,7 +98,10 @@ import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Population;
 import org.neuroml.model.PopulationTypes;
 import org.neuroml.model.Region;
+import org.neuroml.model.Standalone;
 import org.neuroml.model.SynapticConnection;
+import org.neuroml.model.util.NeuroMLConverter;
+import org.neuroml.model.util.NeuroMLException;
 
 /**
  * Populates the Model Tree of Aspect
@@ -102,50 +114,9 @@ public class PopulateModelTree {
 
 	private boolean _populated = false;
 	
-	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
-	
 	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils();
 	
 	public PopulateModelTree() {		
-	}
-	
-	private List<ANode> createInfoNode(InfoNode infoNode) throws ModelInterpreterException {
-		List<ANode> summaryElementList = new ArrayList<ANode>();
-		    for (Map.Entry<String, Object> properties : ((InfoNode)infoNode).getProperties().entrySet()) {
-		    	
-			    String keyProperties = properties.getKey();
-			    Object valueProperties = properties.getValue();
-			    
-			    if (valueProperties == null){
-			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue("")));
-			    }
-			    else if (valueProperties instanceof String){
-			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue((String)valueProperties)));
-			    }
-			    else if (valueProperties instanceof BigInteger) {
-			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue(((BigInteger)valueProperties).toString())));
-			    }
-			    else if (valueProperties instanceof Integer) {
-			    	summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(keyProperties, keyProperties.replace(" ", ""), new StringValue(Integer.toString((Integer)valueProperties))));
-			    }
-			    else if (valueProperties instanceof PlotNode) {
-					
-				}
-			    else if (valueProperties instanceof ExpressionNode) {
-			    	FunctionNode  functionNode = new FunctionNode(keyProperties, keyProperties.replace(" ", ""));
-					functionNode.setExpression(((ExpressionNode)valueProperties).getExpression());
-					summaryElementList.add(functionNode);
-				}
-			    else if (valueProperties instanceof InfoNode) {
-			    	CompositeNode subSummaryElementNode = new CompositeNode(keyProperties.replace(" ", ""), keyProperties);
-			    	subSummaryElementNode.addChildren(createInfoNode((InfoNode)valueProperties));
-			    	summaryElementList.add(subSummaryElementNode);
-				}
-			    else{
-			    	throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());
-			    }
-		    }
-		return summaryElementList;
 	}
 	
 	/**
@@ -159,305 +130,142 @@ public class PopulateModelTree {
 	public boolean populateModelTree(AspectSubTreeNode modelTree, ModelWrapper model) throws ModelInterpreterException
 	{		
 		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
-//		Lems lems = (Lems) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.LEMS_ID);
-		
+
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
+		Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
 		
 		List<String> _discoveredNestedComponentsId = ((ArrayList<String>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID));
-		
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
-		
 		HashMap<String, ANode> _discoveredNodesInNeuroML =  new HashMap<String, ANode>();
 		
 		populateNeuroMLModelTreeUtils.setModel((ModelWrapper) model);
 		
 		try {
-//			EntityNode entityNode = mapping.get(modelTree.getParent().getParent().getId());
-//			if (entityNode == null){
+			//Check if it is a entity (parse the whole document) or a subentity (create a component node from the cell element)
+			if (modelTree.getParent().getParent().getParent().getId().equals("scene")){
 
-				//TODO: Shall we go through all the stand alone element or check the lem component?
-			
-				/*
-				 * Generate Summary
-				 */
-				InfoNode infoNode = InfoTreeCreator.createInfoTree(neuroml);
-				if (infoNode != null){
-					CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
-					summaryNode.addChildren(createInfoNode(infoNode));
-					_discoveredNodesInNeuroML.put(Resources.SUMMARY.getId(), summaryNode);
+		 		//Generate Model Tree for Subentities (We don't as network as it has been implicit added through the entities structure)
+				if (cellMapping.size() > 1){
+					for (Map.Entry<String, BaseCell> entry : cellMapping.entrySet()) {
+					    String key = entry.getKey();
+					    BaseCell value = entry.getValue();
+					    
+					    EntityNode entityNode = mapping.get(key);
+					    for (AspectNode aspectNode : entityNode.getAspects()){
+							if (aspectNode.getId() == modelTree.getParent().getId()){
+								AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+								modelTreeSubEntity.addChildren(populateNeuroMLModelTreeUtils.createCellNode(value).getChildren());
+								modelTreeSubEntity.setModified(true);
+							}
+					    }	
+					}
 				}
-			
-				/**
-		 		 * Generate Model Tree for Subentities (We don't as network as it has been implicit added through the entities structure)
-		 		 */
-				for(Network n : neuroml.getNetwork()){
-					//Iterate through the entities in order to fill the model document
-//					Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
+				
+				//Iterate through all standalone elements
+		        LinkedHashMap<String,Standalone> standalones = NeuroMLConverter.getAllStandaloneElements(neuroml);
+		        InfoNode infoNode = new InfoNode();
+		        for (Standalone element: standalones.values())
+		        {
+		        	
+		        	//Add element to component cache
+		        	_discoveredComponents.put(element.getId(), element);
+		        	
+		        	//Populate sumary node
+					infoNode.putAll(InfoTreeCreator.createPropertiesFromStandaloneComponent(element));
 					
-					for(Population p : n.getPopulation()){
-						PopulationTypes populationType = p.getType();
-
-						BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
-						if(populationType != null && populationType.equals(PopulationTypes.POPULATION_LIST)){
-
-							for(int i=0; i < p.getInstance().size(); i++)
-							{
-								String id = VariablePathSerializer.getArrayName(p.getId(), i);
-								EntityNode entityNode = mapping.get(id);
-								
-								for (AspectNode aspectNode : entityNode.getAspects()){
-									if (aspectNode.getId() == modelTree.getParent().getId()){
-										AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-										modelTreeSubEntity.addChildren(populateNeuroMLModelTreeUtils.createCellNode(cell).getChildren());
-										modelTreeSubEntity.setModified(true);
-									}
-								}
-							}
-						}
-						else{
-							int size = p.getSize().intValue();
-							for(int i = 0; i < size; i++)
-							{
-								String id = VariablePathSerializer.getArrayName(p.getId(), i);
-								EntityNode entityNode = mapping.get(id);
-								if (entityNode != null){
-									for (AspectNode aspectNode : entityNode.getAspects()){
-										if (aspectNode.getId() == modelTree.getParent().getId()){
-											AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode)aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-											modelTreeSubEntity.addChildren(populateNeuroMLModelTreeUtils.createCellNode(cell).getChildren());
-											modelTreeSubEntity.setModified(true);
-										}
-									}
-								}
-							}
+					if(element instanceof BaseCell)
+			        {
+			 			_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createCellNode((BaseCell)element));
+			        }
+					else if(element instanceof IonChannel)
+			        {
+						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createChannelNode((IonChannel)element));
+			        }
+					else if(element instanceof IonChannelHH)
+			        {
+						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createChannelNode((IonChannelHH)element));
+			        }
+//					else if(element instanceof ExtracellularProperties)
+//			        {
+//						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createExtracellularPropertiesNode((ExtracellularProperties)element));
+//			        }
+//					else if(element instanceof IntracellularProperties)
+//			        {
+//						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createIntracellularPropertiesNode((IntracellularProperties)element));
+//			        }
+					else if(element instanceof DecayingPoolConcentrationModel)
+			        {
+						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createConcentrationModelNode((DecayingPoolConcentrationModel)element));
+			        }
+					else if(element instanceof FixedFactorConcentrationModel)
+			        {
+						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createConcentrationModelNode((FixedFactorConcentrationModel)element));
+			        }
+					else if(element instanceof BaseConductanceBasedSynapse)
+			        {
+						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse)element));
+			        }
+					else if(element instanceof BasePynnSynapse)
+					{
+						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createPynnSynapseNode((BasePynnSynapse)element));
+					}
+					else if(element instanceof BiophysicalProperties)
+					{
+						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createBiophysicalPropertiesNode((BiophysicalProperties)element));
+					}
+					else if(element instanceof Network)
+					{
+						if (mapping.size() == 1){
+							//TODO: We are not adding the network as it is implicitly in the entities/subentities (unless there is only one cell) structure but we can be losing some info
+							_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createNetworkNode((Network)element));
 						}
 					}
-				}
-				
-				//TODO: We are not adding the network as it is implicitly in the entities/subentities (unless there is only one cell) structure but we can be lossing some info
-				if (mapping.size() == 1){
-					for(Network n : neuroml.getNetwork()){
-						CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createNetworkNode(n, modelTree);
-						_discoveredComponents.put(n.getId(), n);
-						_discoveredNodesInNeuroML.put(n.getId(), compositeNode);
+					else{
+				 		/**
+				 		 * Check if we have a non-predefined neuroml component
+				 		 */
+						try {
+							CompositeNode compositeNode = new CompositeNode(element.getId(), element.getId());
+			                Component comp = Utils.convertNeuroMLToComponent(element);
+			                ComponentType ct = comp.getComponentType();
+			                for (ParamValue pv: comp.getParamValues()) {
+			                    if (comp.hasAttribute(pv.getName())) {
+			                        String orig = comp.getStringValue(pv.getName());
+			                        compositeNode.addChild(new TextMetadataNode(pv.getName().replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"), pv.getName(), new StringValue(orig)));
+			                    }
+			                }
+			                _discoveredNodesInNeuroML.put(element.getId(), compositeNode);
+			            } catch (LEMSException ce) {
+			                throw new NeuroMLException("Problem extracting info from NeuroML component",ce);
+			            }
 					}
-				}
-				
-				/**
-				 * COMPONENTS
-				 */
-				
-				/**
-		 		 * CELLS
-		 		 */
-//				getCells(model);
-		 		List<Cell> cells = neuroml.getCell();
-		 		List<AdExIaFCell> adExIaFCells = neuroml.getAdExIaFCell();
-		 		List<IafCell> iaFCells = neuroml.getIafCell();
-		 		List<IafRefCell> iafRefCells = neuroml.getIafRefCell();
-		 		List<IafTauRefCell> iafTauRefCells = neuroml.getIafTauRefCell();
-		 		List<IafTauCell> iafTauCells = neuroml.getIafTauCell();
-		 		List<FitzHughNagumoCell> fitzHughNagumoCells = neuroml.getFitzHughNagumoCell();
-		 		List<IzhikevichCell> izhikevichCells = neuroml.getIzhikevichCell();
+		        }
 		 		
-		 		for(Cell c : cells){
-		 			_discoveredComponents.put(c.getId(), c);
-		 			_discoveredNodesInNeuroML.put(c.getId(), populateNeuroMLModelTreeUtils.createCellNode(c));
-		 		}
-		 		for(AdExIaFCell c : adExIaFCells){
-		 			_discoveredComponents.put(c.getId(), c);
-		 			_discoveredNodesInNeuroML.put(c.getId(), populateNeuroMLModelTreeUtils.createCellNode(c));
-		 		}
-		 		for(FitzHughNagumoCell c : fitzHughNagumoCells){
-		 			_discoveredComponents.put(c.getId(), c);
-		 			_discoveredNodesInNeuroML.put(c.getId(), populateNeuroMLModelTreeUtils.createCellNode(c));
-		 		}
-		 		for(IzhikevichCell c : izhikevichCells){
-		 			_discoveredComponents.put(c.getId(), c);
-		 			_discoveredNodesInNeuroML.put(c.getId(), populateNeuroMLModelTreeUtils.createCellNode(c));
-		 		}
-		 		for(IafRefCell c : iafRefCells){
-		 			_discoveredComponents.put(c.getId(), c);
-		 			_discoveredNodesInNeuroML.put(c.getId(), populateNeuroMLModelTreeUtils.createCellNode(c));
-		 		}
-		 		for(IafCell c : iaFCells){
-		 			_discoveredComponents.put(c.getId(), c);
-		 			_discoveredNodesInNeuroML.put(c.getId(), populateNeuroMLModelTreeUtils.createCellNode(c));
-		 		}
-		 		for(IafTauRefCell c : iafTauRefCells){
-		 			_discoveredComponents.put(c.getId(), c);
-		 			_discoveredNodesInNeuroML.put(c.getId(), populateNeuroMLModelTreeUtils.createCellNode(c));
-		 		}
-		 		for(IafTauCell c : iafTauCells){
-		 			_discoveredComponents.put(c.getId(), c);
-		 			_discoveredNodesInNeuroML.put(c.getId(), populateNeuroMLModelTreeUtils.createCellNode(c));
-		 		}
-				
-				/**
-		 		 * CHANNELS
-		 		 */
-		 		for (IonChannel ionChannel : neuroml.getIonChannel()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createChannelNode(ionChannel);
-		 			_discoveredComponents.put(ionChannel.getId(), ionChannel);
-		 			_discoveredNodesInNeuroML.put(ionChannel.getId(), compositeNode);
-		 		}
-		 		for (IonChannelHH ionChannelHH : neuroml.getIonChannelHH()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createChannelNode(ionChannelHH);
-		 			_discoveredComponents.put(ionChannelHH.getId(), ionChannelHH);
-		 			_discoveredNodesInNeuroML.put(ionChannelHH.getId(), compositeNode);
-		 		}
-		 		
-		 		/**
-		 		 * Extracellular Properties
-		 		 */
-		 		for (ExtracellularProperties extracellularProperties : neuroml.getExtracellularProperties()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createExtracellularPropertiesNode(extracellularProperties);
-		 			_discoveredComponents.put(extracellularProperties.getId(), extracellularProperties);
-		 			_discoveredNodesInNeuroML.put(extracellularProperties.getId(), compositeNode);
-		 		}
-		 		
-		 		/**
-		 		 * Intracellular Properties
-		 		 */
-		 		for (IntracellularProperties intracellularProperties : neuroml.getIntracellularProperties()){
-//		 			_discoveredComponents.put(intracellularProperties.getId(), intracellularProperties);
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createIntracellularPropertiesNode(intracellularProperties);
-		 			_discoveredNodesInNeuroML.put(" ", compositeNode);
-		 		}
-		 		
-		 		/**
-		 		 * Concentration Model
-		 		 */
-		 		for (DecayingPoolConcentrationModel decayingPoolConcentrationModel : neuroml.getDecayingPoolConcentrationModel()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createConcentrationModelNode(decayingPoolConcentrationModel);
-		 			_discoveredComponents.put(decayingPoolConcentrationModel.getId(), decayingPoolConcentrationModel);
-		 			_discoveredNodesInNeuroML.put(decayingPoolConcentrationModel.getId(), compositeNode);
-		 		}
-		 		for (FixedFactorConcentrationModel fixedFactorConcentrationModel : neuroml.getFixedFactorConcentrationModel()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createConcentrationModelNode(fixedFactorConcentrationModel);
-		 			_discoveredComponents.put(fixedFactorConcentrationModel.getId(), fixedFactorConcentrationModel);
-		 			_discoveredNodesInNeuroML.put(fixedFactorConcentrationModel.getId(), compositeNode);
-		 		}
-		 		
-		 		/**
-		 		 * Synapses Types
-		 		 */
-		 		for (ExpTwoSynapse expTwoSynapse : neuroml.getExpTwoSynapse()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createSynapseNode(expTwoSynapse);
-		 			_discoveredComponents.put(expTwoSynapse.getId(), expTwoSynapse);
-		 			_discoveredNodesInNeuroML.put(expTwoSynapse.getId(), compositeNode);
-		 			
-		 		}
-		 		for (ExpOneSynapse expOneSynapse : neuroml.getExpOneSynapse()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createSynapseNode(expOneSynapse);
-		 			_discoveredComponents.put(expOneSynapse.getId(), expOneSynapse);
-		 			_discoveredNodesInNeuroML.put(expOneSynapse.getId(), compositeNode);
-		 			
-		 		}
-		 		for (BlockingPlasticSynapse blockingPlasticSynapse : neuroml.getBlockingPlasticSynapse()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createSynapseNode(blockingPlasticSynapse);
-		 			_discoveredComponents.put(blockingPlasticSynapse.getId(), blockingPlasticSynapse);
-		 			_discoveredNodesInNeuroML.put(blockingPlasticSynapse.getId(), compositeNode);
-		 			
-		 		}
-		 		
-		 		/**
-		 		 * PyNN Synapses Types
-		 		 */
-		 		for (AlphaCondSynapse alphaCondSynapse : neuroml.getAlphaCondSynapse()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createPynnSynapseNode(alphaCondSynapse);
-		 			_discoveredComponents.put(alphaCondSynapse.getId(), alphaCondSynapse);
-		 			_discoveredNodesInNeuroML.put(alphaCondSynapse.getId(), compositeNode);
-		 			
-		 		}
-		 		for (ExpCondSynapse expCondSynapse : neuroml.getExpCondSynapse()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createPynnSynapseNode(expCondSynapse);
-		 			_discoveredComponents.put(expCondSynapse.getId(), expCondSynapse);
-		 			_discoveredNodesInNeuroML.put(expCondSynapse.getId(), compositeNode);
-		 			
-		 		}
-		 		for (ExpCurrSynapse expCurrSynapse : neuroml.getExpCurrSynapse()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createPynnSynapseNode(expCurrSynapse);
-		 			_discoveredComponents.put(expCurrSynapse.getId(), expCurrSynapse);
-		 			_discoveredNodesInNeuroML.put(expCurrSynapse.getId(), compositeNode);
-		 			
-		 		}
-		 		for (AlphaCurrSynapse alphaCurrSynapse : neuroml.getAlphaCurrSynapse()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createPynnSynapseNode(alphaCurrSynapse);
-		 			_discoveredComponents.put(alphaCurrSynapse.getId(), alphaCurrSynapse);
-		 			_discoveredNodesInNeuroML.put(alphaCurrSynapse.getId(), compositeNode);
-		 			
-		 		}
-		 		
-		 		/**
-		 		 * Biophysical Properties
-		 		 */
-		 		for (BiophysicalProperties biophysicalProperties : neuroml.getBiophysicalProperties()){
-		 			CompositeNode compositeNode = populateNeuroMLModelTreeUtils.createBiophysicalPropertiesNode(biophysicalProperties);
-		 			_discoveredComponents.put(biophysicalProperties.getId(), biophysicalProperties);
-		 			_discoveredNodesInNeuroML.put(biophysicalProperties.getId(), compositeNode);
-		 		}
-		 		
-		 		/**
-		 		 * Check if we have a non-predefined neuroml component
-		 		 */
-//		 		for (Component component : lems.getComponents()){
-//		 			if (!discoveredNodesInNeuroML.containsKey(component.getID())){
-//		 				ComponentType ct = component.getComponentType();
-//	                    for (ParamValue pv: component.getParamValues()) {
-//	                        if (component.hasAttribute(pv.getName())) {
-//	                            String orig = component.getStringValue(pv.getName());
-//	                            
-//	                            //String formatted = formatDimensionalQuantity(orig);
-//	                            //elementProps.put(pv.getName(), formatted);
-//	                        }
-//	                    }
-//		 			}
-//		 		}
-		 		
-//			}
-//			else{
-		 		//TODO: Implement getModelTree for subentities
-		 		//TODO: It can be useful to implement a map between subentity and cell
-//				int endIndex = entityNode.getId().lastIndexOf("_");
-//			    if (endIndex != -1)  
-//			    {
-//			        String newstr = entityNode.getId().substring(0, endIndex);
-//			    }
-				
-				//neuroMLAccessUtility.getComponent(componentId, model, Resources.CELL);
-//				for (CompositeNode compositeNode : getCells(model)){
-//	 				discoveredNodesInNeuroML.put(compositeNode.getId(), compositeNode);
-//				}
-//			}
-			
-			
+		        //Add Sumary Node
+		        CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
+				summaryNode.addChildren(populateNeuroMLModelTreeUtils.createInfoNode(infoNode));
+				_discoveredNodesInNeuroML.put(Resources.SUMMARY.getId(), summaryNode);
+		        
+				//Add only nodes which are not pointed by any other node
 		 		for (Map.Entry<String, ANode> entry : _discoveredNodesInNeuroML.entrySet()) {
-		 		    String key = entry.getKey();
-		 		    
-//		 		   if (_discoveredNodesInNeuroML.size() == 1){
-//		 			  Object node = _discoveredNodesInNeuroML.values().toArray()[0];
-//		 			   if (node instanceof ACompositeNode){
-//		 				  modelTree.addChildren(((ACompositeNode)node).getChildren());
-//		 				  break;
-//		 			   }
-//					}
-		 		   if (!_discoveredNestedComponentsId.contains(key)){
+		 		   if (!_discoveredNestedComponentsId.contains(entry.getKey())){
 		 			   modelTree.addChild(entry.getValue());
 		 		   }
 		 		}
-	 		
-	 		
+		 		
+			}
+			else{
+				//Populate model tree for a subentity
+				modelTree.addChildren(populateNeuroMLModelTreeUtils.createCellNode(cellMapping.get(modelTree.getParent().getParent().getId())).getChildren());
+				modelTree.setModified(true);
+			}
+			
 	 		_populated = true;
 		} catch (Exception e) {
 			_populated = false;
 			throw new ModelInterpreterException(e);
 		}
- 		
  		return _populated;
 	}
-
-	
-
 	
 }

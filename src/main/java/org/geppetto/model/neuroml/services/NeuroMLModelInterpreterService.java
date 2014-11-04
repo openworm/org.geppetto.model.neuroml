@@ -171,6 +171,7 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS, neuroml_inclusions);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<String, EntityNode>());
+			model.wrapModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID, new HashMap<String, BaseCell>());
 			
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
@@ -472,6 +473,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		AspectNode aspectNode = new AspectNode(parentAspectNode.getId());
 		aspectNode.setParent(entity);
 		aspectNode.setId(parentAspectNode.getId());
+		aspectNode.setModelInterpreter(parentAspectNode.getModelInterpreter());
+		aspectNode.setModel(parentAspectNode.getModel());
 		entity.getAspects().add(aspectNode);
 		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
 		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
@@ -490,8 +493,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) parentEntityAspect.getModel()).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
 		mapping.put(id, entity);
 		//TODO: This can be useful when the model is requested for a subentity
-//		Map<String, EntityNode> mapping2 = (Map<String, EntityNode>) ((ModelWrapper) parentEntityAspect.getModel()).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID2);
-//		mapping2.put(c.getId(), entity);
+		Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) parentEntityAspect.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
+		cellMapping.put(id, c);
 	}
 
 	/**

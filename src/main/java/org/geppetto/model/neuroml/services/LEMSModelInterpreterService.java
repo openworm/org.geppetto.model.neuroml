@@ -104,6 +104,7 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 			}
 			//TODO: This need to be changed (BaseCell, String)
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
+			model.wrapModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID, new HashMap<String, BaseCell>());
 			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
