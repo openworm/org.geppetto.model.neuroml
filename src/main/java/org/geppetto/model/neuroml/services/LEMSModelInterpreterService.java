@@ -33,21 +33,17 @@
 package org.geppetto.model.neuroml.services;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import javax.xml.bind.JAXBException;
-
 import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
@@ -59,8 +55,7 @@ import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
-import org.neuroml.model.NeuroMLDocument;
-import org.neuroml.model.util.NeuroMLConverter;
+import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -93,12 +88,10 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 			String lemsString = reader.read(url);
 
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			//long start = System.currentTimeMillis();
 			ILEMSDocument document = lemsReader.readModel(lemsString);
-			//System.out.println(System.currentTimeMillis() - start);
+			
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
-
 			// two different representation of the same file, one used to
 			// simulate the other used to visualize
 			if(reader.getNeuroMLs().size() == 1)
@@ -109,7 +102,9 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 			{
 				model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, reader.getNeuroMLs());
 			}
+			//TODO: This need to be changed (BaseCell, String)
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
+			model.wrapModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID, new HashMap<String, BaseCell>());
 			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
@@ -122,6 +117,10 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 			throw new ModelInterpreterException(e);
 		}
 		catch(ContentError e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+		catch(NeuroMLException e)
 		{
 			throw new ModelInterpreterException(e);
 		}
