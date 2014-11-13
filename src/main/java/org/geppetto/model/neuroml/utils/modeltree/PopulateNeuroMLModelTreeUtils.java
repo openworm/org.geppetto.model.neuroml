@@ -42,17 +42,11 @@ import java.util.Map;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ANode;
-import org.geppetto.core.model.runtime.AspectNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.CompositeNode;
-import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.FunctionNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
-import org.geppetto.core.model.runtime.TextMetadataNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
-import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -110,7 +104,6 @@ import org.neuroml.model.Species;
 import org.neuroml.model.SpecificCapacitance;
 import org.neuroml.model.SpikeThresh;
 import org.neuroml.model.Standalone;
-import org.neuroml.model.SynapticConnection;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -839,8 +832,17 @@ public class PopulateNeuroMLModelTreeUtils {
 						
 					}
 				    else if (valueProperties instanceof ExpressionNode) {
+				    	ExpressionNode expressionNode = ((ExpressionNode)valueProperties);
+
 				    	FunctionNode  functionNode = new FunctionNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"));
-						functionNode.setExpression(((ExpressionNode)valueProperties).getExpression());
+				    	functionNode.setExpression(expressionNode.getExpression());
+				    	
+//				    	PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
+//				    	if (plotMetadataNode != null){
+//				    		functionNode.getPlotMetadata().put("PlotTitle", plotMetadataNode.getPlotTitle());
+//				    		functionNode.getPlotMetadata().put("XAxisLabel", plotMetadataNode.getXAxisLabel());
+//				    		functionNode.getPlotMetadata().put("YAxisLabel", plotMetadataNode.getYAxisLabel());
+//						}
 						summaryElementList.add(functionNode);
 					}
 				    else if (valueProperties instanceof InfoNode) {
