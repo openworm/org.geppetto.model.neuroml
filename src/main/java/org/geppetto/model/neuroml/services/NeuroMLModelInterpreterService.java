@@ -301,14 +301,15 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				ConnectionNode connectionNodeFrom = new ConnectionNode(projection.getId() + connection.getId());
 				ConnectionNode connectionNodeTo = new ConnectionNode(projection.getId() + connection.getId());
 				
-				connectionNodeFrom.setName(PopulateGeneralModelTreeUtils.getUniqueName(Resources.CONNECTIONORIGIN.get(), projection.getId() + " - "+ connection.getId()));
-				connectionNodeTo.setName(PopulateGeneralModelTreeUtils.getUniqueName(Resources.CONNECTIONDESTINATION.get(), projection.getId() + " - "+ connection.getId()));
-
+				
 				//Get connections entities
 				String preCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPreCellId());
 				String postCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPostCellId());
 				EntityNode entityNodeFrom = mapping.get(VariablePathSerializer.getArrayName(projection.getPresynapticPopulation(), preCellId));
 				EntityNode entityNodeTo = mapping.get(VariablePathSerializer.getArrayName(projection.getPostsynapticPopulation(), postCellId));
+				
+				connectionNodeFrom.setName(Resources.CONNECTIONTO.get() + " " + entityNodeTo.getId() + " (" + projection.getId() + "_" + connection.getId() + ")");
+				connectionNodeTo.setName(Resources.CONNECTIONFROM.get() + " " + entityNodeFrom.getId() + " (" + projection.getId() + "_" + connection.getId() + ")");
 				
 				//Extract the aspect from the origin and destinity
 				AspectNode aspectNodeFrom = null;
@@ -371,7 +372,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				connectionNodeFrom.getCustomNodes().add(synapsesNode);
 				connectionNodeTo.getCustomNodes().add(synapsesNode);
 				synapsesNode.setParent(connectionNodeFrom);
-				
 				
 				//TODO: What shall we do with this Id?
 				//connection.getId();
