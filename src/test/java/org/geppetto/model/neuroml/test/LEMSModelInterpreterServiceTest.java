@@ -42,15 +42,15 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.junit.Test;
-import org.lemsml.jlems.core.api.LEMSBuildConfiguration;
-import org.lemsml.jlems.core.api.LEMSBuildException;
-import org.lemsml.jlems.core.api.LEMSBuildOptions;
-import org.lemsml.jlems.core.api.LEMSBuildOptionsEnum;
-import org.lemsml.jlems.core.api.LEMSBuilder;
-import org.lemsml.jlems.core.api.interfaces.ILEMSBuildConfiguration;
-import org.lemsml.jlems.core.api.interfaces.ILEMSBuildOptions;
-import org.lemsml.jlems.core.api.interfaces.ILEMSBuilder;
-import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
+import org.lemsml.jlems.api.LEMSBuildConfiguration;
+import org.lemsml.jlems.api.LEMSBuildException;
+import org.lemsml.jlems.api.LEMSBuildOptions;
+import org.lemsml.jlems.api.LEMSBuildOptionsEnum;
+import org.lemsml.jlems.api.LEMSBuilder;
+import org.lemsml.jlems.api.interfaces.ILEMSBuildConfiguration;
+import org.lemsml.jlems.api.interfaces.ILEMSBuildOptions;
+import org.lemsml.jlems.api.interfaces.ILEMSBuilder;
+import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 
 /**
  * @author matteocantarelli

@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.lemsml</groupId>
 			<artifactId>jlems</artifactId>
-			<version>0.9.7.1</version>
+			<version>0.9.7.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geppetto</groupId>
