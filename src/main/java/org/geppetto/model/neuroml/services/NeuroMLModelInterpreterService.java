@@ -330,15 +330,20 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 				if (connection.getPreSegmentId() != null){
 					VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPreSegmentId());
 					visualObjectReferenceNode.setName(Resources.PRESEGMENT.get());
-					visualObjectReferenceNode.setVisualObjectId(connection.getPreSegmentId().toString());
+					String[] path = connection.getPreCellId().split("/");
+					String cellName = path[path.length-1];
+					visualObjectReferenceNode.setVisualObjectId(cellName + "." + connection.getPreSegmentId().toString());
 					visualObjectReferenceNode.setAspectInstancePath(aspectNodeFrom.getInstancePath());
+					visualObjectReferenceNode.setParent(connectionNodeTo);
 					connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
 					connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
 				}
 				if (connection.getPostSegmentId() != null){
 					VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPostSegmentId());
 					visualObjectReferenceNode.setName(Resources.POSTSEGMENT.get());
-					visualObjectReferenceNode.setVisualObjectId(connection.getPostSegmentId().toString());
+					String[] path = connection.getPostCellId().split("/");
+					String cellName = path[path.length-1];
+					visualObjectReferenceNode.setVisualObjectId(cellName + "." + connection.getPostSegmentId().toString());
 					visualObjectReferenceNode.setAspectInstancePath(aspectNodeTo.getInstancePath());
 					connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
 					connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
