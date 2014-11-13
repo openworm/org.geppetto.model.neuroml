@@ -845,12 +845,12 @@ public class PopulateNeuroMLModelTreeUtils {
 				    	FunctionNode  functionNode = new FunctionNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"));
 				    	functionNode.setExpression(expressionNode.getExpression());
 				    	
-				    	PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
-				    	if (plotMetadataNode != null){
-				    		functionNode.getPlotMetadata().put("PlotTitle", plotMetadataNode.getPlotTitle());
-				    		functionNode.getPlotMetadata().put("XAxisLabel", plotMetadataNode.getXAxisLabel());
-				    		functionNode.getPlotMetadata().put("YAxisLabel", plotMetadataNode.getYAxisLabel());
-						}
+//				    	PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
+//				    	if (plotMetadataNode != null){
+//				    		functionNode.getPlotMetadata().put("PlotTitle", plotMetadataNode.getPlotTitle());
+//				    		functionNode.getPlotMetadata().put("XAxisLabel", plotMetadataNode.getXAxisLabel());
+//				    		functionNode.getPlotMetadata().put("YAxisLabel", plotMetadataNode.getYAxisLabel());
+//						}
 						summaryElementList.add(functionNode);
 					}
 				    else if (valueProperties instanceof InfoNode) {
