@@ -335,7 +335,6 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 					String cellName = path[path.length-1];
 					visualObjectReferenceNode.setVisualObjectId(cellName + "." + connection.getPreSegmentId().toString());
 					visualObjectReferenceNode.setAspectInstancePath(aspectNodeFrom.getInstancePath());
-					visualObjectReferenceNode.setParent(connectionNodeTo);
 					connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
 					connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
 				}
