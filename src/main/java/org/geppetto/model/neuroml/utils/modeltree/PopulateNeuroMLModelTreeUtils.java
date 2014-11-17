@@ -839,8 +839,21 @@ public class PopulateNeuroMLModelTreeUtils {
 						
 					}
 				    else if (valueProperties instanceof ExpressionNode) {
+				    	ExpressionNode expressionNode = ((ExpressionNode)valueProperties);
+
 				    	FunctionNode  functionNode = new FunctionNode(keyProperties, keyProperties.replaceAll("[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]", "_"));
-						functionNode.setExpression(((ExpressionNode)valueProperties).getExpression());
+				    	functionNode.setExpression(expressionNode.getExpression());
+				    	functionNode.getArgument().add("v");
+				    	
+//				    	PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
+//				    	if (plotMetadataNode != null){
+//				    		functionNode.getPlotMetadata().put("PlotTitle", plotMetadataNode.getPlotTitle());
+//				    		functionNode.getPlotMetadata().put("XAxisLabel", plotMetadataNode.getXAxisLabel());
+//				    		functionNode.getPlotMetadata().put("YAxisLabel", plotMetadataNode.getYAxisLabel());
+//				    		functionNode.getPlotMetadata().put("InitialValue", Double.toString(plotMetadataNode.getInitialValue()));
+//				    		functionNode.getPlotMetadata().put("FinalValue", Double.toString(plotMetadataNode.getFinalValue()));
+//				    		functionNode.getPlotMetadata().put("StepValue", Double.toString(plotMetadataNode.getStepValue()));
+//						}
 						summaryElementList.add(functionNode);
 					}
 				    else if (valueProperties instanceof InfoNode) {

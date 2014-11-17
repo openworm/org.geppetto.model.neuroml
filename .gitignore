@@ -3,5 +3,4 @@ src/main/java/META-INF/MANIFEST.MF
 *.DS_Store
 /.externalToolBuilders/
 /.settings/
-/.project
-/.classpath
+.classpath

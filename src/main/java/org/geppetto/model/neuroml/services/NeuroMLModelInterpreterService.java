@@ -74,9 +74,9 @@ import org.geppetto.model.neuroml.utils.modeltree.PopulateGeneralModelTreeUtils;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateModelTree;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateNeuroMLModelTreeUtils;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateNodesModelTreeUtils;
-import org.lemsml.jlems.core.api.LEMSDocumentReader;
-import org.lemsml.jlems.core.api.interfaces.ILEMSDocument;
-import org.lemsml.jlems.core.api.interfaces.ILEMSDocumentReader;
+import org.lemsml.jlems.api.LEMSDocumentReader;
+import org.lemsml.jlems.api.interfaces.ILEMSDocument;
+import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
@@ -298,90 +298,97 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 		for (Projection projection : network.getProjection()){
 			
 			for (org.neuroml.model.Connection connection : projection.getConnection()){
-				ConnectionNode connectionNodeFrom = new ConnectionNode(projection.getId() + connection.getId());
-				ConnectionNode connectionNodeTo = new ConnectionNode(projection.getId() + connection.getId());
-				
-				connectionNodeFrom.setName(PopulateGeneralModelTreeUtils.getUniqueName(Resources.CONNECTIONORIGIN.get(), projection.getId() + " - "+ connection.getId()));
-				connectionNodeTo.setName(PopulateGeneralModelTreeUtils.getUniqueName(Resources.CONNECTIONDESTINATION.get(), projection.getId() + " - "+ connection.getId()));
-
-				//Get connections entities
-				String preCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPreCellId());
-				String postCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPostCellId());
-				EntityNode entityNodeFrom = mapping.get(VariablePathSerializer.getArrayName(projection.getPresynapticPopulation(), preCellId));
-				EntityNode entityNodeTo = mapping.get(VariablePathSerializer.getArrayName(projection.getPostsynapticPopulation(), postCellId));
-				
-				//Extract the aspect from the origin and destinity
-				AspectNode aspectNodeFrom = null;
-				AspectNode aspectNodeTo = null;
-				for (AspectNode aspectNodeItem : entityNodeFrom.getAspects()){
-					if (aspectNodeItem.getId().equals(aspectNodeName)){
-						aspectNodeFrom = aspectNodeItem;
-						break;
+				//Theoretically cellid and postif cannot be null but... 
+				if (connection.getPreCellId() != null && connection.getPostCellId() != null ){
+					ConnectionNode connectionNodeFrom = new ConnectionNode(projection.getId() + connection.getId());
+					ConnectionNode connectionNodeTo = new ConnectionNode(projection.getId() + connection.getId());
+					
+					
+					//Get connections entities
+					String preCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPreCellId());
+					String postCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPostCellId());
+					EntityNode entityNodeFrom = mapping.get(VariablePathSerializer.getArrayName(projection.getPresynapticPopulation(), preCellId));
+					EntityNode entityNodeTo = mapping.get(VariablePathSerializer.getArrayName(projection.getPostsynapticPopulation(), postCellId));
+					
+					connectionNodeFrom.setName(Resources.CONNECTIONTO.get() + " " + entityNodeTo.getId() + " (" + projection.getId() + "_" + connection.getId() + ")");
+					connectionNodeTo.setName(Resources.CONNECTIONFROM.get() + " " + entityNodeFrom.getId() + " (" + projection.getId() + "_" + connection.getId() + ")");
+					
+					//Extract the aspect from the origin and destinity
+					AspectNode aspectNodeFrom = null;
+					AspectNode aspectNodeTo = null;
+					for (AspectNode aspectNodeItem : entityNodeFrom.getAspects()){
+						if (aspectNodeItem.getId().equals(aspectNodeName)){
+							aspectNodeFrom = aspectNodeItem;
+							break;
+						}
 					}
-				}
-				for (AspectNode aspectNodeItem : entityNodeTo.getAspects()){
-					if (aspectNodeItem.getId().equals(aspectNodeName)){
-						aspectNodeTo = aspectNodeItem;
-						break;
+					for (AspectNode aspectNodeItem : entityNodeTo.getAspects()){
+						if (aspectNodeItem.getId().equals(aspectNodeName)){
+							aspectNodeTo = aspectNodeItem;
+							break;
+						}
 					}
-				}
+					
+					//Store PreSegment and PostSegment as VisualReferenceNode 
+					if (connection.getPreSegmentId() != null){
+						VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPreSegmentId());
+						visualObjectReferenceNode.setName(Resources.PRESEGMENT.get());
+						String[] path = connection.getPreCellId().split("/");
+						String cellName = path[path.length-1];
+						visualObjectReferenceNode.setVisualObjectId(cellName + "." + connection.getPreSegmentId().toString());
+						visualObjectReferenceNode.setAspectInstancePath(aspectNodeFrom.getInstancePath());
+						connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
+						connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
+					}
+					if (connection.getPostSegmentId() != null){
+						VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPostSegmentId());
+						visualObjectReferenceNode.setName(Resources.POSTSEGMENT.get());
+						String[] path = connection.getPostCellId().split("/");
+						String cellName = path[path.length-1];
+						visualObjectReferenceNode.setVisualObjectId(cellName + "." + connection.getPostSegmentId().toString());
+						visualObjectReferenceNode.setAspectInstancePath(aspectNodeTo.getInstancePath());
+						connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
+						connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
+					}
+					
+					//Store PreFraction and PostFraction as CustomNodes
+					if (connection.getPreFractionAlong() != null){
+						TextMetadataNode prefractionalongNode =  PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPreFractionAlong())));
+						connectionNodeFrom.getCustomNodes().add(prefractionalongNode);
+						connectionNodeTo.getCustomNodes().add(prefractionalongNode);
+					}
+					if (connection.getPostFractionAlong() != null){
+						TextMetadataNode postFractionAlongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POSTFRACTIONALONG.get(), Resources.POSTFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPostFractionAlong())));
+						connectionNodeFrom.getCustomNodes().add(postFractionAlongNode);
+						connectionNodeTo.getCustomNodes().add(postFractionAlongNode);
+					}
 				
-				//Store PreSegment and PostSegment as VisualReferenceNode 
-				if (connection.getPreSegmentId() != null){
-					VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPreSegmentId());
-					visualObjectReferenceNode.setName(Resources.PRESEGMENT.get());
-					visualObjectReferenceNode.setVisualObjectId(connection.getPreSegmentId().toString());
-					visualObjectReferenceNode.setAspectInstancePath(aspectNodeFrom.getInstancePath());
-					connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
-					connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
-				}
-				if (connection.getPostSegmentId() != null){
-					VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPostSegmentId());
-					visualObjectReferenceNode.setName(Resources.POSTSEGMENT.get());
-					visualObjectReferenceNode.setVisualObjectId(connection.getPostSegmentId().toString());
-					visualObjectReferenceNode.setAspectInstancePath(aspectNodeTo.getInstancePath());
-					connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
-					connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
-				}
-				
-				//Store PreFraction and PostFraction as CustomNodes
-				if (connection.getPreFractionAlong() != null){
-					TextMetadataNode prefractionalongNode =  PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPreFractionAlong())));
-					connectionNodeFrom.getCustomNodes().add(prefractionalongNode);
-					connectionNodeTo.getCustomNodes().add(prefractionalongNode);
-				}
-				if (connection.getPostFractionAlong() != null){
-					TextMetadataNode postFractionAlongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POSTFRACTIONALONG.get(), Resources.POSTFRACTIONALONG.getId(), new StringValue(String.valueOf(connection.getPostFractionAlong())));
-					connectionNodeFrom.getCustomNodes().add(postFractionAlongNode);
-					connectionNodeTo.getCustomNodes().add(postFractionAlongNode);
-				}
-			
-				//Store Synapses as CustomNodes
-				CompositeNode synapsesNode;
-				try {
-					synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse)neuroMLAccessUtility.getComponent(projection.getSynapse(), model, Resources.SYNAPSE));
-				} catch (ContentError | ModelInterpreterException e) {
-					throw new ModelInterpreterException(e);
-				}
-				connectionNodeFrom.getCustomNodes().add(synapsesNode);
-				connectionNodeTo.getCustomNodes().add(synapsesNode);
-				synapsesNode.setParent(connectionNodeFrom);
-				
-				
-				//TODO: What shall we do with this Id?
-				//connection.getId();
-				
-				connectionNodeFrom.setType(ConnectionType.FROM);
-				connectionNodeTo.setType(ConnectionType.TO);
-				
-				//Store Path to entity connection points to and set the parent
-				connectionNodeFrom.setEntityInstancePath(entityNodeTo.getInstancePath());
-				connectionNodeFrom.setParent(entityNodeFrom);
-				connectionNodeTo.setEntityInstancePath(entityNodeFrom.getInstancePath());
-				connectionNodeTo.setParent(entityNodeTo);
-				
-				entityNodeFrom.getConnections().add(connectionNodeFrom);
-				entityNodeTo.getConnections().add(connectionNodeTo);
+					//Store Synapses as CustomNodes
+					CompositeNode synapsesNode;
+					try {
+						synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse)neuroMLAccessUtility.getComponent(projection.getSynapse(), model, Resources.SYNAPSE));
+					} catch (ContentError | ModelInterpreterException e) {
+						throw new ModelInterpreterException(e);
+					}
+					connectionNodeFrom.getCustomNodes().add(synapsesNode);
+					connectionNodeTo.getCustomNodes().add(synapsesNode);
+					synapsesNode.setParent(connectionNodeFrom);
+					
+					//TODO: What shall we do with this Id?
+					//connection.getId();
+					
+					connectionNodeFrom.setType(ConnectionType.FROM);
+					connectionNodeTo.setType(ConnectionType.TO);
+					
+					//Store Path to entity connection points to and set the parent
+					connectionNodeFrom.setEntityInstancePath(entityNodeTo.getInstancePath());
+					connectionNodeFrom.setParent(entityNodeFrom);
+					connectionNodeTo.setEntityInstancePath(entityNodeFrom.getInstancePath());
+					connectionNodeTo.setParent(entityNodeTo);
+					
+					entityNodeFrom.getConnections().add(connectionNodeFrom);
+					entityNodeTo.getConnections().add(connectionNodeTo);
+				}	
 			}
 		}
 		
