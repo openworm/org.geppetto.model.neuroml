@@ -293,8 +293,8 @@ public class PopulateNeuroMLModelTreeUtils {
 				CompositeNode channelDensityNode = new CompositeNode(channelDensity.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.CHANNEL_DENSITY.get(), channelDensity));
 				
 				// Ion Channel
-				IonChannel ionChannel = (IonChannel) neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, Resources.ION_CHANNEL);
-				CompositeNode channelNode = createChannelNode(ionChannel);
+				//IonChannel ionChannel = (IonChannel) neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, Resources.ION_CHANNEL);
+				CompositeNode channelNode = createChannelNode((IonChannel) neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, Resources.ION_CHANNEL));
 				channelDensityNode.addChild(channelNode);
 				
 				// Passive conductance density				
@@ -555,44 +555,47 @@ public class PopulateNeuroMLModelTreeUtils {
 	}
 	
 	public CompositeNode createChannelNode(Standalone ionChannelBase) throws ModelInterpreterException, ContentError {
-		// Ion Channel
-		CompositeNode ionChannelNode = new CompositeNode(ionChannelBase.getId());
-		if (ionChannelBase instanceof IonChannel){
-			ionChannelNode.setName(Resources.ION_CHANNEL.get());
+		if (ionChannelBase != null){
+			// Ion Channel
+			CompositeNode ionChannelNode = new CompositeNode(ionChannelBase.getId());
+			if (ionChannelBase instanceof IonChannel){
+				ionChannelNode.setName(Resources.ION_CHANNEL.get());
+			}
+			else{
+				ionChannelNode.setName(Resources.ION_CHANNEL_HH.get());
+			}
+			
+			IonChannel ionChannel = (IonChannel)ionChannelBase;
+			
+			ionChannelNode.addChildren(createStandaloneChildren(ionChannel));
+			//Read Gates
+			for (GateHHUndetermined gateHHUndetermined : ionChannel.getGate()){
+				ionChannelNode.addChild(createGateNode(gateHHUndetermined));
+			}
+			for (GateHHRates gateHHRates : ionChannel.getGateHHrates()){
+				ionChannelNode.addChild(createGateNode(gateHHRates));
+			}
+			for (GateHHRatesInf gateHHRatesInf : ionChannel.getGateHHratesInf()){
+				ionChannelNode.addChild(createGateNode(gateHHRatesInf));
+			}
+			for (GateHHRatesTau gateHHRatesTau : ionChannel.getGateHHratesTau()){
+				ionChannelNode.addChild(createGateNode(gateHHRatesTau));
+			}
+			for (GateHHTauInf gateHHRatesTauInf : ionChannel.getGateHHtauInf()){
+				ionChannelNode.addChild(createGateNode(gateHHRatesTauInf));
+			}
+			
+			ionChannelNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.CONDUCTANCE.get(), Resources.CONDUCTANCE.getId(), ionChannel.getConductance()));
+			
+			ionChannelNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.SPECIES.get(), Resources.SPECIES.getId(), new StringValue(ionChannel.getSpecies())));
+			
+			if (ionChannel.getType() != null){
+				ComponentType typeIonChannel = (ComponentType) neuroMLAccessUtility.getComponent(ionChannel.getType().value(), model, Resources.COMPONENT_TYPE);
+				ionChannelNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.IONCHANNEL_DYNAMICS.get(), Resources.IONCHANNEL_DYNAMICS.getId(), typeIonChannel));
+			}
+			return ionChannelNode;
 		}
-		else{
-			ionChannelNode.setName(Resources.ION_CHANNEL_HH.get());
-		}
-		
-		IonChannel ionChannel = (IonChannel)ionChannelBase;
-		
-		ionChannelNode.addChildren(createStandaloneChildren(ionChannel));
-		//Read Gates
-		for (GateHHUndetermined gateHHUndetermined : ionChannel.getGate()){
-			ionChannelNode.addChild(createGateNode(gateHHUndetermined));
-		}
-		for (GateHHRates gateHHRates : ionChannel.getGateHHrates()){
-			ionChannelNode.addChild(createGateNode(gateHHRates));
-		}
-		for (GateHHRatesInf gateHHRatesInf : ionChannel.getGateHHratesInf()){
-			ionChannelNode.addChild(createGateNode(gateHHRatesInf));
-		}
-		for (GateHHRatesTau gateHHRatesTau : ionChannel.getGateHHratesTau()){
-			ionChannelNode.addChild(createGateNode(gateHHRatesTau));
-		}
-		for (GateHHTauInf gateHHRatesTauInf : ionChannel.getGateHHtauInf()){
-			ionChannelNode.addChild(createGateNode(gateHHRatesTauInf));
-		}
-		
-		ionChannelNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.CONDUCTANCE.get(), Resources.CONDUCTANCE.getId(), ionChannel.getConductance()));
-		
-		ionChannelNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.SPECIES.get(), Resources.SPECIES.getId(), new StringValue(ionChannel.getSpecies())));
-		
-		if (ionChannel.getType() != null){
-			ComponentType typeIonChannel = (ComponentType) neuroMLAccessUtility.getComponent(ionChannel.getType().value(), model, Resources.COMPONENT_TYPE);
-			ionChannelNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(Resources.IONCHANNEL_DYNAMICS.get(), Resources.IONCHANNEL_DYNAMICS.getId(), typeIonChannel));
-		}
-		return ionChannelNode;
+		return null;	
 	}
 	
 	
