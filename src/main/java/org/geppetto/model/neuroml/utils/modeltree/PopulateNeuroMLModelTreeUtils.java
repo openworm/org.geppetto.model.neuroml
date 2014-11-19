@@ -59,6 +59,7 @@ import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
+import org.neuroml.export.info.model.PlotMetadataNode;
 import org.neuroml.export.info.model.PlotNode;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.AlphaCondSynapse;
@@ -845,15 +846,15 @@ public class PopulateNeuroMLModelTreeUtils {
 				    	functionNode.setExpression(expressionNode.getExpression());
 				    	functionNode.getArgument().add("v");
 				    	
-//				    	PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
-//				    	if (plotMetadataNode != null){
-//				    		functionNode.getPlotMetadata().put("PlotTitle", plotMetadataNode.getPlotTitle());
-//				    		functionNode.getPlotMetadata().put("XAxisLabel", plotMetadataNode.getXAxisLabel());
-//				    		functionNode.getPlotMetadata().put("YAxisLabel", plotMetadataNode.getYAxisLabel());
-//				    		functionNode.getPlotMetadata().put("InitialValue", Double.toString(plotMetadataNode.getInitialValue()));
-//				    		functionNode.getPlotMetadata().put("FinalValue", Double.toString(plotMetadataNode.getFinalValue()));
-//				    		functionNode.getPlotMetadata().put("StepValue", Double.toString(plotMetadataNode.getStepValue()));
-//						}
+				    	PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
+				    	if (plotMetadataNode != null){
+				    		functionNode.getPlotMetadata().put("PlotTitle", plotMetadataNode.getPlotTitle());
+				    		functionNode.getPlotMetadata().put("XAxisLabel", plotMetadataNode.getXAxisLabel());
+				    		functionNode.getPlotMetadata().put("YAxisLabel", plotMetadataNode.getYAxisLabel());
+				    		functionNode.getPlotMetadata().put("InitialValue", Double.toString(plotMetadataNode.getInitialValue()));
+				    		functionNode.getPlotMetadata().put("FinalValue", Double.toString(plotMetadataNode.getFinalValue()));
+				    		functionNode.getPlotMetadata().put("StepValue", Double.toString(plotMetadataNode.getStepValue()));
+						}
 						summaryElementList.add(functionNode);
 					}
 				    else if (valueProperties instanceof InfoNode) {
