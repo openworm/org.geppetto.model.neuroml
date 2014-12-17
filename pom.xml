@@ -5,7 +5,7 @@
 	<groupId>org.geppetto</groupId>
 	<artifactId>model.neuroml</artifactId>
 	<name>Geppetto NeuroML Model bundle</name>
-	<version>0.1.9</version>
+	<version>0.2.0</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<spring.version>3.1.0.RELEASE</spring.version>
