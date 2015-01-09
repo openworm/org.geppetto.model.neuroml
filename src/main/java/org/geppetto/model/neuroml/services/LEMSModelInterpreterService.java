@@ -69,8 +69,6 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 
 	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
 	
-	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
-
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
 
