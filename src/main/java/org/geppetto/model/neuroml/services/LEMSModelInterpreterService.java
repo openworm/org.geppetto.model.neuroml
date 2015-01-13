@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
@@ -64,7 +65,7 @@ import org.springframework.stereotype.Service;
  * 
  */
 @Service
-public class LEMSModelInterpreterService implements IModelInterpreter
+public class LEMSModelInterpreterService extends AModelInterpreter
 {
 
 	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
@@ -111,6 +112,8 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
 			
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
+			
+			addRecordings(recordings, instancePath, model);
 		}
 		catch(IOException e)
 		{

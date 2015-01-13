@@ -49,6 +49,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
@@ -97,7 +98,7 @@ import org.springframework.stereotype.Service;
  * 
  */
 @Service
-public class NeuroMLModelInterpreterService implements IModelInterpreter
+public class NeuroMLModelInterpreterService extends AModelInterpreter
 {
 	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
 
@@ -176,6 +177,8 @@ public class NeuroMLModelInterpreterService implements IModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
+			
+			addRecordings(recordings, instancePath, model);
 		}
 		catch(IOException e)
 		{
