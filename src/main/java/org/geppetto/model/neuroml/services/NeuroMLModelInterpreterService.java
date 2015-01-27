@@ -95,6 +95,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author matteocantarelli
+ * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  * 
  */
 @Service

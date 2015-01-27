@@ -12,11 +12,9 @@ import org.lemsml.jlems.core.type.dynamics.Dynamics;
 
 public class PopulateLEMSModelTreeUtils {
 	
-
-	//private PopulateModelTreeUtils populateModelTreeUtils = new PopulateModelTreeUtils();
 	
 	//TODO: Improve to parse all the attribute in a component type 	
-	public static CompositeNode createCompositeNodeFromComponentType(String name, String id, ComponentType componentType) throws ContentError{
+	public static CompositeNode createCompositeNodeFromComponentType(String id, String name, ComponentType componentType) throws ContentError{
 		CompositeNode compositeNode = new CompositeNode(name, id);
 		
 		

@@ -32,7 +32,6 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.utils.modeltree;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -41,7 +40,6 @@ import java.util.Map;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.runtime.ACompositeNode;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
@@ -49,10 +47,7 @@ import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
-import org.geppetto.core.model.runtime.FunctionNode;
-import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
-import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -61,45 +56,21 @@ import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.ParamValue;
 import org.neuroml.export.Utils;
 import org.neuroml.export.info.InfoTreeCreator;
-import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
-import org.neuroml.export.info.model.PlotNode;
-import org.neuroml.model.AdExIaFCell;
-import org.neuroml.model.AlphaCondSynapse;
-import org.neuroml.model.AlphaCurrSynapse;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.BaseConductanceBasedSynapse;
 import org.neuroml.model.BasePynnSynapse;
 import org.neuroml.model.BiophysicalProperties;
-import org.neuroml.model.BlockingPlasticSynapse;
-import org.neuroml.model.Cell;
 import org.neuroml.model.DecayingPoolConcentrationModel;
-import org.neuroml.model.ExpCondSynapse;
-import org.neuroml.model.ExpCurrSynapse;
-import org.neuroml.model.ExpOneSynapse;
-import org.neuroml.model.ExpTwoSynapse;
-import org.neuroml.model.ExplicitInput;
 import org.neuroml.model.ExtracellularProperties;
-import org.neuroml.model.FitzHughNagumoCell;
 import org.neuroml.model.FixedFactorConcentrationModel;
-import org.neuroml.model.IafCell;
-import org.neuroml.model.IafRefCell;
-import org.neuroml.model.IafTauCell;
-import org.neuroml.model.IafTauRefCell;
-import org.neuroml.model.InputList;
-import org.neuroml.model.Instance;
 import org.neuroml.model.IntracellularProperties;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
-import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.Network;
 import org.neuroml.model.NeuroMLDocument;
-import org.neuroml.model.Population;
-import org.neuroml.model.PopulationTypes;
-import org.neuroml.model.Region;
 import org.neuroml.model.Standalone;
-import org.neuroml.model.SynapticConnection;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 
@@ -161,6 +132,16 @@ public class PopulateModelTree {
 					}
 				}
 				
+				//First parse non standalone elements
+				for (ExtracellularProperties element : neuroml.getExtracellularProperties()){
+					_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createExtracellularPropertiesNode((ExtracellularProperties)element));
+				}
+				for (int i = 0; i < neuroml.getIntracellularProperties().size(); i++){
+					//Theoretically you can have more than one intracellular property in a neuroml doc but it does not make sense as it doesnt have an id at the moment
+					_discoveredNodesInNeuroML.put(Resources.INTRACELLULAR_P.getId(), populateNeuroMLModelTreeUtils.createIntracellularPropertiesNode(neuroml.getIntracellularProperties().get(i)));
+				}
+				
+				
 				//Iterate through all standalone elements
 		        LinkedHashMap<String,Standalone> standalones = NeuroMLConverter.getAllStandaloneElements(neuroml);
 		        InfoNode infoNode = new InfoNode();
@@ -185,14 +166,6 @@ public class PopulateModelTree {
 			        {
 						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createChannelNode((IonChannelHH)element));
 			        }
-//					else if(element instanceof ExtracellularProperties)
-//			        {
-//						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createExtracellularPropertiesNode((ExtracellularProperties)element));
-//			        }
-//					else if(element instanceof IntracellularProperties)
-//			        {
-//						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createIntracellularPropertiesNode((IntracellularProperties)element));
-//			        }
 					else if(element instanceof DecayingPoolConcentrationModel)
 			        {
 						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createConcentrationModelNode((DecayingPoolConcentrationModel)element));
@@ -221,6 +194,8 @@ public class PopulateModelTree {
 						}
 					}
 					else{
+						
+						
 				 		/**
 				 		 * Check if we have a non-predefined neuroml component
 				 		 */
@@ -256,7 +231,16 @@ public class PopulateModelTree {
 			}
 			else{
 				//Populate model tree for a subentity
-				modelTree.addChildren(populateNeuroMLModelTreeUtils.createCellNode(cellMapping.get(modelTree.getParent().getParent().getId())).getChildren());
+				BaseCell baseCell = cellMapping.get(modelTree.getParent().getParent().getId());
+				modelTree.addChildren(populateNeuroMLModelTreeUtils.createCellNode(baseCell).getChildren());
+				
+				//Add Sumary Node
+				InfoNode infoNode = new InfoNode();
+				infoNode.putAll(InfoTreeCreator.createPropertiesFromStandaloneComponent(baseCell));
+		        CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
+				summaryNode.addChildren(populateNeuroMLModelTreeUtils.createInfoNode(infoNode));
+				modelTree.addChild(summaryNode);
+				
 				modelTree.setModified(true);
 			}
 			

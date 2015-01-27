@@ -5,6 +5,8 @@ import org.neuroml.model.Base;
 
 public class PopulateGeneralModelTreeUtils {
 	
+	static String forbiddenCharacters = "[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]";
+	
 	public static String getUniqueName(String label, Object base){
 		String id = "";
 		if (base instanceof Base){
@@ -19,11 +21,16 @@ public class PopulateGeneralModelTreeUtils {
 		return label + " - " + id;
 	}
 	
-	/*
-    For example, ../Pop0[0] returns 0; ../Gran/0/Granule_98 returns 0; Gran/1/Granule_98 returns 1
-*/
+	public static String getUniqueId(String id, int index){
+		return id + "_" + index;
+	}
+	
+	public static String parseId(String id){
+		return id.replace(forbiddenCharacters, "_");
+	}
+	
+	//  For example, ../Pop0[0] returns 0; ../Gran/0/Granule_98 returns 0; Gran/1/Granule_98 returns 1
 	public static String parseCellRefStringForCellNum(String cellRef) {
-//	   System.out.println("Parsing for cell num: "+cellRef);
 	   if (cellRef.indexOf("[")>=0) {
 	       return cellRef.substring(cellRef.indexOf("[")+1, cellRef.indexOf("]"));
 	   } else {
