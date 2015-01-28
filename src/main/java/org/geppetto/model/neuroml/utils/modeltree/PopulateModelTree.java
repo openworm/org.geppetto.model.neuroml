@@ -154,30 +154,35 @@ public class PopulateModelTree {
 		        	//Populate sumary node
 					infoNode.putAll(InfoTreeCreator.createPropertiesFromStandaloneComponent(element));
 					
+					// Points to CellTypes group and PynnCellTypes
 					if(element instanceof BaseCell)
 			        {
 			 			_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createCellNode((BaseCell)element));
 			        }
-					else if(element instanceof IonChannel)
+					// One of these should be removed in next release
+					else if(element instanceof IonChannel || element instanceof IonChannelHH)
 			        {
 						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createChannelNode((IonChannel)element));
 			        }
-					else if(element instanceof IonChannelHH)
+//					else if(element instanceof IonChannelHH)
+//			        {
+//						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createChannelNode((IonChannelHH)element));
+//			        }
+					//Concentration Model Types group
+					else if(element instanceof DecayingPoolConcentrationModel || element instanceof FixedFactorConcentrationModel)
 			        {
-						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createChannelNode((IonChannelHH)element));
+						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createConcentrationModelNode(element));
 			        }
-					else if(element instanceof DecayingPoolConcentrationModel)
-			        {
-						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createConcentrationModelNode((DecayingPoolConcentrationModel)element));
-			        }
-					else if(element instanceof FixedFactorConcentrationModel)
-			        {
-						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createConcentrationModelNode((FixedFactorConcentrationModel)element));
-			        }
+//					else if(element instanceof FixedFactorConcentrationModel)
+//			        {
+//						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createConcentrationModelNode((FixedFactorConcentrationModel)element));
+//			        }
+					//Points to Synapse Types group
 					else if(element instanceof BaseConductanceBasedSynapse)
 			        {
 						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse)element));
 			        }
+					//Points to Pynn Synapse Types group
 					else if(element instanceof BasePynnSynapse)
 					{
 						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createPynnSynapseNode((BasePynnSynapse)element));
@@ -194,7 +199,6 @@ public class PopulateModelTree {
 						}
 					}
 					else{
-						
 						
 				 		/**
 				 		 * Check if we have a non-predefined neuroml component
