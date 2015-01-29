@@ -78,6 +78,7 @@ import org.neuroml.model.DecayingPoolConcentrationModel;
 import org.neuroml.model.EIFCondAlphaIsfaIsta;
 import org.neuroml.model.EIFCondExpIsfaIsta;
 import org.neuroml.model.ExpCondSynapse;
+import org.neuroml.model.ExpCurrSynapse;
 import org.neuroml.model.ExpOneSynapse;
 import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.ExplicitInput;
@@ -546,7 +547,6 @@ public class PopulateNeuroMLModelTreeUtils {
 				CompositeNode resistivitiesNode = new CompositeNode(Resources.RESISTIVITY.getId(), Resources.RESISTIVITY.get());
 				for(int i = 0; i < resistivities.size(); i++){
 					resistivitiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(PopulateGeneralModelTreeUtils.getUniqueId(Resources.RESISTIVITY.getId(), i), PopulateGeneralModelTreeUtils.getUniqueName(Resources.RESISTIVITY.get(), i), resistivities.get(i).getValue()));
-					//FIXME: Segmentgroup or segment?
 				}
 				intracellularPropertiesNode.addChild(resistivitiesNode);
 			}
@@ -828,8 +828,6 @@ public class PopulateNeuroMLModelTreeUtils {
 			
 		}
 		
-		//Iterate through the entities in order to fill the model document
-//		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
 		
 		List<Population> populations = n.getPopulation();
 		for(Population p : populations){
@@ -925,9 +923,7 @@ public class PopulateNeuroMLModelTreeUtils {
 		CompositeNode pynnSynapsesNode = new CompositeNode(pynnSynapse.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.PYNN_SYNAPSE.get(), pynnSynapse));
 		
 		pynnSynapsesNode.addChildren(createStandaloneChildren(pynnSynapse));
-		
 		pynnSynapsesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAUSYN.getId(), Resources.TAUSYN.get(), String.valueOf(pynnSynapse.getTauSyn())));
-		
 		if (pynnSynapse instanceof AlphaCondSynapse){
 			pynnSynapsesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.EREV.getId(), Resources.EREV.get(), String.valueOf(((AlphaCondSynapse) pynnSynapse).getERev())));
 		}
