@@ -78,10 +78,8 @@ import org.neuroml.model.DecayingPoolConcentrationModel;
 import org.neuroml.model.EIFCondAlphaIsfaIsta;
 import org.neuroml.model.EIFCondExpIsfaIsta;
 import org.neuroml.model.ExpCondSynapse;
-import org.neuroml.model.ExpCurrSynapse;
 import org.neuroml.model.ExpOneSynapse;
 import org.neuroml.model.ExpTwoSynapse;
-import org.neuroml.model.ExplicitInput;
 import org.neuroml.model.ExtracellularProperties;
 import org.neuroml.model.FitzHughNagumoCell;
 import org.neuroml.model.FixedFactorConcentrationModel;
@@ -104,7 +102,6 @@ import org.neuroml.model.IafRefCell;
 import org.neuroml.model.IafTauCell;
 import org.neuroml.model.IafTauRefCell;
 import org.neuroml.model.InitMembPotential;
-import org.neuroml.model.InputList;
 import org.neuroml.model.Instance;
 import org.neuroml.model.IntracellularProperties;
 import org.neuroml.model.IonChannel;
@@ -115,7 +112,6 @@ import org.neuroml.model.PlasticityMechanism;
 import org.neuroml.model.Population;
 import org.neuroml.model.PopulationTypes;
 import org.neuroml.model.Q10Settings;
-import org.neuroml.model.Region;
 import org.neuroml.model.Resistivity;
 import org.neuroml.model.Species;
 import org.neuroml.model.SpecificCapacitance;
@@ -517,23 +513,26 @@ public class PopulateNeuroMLModelTreeUtils {
 	}
 	
 	private CompositeNode createVariableParameterNode(List<VariableParameter> variableParameters) {
-		CompositeNode variableParametersNode = new CompositeNode(Resources.VARIABLE_PARAMETER.getId(), Resources.VARIABLE_PARAMETER.get());
-		for (int i = 0; i < variableParameters.size(); i++){
-			VariableParameter variableParameter = variableParameters.get(i);
+		if (variableParameters != null && variableParameters.size() > 0){
+			CompositeNode variableParametersNode = new CompositeNode(Resources.VARIABLE_PARAMETER.getId(), Resources.VARIABLE_PARAMETER.get());
+			for (int i = 0; i < variableParameters.size(); i++){
+				VariableParameter variableParameter = variableParameters.get(i);
+				
+				CompositeNode variableParameterNode = new CompositeNode(PopulateGeneralModelTreeUtils.getUniqueId(Resources.VARIABLE_PARAMETER.getId(), i), PopulateGeneralModelTreeUtils.getUniqueName(Resources.VARIABLE_PARAMETER.get(), i));
+	
+				variableParameterNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PARAMETER.getId(), Resources.PARAMETER.get(),  new StringValue(variableParameter.getParameter())));
+				
+				CompositeNode inhomogeneousValueNode = new CompositeNode(Resources.INHOMOGENEOUS_VALUE.getId(), Resources.INHOMOGENEOUS_VALUE.get());
+				inhomogeneousValueNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PARAMETER.getId(), Resources.PARAMETER.get(), new StringValue(variableParameter.getInhomogeneousValue().getInhomogeneousParameter())));
+				inhomogeneousValueNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.VALUE.getId(), Resources.VALUE.get(), new StringValue(variableParameter.getInhomogeneousValue().getValue())));
+				variableParameterNode.addChild(inhomogeneousValueNode);
+				
+				variableParametersNode.addChild(variableParameterNode);
+			}
 			
-			CompositeNode variableParameterNode = new CompositeNode(PopulateGeneralModelTreeUtils.getUniqueId(Resources.VARIABLE_PARAMETER.getId(), i), PopulateGeneralModelTreeUtils.getUniqueName(Resources.VARIABLE_PARAMETER.get(), i));
-
-			variableParameterNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PARAMETER.getId(), Resources.PARAMETER.get(),  new StringValue(variableParameter.getParameter())));
-			
-			CompositeNode inhomogeneousValueNode = new CompositeNode(Resources.INHOMOGENEOUS_VALUE.getId(), Resources.INHOMOGENEOUS_VALUE.get());
-			inhomogeneousValueNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PARAMETER.getId(), Resources.PARAMETER.get(), new StringValue(variableParameter.getInhomogeneousValue().getInhomogeneousParameter())));
-			inhomogeneousValueNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.VALUE.getId(), Resources.VALUE.get(), new StringValue(variableParameter.getInhomogeneousValue().getValue())));
-			variableParameterNode.addChild(inhomogeneousValueNode);
-			
-			variableParametersNode.addChild(variableParameterNode);
+			return variableParametersNode;
 		}
-		
-		return variableParametersNode;
+		return null;
 	}
 
 	public CompositeNode createIntracellularPropertiesNode(IntracellularProperties intracellularProperties) throws ModelInterpreterException {
@@ -816,17 +815,17 @@ public class PopulateNeuroMLModelTreeUtils {
 		
 		networkNode.addChildren(createStandaloneChildren(n));
 		
-		for(InputList i : n.getInputList()){
-			
-		}
-		
-		for(ExplicitInput e : n.getExplicitInput()){
-			
-		}
-		
-		for(Region r : n.getRegion()){
-			
-		}
+//		for(InputList i : n.getInputList()){
+//			
+//		}
+//		
+//		for(ExplicitInput e : n.getExplicitInput()){
+//			
+//		}
+//		
+//		for(Region r : n.getRegion()){
+//			
+//		}
 		
 		
 		List<Population> populations = n.getPopulation();

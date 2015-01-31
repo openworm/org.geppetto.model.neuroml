@@ -26,7 +26,7 @@ public class PopulateGeneralModelTreeUtils {
 	}
 	
 	public static String parseId(String id){
-		return id.replace(forbiddenCharacters, "_");
+		return id.replaceAll(forbiddenCharacters, "_");
 	}
 	
 	//  For example, ../Pop0[0] returns 0; ../Gran/0/Granule_98 returns 0; Gran/1/Granule_98 returns 1

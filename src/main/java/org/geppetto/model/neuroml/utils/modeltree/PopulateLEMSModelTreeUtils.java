@@ -20,9 +20,9 @@ public class PopulateLEMSModelTreeUtils {
 		
 		compositeNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.NAME.get(), Resources.NAME.getId(), componentType.getName()));
 		//TODO: This is needed?
-		if (componentType.getExtends() != null){
-			compositeNode.addChild(createCompositeNodeFromComponentType(Resources.EXTENDS.get(), Resources.EXTENDS.getId(), componentType.getExtends()));
-		}
+//		if (componentType.getExtends() != null){
+//			compositeNode.addChild(createCompositeNodeFromComponentType(Resources.EXTENDS.get(), Resources.EXTENDS.getId(), componentType.getExtends()));
+//		}
 		compositeNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.DESCRIPTION.get(), Resources.DESCRIPTION.getId(), componentType.getDescription()));
 		
 		

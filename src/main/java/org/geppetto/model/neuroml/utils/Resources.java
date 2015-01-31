@@ -177,7 +177,9 @@ public enum Resources
 	CHANNEL_DENSITY_GHK("Channel Density GHK", "ChannelDensityGHK"),
 	PERMEABILITY("Permeability", "Permeability"),
 	CHANNEL_DENSITY_NON_UNIFORM("Channel Density Non Uniform", "ChannelDensityNonUniform"),
-	CHANNEL_DENSITY_NON_UNIFORM_NERNST("Channel Density Non Uniform Nernst", "ChannelDensityNonUniformNernst");
+	CHANNEL_DENSITY_NON_UNIFORM_NERNST("Channel Density Non Uniform Nernst", "ChannelDensityNonUniformNernst"),
+	CONNECTION_ID("Connection Id", "ConnectionId"),
+	PROJECTION_ID("Projection Id", "ProjectionId");
 	
 	private String _value;
 	private String _id;
