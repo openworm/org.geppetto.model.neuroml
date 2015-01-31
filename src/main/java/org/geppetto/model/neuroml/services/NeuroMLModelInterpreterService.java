@@ -71,6 +71,7 @@ import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateGeneralModelTreeUtils;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateModelTree;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateNeuroMLModelTreeUtils;
@@ -340,6 +341,14 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 						}
 					}
 
+					//Store Projection Id
+					connectionNodeFrom.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId().toString())));
+					connectionNodeTo.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId().toString())));
+					
+					//Store Connection Id
+					connectionNodeFrom.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId().toString())));
+					connectionNodeTo.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId().toString())));
+					
 					// Store PreSegment and PostSegment as VisualReferenceNode
 					if(connection.getPreSegmentId() != null)
 					{
@@ -369,6 +378,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					{
 						TextMetadataNode prefractionalongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(),
 								new StringValue(String.valueOf(connection.getPreFractionAlong())));
+						prefractionalongNode.setDomainType(ResourcesDomainType.PREFRACTIONALONG.get());
 						connectionNodeFrom.getCustomNodes().add(prefractionalongNode);
 						connectionNodeTo.getCustomNodes().add(prefractionalongNode);
 					}
@@ -376,6 +386,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					{
 						TextMetadataNode postFractionAlongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POSTFRACTIONALONG.get(), Resources.POSTFRACTIONALONG.getId(),
 								new StringValue(String.valueOf(connection.getPostFractionAlong())));
+						postFractionAlongNode.setDomainType(ResourcesDomainType.POSTFRACTIONALONG.get());
 						connectionNodeFrom.getCustomNodes().add(postFractionAlongNode);
 						connectionNodeTo.getCustomNodes().add(postFractionAlongNode);
 					}
@@ -384,8 +395,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					CompositeNode synapsesNode;
 					try
 					{
-						synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse) neuroMLAccessUtility.getComponent(projection.getSynapse(), model,
-								Resources.SYNAPSE));
+						synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse) neuroMLAccessUtility.getComponent(projection.getSynapse(), model, Resources.SYNAPSE));
+						synapsesNode.setDomainType(ResourcesDomainType.SYNAPSE.get());
 					}
 					catch(ContentError | ModelInterpreterException e)
 					{
@@ -394,9 +405,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					connectionNodeFrom.getCustomNodes().add(synapsesNode);
 					connectionNodeTo.getCustomNodes().add(synapsesNode);
 					synapsesNode.setParent(connectionNodeFrom);
-
-					// TODO: What shall we do with this Id?
-					// connection.getId();
 
 					connectionNodeFrom.setType(ConnectionType.FROM);
 					connectionNodeTo.setType(ConnectionType.TO);
