@@ -582,7 +582,7 @@ public class PopulateNeuroMLModelTreeUtils {
 		List<CompositeNode> speciesNodeList = new ArrayList<CompositeNode>();
 		for(Species specie : species)
 		{
-			CompositeNode speciesNodeItem = new CompositeNode(specie.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.SPECIES.get(), specie));
+			CompositeNode speciesNodeItem = new CompositeNode(specie.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.SPECIES.get(), specie.getId()));
 			
 			// Initial Concentration
 			speciesNodeItem.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.INIT_CONCENTRATION.getId(), Resources.INIT_CONCENTRATION.get(), specie.getInitialConcentration()));
