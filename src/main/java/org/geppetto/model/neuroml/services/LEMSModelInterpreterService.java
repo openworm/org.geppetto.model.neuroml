@@ -39,6 +39,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import javax.xml.bind.JAXBException;
+
 import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;

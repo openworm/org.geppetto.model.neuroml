@@ -128,7 +128,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			OptimizedLEMSReader reader = new OptimizedLEMSReader(urlBase);
 
 			String neuromlString = URLReader.readStringFromURL(url); //read the root file
-			String neuromlStringOptimized = reader.processLEMSInclusions(neuromlString); //expand it to have all the inclusions
+			String neuromlStringOptimized = reader.read(neuromlString); //expand it to have all the inclusions
 			
 			/*
 			 * LEMS
@@ -170,10 +170,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			throw new ModelInterpreterException(e);
 		}
 		catch(ContentError e)
-		{
-			throw new ModelInterpreterException(e);
-		}
-		catch(JAXBException e)
 		{
 			throw new ModelInterpreterException(e);
 		}

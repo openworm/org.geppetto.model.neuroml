@@ -35,7 +35,7 @@ public class OptimizedLEMSReader
 	private boolean _neuroMLIncluded = false;
 	private boolean _simulationIncluded = false;
 	private Map<String, NeuroMLDocument> _neuroMLs = new HashMap<String, NeuroMLDocument>();
-	private NeuroMLConverter neuromlConverter =null;
+	private NeuroMLConverter neuromlConverter = null;
 	private List<String> inclusions = new ArrayList<String>();
 
 	private String urlBase;
@@ -57,11 +57,23 @@ public class OptimizedLEMSReader
 	 * @throws IOException
 	 * @throws NeuroMLException
 	 */
-	public String read(URL url) throws IOException, NeuroMLException
+	public String read(URL url) throws IOException
+	{
+		return read(URLReader.readStringFromURL(url));
+
+	}
+
+	/**
+	 * @param neuromlString
+	 * @return
+	 * @throws IOException
+	 * @throws NeuroMLException
+	 */
+	public String read(String content) throws IOException
 	{
 		try
 		{
-			return processLEMSInclusions(URLReader.readStringFromURL(url));
+			return processLEMSInclusions(content);
 		}
 		catch(JAXBException | NeuroMLException e)
 		{
@@ -76,12 +88,12 @@ public class OptimizedLEMSReader
 	 * @throws JAXBException
 	 * @throws NeuroMLException
 	 */
-	public String processLEMSInclusions(String lemsString) throws IOException, JAXBException, NeuroMLException
+	private String processLEMSInclusions(String lemsString) throws IOException, JAXBException, NeuroMLException
 	{
-		String smallerLemsString = lemsString.replaceAll( "(?s)<!--.*?-->", "" ); //remove comments
-		smallerLemsString = smallerLemsString.replaceAll("<notes>([\\s\\S]*?)</notes>", ""); //remove notes
-		smallerLemsString = smallerLemsString.replaceAll("(?m)^[ \t]*\r?\n", "").trim();//remove empty lines
-		
+		String smallerLemsString = lemsString.replaceAll("(?s)<!--.*?-->", ""); // remove comments
+		smallerLemsString = smallerLemsString.replaceAll("<notes>([\\s\\S]*?)</notes>", ""); // remove notes
+		smallerLemsString = smallerLemsString.replaceAll("(?m)^[ \t]*\r?\n", "").trim();// remove empty lines
+
 		StringBuffer processedLEMSString = new StringBuffer(smallerLemsString.length());
 
 		String regExp = "\\<include\\s*(href|file|url)\\s*=\\s*\\\"(.*)\\\"\\s*\\/>";
@@ -140,13 +152,18 @@ public class OptimizedLEMSReader
 					try
 					{
 						inclusions.add(urlPath);
+						long startRead = System.currentTimeMillis();
 						String s = URLReader.readStringFromURL(url);
+						_logger.info("Reading of " + url.toString() + " took " + (System.currentTimeMillis() - startRead) + "ms");
+
 						if(url.toExternalForm().endsWith("nml"))
 						{
+							startRead = System.currentTimeMillis();
 							// it's a neuroML file
-							neuromlConverter= new NeuroMLConverter(); //It throws a NPE if the instance is reused :S
-							NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
+							neuromlConverter = new NeuroMLConverter(); // It throws a NPE if the instance is reused :S
+							NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(s);
 							_neuroMLs.put(url.getFile(), neuroml);
+							_logger.info("NeuroML parsing of " + url.toString() + " took " + (System.currentTimeMillis() - startRead) + "ms");
 						}
 						content = trimOuterElement(processLEMSInclusions(s));
 
@@ -188,12 +205,11 @@ public class OptimizedLEMSReader
 	 */
 	private String trimOuterElement(String s)
 	{
-		String processedString = s.replaceAll("<\\?xml(.*)\\?>", ""); //remove xml tag
-		processedString = processedString.replaceAll("<(lems|neuroml)([\\s\\S]*?)>", "");//remove neuroml or lems tags
-		processedString = processedString.replaceAll("</(lems|neuroml)([\\s\\S]*?)>", ""); //remove close neuroml or lems tags
+		String processedString = s.replaceAll("<\\?xml(.*)\\?>", ""); // remove xml tag
+		processedString = processedString.replaceAll("<(lems|neuroml)([\\s\\S]*?)>", "");// remove neuroml or lems tags
+		processedString = processedString.replaceAll("</(lems|neuroml)([\\s\\S]*?)>", ""); // remove close neuroml or lems tags
 		return processedString;
 	}
-
 
 	/**
 	 * @return
@@ -203,12 +219,5 @@ public class OptimizedLEMSReader
 		return _neuroMLs;
 	}
 
-	/**
-	 * @param inclusions
-	 */
-	public void setInclusions(List<String> inclusions)
-	{
-		this.inclusions = inclusions;
-	}
 
 }
