@@ -10,13 +10,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.utilities.URLReader;
-import org.lemsml.jlems.core.logging.E;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
@@ -33,18 +34,19 @@ public class OptimizedLEMSReader
 	private static final String simulationInclusion = "Simulation.xml";
 	private boolean _neuroMLIncluded = false;
 	private boolean _simulationIncluded = false;
-	private Map<String,NeuroMLDocument> _neuroMLs = new HashMap<String,NeuroMLDocument>();
+	private Map<String, NeuroMLDocument> _neuroMLs = new HashMap<String, NeuroMLDocument>();
+	private NeuroMLConverter neuromlConverter = null;
 	private List<String> inclusions = new ArrayList<String>();
-	
-	
+
 	private String urlBase;
-			
-	public OptimizedLEMSReader() {
+
+	public OptimizedLEMSReader() throws NeuroMLException
+	{
 		super();
 	}
 
-
-	public OptimizedLEMSReader(String urlBase) {
+	public OptimizedLEMSReader(String urlBase) throws NeuroMLException
+	{
 		super();
 		this.urlBase = urlBase;
 	}
@@ -53,13 +55,25 @@ public class OptimizedLEMSReader
 	 * @param url
 	 * @return
 	 * @throws IOException
-	 * @throws NeuroMLException 
+	 * @throws NeuroMLException
 	 */
-	public String read(URL url) throws IOException, NeuroMLException
+	public String read(URL url) throws IOException
+	{
+		return read(URLReader.readStringFromURL(url));
+
+	}
+
+	/**
+	 * @param neuromlString
+	 * @return
+	 * @throws IOException
+	 * @throws NeuroMLException
+	 */
+	public String read(String content) throws IOException
 	{
 		try
 		{
-			return processLEMSInclusions(URLReader.readStringFromURL(url));
+			return processLEMSInclusions(content);
 		}
 		catch(JAXBException | NeuroMLException e)
 		{
@@ -71,95 +85,102 @@ public class OptimizedLEMSReader
 	 * @param lemsString
 	 * @return
 	 * @throws IOException
-	 * @throws JAXBException 
-	 * @throws NeuroMLException 
+	 * @throws JAXBException
+	 * @throws NeuroMLException
 	 */
-	public String processLEMSInclusions(String lemsString) throws IOException, JAXBException, NeuroMLException
+	private String processLEMSInclusions(String lemsString) throws IOException, JAXBException, NeuroMLException
 	{
-		return processLEMSInclusions(lemsString, false);
-	}	
-	/**
-	 * @param lemsString
-	 * @return
-	 * @throws IOException
-	 * @throws JAXBException 
-	 * @throws NeuroMLException 
-	 */
-	public String processLEMSInclusions(String lemsString, Boolean includeNeuroml) throws IOException, JAXBException, NeuroMLException
-	{
-		String processedLEMSString = lemsString;
-		String includeClause = "Include "; 
-		if (includeNeuroml){
-			includeClause = "include href";
-		}
-		
-		String URLInclusion = "<"+ includeClause;
+		String smallerLemsString = lemsString.replaceAll("(?s)<!--.*?-->", ""); // remove comments
+		smallerLemsString = smallerLemsString.replaceAll("<notes>([\\s\\S]*?)</notes>", ""); // remove notes
+		smallerLemsString = smallerLemsString.replaceAll("(?m)^[ \t]*\r?\n", "").trim();// remove empty lines
 
-		while(processedLEMSString.contains(URLInclusion))
+		StringBuffer processedLEMSString = new StringBuffer(smallerLemsString.length());
+
+		String regExp = "\\<include\\s*(href|file|url)\\s*=\\s*\\\"(.*)\\\"\\s*\\/>";
+		Pattern pattern = Pattern.compile(regExp, Pattern.CASE_INSENSITIVE);
+
+		Matcher matcher = pattern.matcher(smallerLemsString);
+
+		while(matcher.find())
 		{
-			int inclusionStart = processedLEMSString.indexOf(URLInclusion);
-			int urlStart = processedLEMSString.indexOf("\"", inclusionStart) + 1;
-			int urlEnd = processedLEMSString.indexOf("\"", urlStart + 1);
-			int inclusionEnd = processedLEMSString.indexOf(">", urlEnd);
-			String inclusion = processedLEMSString.substring(inclusionStart, inclusionEnd + 1);
-			String urlPath = processedLEMSString.substring(urlStart, urlEnd);
-			if(inclusion.startsWith("<"+ includeClause + "file"))
-			{
-				urlPath = "file:///" + urlPath;
-			}
-			else if (this.urlBase != null) {
-				urlPath = urlBase + urlPath;
-			}
-			URL url = new URL(urlPath);
+			String kind = matcher.group(1);
+			String urlPath = "";
 			String content = "";
-			if(isNeuroMLInclusion(url.toExternalForm()))
+			if(kind.equals("file"))
 			{
-				// use the local version
-				if(!_neuroMLIncluded)
+				urlPath = "file:///" + matcher.group(2);
+			}
+			else if(kind.equals("href"))
+			{
+				if(this.urlBase != null)
 				{
-					content = URLReader.readStringFromURL(this.getClass().getResource("/NEUROML2BETA"));
-					
-					_neuroMLIncluded = true;
-					_simulationIncluded = true;
+					urlPath = this.urlBase + matcher.group(2);
 				}
 			}
-			else if(url.toExternalForm().equals(simulationInclusion) || url.toExternalForm().endsWith("/"+simulationInclusion))
+			else if(kind.equals("url"))
 			{
-				// use the local version
-				if(!_simulationIncluded)
-				{
-					content = URLReader.readStringFromURL(this.getClass().getResource("/SIMULATION"));
-					_simulationIncluded = true;
-				}
+				urlPath = matcher.group(2);
 			}
-			else
+
+			_logger.info("LEMS check inclusion " + urlPath);
+			if(!inclusions.contains(urlPath))
 			{
-				try {
-					if (!inclusions.contains(urlPath)){
+				URL url = new URL(urlPath);
+
+				if(isNeuroMLInclusion(url.toExternalForm()))
+				{
+					// use the local version
+					if(!_neuroMLIncluded)
+					{
+						content = URLReader.readStringFromURL(this.getClass().getResource("/NEUROML2BETA"));
+
+						_neuroMLIncluded = true;
+						_simulationIncluded = true;
+					}
+				}
+				else if(url.toExternalForm().equals(simulationInclusion) || url.toExternalForm().endsWith("/" + simulationInclusion))
+				{
+					// use the local version
+					if(!_simulationIncluded)
+					{
+						content = URLReader.readStringFromURL(this.getClass().getResource("/SIMULATION"));
+						_simulationIncluded = true;
+					}
+				}
+				else
+				{
+					try
+					{
 						inclusions.add(urlPath);
-						String s=URLReader.readStringFromURL(url);
+						long startRead = System.currentTimeMillis();
+						String s = URLReader.readStringFromURL(url);
+						_logger.info("Reading of " + url.toString() + " took " + (System.currentTimeMillis() - startRead) + "ms");
+
 						if(url.toExternalForm().endsWith("nml"))
 						{
-							//it's a neuroML file
-							NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-							NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
+							startRead = System.currentTimeMillis();
+							// it's a neuroML file
+							neuromlConverter = new NeuroMLConverter(); // It throws a NPE if the instance is reused :S
+							NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(s);
 							_neuroMLs.put(url.getFile(), neuroml);
+							_logger.info("NeuroML parsing of " + url.toString() + " took " + (System.currentTimeMillis() - startRead) + "ms");
 						}
-						content = trimOuterElement(processLEMSInclusions(s, includeNeuroml));
+						content = trimOuterElement(processLEMSInclusions(s));
+
 					}
-					else{
+					catch(IOException e)
+					{
+						_logger.warn(e.toString());
 						content = "";
 					}
-				} catch (IOException e) {
-					_logger.warn(e.toString());
-					content = "";
+
 				}
-				
 			}
-			processedLEMSString = processedLEMSString.replace(inclusion, content);
+			matcher.appendReplacement(processedLEMSString, content);
 
 		}
-		return processedLEMSString;
+		matcher.appendTail(processedLEMSString);
+		return processedLEMSString.toString();
 	}
 
 	/**
@@ -184,60 +205,10 @@ public class OptimizedLEMSReader
 	 */
 	private String trimOuterElement(String s)
 	{
-		String ret = "";
-		String processedString = removeXMLComments(s);
-		processedString = processedString.trim();
-
-		if(processedString.startsWith("<?xml"))
-		{
-			int index = processedString.indexOf(">");
-			processedString = processedString.substring(index + 1).trim();
-		}
-
-		if(processedString.startsWith("<"))
-		{
-			int isp = processedString.indexOf(" ");
-			int ict = processedString.indexOf(">");
-			String eltname = processedString.substring(1, (ict < isp ? ict : isp));
-			int sco = processedString.indexOf(">");
-
-			String ctag = "</" + eltname + ">";
-			int ice = processedString.lastIndexOf(ctag);
-
-			if(ice > sco)
-			{
-				ret = processedString.substring(sco + 1, ice);
-
-			}
-			else
-			{
-				int l = processedString.length();
-				E.error("non matching XML close in include: open tag=" + eltname + " end= ..." + processedString.substring(l - 15, l));
-			}
-		}
-		else
-		{
-			int l = processedString.length();
-			E.error("Cant extract content from " + processedString.substring(0, (20 < l ? 20 : l)));
-		}
-
-		return ret;
-	}
-
-	/**
-	 * @param xml
-	 * @return
-	 */
-	private String removeXMLComments(String xml)
-	{
-		String ret = xml;
-		while(ret.indexOf("<!--") >= 0)
-		{
-			int start = ret.indexOf("<!--");
-			int end = ret.indexOf("-->") + 3;
-			ret = ret.substring(0, start) + ret.substring(end);
-		}
-		return ret;
+		String processedString = s.replaceAll("<\\?xml(.*)\\?>", ""); // remove xml tag
+		processedString = processedString.replaceAll("<(lems|neuroml)([\\s\\S]*?)>", "");// remove neuroml or lems tags
+		processedString = processedString.replaceAll("</(lems|neuroml)([\\s\\S]*?)>", ""); // remove close neuroml or lems tags
+		return processedString;
 	}
 
 	/**
@@ -248,8 +219,5 @@ public class OptimizedLEMSReader
 		return _neuroMLs;
 	}
 
-	public void setInclusions(List<String> inclusions){
-		this.inclusions = inclusions;
-	}
-	
+
 }

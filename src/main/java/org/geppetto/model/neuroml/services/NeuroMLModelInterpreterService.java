@@ -1,7 +1,7 @@
 /*******************************************************************************
 . * The MIT License (MIT)
  *
- * Copyright (c) 2011, 2013 OpenWorm.
+ * Copyright (c) 2011 - 2015 OpenWorm.
  * http://openworm.org
  *
  * All rights reserved. This program and the accompanying materials
@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.UUID;
 
 import javax.xml.bind.JAXBException;
@@ -51,7 +50,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
-import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
@@ -129,37 +127,22 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			String urlBase = url.toString().substring(0, index + 1);
 			OptimizedLEMSReader reader = new OptimizedLEMSReader(urlBase);
 
+			String neuromlString = URLReader.readStringFromURL(url); //read the root file
+			String neuromlStringOptimized = reader.read(neuromlString); //expand it to have all the inclusions
+			
 			/*
 			 * LEMS
 			 */
-			// Convert neuroml doc to lems
-			Scanner scanner = new Scanner(url.openStream(), "UTF-8");
-			String neuroMLString = scanner.useDelimiter("\\A").next();
-			scanner.close();
-			String lemsString = NeuroMLConverter.convertNeuroML2ToLems(neuroMLString);
-			// Process LEMS inclusions and convert to a LEMS document
-			// ILEMSDocument document = lemsReader.readModel(lemsString);
-			String lemsStringOptimized = reader.processLEMSInclusions(lemsString);
-			lemsStringOptimized = reader.processLEMSInclusions(lemsStringOptimized, true);
-			lemsStringOptimized = lemsStringOptimized.replace("<Lems>", "");
-			lemsStringOptimized = lemsStringOptimized.replace("</Lems>", "");
-			lemsStringOptimized = "<Lems> " + lemsStringOptimized + " </Lems>";
+			String lemsStringOptimized = NeuroMLConverter.convertNeuroML2ToLems(neuromlStringOptimized);
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument document = lemsReader.readModel(lemsStringOptimized);
 
 			/*
 			 * NEUROML
 			 */
-			// NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-			// NeuroMLDocument neuroml = neuromlConverter.urlToNeuroML(url);
-			// Read neuroml file without inclusions
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-			reader.setInclusions(new ArrayList<String>());
-			String neuromlString = URLReader.readStringFromURL(url);
 			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(neuromlString);
-			// Read neuroml file with inclusions
-			String neuromlStringOptimized = reader.processLEMSInclusions(neuromlString, true);
-			neuromlStringOptimized = reader.processLEMSInclusions(neuromlStringOptimized);
+		
 			NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(neuromlStringOptimized);
 
 			/*
@@ -187,10 +170,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			throw new ModelInterpreterException(e);
 		}
 		catch(ContentError e)
-		{
-			throw new ModelInterpreterException(e);
-		}
-		catch(JAXBException e)
 		{
 			throw new ModelInterpreterException(e);
 		}
