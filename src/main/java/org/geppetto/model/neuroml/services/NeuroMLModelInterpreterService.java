@@ -89,6 +89,7 @@ import org.neuroml.model.Population;
 import org.neuroml.model.PopulationTypes;
 import org.neuroml.model.Projection;
 import org.neuroml.model.util.NeuroMLConverter;
+import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -128,12 +129,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			OptimizedLEMSReader reader = new OptimizedLEMSReader(urlBase);
 
 			String neuromlString = URLReader.readStringFromURL(url); //read the root file
-			String neuromlStringOptimized = reader.read(neuromlString); //expand it to have all the inclusions
+			String neuromlStringOptimized = reader.read(neuromlString,true); //expand it to have all the inclusions
 			
 			/*
 			 * LEMS
 			 */
-			String lemsStringOptimized = NeuroMLConverter.convertNeuroML2ToLems(neuromlStringOptimized);
+			String lemsStringOptimized = convertNeuroML2ToLems(neuromlStringOptimized);
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument document = lemsReader.readModel(lemsStringOptimized);
 
@@ -173,11 +174,24 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		{
 			throw new ModelInterpreterException(e);
 		}
-		catch(Exception e)
+		catch(NeuroMLException e)
 		{
 			throw new ModelInterpreterException(e);
 		}
 		return model;
+	}
+
+	/**
+	 * @param neuromlString
+	 * @return
+	 */
+	private String convertNeuroML2ToLems(String neuromlString)
+	{
+		//Evil
+		String lemsString = neuromlString.replaceAll("<\\?xml(.*)\\?>", ""); // remove xml tag
+		lemsString = lemsString.replaceAll("<neuroml([\\s\\S]*?)>", "<Lems>");// replace open tag
+		lemsString = lemsString.replaceAll("</neuroml([\\s\\S]*?)>", "</Lems>"); // replace close tag
+		return lemsString;
 	}
 
 	/*
@@ -244,10 +258,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 */
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
-		if(((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID) instanceof NeuroMLDocument)
+		if(((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.NEUROML_ID) instanceof NeuroMLDocument)
 		{
-			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID);
-			URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.URL_ID);
+			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.NEUROML_ID);
+			URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID);
 
 			List<Network> networks = neuroml.getNetwork();
 			if(networks == null || networks.size() == 0)
@@ -399,21 +413,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 			}
 		}
-
-		// Remove because this way of defining synaptic connections is not supported anymore
-		// for (SynapticConnection synapticConnection : network.getSynapticConnection()){
-		// String from = synapticConnection.getFrom();
-		// String to = synapticConnection.getTo();
-		//
-		// String preCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(from);
-		// String postCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(to);
-		//
-		// synapticConnection.getSynapse();
-		//
-		// //TODO: This is still working?
-		// synapticConnection.getDestination();
-		// }
-
 	}
 
 	/**
@@ -511,23 +510,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) parentEntityAspect.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
 		cellMapping.put(id, c);
 	}
-
-	/**
-	 * @param cell
-	 * @return
-	 */
-	// public static AspectSubTreeNode getSubEntityAspectSubTreeNode(BaseCell cell, AspectSubTreeNode.AspectTreeType type, AspectNode aspect, ModelWrapper model)
-	// {
-	// EntityNode entity = ((Map<BaseCell, EntityNode>) model.getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID2)).get(cell);
-	// for(AspectNode a : entity.getAspects())
-	// {
-	// if(a.getId().equals(aspect.getId()))
-	// {
-	// return a.getSubTree(type);
-	// }
-	// }
-	// return null;
-	// }
 
 	/*
 	 * (non-Javadoc)
