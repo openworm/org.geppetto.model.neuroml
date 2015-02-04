@@ -265,32 +265,47 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 */
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
-		if(((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID) instanceof NeuroMLDocument)
+		Object neuromlObject = ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID);
+		if(neuromlObject instanceof NeuroMLDocument)
 		{
-			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID);
-			URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.URL_ID);
-
-			List<Network> networks = neuroml.getNetwork();
-			if(networks == null || networks.size() == 0)
+			extractSubEntities(aspectNode, neuromlObject);
+		}
+		else if(((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID) instanceof Map)
+		{
+			for(Object item : ((Map<?, ?>) neuromlObject).values())
 			{
-				// What do we do?
-			}
-			else if(networks.size() == 1)
-			{
-				// there's only one network, we consider the entity for it our network entity
-				addNetworkSubEntities(networks.get(0), (EntityNode) aspectNode.getParentEntity(), url, aspectNode, (ModelWrapper) aspectNode.getModel());
-				createConnections(networks.get(0), aspectNode);
-			}
-			else if(networks.size() > 1)
-			{
-				// there's more than one network, each network will become an entity
-				for(Network n : networks)
+				if(item instanceof NeuroMLDocument)
 				{
-					EntityNode networkEntity = new EntityNode(n.getId());
-					addNetworkSubEntities(n, networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
-					createConnections(n, aspectNode);
-					aspectNode.getChildren().add(networkEntity);
+					extractSubEntities(aspectNode, item);
 				}
+			}
+		}
+	}
+
+	private void extractSubEntities(AspectNode aspectNode, Object neuromlObject) throws ModelInterpreterException {
+		NeuroMLDocument neuroml = (NeuroMLDocument) neuromlObject;
+		URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.URL_ID);
+
+		List<Network> networks = neuroml.getNetwork();
+		if(networks == null || networks.size() == 0)
+		{
+			// What do we do?
+		}
+		else if(networks.size() == 1)
+		{
+			// there's only one network, we consider the entity for it our network entity
+			addNetworkSubEntities(networks.get(0), (EntityNode) aspectNode.getParentEntity(), url, aspectNode, (ModelWrapper) aspectNode.getModel());
+			createConnections(networks.get(0), aspectNode);
+		}
+		else if(networks.size() > 1)
+		{
+			// there's more than one network, each network will become an entity
+			for(Network n : networks)
+			{
+				EntityNode networkEntity = new EntityNode(n.getId());
+				addNetworkSubEntities(n, networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
+				createConnections(n, aspectNode);
+				aspectNode.getChildren().add(networkEntity);
 			}
 		}
 	}

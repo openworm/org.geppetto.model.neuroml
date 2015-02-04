@@ -126,11 +126,44 @@ public class NeuroMLAccessUtility
 	{
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
 		
-		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS);
-		if (doc == null){
-			doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
-		}
+		Object component = null;
 		
+		//NeuroML Model
+		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS);
+		//LEMS Model
+		if (doc == null){
+			Object neuromlObject = ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
+			if(neuromlObject instanceof NeuroMLDocument)
+			{
+				component = extractComponentId(componentId, model, componentType, _discoveredComponents, (NeuroMLDocument)neuromlObject);
+			}
+			else if(((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID) instanceof Map)
+			{
+				for(Object item : ((Map<?, ?>) neuromlObject).values())
+				{
+					if(item instanceof NeuroMLDocument)
+					{
+						try{
+							component = extractComponentId(componentId, model, componentType, _discoveredComponents, (NeuroMLDocument)item);
+						} catch (ContentError e1) {
+							component = null;
+						}
+						if (component != null){
+							break;
+						}
+					}
+				}	
+			}		
+		}
+		else{
+			 component = extractComponentId(componentId, model, componentType, _discoveredComponents, doc);
+		}
+		return component;
+		
+	}
+
+	private Object extractComponentId(String componentId, ModelWrapper model, Resources componentType, HashMap<String, Base> _discoveredComponents, NeuroMLDocument doc)
+			throws ContentError {
 		switch (componentType) {
 			case ION_CHANNEL:
 				for (IonChannel ionChannel : doc.getIonChannel()){
@@ -318,7 +351,5 @@ public class NeuroMLAccessUtility
 		default:
 			return this.lemsAccessUtility.getComponentById(componentId, model);
 		}
-		
-		
 	}
 }
