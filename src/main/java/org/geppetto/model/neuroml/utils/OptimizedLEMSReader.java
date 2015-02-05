@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,8 +16,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.utilities.URLReader;
-import org.neuroml.model.NeuroMLDocument;
-import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 
 /**
@@ -39,10 +35,11 @@ public class OptimizedLEMSReader
 	private static final String simulationInclusion = "Simulation.xml";
 	private boolean _neuroMLIncluded = false;
 	private boolean _simulationIncluded = false;
-	private Map<String, NeuroMLDocument> _neuroMLs = new HashMap<String, NeuroMLDocument>();
-	private NeuroMLConverter _neuromlConverter = null;
+
+	private String _neuroMLString = "";
+	private Boolean extractNeuroMLfiles = false;
+	
 	private List<String> _inclusions = new ArrayList<String>();
-//	private String _urlBase;
 	private boolean _includeNeuroML = false;
 
 	public OptimizedLEMSReader() throws NeuroMLException
@@ -50,13 +47,12 @@ public class OptimizedLEMSReader
 		super();
 	}
 
-//	public OptimizedLEMSReader(String urlBase) throws NeuroMLException
-//	{
-//		super();
-//		this._urlBase = urlBase;
-//	}
-
-
+	public OptimizedLEMSReader(Boolean extractNeuroMLfiles) throws NeuroMLException
+	{
+		super();
+		this.extractNeuroMLfiles = extractNeuroMLfiles;
+	}
+	
 	/**
 	 * @param url A url which can point to either a Lems file or a NeuroML one
 	 * @param includeNeuroML if specified forces the inclusion of the NeuroML libraries even if no includes for them are found
@@ -65,29 +61,16 @@ public class OptimizedLEMSReader
 	 */
 	public String read(URL url, boolean includeNeuroML, String urlBase) throws IOException
 	{
-		return read(URLReader.readStringFromURL(url), includeNeuroML, urlBase);
-	}
-
-
-	/**
-	 * @param content A string containing either a Lems model or a NeuroML one
-	 * @param includeNeuroML if specified forces the inclusion of the NeuroML libraries even if no includes for them are found
-	 * @return A string containing all the models included via the root one (and in nested children) in the same file 
-	 * @throws IOException
-	 */
-	public String read(String content, boolean includeNeuroML, String urlBase) throws IOException
-	{
 		_includeNeuroML = includeNeuroML;
 		try
 		{
-			return processLEMSInclusions(content, urlBase);
+			return processLEMSInclusions(URLReader.readStringFromURL(url), urlBase);
 		}
 		catch(JAXBException | NeuroMLException e)
 		{
 			throw new IOException(e);
 		}
 	}
-
 
 	/**
 	 * @param lemsString
@@ -98,15 +81,12 @@ public class OptimizedLEMSReader
 	 */
 	private String processLEMSInclusions(String lemsString, String urlBase) throws IOException, JAXBException, NeuroMLException
 	{
-		String smallerLemsString = lemsString.replaceAll("(?s)<!--.*?-->", ""); // remove comments
-		smallerLemsString = smallerLemsString.replaceAll("<notes>([\\s\\S]*?)</notes>", ""); // remove notes
-		smallerLemsString = smallerLemsString.replaceAll("(?m)^[ \t]*\r?\n", "").trim();// remove empty lines
+		String smallerLemsString = cleanLEMSNeuroMLDocument(lemsString);
 
 		StringBuffer processedLEMSString = new StringBuffer(smallerLemsString.length());
 
 		String regExp = "\\<include\\s*(href|file|url)\\s*=\\s*\\\"(.*)\\\"\\s*\\/>";
 		Pattern pattern = Pattern.compile(regExp, Pattern.CASE_INSENSITIVE);
-
 		Matcher matcher = pattern.matcher(smallerLemsString);
 
 		while(matcher.find())
@@ -164,30 +144,24 @@ public class OptimizedLEMSReader
 						{
 							startRead = System.currentTimeMillis();
 							// it's a neuroML file
-							_neuromlConverter = new NeuroMLConverter(); // It throws a NPE in some situations (Celegans.net) if the instance is reused :S
-							NeuroMLDocument neuroml = _neuromlConverter.loadNeuroML(s);
-							_neuroMLs.put(url.getFile(), neuroml);
+							if (extractNeuroMLfiles){addNeuroMLInclusion(s);}
+							
 							_logger.info("NeuroML parsing of " + url.toString() + " took " + (System.currentTimeMillis() - startRead) + "ms");
 						}
 						
 						int index = url.toString().lastIndexOf('/');
 						String newUrlBase = url.toString().substring(0, index + 1);
-						
 						content = trimOuterElement(processLEMSInclusions(s, newUrlBase));
-
 					}
 					catch(IOException | NeuroMLException e)
 					{
 						_logger.warn(e.toString());
 						content = "";
 					}
-
 				}
 			}
 			matcher.appendReplacement(processedLEMSString, content);
-
 		}
-
 
 		matcher.appendTail(processedLEMSString);
 		
@@ -202,7 +176,35 @@ public class OptimizedLEMSReader
 				processedLEMSString.insert(nmlMatcher.end(), URLReader.readStringFromURL(this.getClass().getResource("/NEUROML2BETA")));
 			}
 		}
+		
 		return processedLEMSString.toString();
+	}
+
+	/**
+	 * @param s
+	 */
+	private void addNeuroMLInclusion(String fileContent) {
+		String cleanedFileContent = cleanLEMSNeuroMLDocument(fileContent);
+		//TODO: Delete the includes
+//		_neuroMLString.replaceAll(regExp, "");
+		if (_neuroMLString == ""){
+			_neuroMLString += cleanedFileContent;
+		}
+		else{
+			cleanedFileContent = trimOuterElement(cleanedFileContent);
+			_neuroMLString = _neuroMLString.replaceAll("</neuroml>", cleanedFileContent + "</neuroml>");
+		}
+	}
+
+	/**
+	 * @param s
+	 * @return
+	 */
+	private String cleanLEMSNeuroMLDocument(String lemsString) {
+		String smallerLemsString = lemsString.replaceAll("(?s)<!--.*?-->", ""); // remove comments
+		smallerLemsString = smallerLemsString.replaceAll("<notes>([\\s\\S]*?)</notes>", ""); // remove notes
+		smallerLemsString = smallerLemsString.replaceAll("(?m)^[ \t]*\r?\n", "").trim();// remove empty lines
+		return smallerLemsString;
 	}
 
 	/**
@@ -232,13 +234,13 @@ public class OptimizedLEMSReader
 		processedString = processedString.replaceAll("</(Lems|neuroml)([\\s\\S]*?)>", ""); // remove close neuroml or lems tags
 		return processedString;
 	}
-
+	
 	/**
 	 * @return
 	 */
-	public Map<String, NeuroMLDocument> getNeuroMLs()
+	public String getNeuroMLString()
 	{
-		return _neuroMLs;
+		return _neuroMLString;
 	}
 
 }

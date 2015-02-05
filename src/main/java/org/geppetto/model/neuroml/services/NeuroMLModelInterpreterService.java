@@ -62,7 +62,6 @@ import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.VisualObjectReferenceNode;
 import org.geppetto.core.model.simulation.ConnectionType;
 import org.geppetto.core.model.values.StringValue;
-import org.geppetto.core.utilities.URLReader;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
@@ -78,7 +77,6 @@ import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.BaseConductanceBasedSynapse;
@@ -124,40 +122,35 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		ModelWrapper model = new ModelWrapper(instancePath);
 		try
 		{
-			
 			OptimizedLEMSReader reader = new OptimizedLEMSReader();
-			String neuromlString = URLReader.readStringFromURL(url); //read the root file
-			// Create urlbase in order to find dependencies and optimizedlemsreader
 			int index = url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0, index + 1);
-			String neuromlStringOptimized = reader.read(neuromlString, true, urlBase); //expand it to have all the inclusions
+			String neuromlString = reader.read(url, true, urlBase); //expand it to have all the inclusions
 			
 			/*
 			 * LEMS
 			 */
-			String lemsStringOptimized = convertNeuroML2ToLems(neuromlStringOptimized);
+			String lemsString = convertNeuroML2ToLems(neuromlString);
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			ILEMSDocument document = lemsReader.readModel(lemsStringOptimized);
+			ILEMSDocument lemsDocument = lemsReader.readModel(lemsString);
 
 			/*
 			 * NEUROML
 			 */
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(neuromlString);
-		
-			NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(neuromlStringOptimized);
 
 			/*
 			 * CREATE MODEL WRAPPER
 			 */
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
-			// two different interpretations of the same file, one used to simulate the other used to visualize
-			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
-			// model.wrapModel(NeuroMLAccessUtility.LEMS_ID_INCLUSIONS, document_inclusions);
+
+			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, lemsDocument);
 			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml);
-			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS, neuroml_inclusions);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
+			
+			//TODO: This need to be changed (BaseCell, String)
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<String, EntityNode>());
 			model.wrapModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID, new HashMap<String, BaseCell>());
 
@@ -215,8 +208,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
 			if(neuroml != null)
 			{
-				// URL url = (URL) ((ModelWrapper) model).getModel(URL_ID);
-				// Use local class to populate model tree
 				modified = populateModelTree.populateModelTree(modelTree, ((ModelWrapper) model));
 				modelTree.setModified(modified);
 			}
@@ -259,21 +250,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 */
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
-		Object neuromlObject = ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID);
-		if(neuromlObject instanceof NeuroMLDocument)
-		{
-			extractSubEntities(aspectNode, (NeuroMLDocument)neuromlObject);
-		}
-		else if(((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID) instanceof Map)
-		{
-			for(Object item : ((Map<?, ?>) neuromlObject).values())
-			{
-				if(item instanceof NeuroMLDocument)
-				{
-					extractSubEntities(aspectNode, (NeuroMLDocument)item);
-				}
-			}
-		}
+		extractSubEntities(aspectNode, (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID));
 	}
 
 	private void extractSubEntities(AspectNode aspectNode, NeuroMLDocument neuroml) throws ModelInterpreterException {

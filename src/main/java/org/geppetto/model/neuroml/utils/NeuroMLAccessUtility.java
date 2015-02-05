@@ -48,12 +48,8 @@ public class NeuroMLAccessUtility
 	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
 	public static final String LEMS_ID = "lems";
 	public static final String NEUROML_ID = "neuroml";
-	public static final String NEUROML_ID_INCLUSIONS = "neuromlInclusions";
 	public static final String URL_ID = "url";
 	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
-//	public static final String LEMS_UTILS_ID = "lemsUtils";
-//	public static final String LEMS_ID_INCLUSIONS = "lemsInclusions";
-//	public static final String DISCOVERED_NODES = "discovered_nodes";
 	public static final String DISCOVERED_NESTED_COMPONENTS_ID = "discoveredNestedComponents";
 	public static final String CELL_SUBENTITIES_MAPPING_ID = "cellEntitiesMapping";
 	
@@ -126,44 +122,8 @@ public class NeuroMLAccessUtility
 	{
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
 		
-		Object component = null;
+		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
 		
-		//NeuroML Model
-		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS);
-		//LEMS Model
-		if (doc == null){
-			Object neuromlObject = ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
-			if(neuromlObject instanceof NeuroMLDocument)
-			{
-				component = extractComponentId(componentId, model, componentType, _discoveredComponents, (NeuroMLDocument)neuromlObject);
-			}
-			else if(((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID) instanceof Map)
-			{
-				for(Object item : ((Map<?, ?>) neuromlObject).values())
-				{
-					if(item instanceof NeuroMLDocument)
-					{
-						try{
-							component = extractComponentId(componentId, model, componentType, _discoveredComponents, (NeuroMLDocument)item);
-						} catch (ContentError e1) {
-							component = null;
-						}
-						if (component != null){
-							break;
-						}
-					}
-				}	
-			}		
-		}
-		else{
-			 component = extractComponentId(componentId, model, componentType, _discoveredComponents, doc);
-		}
-		return component;
-		
-	}
-
-	private Object extractComponentId(String componentId, ModelWrapper model, Resources componentType, HashMap<String, Base> _discoveredComponents, NeuroMLDocument doc)
-			throws ContentError {
 		switch (componentType) {
 			case ION_CHANNEL:
 				for (IonChannel ionChannel : doc.getIonChannel()){
@@ -351,5 +311,8 @@ public class NeuroMLAccessUtility
 		default:
 			return this.lemsAccessUtility.getComponentById(componentId, model);
 		}
+		
 	}
+
+	
 }
