@@ -85,8 +85,11 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		ModelWrapper model = new ModelWrapper(instancePath);
 		try
 		{
+			int index = url.toString().lastIndexOf('/');
+			String urlBase = url.toString().substring(0, index + 1);
+//			OptimizedLEMSReader reader = new OptimizedLEMSReader(urlBase);
 			OptimizedLEMSReader reader = new OptimizedLEMSReader();
-			String lemsString = reader.read(url,false);
+			String lemsString = reader.read(url, false, urlBase);
 
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument document = lemsReader.readModel(lemsString);

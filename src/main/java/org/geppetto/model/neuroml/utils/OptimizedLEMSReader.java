@@ -42,7 +42,7 @@ public class OptimizedLEMSReader
 	private Map<String, NeuroMLDocument> _neuroMLs = new HashMap<String, NeuroMLDocument>();
 	private NeuroMLConverter _neuromlConverter = null;
 	private List<String> _inclusions = new ArrayList<String>();
-	private String _urlBase;
+//	private String _urlBase;
 	private boolean _includeNeuroML = false;
 
 	public OptimizedLEMSReader() throws NeuroMLException
@@ -50,11 +50,11 @@ public class OptimizedLEMSReader
 		super();
 	}
 
-	public OptimizedLEMSReader(String urlBase) throws NeuroMLException
-	{
-		super();
-		this._urlBase = urlBase;
-	}
+//	public OptimizedLEMSReader(String urlBase) throws NeuroMLException
+//	{
+//		super();
+//		this._urlBase = urlBase;
+//	}
 
 
 	/**
@@ -63,10 +63,9 @@ public class OptimizedLEMSReader
 	 * @return A string containing all the models included via the root one (and in nested children) in the same file 
 	 * @throws IOException
 	 */
-	public String read(URL url, boolean includeNeuroML) throws IOException
+	public String read(URL url, boolean includeNeuroML, String urlBase) throws IOException
 	{
-		return read(URLReader.readStringFromURL(url), includeNeuroML);
-
+		return read(URLReader.readStringFromURL(url), includeNeuroML, urlBase);
 	}
 
 
@@ -76,12 +75,12 @@ public class OptimizedLEMSReader
 	 * @return A string containing all the models included via the root one (and in nested children) in the same file 
 	 * @throws IOException
 	 */
-	public String read(String content, boolean includeNeuroML) throws IOException
+	public String read(String content, boolean includeNeuroML, String urlBase) throws IOException
 	{
 		_includeNeuroML = includeNeuroML;
 		try
 		{
-			return processLEMSInclusions(content);
+			return processLEMSInclusions(content, urlBase);
 		}
 		catch(JAXBException | NeuroMLException e)
 		{
@@ -97,7 +96,7 @@ public class OptimizedLEMSReader
 	 * @throws JAXBException
 	 * @throws NeuroMLException
 	 */
-	private String processLEMSInclusions(String lemsString) throws IOException, JAXBException, NeuroMLException
+	private String processLEMSInclusions(String lemsString, String urlBase) throws IOException, JAXBException, NeuroMLException
 	{
 		String smallerLemsString = lemsString.replaceAll("(?s)<!--.*?-->", ""); // remove comments
 		smallerLemsString = smallerLemsString.replaceAll("<notes>([\\s\\S]*?)</notes>", ""); // remove notes
@@ -121,9 +120,9 @@ public class OptimizedLEMSReader
 			}
 			else if(kind.equals("href"))
 			{
-				if(this._urlBase != null)
+				if(urlBase != null)
 				{
-					urlPath = this._urlBase + matcher.group(2);
+					urlPath = urlBase + matcher.group(2);
 				}
 			}
 			else if(kind.equals("url"))
@@ -170,10 +169,14 @@ public class OptimizedLEMSReader
 							_neuroMLs.put(url.getFile(), neuroml);
 							_logger.info("NeuroML parsing of " + url.toString() + " took " + (System.currentTimeMillis() - startRead) + "ms");
 						}
-						content = trimOuterElement(processLEMSInclusions(s));
+						
+						int index = url.toString().lastIndexOf('/');
+						String newUrlBase = url.toString().substring(0, index + 1);
+						
+						content = trimOuterElement(processLEMSInclusions(s, newUrlBase));
 
 					}
-					catch(IOException e)
+					catch(IOException | NeuroMLException e)
 					{
 						_logger.warn(e.toString());
 						content = "";

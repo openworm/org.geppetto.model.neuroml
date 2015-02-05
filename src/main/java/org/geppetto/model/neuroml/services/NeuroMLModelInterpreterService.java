@@ -78,6 +78,7 @@ import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
+import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.BaseConductanceBasedSynapse;
@@ -123,13 +124,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		ModelWrapper model = new ModelWrapper(instancePath);
 		try
 		{
+			
+			OptimizedLEMSReader reader = new OptimizedLEMSReader();
+			String neuromlString = URLReader.readStringFromURL(url); //read the root file
 			// Create urlbase in order to find dependencies and optimizedlemsreader
 			int index = url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0, index + 1);
-			OptimizedLEMSReader reader = new OptimizedLEMSReader(urlBase);
-
-			String neuromlString = URLReader.readStringFromURL(url); //read the root file
-			String neuromlStringOptimized = reader.read(neuromlString,true); //expand it to have all the inclusions
+			String neuromlStringOptimized = reader.read(neuromlString, true, urlBase); //expand it to have all the inclusions
 			
 			/*
 			 * LEMS
@@ -261,7 +262,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		Object neuromlObject = ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID);
 		if(neuromlObject instanceof NeuroMLDocument)
 		{
-			extractSubEntities(aspectNode, neuromlObject);
+			extractSubEntities(aspectNode, (NeuroMLDocument)neuromlObject);
 		}
 		else if(((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID) instanceof Map)
 		{
@@ -269,14 +270,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 				if(item instanceof NeuroMLDocument)
 				{
-					extractSubEntities(aspectNode, item);
+					extractSubEntities(aspectNode, (NeuroMLDocument)item);
 				}
 			}
 		}
 	}
 
-	private void extractSubEntities(AspectNode aspectNode, Object neuromlObject) throws ModelInterpreterException {
-		NeuroMLDocument neuroml = (NeuroMLDocument) neuromlObject;
+	private void extractSubEntities(AspectNode aspectNode, NeuroMLDocument neuroml) throws ModelInterpreterException {
 		URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.URL_ID);
 
 		List<Network> networks = neuroml.getNetwork();
