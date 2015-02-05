@@ -164,19 +164,11 @@ public class PopulateModelTree {
 			        {
 						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createChannelNode((IonChannel)element));
 			        }
-//					else if(element instanceof IonChannelHH)
-//			        {
-//						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createChannelNode((IonChannelHH)element));
-//			        }
 					//Concentration Model Types group
 					else if(element instanceof DecayingPoolConcentrationModel || element instanceof FixedFactorConcentrationModel)
 			        {
 						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createConcentrationModelNode(element));
 			        }
-//					else if(element instanceof FixedFactorConcentrationModel)
-//			        {
-//						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createConcentrationModelNode((FixedFactorConcentrationModel)element));
-//			        }
 					//Points to Synapse Types group
 					else if(element instanceof BaseConductanceBasedSynapse)
 			        {

@@ -48,12 +48,8 @@ public class NeuroMLAccessUtility
 	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
 	public static final String LEMS_ID = "lems";
 	public static final String NEUROML_ID = "neuroml";
-	public static final String NEUROML_ID_INCLUSIONS = "neuromlInclusions";
 	public static final String URL_ID = "url";
 	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
-//	public static final String LEMS_UTILS_ID = "lemsUtils";
-//	public static final String LEMS_ID_INCLUSIONS = "lemsInclusions";
-//	public static final String DISCOVERED_NODES = "discovered_nodes";
 	public static final String DISCOVERED_NESTED_COMPONENTS_ID = "discoveredNestedComponents";
 	public static final String CELL_SUBENTITIES_MAPPING_ID = "cellEntitiesMapping";
 	
@@ -126,10 +122,7 @@ public class NeuroMLAccessUtility
 	{
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
 		
-		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID_INCLUSIONS);
-		if (doc == null){
-			doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
-		}
+		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
 		
 		switch (componentType) {
 			case ION_CHANNEL:
@@ -319,6 +312,7 @@ public class NeuroMLAccessUtility
 			return this.lemsAccessUtility.getComponentById(componentId, model);
 		}
 		
-		
 	}
+
+	
 }
