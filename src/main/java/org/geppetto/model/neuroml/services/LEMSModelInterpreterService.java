@@ -1,7 +1,7 @@
 /*******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2011, 2013 OpenWorm.
+ * Copyright (c) 2011 - 2015 OpenWorm.
  * http://openworm.org
  *
  * All rights reserved. This program and the accompanying materials
@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
-import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
@@ -55,22 +55,23 @@ import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
+import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * @author matteocantarelli
+ * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  * 
  */
-@Service
-public class LEMSModelInterpreterService implements IModelInterpreter
+
+public class LEMSModelInterpreterService extends AModelInterpreter
 {
 
 	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
 	
-	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
-
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
 
@@ -84,33 +85,39 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 		ModelWrapper model = new ModelWrapper(instancePath);
 		try
 		{
-			OptimizedLEMSReader reader = new OptimizedLEMSReader();
-			String lemsString = reader.read(url);
+			OptimizedLEMSReader reader = new OptimizedLEMSReader(true);
+			int index = url.toString().lastIndexOf('/');
+			String urlBase = url.toString().substring(0, index + 1);
+			String lemsString = reader.read(url, false, urlBase);
 
+			/*
+			 * LEMS
+			 */
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument document = lemsReader.readModel(lemsString);
 			
+			/*
+			 * NEUROML
+			 */
+			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+			NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
+			
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
-			// two different representation of the same file, one used to
-			// simulate the other used to visualize
-			if(reader.getNeuroMLs().size() == 1)
-			{
-				model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, reader.getNeuroMLs().values().toArray()[0]);
-			}
-			else
-			{
-				model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, reader.getNeuroMLs());
-			}
+			
+			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml_inclusions);
+			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
+			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
+			
 			//TODO: This need to be changed (BaseCell, String)
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
 			model.wrapModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID, new HashMap<String, BaseCell>());
-			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
-			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
+
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
-			
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
+			
+			addRecordings(recordings, instancePath, model);
 		}
 		catch(IOException e)
 		{
@@ -126,8 +133,6 @@ public class LEMSModelInterpreterService implements IModelInterpreter
 		}
 		return model;
 	}
-
-
 
 	/*
 	 * (non-Javadoc)

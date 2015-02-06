@@ -31,39 +31,31 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
 
-package org.geppetto.model.neuroml.test;
-
-import static org.junit.Assert.assertNotNull;
-
-import java.net.URL;
-
-import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
-import org.junit.Test;
+package org.geppetto.model.neuroml.utils;
 
 /**
+ * Class to hold resources used in the visualiser. This elements will be displayed to the user.
  * @author matteocantarelli
- * 
+ *
  */
-public class NeuroMLModelInterpreterServiceTest
+public enum ResourcesDomainType
 {
-
-	/**
-	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
-	 * @throws ModelInterpreterException 
-	 */
-	@Test
-	public void testReadModel() throws ModelInterpreterException
+	
+	SYNAPSE("Synapse"),
+	PREFRACTIONALONG("PreFractionAlong"),
+	POSTFRACTIONALONG("PostFractionAlong");
+	
+	
+	private String _value;
+	
+	private ResourcesDomainType(String value)
 	{
-		NeuroMLModelInterpreterService modelInterpreter = new NeuroMLModelInterpreterService();
-		URL url = this.getClass().getResource("/NML2_FullCell.nml");
-		ModelWrapper model = (ModelWrapper) modelInterpreter.readModel(url,null,"");
-		assertNotNull(model);
-		assertNotNull(model.getModel("url"));
-		assertNotNull(model.getModel("lems"));
-		assertNotNull(model.getModel("neuroml"));
-
+		_value = value;
 	}
-
+	
+	public String get()
+	{
+		return _value;
+	}
+	
 }

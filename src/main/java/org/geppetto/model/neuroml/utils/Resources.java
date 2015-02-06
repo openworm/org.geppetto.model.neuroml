@@ -1,7 +1,7 @@
 /*******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2011, 2013 OpenWorm.
+ * Copyright (c) 2011 - 2015 OpenWorm.
  * http://openworm.org
  *
  * All rights reserved. This program and the accompanying materials
@@ -147,7 +147,39 @@ public enum Resources
 	POSTFRACTIONALONG("Postfraction Along", "Postfractionalong"),
 	SUMMARY("Summary", "Summary"),
 	RESOURCE("Resource", "Resource"),
-	PYNN_SYNAPSE("Pynn Synapse", "PynnSynapse");
+	PYNN_SYNAPSE("Pynn Synapse", "PynnSynapse"),
+	TAU_M("Tau M", "TauM"),
+	TAU_REFRAC("Tau Refrac", "Taurefrac"),
+	V_RESET("V Reset", "VReset"),
+	V_REST("V Rest", "VRest"),
+	V_THRESH("V Thresh", "VThresh"),
+	CM("CM", "Cm"),
+	I_OFFSET("I Offset", "IOffset"),
+	TAU_SYN_E("Tau Syn E","TauSynE"),
+	TAU_SYN_I("Tau Syn I","TauSynI"),
+	V_INIT("V Init", "VInit"),
+	DELTAT("Delta T", "DeltaT"),
+	V_SPIKE("V Spike", "VSpike"),
+	V_OFFSET("V Offset", "VOffset"),
+	E_REV_E("E Rev E", "ERevE"),
+	E_REV_I("E Rev I", "ERevI"),
+	E_REV_K("E Rev K", "ERevK"),
+	E_REV_NA("E Rev I", "ERevNa"),
+	E_REV_LEAK("E Rev I", "ERevLEAK"),
+	G_LEAK("G Leak","GLeak"),
+	G_BARK("G Bark", "GBark"),
+	G_BAR_NA("G Bar Na", "GBarNa"),
+	NUMBER_CHANNEL("Number of Channels", "NumberChannels"),
+	VARIABLE_PARAMETER("Variable Parameter", "VariableParameter"),
+	INHOMOGENEOUS_VALUE("Inhomogeneous Value", "InhomogeneousValue"),
+	VALUE("Value", "Value"),
+	CHANNEL_DENSITY_NERNST("Channel Density Nernst", "ChannelDensityNernst"),
+	CHANNEL_DENSITY_GHK("Channel Density GHK", "ChannelDensityGHK"),
+	PERMEABILITY("Permeability", "Permeability"),
+	CHANNEL_DENSITY_NON_UNIFORM("Channel Density Non Uniform", "ChannelDensityNonUniform"),
+	CHANNEL_DENSITY_NON_UNIFORM_NERNST("Channel Density Non Uniform Nernst", "ChannelDensityNonUniformNernst"),
+	CONNECTION_ID("Connection Id", "ConnectionId"),
+	PROJECTION_ID("Projection Id", "ProjectionId");
 	
 	private String _value;
 	private String _id;
