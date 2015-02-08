@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,52 +21,58 @@ import org.geppetto.core.utilities.URLReader;
 import org.neuroml.model.util.NeuroMLException;
 
 /**
- * This class should not exist inside Geppetto and should be replaced when a proper library capable of reading a NeuroML and Lems file exists.
- * This class is called Optimized reader because it uses a local version of the NeuroML components rather than downloading it from the server every time.
- * This class processes all the inclusion found inside a NeuroML document or a Lems one and puts them all together.
- * Regular expressions are used to optimized searching and replacing inside String. Once a proper library is in place there would be no reason to work with strings.
+ * This class should not exist inside Geppetto and should be replaced when a proper library capable of reading a NeuroML and Lems file exists. This class is called Optimized reader because it uses a
+ * local version of the NeuroML components rather than downloading it from the server every time. This class processes all the inclusion found inside a NeuroML document or a Lems one and puts them all
+ * together. Regular expressions are used to optimized searching and replacing inside String. Once a proper library is in place there would be no reason to work with strings.
  * 
  * @author matteocantarelli
  * 
  */
 public class OptimizedLEMSReader
 {
+	public enum NMLDOCTYPE
+	{
+		LEMS, NEUROML
+	}
+
 	private static Log _logger = LogFactory.getLog(OptimizedLEMSReader.class);
 	private static final List<String> NeuroMLInclusions = Arrays.asList("https://raw.github.com/NeuroML/NeuroML2/master/NeuroML2CoreTypes/NeuroML2CoreTypes.xml", "NeuroML2CoreTypes.xml",
 			"NeuroMLCoreCompTypes.xml", "NeuroMLCoreDimensions.xml", "Cells.xml", "Networks.xml", "Synapes.xml", "Inputs.xml", "Channels.xml", "PyNN.xml");
+	private static final String NMLHEADER="<neuroml xmlns=\"http://www.neuroml.org/schema/neuroml2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.neuroml.org/schema/neuroml2  http://neuroml.svn.sourceforge.net/viewvc/neuroml/NeuroML2/Schemas/NeuroML2/NeuroML_v2alpha.xsd\">";
 	private static final String simulationInclusion = "Simulation.xml";
+
 	private boolean _neuroMLIncluded = false;
 	private boolean _simulationIncluded = false;
-
-	private String _neuroMLString = "";
-	private Boolean extractNeuroMLfiles = false;
-	
 	private List<String> _inclusions = new ArrayList<String>();
+
 	private boolean _includeNeuroML = false;
+
+	private StringBuffer _LEMSString;
+	private StringBuffer _neuroMLString;
 
 	public OptimizedLEMSReader() throws NeuroMLException
 	{
 		super();
 	}
 
-	public OptimizedLEMSReader(Boolean extractNeuroMLfiles) throws NeuroMLException
-	{
-		super();
-		this.extractNeuroMLfiles = extractNeuroMLfiles;
-	}
-	
 	/**
-	 * @param url A url which can point to either a Lems file or a NeuroML one
-	 * @param includeNeuroML if specified forces the inclusion of the NeuroML libraries even if no includes for them are found
-	 * @return A string containing all the models included via the root one (and in nested children) in the same file 
+	 * @param url
+	 *            A url which can point to either a Lems file or a NeuroML one
+	 * @param includeNeuroML
+	 *            if specified forces the inclusion of the NeuroML libraries even if no includes for them are found
+	 * @return A string containing all the models included via the root one (and in nested children) in the same file
 	 * @throws IOException
 	 */
-	public String read(URL url, boolean includeNeuroML, String urlBase) throws IOException
+	public void read(URL url, String urlBase, NMLDOCTYPE type) throws IOException
 	{
-		_includeNeuroML = includeNeuroML;
 		try
 		{
-			return processLEMSInclusions(URLReader.readStringFromURL(url), urlBase);
+			long start = System.currentTimeMillis();
+			Map<NMLDOCTYPE, StringBuffer> returned = processLEMSInclusions(URLReader.readStringFromURL(url), urlBase, type);
+			_neuroMLString = returned.get(NMLDOCTYPE.NEUROML);
+			_LEMSString = returned.get(NMLDOCTYPE.LEMS);
+			_logger.info("Processed all inclusions, took " + (System.currentTimeMillis() - start) + "ms");
+
 		}
 		catch(JAXBException | NeuroMLException e)
 		{
@@ -72,28 +80,47 @@ public class OptimizedLEMSReader
 		}
 	}
 
+	public String getNeuroMLString()
+	{
+		return _neuroMLString.toString();
+	}
+
+	public String getLEMSString()
+	{
+		return _LEMSString.toString();
+	}
+
 	/**
-	 * @param lemsString
+	 * @param documentString
 	 * @return
 	 * @throws IOException
 	 * @throws JAXBException
 	 * @throws NeuroMLException
 	 */
-	private String processLEMSInclusions(String lemsString, String urlBase) throws IOException, JAXBException, NeuroMLException
+	private Map<NMLDOCTYPE, StringBuffer> processLEMSInclusions(String documentString, String urlBase, NMLDOCTYPE type) throws IOException, JAXBException, NeuroMLException
 	{
-		String smallerLemsString = cleanLEMSNeuroMLDocument(lemsString);
+		// 1. We receive a document, it could be NeuroML or LEMS, we remove useless parts as optimization
+		String smallerDocumentString = cleanLEMSNeuroMLDocument(documentString);
+		// We create two string buffers one which will contain the NML representation of this include and one that will include the LEMS one
+		Map<NMLDOCTYPE, StringBuffer> processedDocs = new HashMap<OptimizedLEMSReader.NMLDOCTYPE, StringBuffer>();
+		StringBuffer processedNMLString = new StringBuffer();
+		StringBuffer processedLEMSString = new StringBuffer();
+		processedDocs.put(NMLDOCTYPE.NEUROML, processedNMLString);
+		processedDocs.put(NMLDOCTYPE.LEMS, processedLEMSString);
 
-		StringBuffer processedLEMSString = new StringBuffer(smallerLemsString.length());
-
+		// 2. We look for includes, they could be includes of a LEMS or a NeuroML file
 		String regExp = "\\<include\\s*(href|file|url)\\s*=\\s*\\\"(.*)\\\"\\s*\\/>";
 		Pattern pattern = Pattern.compile(regExp, Pattern.CASE_INSENSITIVE);
-		Matcher matcher = pattern.matcher(smallerLemsString);
+		Matcher matcher = pattern.matcher(smallerDocumentString);
 
 		while(matcher.find())
 		{
+			long start = System.currentTimeMillis();
 			String kind = matcher.group(1);
 			String urlPath = "";
-			String content = "";
+			String lemsInclusion = "";
+			String nmlInclusion = "";
+
 			if(kind.equals("file"))
 			{
 				urlPath = "file:///" + matcher.group(2);
@@ -110,14 +137,30 @@ public class OptimizedLEMSReader
 				urlPath = matcher.group(2);
 			}
 
-			_logger.info("LEMS check inclusion " + urlPath);
+			// Let's figure out if it's a NML document or a LEMS one
+			NMLDOCTYPE inclusionType = null;
+			if(urlPath.endsWith(".nml"))
+			{
+				inclusionType = NMLDOCTYPE.NEUROML;
+				_includeNeuroML = true; // if we find any NML inclusion we'll have to add the neuroml definitions
+			}
+			else if(urlPath.endsWith(".xml"))
+			{
+				inclusionType = NMLDOCTYPE.LEMS;
+			}
+
+			_logger.info("Check inclusion " + urlPath);
+
 			if(!_inclusions.contains(urlPath))
 			{
 				URL url = new URL(urlPath);
 
+				// Check if it's the inclusion of some NML standard component types
+
 				if(!_neuroMLIncluded && isNeuroMLInclusion(url.toExternalForm()))
 				{
-					content = URLReader.readStringFromURL(this.getClass().getResource("/NEUROML2BETA"));
+					lemsInclusion = URLReader.readStringFromURL(this.getClass().getResource("/NEUROML2BETA"));
+					// no nml representation of this inclusion, the NML document doesn't need the NML definitions
 					_neuroMLIncluded = true;
 					_simulationIncluded = true;
 
@@ -127,72 +170,119 @@ public class OptimizedLEMSReader
 					// use the local version
 					if(!_simulationIncluded)
 					{
-						content = URLReader.readStringFromURL(this.getClass().getResource("/SIMULATION"));
+						// no nml representation of this inclusion, the NML document doesn't need the simulation block
+						lemsInclusion = URLReader.readStringFromURL(this.getClass().getResource("/SIMULATION"));
 						_simulationIncluded = true;
 					}
 				}
 				else
 				{
+
+					// OK It's something else
 					try
 					{
 						_inclusions.add(urlPath);
 						long startRead = System.currentTimeMillis();
 						String s = URLReader.readStringFromURL(url);
 						_logger.info("Reading of " + url.toString() + " took " + (System.currentTimeMillis() - startRead) + "ms");
-
-						if(url.toExternalForm().endsWith("nml"))
-						{
-							startRead = System.currentTimeMillis();
-							// it's a neuroML file
-							if (extractNeuroMLfiles){addNeuroMLInclusion(s);}
-							
-							_logger.info("NeuroML parsing of " + url.toString() + " took " + (System.currentTimeMillis() - startRead) + "ms");
-						}
-						
 						int index = url.toString().lastIndexOf('/');
 						String newUrlBase = url.toString().substring(0, index + 1);
-						content = trimOuterElement(processLEMSInclusions(s, newUrlBase));
+						Map<NMLDOCTYPE, StringBuffer> included = processLEMSInclusions(s, newUrlBase, inclusionType);
+						lemsInclusion = trimOuterElement(included.get(NMLDOCTYPE.LEMS).toString()); // lems representation of the inclusion
+						nmlInclusion = trimOuterElement(included.get(NMLDOCTYPE.NEUROML).toString()); // nml representation of the inclusion
 					}
 					catch(IOException | NeuroMLException e)
 					{
 						_logger.warn(e.toString());
-						content = "";
 					}
 				}
 			}
-			matcher.appendReplacement(processedLEMSString, content);
+
+			switch(type)
+			{
+				case LEMS:
+					matcher.appendReplacement(processedLEMSString, lemsInclusion);
+					addToNeuroML(processedNMLString, nmlInclusion);
+					break;
+
+				case NEUROML:
+					matcher.appendReplacement(processedNMLString, nmlInclusion);
+					// NML is also LEMS
+					addToLems(processedLEMSString, lemsInclusion);
+					break;
+			}
+
+			_logger.info("Inclusion iteration completed, took " + (System.currentTimeMillis() - start) + "ms");
 		}
 
-		matcher.appendTail(processedLEMSString);
-		
-		//if tge flag was forcing to include neuroML component AND we haven't done it yet add them after the <neuroml> or <Lems> tag
+		switch(type)
+		{
+			case LEMS:
+				matcher.appendTail(processedLEMSString);
+				break;
+			case NEUROML:
+				int end=processedNMLString.length();
+				matcher.appendTail(processedNMLString);
+				addToLems(processedLEMSString, trimOuterElement(processedNMLString.toString().substring(end)));
+				_includeNeuroML = true;
+				break;
+		}
+
+		// if the flag was forcing to include neuroML component AND we haven't done it yet add them after the <neuroml> or <Lems> tag
 		if(_includeNeuroML && !_neuroMLIncluded)
 		{
-			String neuroMLRegex="<(Lems|neuroml)([\\s\\S]*?)>";
-			Pattern nmlpattern = Pattern.compile(neuroMLRegex, Pattern.CASE_INSENSITIVE);
-			Matcher nmlMatcher = nmlpattern.matcher(processedLEMSString);
-			if(nmlMatcher.find())
-			{
-				processedLEMSString.insert(nmlMatcher.end(), URLReader.readStringFromURL(this.getClass().getResource("/NEUROML2BETA")));
-			}
+			addToLems(processedLEMSString, URLReader.readStringFromURL(this.getClass().getResource("/NEUROML2BETA")));
+			_neuroMLIncluded=true;
 		}
-		
-		return processedLEMSString.toString();
+
+		return processedDocs;
 	}
 
 	/**
-	 * @param s
+	 * @param NMLString
+	 * @param toAdd
 	 */
-	private void addNeuroMLInclusion(String fileContent) {
-		String cleanedFileContent = cleanLEMSNeuroMLDocument(fileContent);
-		//TODO: Delete the includes
-//		_neuroMLString.replaceAll(regExp, "");
-		if (_neuroMLString == ""){
-			_neuroMLString += cleanedFileContent;
+	private void addToNeuroML(StringBuffer NMLString, String toAdd)
+	{
+		if(!toAdd.isEmpty())
+		{
+			if(NMLString.toString().isEmpty())
+			{
+				NMLString.append(NMLHEADER + System.getProperty("line.separator") + toAdd + System.getProperty("line.separator") + "</neuroml>");
+			}
+			else
+			{
+				String neuroMLRegex = "<(neuroml)([\\s\\S]*?)>";
+				Pattern nmlpattern = Pattern.compile(neuroMLRegex, Pattern.CASE_INSENSITIVE);
+				Matcher nmlMatcher = nmlpattern.matcher(NMLString);
+				if(nmlMatcher.find())
+				{
+					// NeuroML definitions are added only to
+					NMLString.insert(nmlMatcher.end(), System.getProperty("line.separator") + toAdd + System.getProperty("line.separator"));
+				}
+			}
 		}
-		else{
-			cleanedFileContent = trimOuterElement(cleanedFileContent);
-			_neuroMLString = _neuroMLString.replaceAll("</neuroml>", cleanedFileContent + "</neuroml>");
+	}
+
+	private void addToLems(StringBuffer LEMSString, String toAdd)
+	{
+		if(!toAdd.isEmpty())
+		{
+			if(LEMSString.toString().isEmpty())
+			{
+				LEMSString.append("<Lems>" + System.getProperty("line.separator") + toAdd + System.getProperty("line.separator") + "</Lems>");
+			}
+			else
+			{
+				String neuroMLRegex = "<(Lems)([\\s\\S]*?)>";
+				Pattern nmlpattern = Pattern.compile(neuroMLRegex, Pattern.CASE_INSENSITIVE);
+				Matcher nmlMatcher = nmlpattern.matcher(LEMSString);
+				if(nmlMatcher.find())
+				{
+					// NeuroML definitions are added only to
+					LEMSString.insert(nmlMatcher.end(), System.getProperty("line.separator") + toAdd + System.getProperty("line.separator"));
+				}
+			}
 		}
 	}
 
@@ -200,7 +290,8 @@ public class OptimizedLEMSReader
 	 * @param s
 	 * @return
 	 */
-	private String cleanLEMSNeuroMLDocument(String lemsString) {
+	private String cleanLEMSNeuroMLDocument(String lemsString)
+	{
 		String smallerLemsString = lemsString.replaceAll("(?s)<!--.*?-->", ""); // remove comments
 		smallerLemsString = smallerLemsString.replaceAll("<notes>([\\s\\S]*?)</notes>", ""); // remove notes
 		smallerLemsString = smallerLemsString.replaceAll("(?m)^[ \t]*\r?\n", "").trim();// remove empty lines
@@ -232,15 +323,7 @@ public class OptimizedLEMSReader
 		String processedString = s.replaceAll("<\\?xml(.*)\\?>", ""); // remove xml tag
 		processedString = processedString.replaceAll("<(Lems|neuroml)([\\s\\S]*?)>", "");// remove neuroml or lems tags
 		processedString = processedString.replaceAll("</(Lems|neuroml)([\\s\\S]*?)>", ""); // remove close neuroml or lems tags
-		return processedString;
-	}
-	
-	/**
-	 * @return
-	 */
-	public String getNeuroMLString()
-	{
-		return _neuroMLString;
+		return cleanLEMSNeuroMLDocument(processedString);
 	}
 
 }

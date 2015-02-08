@@ -34,6 +34,7 @@
 package org.geppetto.model.neuroml.services;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -125,21 +126,28 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			OptimizedLEMSReader reader = new OptimizedLEMSReader();
 			int index = url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0, index + 1);
-			String neuromlString = reader.read(url, true, urlBase); //expand it to have all the inclusions
+			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.NEUROML); //expand it to have all the inclusions
 			
 			/*
 			 * LEMS
 			 */
-			String lemsString = convertNeuroML2ToLems(neuromlString);
+			long start=System.currentTimeMillis();
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			ILEMSDocument lemsDocument = lemsReader.readModel(lemsString);
-
+			ILEMSDocument lemsDocument = lemsReader.readModel(reader.getLEMSString());
+			_logger.info("Parsed LEMS document, took "+(System.currentTimeMillis()-start)+"ms");
+			/*PrintWriter out = new PrintWriter("LEMS.txt");
+			out.println(reader.getLEMSString());
+			out.close();*/
 			/*
 			 * NEUROML
 			 */
+			start=System.currentTimeMillis();
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(neuromlString);
-
+			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
+			_logger.info("Parsed NeuroML document of size "+reader.getNeuroMLString().length()/1024+"KB, took "+(System.currentTimeMillis()-start)+"ms");
+			/*out = new PrintWriter("NEUROML.txt");
+			out.println(reader.getNeuroMLString());
+			out.close();*/
 			/*
 			 * CREATE MODEL WRAPPER
 			 */
@@ -173,19 +181,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			throw new ModelInterpreterException(e);
 		}
 		return model;
-	}
-
-	/**
-	 * @param neuromlString
-	 * @return
-	 */
-	private String convertNeuroML2ToLems(String neuromlString)
-	{
-		//Evil
-		String lemsString = neuromlString.replaceAll("<\\?xml(.*)\\?>", ""); // remove xml tag
-		lemsString = lemsString.replaceAll("<neuroml([\\s\\S]*?)>", "<Lems>");// replace open tag
-		lemsString = lemsString.replaceAll("</neuroml([\\s\\S]*?)>", "</Lems>"); // replace close tag
-		return lemsString;
 	}
 
 	/*
@@ -250,7 +245,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 */
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
+		long start=System.currentTimeMillis();
 		extractSubEntities(aspectNode, (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID));
+		_logger.info("Extracted subEntities, took "+(System.currentTimeMillis()-start)+"ms");
 	}
 
 	private void extractSubEntities(AspectNode aspectNode, NeuroMLDocument neuroml) throws ModelInterpreterException {
@@ -282,6 +279,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private void createConnections(Network network, AspectNode aspectNode) throws ModelInterpreterException
 	{
+		long start=System.currentTimeMillis();
 		ModelWrapper model = ((ModelWrapper) aspectNode.getModel());
 		String aspectNodeName = aspectNode.getName();
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) model.getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
@@ -405,6 +403,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 			}
 		}
+		_logger.info("Extracted connections, took "+(System.currentTimeMillis()-start)+"ms");
 	}
 
 	/**
