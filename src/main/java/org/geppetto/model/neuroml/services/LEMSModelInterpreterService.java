@@ -33,12 +33,15 @@
 package org.geppetto.model.neuroml.services;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
@@ -70,6 +73,7 @@ import org.springframework.stereotype.Service;
 public class LEMSModelInterpreterService extends AModelInterpreter
 {
 
+	private static Log _logger = LogFactory.getLog(LEMSModelInterpreterService.class);
 	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
 	
 	@Autowired
@@ -85,22 +89,33 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		ModelWrapper model = new ModelWrapper(instancePath);
 		try
 		{
-			OptimizedLEMSReader reader = new OptimizedLEMSReader(true);
+			OptimizedLEMSReader reader = new OptimizedLEMSReader();
 			int index = url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0, index + 1);
-			String lemsString = reader.read(url, false, urlBase);
+			reader.read(url, urlBase,OptimizedLEMSReader.NMLDOCTYPE.LEMS);
 
+			
 			/*
 			 * LEMS
 			 */
+			long start=System.currentTimeMillis();
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			ILEMSDocument document = lemsReader.readModel(lemsString);
-			
+			ILEMSDocument document = lemsReader.readModel(reader.getLEMSString());
+			_logger.info("Parsed LEMS document, took "+(System.currentTimeMillis()-start)+"ms");
+			/*PrintWriter out = new PrintWriter("LEMS.txt");
+			out.println(reader.getLEMSString());
+			out.close();*/
 			/*
 			 * NEUROML
 			 */
+			start=System.currentTimeMillis();
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 			NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
+			_logger.info("Parsed NeuroML document of size "+reader.getNeuroMLString().length()/1024+"KB, took "+(System.currentTimeMillis()-start)+"ms");
+			/*
+			out = new PrintWriter("NEUROML.txt");
+			out.println(reader.getNeuroMLString());
+			out.close();*/
 			
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
