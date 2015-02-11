@@ -43,12 +43,14 @@ import java.util.UUID;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.services.ModelFormat;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -133,6 +135,14 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 			
 			addRecordings(recordings, instancePath, model);
+			
+//			NeuroMLConversionService neuroMLConversionService = new NeuroMLConversionService();
+//			try {
+//				neuroMLConversionService.convert(model, new ModelFormat(ConversionUtils.NEUROML_MODELFORMAT), new ModelFormat(ConversionUtils.NEURON_MODELFORMAT));
+//			} catch (ConversionException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 		catch(IOException e)
 		{
@@ -175,6 +185,12 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	public String getName()
 	{
 		return this.jlemsModelInterpreterConfig.getModelInterpreterName();
+	}
+
+	@Override
+	public void registerGeppettoService() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
