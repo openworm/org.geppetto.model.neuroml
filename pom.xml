@@ -22,6 +22,7 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
+
 		<dependency>
  			<groupId>org.apache.velocity</groupId>
  			<artifactId>velocity</artifactId>
@@ -157,6 +158,7 @@
 							{maven-resources},META-INF/spring=src/main/java/META-INF/spring
 						</Include-Resource>
 						<Import-Package>
+							org.apache.velocity.app,org.apache.velocity.runtime.log,
 							com.sun.xml.bind.v2.model.core,org.geppetto.core.scope,org.aopalliance.aop,org.springframework.aop,,org.springframework.aop.scope,org.springframework.aop.framework,*
 						</Import-Package>
 					</instructions>
