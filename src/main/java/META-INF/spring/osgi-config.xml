@@ -31,13 +31,13 @@
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	
-	<osgi:service id="NeuroMLConversionExporter" ref="neuroMLConversionService"
+	<osgi:service id="LEMSConversionExporter" ref="LEMSConversionService"
 		interface="org.geppetto.core.conversion.IConversion">
 		<osgi:service-properties>
-			<entry key="discoverableID" value="neuroMLConversion" />
+			<entry key="discoverableID" value="lemsConversion" />
 		</osgi:service-properties>
 	</osgi:service>
-	<bean id="neuroMLConversionService" scope="thread" class="org.geppetto.model.neuroml.services.NeuroMLConversionService">
+	<bean id="LEMSConversionService" scope="thread" class="org.geppetto.model.neuroml.services.LEMSConversionService">
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	

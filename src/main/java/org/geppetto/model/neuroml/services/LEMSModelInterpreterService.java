@@ -51,6 +51,7 @@ import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -189,8 +190,10 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 
 	@Override
 	public void registerGeppettoService() {
-		// TODO Auto-generated method stub
-		
+		List<ModelFormat> modelFormatList = new ArrayList<ModelFormat>();
+		modelFormatList.add(new ModelFormat(ConversionUtils.NEUROML_MODELFORMAT));
+		modelFormatList.add(new ModelFormat(ConversionUtils.LEMS_MODELFORMAT));
+		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
 
 }

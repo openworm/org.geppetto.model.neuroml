@@ -557,6 +557,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		List<ModelFormat> modelFormatList = new ArrayList<ModelFormat>();
 		modelFormatList.add(new ModelFormat(ConversionUtils.NEUROML_MODELFORMAT));
+		modelFormatList.add(new ModelFormat(ConversionUtils.LEMS_MODELFORMAT));
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
 
