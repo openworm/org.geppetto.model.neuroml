@@ -2,17 +2,17 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.velocity.app.Velocity;
+import org.apache.velocity.runtime.log.NullLogChute;
 import org.geppetto.core.conversion.AConversion;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
-import org.lemsml.jlems.core.expression.ParseError;
-import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.export.neuron.NeuronWriter;
 import org.springframework.stereotype.Service;
@@ -52,9 +52,14 @@ public class NeuroMLConversionService extends AConversion{
 				lems.deduplicate();
 				lems.resolve();
 				lems.evaluateStatic();
-	
+				
+				
+				Properties props = new Properties();
+				props.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, NullLogChute.class.getName());                        
+				Velocity.init(props);
+				
 				//TODO: where should we create the tmp file?
-				File mainFile = File.createTempFile("temp-file-name", "_nrn.py", new File("/home/adrian/tmp/"));
+				File mainFile = File.createTempFile("temp-file-name", "_nrn.py", new File("c:/home/adrian/tmp/"));
 				NeuronWriter nw = new NeuronWriter(lems);
 				nw.setNoGui(true);
 	
