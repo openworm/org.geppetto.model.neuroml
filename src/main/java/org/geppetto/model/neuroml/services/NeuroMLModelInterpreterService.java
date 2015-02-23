@@ -325,12 +325,26 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					}
 
 					//Store Projection Id
-					connectionNodeFrom.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId().toString())));
-					connectionNodeTo.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId().toString())));
+					TextMetadataNode c1 =
+							PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId().toString()));
+					connectionNodeFrom.getCustomNodes().add(c1);
+					TextMetadataNode c2 =
+							PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId().toString()));
+					connectionNodeTo.getCustomNodes().add(c2);
+					
+					c1.setParent(aspectNodeFrom);
+					c2.setParent(connectionNodeTo);
 					
 					//Store Connection Id
-					connectionNodeFrom.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId().toString())));
-					connectionNodeTo.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId().toString())));
+					TextMetadataNode p1 =
+							PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId().toString()));
+					connectionNodeFrom.getCustomNodes().add(p1);
+					TextMetadataNode p2 =
+							PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId().toString()));
+					connectionNodeTo.getCustomNodes().add(p2);
+					
+					p1.setParent(connectionNodeFrom);
+					p2.setParent(connectionNodeTo);
 					
 					// Store PreSegment and PostSegment as VisualReferenceNode
 					if(connection.getPreSegmentId() != null)
