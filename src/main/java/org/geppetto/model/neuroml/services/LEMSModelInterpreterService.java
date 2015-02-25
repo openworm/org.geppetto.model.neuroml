@@ -33,7 +33,6 @@
 package org.geppetto.model.neuroml.services;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +42,6 @@ import java.util.UUID;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
-import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
@@ -65,7 +63,6 @@ import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * @author matteocantarelli
@@ -123,8 +120,8 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 			
-			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml_inclusions);
-			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
+			model.wrapModel(Format.NEUROML_MODELFORMAT, neuroml_inclusions);
+			model.wrapModel(Format.LEMS_MODELFORMAT, document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			
 			//TODO: This need to be changed (BaseCell, String)
@@ -137,13 +134,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			
 			addRecordings(recordings, instancePath, model);
 			
-//			NeuroMLConversionService neuroMLConversionService = new NeuroMLConversionService();
-//			try {
-//				neuroMLConversionService.convert(model, new ModelFormat(ConversionUtils.NEUROML_MODELFORMAT), new ModelFormat(ConversionUtils.NEURON_MODELFORMAT));
-//			} catch (ConversionException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
 		catch(IOException e)
 		{
@@ -191,9 +181,11 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	@Override
 	public void registerGeppettoService() {
 		List<ModelFormat> modelFormatList = new ArrayList<ModelFormat>();
-		modelFormatList.add(new ModelFormat(ConversionUtils.NEUROML_MODELFORMAT));
-		modelFormatList.add(new ModelFormat(ConversionUtils.LEMS_MODELFORMAT));
+		modelFormatList.add(new ModelFormat(Format.NEUROML_MODELFORMAT));
+		modelFormatList.add(new ModelFormat(Format.LEMS_MODELFORMAT));
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
+	
+	
 
 }

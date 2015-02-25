@@ -36,17 +36,21 @@ package org.geppetto.model.neuroml.services;
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  *
  */
-public class ConversionUtils {
+public class Format {
 
 	public static String NEUROML_MODELFORMAT = "NeuroML";
 	public static String LEMS_MODELFORMAT = "LEMS";
 
+	//LEMS
 	public static String C_MODELFORMAT = "C";
+	public static String DLEMS_MODELFORMAT = "DLems";
 	public static String MATLAB_MODELFORMAT = "Matlab";
 	public static String MODELICA_MODELFORMAT = "Modelica";
 	public static String SEDML_MODELFORMAT = "Sedml";
+	//NEUROML
 	public static String BRIAN_MODELFORMAT = "Brian";
 	public static String CELLML_MODELFORMAT = "Cellml";
+	public static String DN_SIM_MODELFORMAT = "DNSim";
 	public static String GRAPH_MODELFORMAT = "Graphml";
 	public static String NEST_MODELFORMAT = "Nest";
 	public static String NEURON_MODELFORMAT = "Neuron";

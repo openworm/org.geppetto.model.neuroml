@@ -156,8 +156,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 
-			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, lemsDocument);
-			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml);
+			model.wrapModel(Format.LEMS_MODELFORMAT, lemsDocument);
+			model.wrapModel(Format.NEUROML_MODELFORMAT, neuroml);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 
 			// TODO: This need to be changed (BaseCell, String)
@@ -203,7 +203,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		IModel model = aspectNode.getModel();
 		try
 		{
-			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
+			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(Format.NEUROML_MODELFORMAT);
 			if(neuroml != null)
 			{
 				modified = populateModelTree.populateModelTree(modelTree, ((ModelWrapper) model));
@@ -249,7 +249,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		long start = System.currentTimeMillis();
-		extractSubEntities(aspectNode, (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID));
+		extractSubEntities(aspectNode, (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(Format.NEUROML_MODELFORMAT));
 		_logger.info("Extracted subEntities, took " + (System.currentTimeMillis() - start) + "ms");
 	}
 
@@ -556,8 +556,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	public void registerGeppettoService()
 	{
 		List<ModelFormat> modelFormatList = new ArrayList<ModelFormat>();
-		modelFormatList.add(new ModelFormat(ConversionUtils.NEUROML_MODELFORMAT));
-		modelFormatList.add(new ModelFormat(ConversionUtils.LEMS_MODELFORMAT));
+		modelFormatList.add(new ModelFormat(Format.NEUROML_MODELFORMAT));
+		modelFormatList.add(new ModelFormat(Format.LEMS_MODELFORMAT));
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
 
