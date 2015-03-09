@@ -40,7 +40,7 @@ import java.net.URL;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.model.neuroml.services.Format;
+import org.geppetto.model.neuroml.services.ModelFormat;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.junit.Test;
 import org.lemsml.jlems.api.LEMSBuildConfiguration;
@@ -78,12 +78,12 @@ public class LEMSModelInterpreterServiceTest
 		model = (ModelWrapper) modelInterpreter.readModel(url, null, "");
 		assertNotNull(model);
 		assertNotNull(model.getModel("url"));
-		assertNotNull(model.getModel(Format.LEMS_MODELFORMAT));
-		assertNotNull(model.getModel(Format.NEUROML_MODELFORMAT));
+		assertNotNull(model.getModel(ModelFormat.LEMS));
+		assertNotNull(model.getModel(ModelFormat.NEUROML));
 		
 		ILEMSBuilder builder = new LEMSBuilder();
 		// TODO Refactor simulators to deal with more than one model!
-		ILEMSDocument lemsDocument = (ILEMSDocument) (model).getModel(Format.LEMS_MODELFORMAT);
+		ILEMSDocument lemsDocument = (ILEMSDocument) (model).getModel(ModelFormat.LEMS);
 
 		builder.addDocument(lemsDocument);
 
@@ -112,12 +112,12 @@ public class LEMSModelInterpreterServiceTest
 		model = (ModelWrapper) modelInterpreter.readModel(url, null, "");
 		assertNotNull(model);
 		assertNotNull(model.getModel("url"));
-		assertNotNull(model.getModel(Format.LEMS_MODELFORMAT));
-		assertNotNull(model.getModel(Format.NEUROML_MODELFORMAT));
+		assertNotNull(model.getModel(ModelFormat.LEMS));
+		assertNotNull(model.getModel(ModelFormat.NEUROML));
 
 		ILEMSBuilder builder = new LEMSBuilder();
 		// TODO Refactor simulators to deal with more than one model!
-		ILEMSDocument lemsDocument = (ILEMSDocument) (model).getModel(Format.LEMS_MODELFORMAT);
+		ILEMSDocument lemsDocument = (ILEMSDocument) (model).getModel(ModelFormat.LEMS);
 
 		builder.addDocument(lemsDocument);
 

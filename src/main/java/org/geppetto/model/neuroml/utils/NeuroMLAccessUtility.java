@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.model.neuroml.services.Format;
+import org.geppetto.model.neuroml.services.ModelFormat;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.AlphaCondSynapse;
@@ -119,7 +119,7 @@ public class NeuroMLAccessUtility
 	{
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
 		
-		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(Format.NEUROML_MODELFORMAT);
+		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
 		
 		switch (componentType) {
 			case ION_CHANNEL:

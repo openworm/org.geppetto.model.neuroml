@@ -48,7 +48,7 @@ import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.values.StringValue;
-import org.geppetto.model.neuroml.services.Format;
+import org.geppetto.model.neuroml.services.ModelFormat;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -100,7 +100,7 @@ public class PopulateModelTree {
 	 */
 	public boolean populateModelTree(AspectSubTreeNode modelTree, ModelWrapper model) throws ModelInterpreterException
 	{		
-		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(Format.NEUROML_MODELFORMAT);
+		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
 
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
 		Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);

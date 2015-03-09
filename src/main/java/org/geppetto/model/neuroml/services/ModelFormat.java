@@ -32,32 +32,59 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.services;
 
+import org.geppetto.core.services.IModelFormat;
+
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  *
  */
-public class Format {
+public enum ModelFormat implements IModelFormat
+{
 
-	public static String NEUROML_MODELFORMAT = "NeuroML";
-	public static String LEMS_MODELFORMAT = "LEMS";
+	NEUROML("NeuroML"),
+	LEMS("LEMS"),
 
 	//LEMS
-	public static String C_MODELFORMAT = "C";
-	public static String DLEMS_MODELFORMAT = "DLems";
-	public static String MATLAB_MODELFORMAT = "Matlab";
-	public static String MODELICA_MODELFORMAT = "Modelica";
-	public static String SEDML_MODELFORMAT = "Sedml";
+	C("C"),
+	DLEMS("DLEMS"),
+	MATLAB("MATLAB"),
+	MODELICA("MODELICA"),
+	SEDML("SEDML"),
 	//NEUROML
-	public static String BRIAN_MODELFORMAT = "Brian";
-	public static String CELLML_MODELFORMAT = "Cellml";
-	public static String DN_SIM_MODELFORMAT = "DNSim";
-	public static String GRAPH_MODELFORMAT = "Graphml";
-	public static String NEST_MODELFORMAT = "Nest";
-	public static String NEURON_MODELFORMAT = "Neuron";
-	public static String PYNN_MODELFORMAT = "Pynn";
-	public static String SBML_MODELFORMAT = "SBML";
-	public static String SVG_MODELFORMAT = "SVG";
-	public static String XINEML_MODELFORMAT = "Xineml";
-	public static String XPP_MODELFORMAT = "Xpp";
+	BRIAN("BRIAN"),
+	CELLML("CELLML"),
+	DN_SIM("DN_SIM"),
+	GRAPH_VIZ("GRAPH_VIZ"),
+	NEST("NEST"),
+	NEURON("NEURON"),
+	PYNN("PYNN"),
+	SBML("SBML"),
+	SVG("SVG"),
+	XINEML("XINEML"),
+	XPP("XPP");
+	
+	
+	private String _value;
+	
+	private ModelFormat(String value)
+	{
+		_value = value;
+	}
+	
+	public String getExportValue()
+	{
+		return _value;
+	}
+	
+	public static ModelFormat fromExportValue(String format) {
+	    if (format != null) {
+	      for (ModelFormat mf : ModelFormat.values()) {
+	        if (format.equalsIgnoreCase(mf.getExportValue())) {
+	          return mf;
+	        }
+	      }
+	    }
+	    return null;
+	  }
 	
 }

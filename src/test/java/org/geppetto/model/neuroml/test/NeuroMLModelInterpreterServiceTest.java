@@ -39,7 +39,7 @@ import java.net.URL;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.model.neuroml.services.Format;
+import org.geppetto.model.neuroml.services.ModelFormat;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.Test;
 
@@ -62,8 +62,8 @@ public class NeuroMLModelInterpreterServiceTest
 		ModelWrapper model = (ModelWrapper) modelInterpreter.readModel(url,null,"");
 		assertNotNull(model);
 		assertNotNull(model.getModel("url"));
-		assertNotNull(model.getModel(Format.LEMS_MODELFORMAT));
-		assertNotNull(model.getModel(Format.NEUROML_MODELFORMAT));
+		assertNotNull(model.getModel(ModelFormat.LEMS));
+		assertNotNull(model.getModel(ModelFormat.NEUROML));
 
 	}
 

@@ -35,8 +35,9 @@ public class LEMSConversionServiceTest {
 		LEMSModelInterpreterService modelInterpreter = new LEMSModelInterpreterService();
 		URL url = new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml");
 		
-		ModelWrapper model = (ModelWrapper) modelInterpreter.readModel(url, null, "");
-//		lemsConversionService.convert(model, new ModelFormat(ConversionUtils.LEMS_MODELFORMAT), new ModelFormat(ConversionUtils.NEURON_MODELFORMAT));
+		ModelWrapper modelWrapper = (ModelWrapper)modelInterpreter.readModel(url, null, "");
+		
+//		lemsConversionService.convert(modelWrapper, new ModelFormat(Format.LEMS_MODELFORMAT), new ModelFormat(Format.NEURON_MODELFORMAT));
 		
 	}
 	

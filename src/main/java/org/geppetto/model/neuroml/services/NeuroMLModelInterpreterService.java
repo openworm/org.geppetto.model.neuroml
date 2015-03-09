@@ -63,7 +63,7 @@ import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.VisualObjectReferenceNode;
 import org.geppetto.core.model.simulation.ConnectionType;
 import org.geppetto.core.model.values.StringValue;
-import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
@@ -156,8 +156,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 
-			model.wrapModel(Format.LEMS_MODELFORMAT, lemsDocument);
-			model.wrapModel(Format.NEUROML_MODELFORMAT, neuroml);
+			model.wrapModel(ModelFormat.LEMS, lemsDocument);
+			model.wrapModel(ModelFormat.NEUROML, neuroml);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 
 			// TODO: This need to be changed (BaseCell, String)
@@ -203,7 +203,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		IModel model = aspectNode.getModel();
 		try
 		{
-			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(Format.NEUROML_MODELFORMAT);
+			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
 			if(neuroml != null)
 			{
 				modified = populateModelTree.populateModelTree(modelTree, ((ModelWrapper) model));
@@ -249,7 +249,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		long start = System.currentTimeMillis();
-		extractSubEntities(aspectNode, (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(Format.NEUROML_MODELFORMAT));
+		extractSubEntities(aspectNode, (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.NEUROML));
 		_logger.info("Extracted subEntities, took " + (System.currentTimeMillis() - start) + "ms");
 	}
 
@@ -555,9 +555,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Override
 	public void registerGeppettoService()
 	{
-		List<ModelFormat> modelFormatList = new ArrayList<ModelFormat>();
-		modelFormatList.add(new ModelFormat(Format.NEUROML_MODELFORMAT));
-		modelFormatList.add(new ModelFormat(Format.LEMS_MODELFORMAT));
+		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
+		modelFormatList.add(ModelFormat.NEUROML);
+		modelFormatList.add(ModelFormat.LEMS);
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
 

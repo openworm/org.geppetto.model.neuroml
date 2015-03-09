@@ -48,7 +48,7 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
-import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
@@ -120,8 +120,8 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 			
-			model.wrapModel(Format.NEUROML_MODELFORMAT, neuroml_inclusions);
-			model.wrapModel(Format.LEMS_MODELFORMAT, document);
+			model.wrapModel(ModelFormat.NEUROML, neuroml_inclusions);
+			model.wrapModel(ModelFormat.LEMS, document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			
 			//TODO: This need to be changed (BaseCell, String)
@@ -180,9 +180,9 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 
 	@Override
 	public void registerGeppettoService() {
-		List<ModelFormat> modelFormatList = new ArrayList<ModelFormat>();
-		modelFormatList.add(new ModelFormat(Format.NEUROML_MODELFORMAT));
-		modelFormatList.add(new ModelFormat(Format.LEMS_MODELFORMAT));
+		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
+		modelFormatList.add(ModelFormat.NEUROML);
+		modelFormatList.add(ModelFormat.LEMS);
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
 	
