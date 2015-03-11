@@ -34,7 +34,6 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -46,29 +45,14 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
-import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.lemsml.export.base.IBaseWriter;
-import org.lemsml.export.c.CWriter;
-import org.lemsml.export.dlems.DLemsWriter;
-import org.lemsml.export.matlab.MatlabWriter;
-import org.lemsml.export.modelica.ModelicaWriter;
-import org.lemsml.export.sedml.SEDMLWriter;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Lems;
-import org.neuroml.export.brian.BrianWriter;
-import org.neuroml.export.cellml.CellMLWriter;
-import org.neuroml.export.dnsim.DNSimWriter;
 import org.neuroml.export.exceptions.GenerationException;
 import org.neuroml.export.exceptions.ModelFeatureSupportException;
-import org.neuroml.export.graph.GraphWriter;
-import org.neuroml.export.nest.NestWriter;
-import org.neuroml.export.neuron.NeuronWriter;
-import org.neuroml.export.pynn.PyNNWriter;
-import org.neuroml.export.sbml.SBMLWriter;
 import org.neuroml.export.utils.ExportFactory;
-import org.neuroml.export.xpp.XppWriter;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.stereotype.Service;
 
@@ -100,6 +84,7 @@ public class LEMSConversionService extends AConversion
 			lems.deduplicate();
 			lems.resolve();
 			lems.evaluateStatic();
+			
 		}
 		catch(ContentError | ParseError e)
 		{
