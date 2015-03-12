@@ -36,11 +36,18 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.geppetto.core.conversion.AConversion;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.IModel;
@@ -108,35 +115,28 @@ public class LEMSConversionService extends AConversion
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(ModelFormat.LEMS);
 		processLems(lems);
 
-		File outputFolder = new File(this.getConvertedResultsPath());
-		
-		if(!outputFolder.exists()) outputFolder.mkdirs();
-		
-		//Path tmpFolder = Files.createTempDirectory(outputFolder.toPath(), output.toString(), null);
-		String outputFileName = "main_script.py";
-
-		IBaseWriter exportWriter;
+		ModelWrapper outputModel = new ModelWrapper(UUID.randomUUID().toString());
 		try
 		{
-			exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ((ModelFormat) output).getExportValue());
+			String tmpFolder = output.toString() + new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
+			File outputFolder = new File(this.getConvertedResultsPath(), tmpFolder);
+			if(!outputFolder.exists()) outputFolder.mkdirs();
+			//This only works in linux
+//			Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxrwx--x");
+//		    FileAttribute<Set<PosixFilePermission>> fileAttributes = PosixFilePermissions.asFileAttribute(perms);
+//			Path tmpFolder = Files.createTempDirectory(outputFolder.toPath(), output.toString(), new FileAttribute<?>[0]);
+			
+			//FIXME: the py extension can be added inside 
+			String outputFileName = "main_script.py";
+			
+			IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ((ModelFormat) output).getExportValue());
+			List<File> outputFiles = exportWriter.convert();
+			outputModel.wrapModel(output, outputFolder + System.getProperty("file.separator") + outputFileName);
 		}
-		catch(ModelFeatureSupportException | NeuroMLException | LEMSException e1)
-		{
-			throw new ConversionException(e1);
-		}
-
-		List<File> outputFiles;
-		try
-		{
-			outputFiles = exportWriter.convert();
-		}
-		catch(GenerationException | IOException e)
+		catch(GenerationException | IOException | ModelFeatureSupportException | NeuroMLException | LEMSException e)
 		{
 			throw new ConversionException(e);
 		}
-
-		ModelWrapper outputModel = new ModelWrapper(UUID.randomUUID().toString());
-		outputModel.wrapModel(output, outputFolder + System.getProperty("file.separator") + outputFileName);
 
 		return outputModel;
 	}
