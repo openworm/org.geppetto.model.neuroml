@@ -34,11 +34,13 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.geppetto.core.beans.PathConfig;
 import org.geppetto.core.conversion.AConversion;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.IModel;
@@ -53,6 +55,8 @@ import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.export.exceptions.GenerationException;
 import org.neuroml.export.exceptions.ModelFeatureSupportException;
 import org.neuroml.export.utils.ExportFactory;
+import org.neuroml.export.utils.Format;
+import org.neuroml.export.utils.SupportedFormats;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.stereotype.Service;
 
@@ -63,13 +67,37 @@ import org.springframework.stereotype.Service;
 @Service
 public class LEMSConversionService extends AConversion
 {
-	private PathConfig pathConfig = new PathConfig();
-	private ExportFactory exportFactory = new ExportFactory();
 
-	public LEMSConversionService()
+	@Override
+	public List<IModelFormat> getSupportedInputs() throws ConversionException
 	{
-		super();
-		this.addSupportedInput(ModelFormat.LEMS);
+		return new ArrayList<IModelFormat>(Arrays.asList(ModelFormat.LEMS));
+	}
+
+	@Override
+	public List<IModelFormat> getSupportedOutputs() throws ConversionException
+	{
+		//return new ArrayList<IModelFormat>(Arrays.asList(ModelFormat.NEURON));
+		List<IModelFormat> modelFormats = new ArrayList<IModelFormat>(); 
+		for (Format format : SupportedFormats.getSupportedOutputs()){
+			IModelFormat modelFormat = ModelFormat.fromExportValue(format.toString());
+			//FIXME: Check which elements are null at the moment
+			if (modelFormat != null) modelFormats.add(modelFormat);
+		}
+		return modelFormats;
+	}
+
+	@Override
+	public List<IModelFormat> getSupportedOutputs(IModel model, IModelFormat input) throws ConversionException
+	{
+		//return getSupportedOutputs();
+		Lems lems = (Lems) ((ModelWrapper) model).getModel(input);
+		processLems(lems);
+		List<IModelFormat> modelFormats = new ArrayList<IModelFormat>(); 
+		for (Format format : SupportedFormats.getSupportedOutputs(lems)){
+			modelFormats.add(ModelFormat.fromExportValue(format.toString()));
+		}
+		return modelFormats;
 	}
 
 	@Override
@@ -78,37 +106,25 @@ public class LEMSConversionService extends AConversion
 		checkSupportedFormat(input);
 
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(ModelFormat.LEMS);
-		try
-		{
-			lems.setResolveModeLoose();
-			lems.deduplicate();
-			lems.resolve();
-			lems.evaluateStatic();
-			
-		}
-		catch(ContentError | ParseError e)
-		{
-			e.printStackTrace();
-			throw new ConversionException(e);
-		}
+		processLems(lems);
 
-		File outputFolder = new File(this.pathConfig.getConvertedResultsPath());
-		String outputFileName = "main_script.py";
-		if (!outputFolder.exists()){
-			outputFolder.mkdirs();
-		}
+		File outputFolder = new File(this.getConvertedResultsPath());
 		
+		if(!outputFolder.exists()) outputFolder.mkdirs();
+		
+		//Path tmpFolder = Files.createTempDirectory(outputFolder.toPath(), output.toString(), null);
+		String outputFileName = "main_script.py";
+
 		IBaseWriter exportWriter;
 		try
 		{
-			exportWriter = exportFactory.getExportWriter(lems, outputFolder, outputFileName, ((ModelFormat)output).getExportValue());
+			exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ((ModelFormat) output).getExportValue());
 		}
 		catch(ModelFeatureSupportException | NeuroMLException | LEMSException e1)
 		{
-			e1.printStackTrace();
-			throw new ConversionException(e1);			
+			throw new ConversionException(e1);
 		}
-		
+
 		List<File> outputFiles;
 		try
 		{
@@ -120,36 +136,24 @@ public class LEMSConversionService extends AConversion
 		}
 
 		ModelWrapper outputModel = new ModelWrapper(UUID.randomUUID().toString());
-		// Remove until deciding if it is needed
-		//outputModel.setInstancePath(model.getInstancePath());
 		outputModel.wrapModel(output, outputFolder + System.getProperty("file.separator") + outputFileName);
 
 		return outputModel;
 	}
 
-	@Override
-	public List<IModelFormat> getSupportedOutputs(IModel model, IModelFormat input) throws ConversionException
+	private void processLems(Lems lems) throws ConversionException
 	{
-		//FIXME: We need to call a method in the export librarry
-		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
-		modelFormatList.add(ModelFormat.NEURON);
-		return modelFormatList;
-	}
-	
-	@Override
-	public List<IModelFormat> getSupportedOutputs()
-	{
-		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
-		modelFormatList.add(ModelFormat.NEURON);
-		return modelFormatList;
-	}
-
-	@Override
-	public void registerGeppettoService()
-	{
-		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
-		modelFormatList.add(ModelFormat.NEUROML);
-		ServicesRegistry.registerConversionService(this, getSupportedInputs(), getSupportedOutputs());
+		try
+		{
+			lems.setResolveModeLoose();
+			lems.deduplicate();
+			lems.resolve();
+			lems.evaluateStatic();
+		}
+		catch(ContentError | ParseError e)
+		{
+			throw new ConversionException(e);
+		}
 	}
 
 }
