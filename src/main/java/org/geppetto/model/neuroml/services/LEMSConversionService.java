@@ -88,7 +88,6 @@ public class LEMSConversionService extends AConversion
 		List<IModelFormat> modelFormats = new ArrayList<IModelFormat>(); 
 		for (Format format : SupportedFormats.getSupportedOutputs()){
 			IModelFormat modelFormat = ModelFormat.fromExportValue(format.toString());
-			//FIXME: Check which elements are null at the moment
 			if (modelFormat != null) modelFormats.add(modelFormat);
 		}
 		return modelFormats;
@@ -101,8 +100,16 @@ public class LEMSConversionService extends AConversion
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(input);
 		processLems(lems);
 		List<IModelFormat> modelFormats = new ArrayList<IModelFormat>(); 
-		for (Format format : SupportedFormats.getSupportedOutputs(lems)){
-			modelFormats.add(ModelFormat.fromExportValue(format.toString()));
+		try
+		{
+			for (Format format : SupportedFormats.getSupportedOutputs(lems)){
+				ModelFormat modelFormat = ModelFormat.fromExportValue(format.toString());
+				if (modelFormat != null) modelFormats.add(modelFormat);
+			}
+		}
+		catch(NeuroMLException | LEMSException e)
+		{
+			throw new ConversionException(e);
 		}
 		return modelFormats;
 	}
@@ -110,7 +117,7 @@ public class LEMSConversionService extends AConversion
 	@Override
 	public IModel convert(IModel model, IModelFormat input, IModelFormat output) throws ConversionException
 	{
-		checkSupportedFormat(input);
+		//checkSupportedFormat(input);
 
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(ModelFormat.LEMS);
 		processLems(lems);
@@ -127,9 +134,9 @@ public class LEMSConversionService extends AConversion
 //			Path tmpFolder = Files.createTempDirectory(outputFolder.toPath(), output.toString(), new FileAttribute<?>[0]);
 			
 			//FIXME: the py extension can be added inside 
-			String outputFileName = "main_script.py";
+			String outputFileName = "main_script.py"; 
 			
-			IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ((ModelFormat) output).getExportValue());
+			IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormat.valueOf(output.toString()).getExportValue());
 			List<File> outputFiles = exportWriter.convert();
 			outputModel.wrapModel(output, outputFolder + System.getProperty("file.separator") + outputFileName);
 		}
