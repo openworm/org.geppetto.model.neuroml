@@ -126,28 +126,28 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			OptimizedLEMSReader reader = new OptimizedLEMSReader();
 			int index = url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0, index + 1);
-			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.NEUROML); //expand it to have all the inclusions
-			
+			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.NEUROML); // expand it to have all the inclusions
+
 			/*
 			 * LEMS
 			 */
-			long start=System.currentTimeMillis();
+			long start = System.currentTimeMillis();
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument lemsDocument = lemsReader.readModel(reader.getLEMSString());
-			_logger.info("Parsed LEMS document, took "+(System.currentTimeMillis()-start)+"ms");
-			/*PrintWriter out = new PrintWriter("LEMS.txt");
-			out.println(reader.getLEMSString());
-			out.close();*/
+			_logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
+			/*
+			 * PrintWriter out = new PrintWriter("LEMS.txt"); out.println(reader.getLEMSString()); out.close();
+			 */
 			/*
 			 * NEUROML
 			 */
-			start=System.currentTimeMillis();
+			start = System.currentTimeMillis();
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
-			_logger.info("Parsed NeuroML document of size "+reader.getNeuroMLString().length()/1024+"KB, took "+(System.currentTimeMillis()-start)+"ms");
-			/*out = new PrintWriter("NEUROML.txt");
-			out.println(reader.getNeuroMLString());
-			out.close();*/
+			_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
+			/*
+			 * out = new PrintWriter("NEUROML.txt"); out.println(reader.getNeuroMLString()); out.close();
+			 */
 			/*
 			 * CREATE MODEL WRAPPER
 			 */
@@ -157,15 +157,15 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, lemsDocument);
 			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
-			
-			//TODO: This need to be changed (BaseCell, String)
+
+			// TODO: This need to be changed (BaseCell, String)
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<String, EntityNode>());
 			model.wrapModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID, new HashMap<String, BaseCell>());
 
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
-			
+
 			addRecordings(recordings, instancePath, model);
 		}
 		catch(IOException e)
@@ -245,12 +245,18 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 */
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
-		long start=System.currentTimeMillis();
-		extractSubEntities(aspectNode, (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID));
-		_logger.info("Extracted subEntities, took "+(System.currentTimeMillis()-start)+"ms");
+		long start = System.currentTimeMillis();
+		NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID);
+		if(nmlDoc != null)
+		{
+			//Pure LEMS document don't have a neuroml document
+			extractSubEntities(aspectNode, nmlDoc);
+			_logger.info("Extracted subEntities, took " + (System.currentTimeMillis() - start) + "ms");
+		}
 	}
 
-	private void extractSubEntities(AspectNode aspectNode, NeuroMLDocument neuroml) throws ModelInterpreterException {
+	private void extractSubEntities(AspectNode aspectNode, NeuroMLDocument neuroml) throws ModelInterpreterException
+	{
 		URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.URL_ID);
 
 		List<Network> networks = neuroml.getNetwork();
@@ -279,7 +285,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private void createConnections(Network network, AspectNode aspectNode) throws ModelInterpreterException
 	{
-		long start=System.currentTimeMillis();
+		long start = System.currentTimeMillis();
 		ModelWrapper model = ((ModelWrapper) aspectNode.getModel());
 		String aspectNodeName = aspectNode.getName();
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) model.getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
@@ -324,14 +330,28 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 						}
 					}
 
-					//Store Projection Id
-					connectionNodeFrom.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId().toString())));
-					connectionNodeTo.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId().toString())));
-					
-					//Store Connection Id
-					connectionNodeFrom.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId().toString())));
-					connectionNodeTo.getCustomNodes().add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId().toString())));
-					
+					// Store Projection Id
+					TextMetadataNode c1 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId()
+							.toString()));
+					connectionNodeFrom.getCustomNodes().add(c1);
+					TextMetadataNode c2 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId()
+							.toString()));
+					connectionNodeTo.getCustomNodes().add(c2);
+
+					c1.setParent(aspectNodeFrom);
+					c2.setParent(connectionNodeTo);
+
+					// Store Connection Id
+					TextMetadataNode p1 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId()
+							.toString()));
+					connectionNodeFrom.getCustomNodes().add(p1);
+					TextMetadataNode p2 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId()
+							.toString()));
+					connectionNodeTo.getCustomNodes().add(p2);
+
+					p1.setParent(connectionNodeFrom);
+					p2.setParent(connectionNodeTo);
+
 					// Store PreSegment and PostSegment as VisualReferenceNode
 					if(connection.getPreSegmentId() != null)
 					{
@@ -378,7 +398,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					CompositeNode synapsesNode;
 					try
 					{
-						synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse) neuroMLAccessUtility.getComponent(projection.getSynapse(), model, Resources.SYNAPSE));
+						synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse) neuroMLAccessUtility.getComponent(projection.getSynapse(), model,
+								Resources.SYNAPSE));
 						synapsesNode.setDomainType(ResourcesDomainType.SYNAPSE.get());
 					}
 					catch(ContentError | ModelInterpreterException e)
@@ -403,7 +424,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 			}
 		}
-		_logger.info("Extracted connections, took "+(System.currentTimeMillis()-start)+"ms");
+		_logger.info("Extracted connections, took " + (System.currentTimeMillis() - start) + "ms");
 	}
 
 	/**

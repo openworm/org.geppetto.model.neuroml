@@ -75,7 +75,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 
 	private static Log _logger = LogFactory.getLog(LEMSModelInterpreterService.class);
 	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
-	
+
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
 
@@ -92,46 +92,50 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			OptimizedLEMSReader reader = new OptimizedLEMSReader();
 			int index = url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0, index + 1);
-			reader.read(url, urlBase,OptimizedLEMSReader.NMLDOCTYPE.LEMS);
+			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.LEMS);
 
+			model = new ModelWrapper(UUID.randomUUID().toString());
+			model.setInstancePath(instancePath);
 			
 			/*
 			 * LEMS
 			 */
-			long start=System.currentTimeMillis();
+			long start = System.currentTimeMillis();
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument document = lemsReader.readModel(reader.getLEMSString());
-			_logger.info("Parsed LEMS document, took "+(System.currentTimeMillis()-start)+"ms");
-			/*PrintWriter out = new PrintWriter("LEMS.txt");
-			out.println(reader.getLEMSString());
-			out.close();*/
+			_logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
 			/*
-			 * NEUROML
+			 * PrintWriter out = new PrintWriter("LEMS.txt"); out.println(reader.getLEMSString()); out.close();
 			 */
-			start=System.currentTimeMillis();
-			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-			NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
-			_logger.info("Parsed NeuroML document of size "+reader.getNeuroMLString().length()/1024+"KB, took "+(System.currentTimeMillis()-start)+"ms");
-			/*
-			out = new PrintWriter("NEUROML.txt");
-			out.println(reader.getNeuroMLString());
-			out.close();*/
 			
-			model = new ModelWrapper(UUID.randomUUID().toString());
-			model.setInstancePath(instancePath);
-			
-			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml_inclusions);
 			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			
-			//TODO: This need to be changed (BaseCell, String)
+			/*
+			 * NEUROML
+			 */
+			if(!reader.getNeuroMLString().isEmpty())
+			{
+				start = System.currentTimeMillis();
+				NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+				NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
+				_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
+				model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml_inclusions);
+			}
+			/*
+			 * out = new PrintWriter("NEUROML.txt"); out.println(reader.getNeuroMLString()); out.close();
+			 */
+
+
+
+			// TODO: This need to be changed (BaseCell, String)
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
 			model.wrapModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID, new HashMap<String, BaseCell>());
 
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
-			
+
 			addRecordings(recordings, instancePath, model);
 		}
 		catch(IOException e)
