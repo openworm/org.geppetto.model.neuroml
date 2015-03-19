@@ -49,6 +49,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
@@ -63,6 +64,8 @@ import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.VisualObjectReferenceNode;
 import org.geppetto.core.model.simulation.ConnectionType;
 import org.geppetto.core.model.values.StringValue;
+import org.geppetto.core.services.IModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
@@ -154,8 +157,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 
-			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, lemsDocument);
-			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml);
+			model.wrapModel(ModelFormat.LEMS, lemsDocument);
+			model.wrapModel(ModelFormat.NEUROML, neuroml);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 
 			// TODO: This need to be changed (BaseCell, String)
@@ -167,6 +170,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 
 			addRecordings(recordings, instancePath, model);
+
 		}
 		catch(IOException e)
 		{
@@ -200,7 +204,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		IModel model = aspectNode.getModel();
 		try
 		{
-			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
+			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
 			if(neuroml != null)
 			{
 				modified = populateModelTree.populateModelTree(modelTree, ((ModelWrapper) model));
@@ -246,11 +250,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		long start = System.currentTimeMillis();
-		NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID);
+		NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.NEUROML);
 		if(nmlDoc != null)
 		{
-			//Pure LEMS document don't have a neuroml document
-			extractSubEntities(aspectNode, nmlDoc);
+			extractSubEntities(aspectNode, (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.NEUROML));
 			_logger.info("Extracted subEntities, took " + (System.currentTimeMillis() - start) + "ms");
 		}
 	}
@@ -562,6 +565,15 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		point.setY(location.getY().doubleValue());
 		point.setZ(location.getZ().doubleValue());
 		return point;
+	}
+
+	@Override
+	public void registerGeppettoService()
+	{
+		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
+		modelFormatList.add(ModelFormat.NEUROML);
+		modelFormatList.add(ModelFormat.LEMS);
+		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
 
 }

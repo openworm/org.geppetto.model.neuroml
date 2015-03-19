@@ -6,11 +6,10 @@ package org.geppetto.model.neuroml.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.runtime.ANode;
+import org.geppetto.model.neuroml.services.ModelFormat;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.AlphaCondSynapse;
@@ -46,8 +45,6 @@ public class NeuroMLAccessUtility
 {
 
 	public static final String DISCOVERED_COMPONENTS = "discoveredComponents";
-	public static final String LEMS_ID = "lems";
-	public static final String NEUROML_ID = "neuroml";
 	public static final String URL_ID = "url";
 	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
 	public static final String DISCOVERED_NESTED_COMPONENTS_ID = "discoveredNestedComponents";
@@ -122,7 +119,7 @@ public class NeuroMLAccessUtility
 	{
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
 		
-		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
+		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
 		
 		switch (componentType) {
 			case ION_CHANNEL:

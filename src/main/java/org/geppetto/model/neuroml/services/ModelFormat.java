@@ -1,7 +1,7 @@
 /*******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2011 - 2015 OpenWorm.
+ * Copyright (c) 2011, 2013 OpenWorm.
  * http://openworm.org
  *
  * All rights reserved. This program and the accompanying materials
@@ -30,41 +30,61 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
+package org.geppetto.model.neuroml.services;
 
-package org.geppetto.model.neuroml.test;
-
-import static org.junit.Assert.assertNotNull;
-
-import java.net.URL;
-
-import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.model.neuroml.services.ModelFormat;
-import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
-import org.junit.Test;
+import org.geppetto.core.services.IModelFormat;
 
 /**
- * @author matteocantarelli
- * 
+ * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
+ *
  */
-public class NeuroMLModelInterpreterServiceTest
+public enum ModelFormat implements IModelFormat
 {
 
-	/**
-	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
-	 * @throws ModelInterpreterException 
-	 */
-	@Test
-	public void testReadModel() throws ModelInterpreterException
+	NEUROML("NeuroML"),
+	LEMS("LEMS"),
+
+	//LEMS
+	C("C"),
+	DLEMS("DLEMS"),
+	MATLAB("MATLAB"),
+	MODELICA("MODELICA"),
+	SEDML("SEDML"),
+	//NEUROML
+	BRIAN("BRIAN"),
+	CELLML("CELLML"),
+	DN_SIM("DN_SIM"),
+	GRAPH_VIZ("GRAPH_VIZ"),
+	NEST("NEST"),
+	NEURON("NEURON"),
+	PYNN("PYNN"),
+	SBML("SBML"),
+	SVG("SVG"),
+	XINEML("XINEML"),
+	XPP("XPP");
+	
+	
+	private String _value;
+	
+	private ModelFormat(String value)
 	{
-		NeuroMLModelInterpreterService modelInterpreter = new NeuroMLModelInterpreterService();
-		URL url = this.getClass().getResource("/NML2_FullCell.nml");
-		ModelWrapper model = (ModelWrapper) modelInterpreter.readModel(url,null,"");
-		assertNotNull(model);
-		assertNotNull(model.getModel("url"));
-		assertNotNull(model.getModel(ModelFormat.LEMS));
-		assertNotNull(model.getModel(ModelFormat.NEUROML));
-
+		_value = value;
 	}
-
+	
+	public String getExportValue()
+	{
+		return _value;
+	}
+	
+	public static ModelFormat fromExportValue(String format) {
+	    if (format != null) {
+	      for (ModelFormat mf : ModelFormat.values()) {
+	        if (format.equalsIgnoreCase(mf.getExportValue())) {
+	          return mf;
+	        }
+	      }
+	    }
+	    return null;
+	  }
+	
 }

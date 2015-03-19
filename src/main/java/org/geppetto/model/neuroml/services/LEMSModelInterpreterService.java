@@ -33,7 +33,6 @@
 package org.geppetto.model.neuroml.services;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +48,8 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.services.IModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -62,7 +63,6 @@ import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * @author matteocantarelli
@@ -108,9 +108,9 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			 * PrintWriter out = new PrintWriter("LEMS.txt"); out.println(reader.getLEMSString()); out.close();
 			 */
 			
-			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
-			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			
+			model = new ModelWrapper(UUID.randomUUID().toString());
+			model.setInstancePath(instancePath);
 			/*
 			 * NEUROML
 			 */
@@ -120,8 +120,12 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 				NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 				NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 				_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
-				model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml_inclusions);
+				model.wrapModel(ModelFormat.NEUROML, neuroml_inclusions);
 			}
+			
+			model.wrapModel(ModelFormat.LEMS, document);
+			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
+			
 			/*
 			 * out = new PrintWriter("NEUROML.txt"); out.println(reader.getNeuroMLString()); out.close();
 			 */
@@ -137,6 +141,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 
 			addRecordings(recordings, instancePath, model);
+			
 		}
 		catch(IOException e)
 		{
@@ -180,5 +185,15 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	{
 		return this.jlemsModelInterpreterConfig.getModelInterpreterName();
 	}
+
+	@Override
+	public void registerGeppettoService() {
+		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
+		modelFormatList.add(ModelFormat.NEUROML);
+		modelFormatList.add(ModelFormat.LEMS);
+		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
+	}
+	
+	
 
 }
