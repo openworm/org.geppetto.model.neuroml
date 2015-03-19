@@ -250,8 +250,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		long start = System.currentTimeMillis();
-		extractSubEntities(aspectNode, (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.NEUROML));
-		_logger.info("Extracted subEntities, took " + (System.currentTimeMillis() - start) + "ms");
+		NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.NEUROML);
+		if(nmlDoc != null)
+		{
+			extractSubEntities(aspectNode, (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.NEUROML));
+			_logger.info("Extracted subEntities, took " + (System.currentTimeMillis() - start) + "ms");
+		}
 	}
 
 	private void extractSubEntities(AspectNode aspectNode, NeuroMLDocument neuroml) throws ModelInterpreterException
@@ -329,28 +333,28 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 						}
 					}
 
-					//Store Projection Id
-					TextMetadataNode c1 =
-							PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId().toString()));
+					// Store Projection Id
+					TextMetadataNode c1 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId()
+							.toString()));
 					connectionNodeFrom.getCustomNodes().add(c1);
-					TextMetadataNode c2 =
-							PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId().toString()));
+					TextMetadataNode c2 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId()
+							.toString()));
 					connectionNodeTo.getCustomNodes().add(c2);
-					
+
 					c1.setParent(aspectNodeFrom);
 					c2.setParent(connectionNodeTo);
-					
-					//Store Connection Id
-					TextMetadataNode p1 =
-							PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId().toString()));
+
+					// Store Connection Id
+					TextMetadataNode p1 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId()
+							.toString()));
 					connectionNodeFrom.getCustomNodes().add(p1);
-					TextMetadataNode p2 =
-							PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId().toString()));
+					TextMetadataNode p2 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId()
+							.toString()));
 					connectionNodeTo.getCustomNodes().add(p2);
-					
+
 					p1.setParent(connectionNodeFrom);
 					p2.setParent(connectionNodeTo);
-					
+
 					// Store PreSegment and PostSegment as VisualReferenceNode
 					if(connection.getPreSegmentId() != null)
 					{
@@ -397,7 +401,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					CompositeNode synapsesNode;
 					try
 					{
-						synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse) neuroMLAccessUtility.getComponent(projection.getSynapse(), model, Resources.SYNAPSE));
+						synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse) neuroMLAccessUtility.getComponent(projection.getSynapse(), model,
+								Resources.SYNAPSE));
 						synapsesNode.setDomainType(ResourcesDomainType.SYNAPSE.get());
 					}
 					catch(ContentError | ModelInterpreterException e)
