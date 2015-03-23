@@ -109,7 +109,8 @@ public class OptimizedLEMSReader
 		processedDocs.put(NMLDOCTYPE.LEMS, processedLEMSString);
 
 		// 2. We look for includes, they could be includes of a LEMS or a NeuroML file
-		String regExp = "\\<include\\s*(href|file|url)\\s*=\\s*\\\"(.*)\\\"\\s*\\/>";
+		//String regExp = "\\<include\\s*(href|file|url)\\s*=\\s*\\\"(.*)\\\"\\s*\\/>";
+		String regExp = "\\<include\\s*(href|file|url)\\s*=\\s*\\\"(.*)\\\"\\s*(\\/>|><\\/include>)";
 		Pattern pattern = Pattern.compile(regExp, Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(smallerDocumentString);
 
