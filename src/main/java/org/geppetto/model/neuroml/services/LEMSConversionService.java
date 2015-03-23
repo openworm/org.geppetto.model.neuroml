@@ -34,26 +34,20 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.conversion.AConversion;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.IModelFormat;
-import org.geppetto.core.services.registry.ServicesRegistry;
 import org.lemsml.export.base.IBaseWriter;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -75,6 +69,8 @@ import org.springframework.stereotype.Service;
 public class LEMSConversionService extends AConversion
 {
 
+	private static Log _logger = LogFactory.getLog(LEMSConversionService.class);
+	
 	@Override
 	public List<IModelFormat> getSupportedInputs() throws ConversionException
 	{
@@ -84,9 +80,10 @@ public class LEMSConversionService extends AConversion
 	@Override
 	public List<IModelFormat> getSupportedOutputs() throws ConversionException
 	{
-		//return new ArrayList<IModelFormat>(Arrays.asList(ModelFormat.NEURON));
+		_logger.info("Getting supported outputs");
 		List<IModelFormat> modelFormats = new ArrayList<IModelFormat>(); 
 		for (Format format : SupportedFormats.getSupportedOutputs()){
+			// Convert from export formats to Geppetto formats
 			IModelFormat modelFormat = ModelFormat.fromExportValue(format.toString());
 			if (modelFormat != null) modelFormats.add(modelFormat);
 		}
@@ -96,19 +93,21 @@ public class LEMSConversionService extends AConversion
 	@Override
 	public List<IModelFormat> getSupportedOutputs(IModel model, IModelFormat input) throws ConversionException
 	{
-		//return getSupportedOutputs();
+		_logger.info("Getting supported outputs for a specific model and input format " + input);
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(input);
 		processLems(lems);
 		List<IModelFormat> modelFormats = new ArrayList<IModelFormat>(); 
 		try
 		{
 			for (Format format : SupportedFormats.getSupportedOutputs(lems)){
+				// Convert from export formats to Geppetto formats
 				ModelFormat modelFormat = ModelFormat.fromExportValue(format.toString());
 				if (modelFormat != null) modelFormats.add(modelFormat);
 			}
 		}
 		catch(NeuroMLException | LEMSException e)
 		{
+			_logger.error("NeuroMLException or LEMS exception caught while getting supported outputs");
 			throw new ConversionException(e);
 		}
 		return modelFormats;
@@ -117,14 +116,17 @@ public class LEMSConversionService extends AConversion
 	@Override
 	public IModel convert(IModel model, IModelFormat input, IModelFormat output) throws ConversionException
 	{
+		_logger.info("Converting model from " + input + " to " + output);
 		//checkSupportedFormat(input);
 
+		//Read lems
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(ModelFormat.LEMS);
 		processLems(lems);
 
 		ModelWrapper outputModel = new ModelWrapper(UUID.randomUUID().toString());
 		try
 		{
+			//Create Folder
 			String tmpFolder = output.toString() + new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
 			File outputFolder = new File(this.getConvertedResultsPath(), tmpFolder);
 			if(!outputFolder.exists()) outputFolder.mkdirs();
@@ -136,8 +138,11 @@ public class LEMSConversionService extends AConversion
 			//FIXME: the py extension can be added inside.
 			String outputFileName = "main_script.py"; 
 			
+			//Convert model
 			IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormat.valueOf(output.toString()).getExportValue());
 			List<File> outputFiles = exportWriter.convert();
+			
+			//Create model from converted model
 			outputModel.wrapModel(output, outputFolder + System.getProperty("file.separator") + outputFileName);
 		}
 		catch(GenerationException | IOException | ModelFeatureSupportException | NeuroMLException | LEMSException e)
