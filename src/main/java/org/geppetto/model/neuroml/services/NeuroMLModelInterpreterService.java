@@ -196,27 +196,29 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException
 	{
 
-		boolean modified = false;
-
-		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-		modelTree.setId(AspectTreeType.MODEL_TREE.toString());
-
-		IModel model = aspectNode.getModel();
-		try
-		{
-			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
-			if(neuroml != null)
-			{
-				modified = populateModelTree.populateModelTree(modelTree, ((ModelWrapper) model));
-				modelTree.setModified(modified);
-			}
-
-		}
-		catch(Exception e)
-		{
-			throw new ModelInterpreterException(e);
-		}
-		return modified;
+//		boolean modified = false;
+//
+//		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+//		modelTree.setId(AspectTreeType.MODEL_TREE.toString());
+//
+//		IModel model = aspectNode.getModel();
+//		try
+//		{
+//			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
+//			if(neuroml != null)
+//			{
+//				modified = populateModelTree.populateModelTree(modelTree, ((ModelWrapper) model));
+//				modelTree.setModified(modified);
+//			}
+//
+//		}
+//		catch(Exception e)
+//		{
+//			throw new ModelInterpreterException(e);
+//		}
+//		return modified;
+		WatchableVariables wV = new WatchableVariables();
+		return wV.populateWatchableVariables(aspectNode);
 	}
 
 	/*

@@ -46,8 +46,11 @@ import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
@@ -57,6 +60,9 @@ import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
+import org.lemsml.jlems.core.type.Component;
+import org.lemsml.jlems.core.type.Exposure;
+import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.NeuroMLDocument;
@@ -130,8 +136,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			 * out = new PrintWriter("NEUROML.txt"); out.println(reader.getNeuroMLString()); out.close();
 			 */
 
-
-
 			// TODO: This need to be changed (BaseCell, String)
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
 			model.wrapModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID, new HashMap<String, BaseCell>());
@@ -139,7 +143,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
-
+			
 			addRecordings(recordings, instancePath, model);
 			
 		}
@@ -166,7 +170,9 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	@Override
 	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException
 	{
-		return _neuroMLModelInterpreter.populateModelTree(aspectNode);
+		WatchableVariables wV = new WatchableVariables();
+		return wV.populateWatchableVariables(aspectNode);
+		//return _neuroMLModelInterpreter.populateModelTree(aspectNode);
 	}
 
 	/*
@@ -193,7 +199,5 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		modelFormatList.add(ModelFormat.LEMS);
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
-	
-	
 
 }
