@@ -63,13 +63,14 @@ import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author matteocantarelli
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  * 
  */
-
+@Service
 public class LEMSModelInterpreterService extends AModelInterpreter
 {
 
@@ -78,7 +79,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -121,6 +121,9 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 				NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 				_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
 				model.wrapModel(ModelFormat.NEUROML, neuroml_inclusions);
+				LEMSVisualTreeFeature lemsTreeFeature 
+					= new LEMSVisualTreeFeature(neuroml_inclusions,document);
+				this.addFeature(lemsTreeFeature);
 			}
 			
 			model.wrapModel(ModelFormat.LEMS, document);
@@ -129,8 +132,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			/*
 			 * out = new PrintWriter("NEUROML.txt"); out.println(reader.getNeuroMLString()); out.close();
 			 */
-
-
 
 			// TODO: This need to be changed (BaseCell, String)
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
@@ -141,7 +142,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 
 			addRecordings(recordings, instancePath, model);
-			
 		}
 		catch(IOException e)
 		{
@@ -154,7 +154,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		catch(NeuroMLException e)
 		{
 			throw new ModelInterpreterException(e);
-		}
+		} 
 		return model;
 	}
 
