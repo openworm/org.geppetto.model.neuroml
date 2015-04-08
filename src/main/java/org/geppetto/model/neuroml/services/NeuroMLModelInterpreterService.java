@@ -67,6 +67,7 @@ import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
+import org.geppetto.model.neuroml.features.NeuroMLVisualTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -79,10 +80,7 @@ import org.geppetto.model.neuroml.utils.modeltree.PopulateNodesModelTreeUtils;
 import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
-import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.BaseConductanceBasedSynapse;
@@ -118,8 +116,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils();
 
-	private List<String> targetCells = null;
-	private Map<String, List<ANode>> visualizationNodes = null;
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -175,6 +171,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 			addRecordings(recordings, instancePath, model);
 			
+			//add visual tree feature to the model service
 			NeuroMLVisualTreeFeature visualTreeFeature 
 						= new NeuroMLVisualTreeFeature(neuroml,lemsDocument);
 			this.addFeature(visualTreeFeature);

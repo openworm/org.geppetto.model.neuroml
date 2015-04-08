@@ -50,6 +50,7 @@ import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -121,6 +122,8 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 				NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 				_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
 				model.wrapModel(ModelFormat.NEUROML, neuroml_inclusions);
+				
+				//add visual tree feature to the model service
 				LEMSVisualTreeFeature lemsTreeFeature 
 					= new LEMSVisualTreeFeature(neuroml_inclusions,document);
 				this.addFeature(lemsTreeFeature);
