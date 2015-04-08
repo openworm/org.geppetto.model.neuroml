@@ -34,7 +34,6 @@
 package org.geppetto.model.neuroml.services;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -49,7 +48,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
-import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
@@ -57,6 +55,7 @@ import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
+import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.ConnectionNode;
 import org.geppetto.core.model.runtime.EntityNode;
@@ -68,6 +67,7 @@ import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
+import org.geppetto.model.neuroml.features.NeuroMLVisualTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -170,7 +170,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 
 			addRecordings(recordings, instancePath, model);
-
+			
+			//add visual tree feature to the model service
+			NeuroMLVisualTreeFeature visualTreeFeature 
+						= new NeuroMLVisualTreeFeature(neuroml,lemsDocument);
+			this.addFeature(visualTreeFeature);
 		}
 		catch(IOException e)
 		{
