@@ -170,9 +170,19 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	@Override
 	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException
 	{
+		return _neuroMLModelInterpreter.populateModelTree(aspectNode);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto.core.model.runtime.AspectNode)
+	 */
+	//@Override
+	public boolean populateSimulationTree(AspectNode aspectNode) throws ModelInterpreterException
+	{
 		WatchableVariables wV = new WatchableVariables();
 		return wV.populateWatchableVariables(aspectNode);
-		//return _neuroMLModelInterpreter.populateModelTree(aspectNode);
 	}
 
 	/*
