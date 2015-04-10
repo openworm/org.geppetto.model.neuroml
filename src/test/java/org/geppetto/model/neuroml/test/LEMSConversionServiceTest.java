@@ -48,6 +48,7 @@ import org.geppetto.core.services.IModelFormat;
 import org.geppetto.model.neuroml.services.LEMSConversionService;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.geppetto.model.neuroml.services.ModelFormat;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.lemsml.jlems.api.LEMSBuildException;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -142,5 +143,29 @@ public class LEMSConversionServiceTest
 		Assert.assertTrue(modelFormats.size() > 0 );
 	}
 
+	@AfterClass
+    public static void teardown() throws Exception {
+		File tmp = new File(System.getProperty("user.dir")+"/geppettoTmp");
+		if(tmp.exists()){
+			deleteDirectory(tmp);
+		}
+    }
+	
+	public static boolean deleteDirectory(File directory) {
+	    if(directory.exists()){
+	        File[] files = directory.listFiles();
+	        if(null!=files){
+	            for(int i=0; i<files.length; i++) {
+	                if(files[i].isDirectory()) {
+	                    deleteDirectory(files[i]);
+	                }
+	                else {
+	                    files[i].delete();
+	                }
+	            }
+	        }
+	    }
+	    return(directory.delete());
+	}
 
 }

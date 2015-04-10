@@ -53,6 +53,7 @@ import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -69,13 +70,14 @@ import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author matteocantarelli
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  * 
  */
-
+@Service
 public class LEMSModelInterpreterService extends AModelInterpreter
 {
 
@@ -84,7 +86,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -127,6 +128,11 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 				NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 				_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
 				model.wrapModel(ModelFormat.NEUROML, neuroml_inclusions);
+				
+				//add visual tree feature to the model service
+				LEMSVisualTreeFeature lemsTreeFeature 
+					= new LEMSVisualTreeFeature(neuroml_inclusions,document);
+				this.addFeature(lemsTreeFeature);
 			}
 			
 			model.wrapModel(ModelFormat.LEMS, document);
@@ -145,7 +151,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 			
 			addRecordings(recordings, instancePath, model);
-			
 		}
 		catch(IOException e)
 		{
@@ -158,7 +163,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		catch(NeuroMLException e)
 		{
 			throw new ModelInterpreterException(e);
-		}
+		} 
 		return model;
 	}
 
