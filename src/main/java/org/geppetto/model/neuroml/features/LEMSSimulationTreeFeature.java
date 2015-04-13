@@ -1,19 +1,21 @@
-package org.geppetto.model.neuroml.services;
+package org.geppetto.model.neuroml.features;
 
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.geppetto.core.conversion.ConversionException;
+import org.geppetto.core.features.ISimulationTreeFeature;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ACompositeNode;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
-import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.model.runtime.CompositeNode;
+import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.VariableNode;
+import org.geppetto.core.services.GeppettoFeature;
+import org.geppetto.model.neuroml.services.ModelFormat;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -21,24 +23,31 @@ import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.Lems;
-import org.neuroml.export.utils.Utils;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.util.NeuroMLException;
 
-public class WatchableVariables
+public class LEMSSimulationTreeFeature implements ISimulationTreeFeature
 {
 	private Lems lems;
 	private AspectSubTreeNode watchTree;
 	private Map<String, BaseCell> cellMapping;
-	private AspectNode aspectNode;
 	private Map<String, EntityNode> mapping;
+	
+	private GeppettoFeature type = GeppettoFeature.VARIABLE_LIST_FEATURE;
 
-	public boolean populateWatchableVariables(AspectNode aspectNode) throws ModelInterpreterException
+	@Override
+	public GeppettoFeature getType()
+	{
+		return type;
+	}
+
+	@Override
+	public boolean populateSimulationTree(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		boolean modified = true;
 
-		watchTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-		watchTree.setId(AspectTreeType.MODEL_TREE.toString());
+		watchTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.WATCH_TREE);
+		watchTree.setId(AspectTreeType.WATCH_TREE.toString());
 		watchTree.setModified(modified);
 
 		mapping = (Map<String, EntityNode>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
@@ -101,8 +110,7 @@ public class WatchableVariables
 
 	public void extractWatchableVariables(Component component, String instancePath) throws NeuroMLException, LEMSException, ModelInterpreterException
 	{
-
-		// Generate Model Tree for Subentities (We don't as network as it has been implicit added through the entities structure)
+		// Generate Simulation Tree for Subentities (We don't as network as it has been implicit added through the entities structure)
 		if(cellMapping != null && cellMapping.size() > 1 && (component.getComponentType().getName().equals("population") || component.getComponentType().getName().equals("populationList")))
 		{
 
@@ -116,14 +124,14 @@ public class WatchableVariables
 				{
 					if(aspectNode.getId() == watchTree.getParent().getId())
 					{
-						AspectSubTreeNode modelTreeSubEntity = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+						AspectSubTreeNode simulationTreeSubEntity = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.WATCH_TREE);
 						Component cellComponent = lems.getComponent(value.getId());
 
-						WatchableVariables wV = new WatchableVariables();
-						wV.setWatchTree(modelTreeSubEntity);
-						wV.extractWatchableVariables(cellComponent, "");
+						LEMSSimulationTreeFeature lemsSimulationTreeFeature = new LEMSSimulationTreeFeature();
+						lemsSimulationTreeFeature.setWatchTree(simulationTreeSubEntity);
+						lemsSimulationTreeFeature.extractWatchableVariables(cellComponent, "");
 						
-						modelTreeSubEntity.setModified(true);
+						simulationTreeSubEntity.setModified(true);
 					}
 				}
 			}

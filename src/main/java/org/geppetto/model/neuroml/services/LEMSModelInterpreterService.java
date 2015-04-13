@@ -54,6 +54,7 @@ import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
+import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -135,6 +136,9 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 				this.addFeature(lemsTreeFeature);
 			}
 			
+			LEMSSimulationTreeFeature lemsSimulationTreeFeature = new LEMSSimulationTreeFeature();
+			this.addFeature(lemsSimulationTreeFeature);
+			
 			model.wrapModel(ModelFormat.LEMS, document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			
@@ -184,11 +188,11 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto.core.model.runtime.AspectNode)
 	 */
 	//@Override
-	public boolean populateSimulationTree(AspectNode aspectNode) throws ModelInterpreterException
-	{
-		WatchableVariables wV = new WatchableVariables();
-		return wV.populateWatchableVariables(aspectNode);
-	}
+//	public boolean populateSimulationTree(AspectNode aspectNode) throws ModelInterpreterException
+//	{
+//		LEMSSimulationTreeFeature wV = new LEMSSimulationTreeFeature();
+//		return wV.populateWatchableVariables(aspectNode);
+//	}
 
 	/*
 	 * (non-Javadoc)
