@@ -76,8 +76,6 @@ import org.neuroml.model.SegmentGroup;
 /**
  * Helper class to populate visualization tree for neuroml models
  * 
- * @author Jesus R. Martinez (jesus@metacell.us)
- * 
  */
 public class PopulateVisualTreeVisitor
 {
@@ -226,7 +224,7 @@ public class PopulateVisualTreeVisitor
 	 * @param location
 	 * @return
 	 */
-	private List<ANode> getVisualObjectForCell(BaseCell c, String id, AspectSubTreeNode visualizationTree, Point location)
+	public List<ANode> getVisualObjectForCell(BaseCell c, String id, AspectSubTreeNode visualizationTree, Point location)
 	{
 		List<ANode> visObject = new ArrayList<ANode>();
 		if(c instanceof Cell){
@@ -340,7 +338,7 @@ public class PopulateVisualTreeVisitor
 	 * @param aspect
 	 * @param model
 	 */
-	private void addVisualObjectToVizTree(String id, List<ANode> visualObjects, ACompositeNode composite, AspectNode aspect, ModelWrapper model)
+	public void addVisualObjectToVizTree(String id, List<ANode> visualObjects, ACompositeNode composite, AspectNode aspect, ModelWrapper model)
 	{
 
 		Map<String, EntityNode> entitiesMapping = (Map<String, EntityNode>) model.getModel("entitiesMapping");

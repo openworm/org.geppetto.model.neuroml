@@ -173,7 +173,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			
 			//add visual tree feature to the model service
 			NeuroMLVisualTreeFeature visualTreeFeature 
-						= new NeuroMLVisualTreeFeature(neuroml,lemsDocument);
+						= new NeuroMLVisualTreeFeature();
 			this.addFeature(visualTreeFeature);
 		}
 		catch(IOException e)
@@ -257,14 +257,15 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.NEUROML);
 		if(nmlDoc != null)
 		{
-			extractSubEntities(aspectNode, (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.NEUROML));
+			//Pure LEMS document don't have a neuroml document
+			extractSubEntities(aspectNode, nmlDoc);
 			_logger.info("Extracted subEntities, took " + (System.currentTimeMillis() - start) + "ms");
 		}
 	}
 
 	private void extractSubEntities(AspectNode aspectNode, NeuroMLDocument neuroml) throws ModelInterpreterException
 	{
-		URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.URL_ID);
+		URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID);
 
 		List<Network> networks = neuroml.getNetwork();
 		if(networks == null || networks.size() == 0)
@@ -576,7 +577,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
 		modelFormatList.add(ModelFormat.NEUROML);
-		modelFormatList.add(ModelFormat.LEMS);
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
 

@@ -32,6 +32,7 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.features;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,19 +40,24 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.features.IVisualTreeFeature;
+import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.services.GeppettoFeature;
+import org.geppetto.model.neuroml.services.ModelFormat;
+import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.visitors.PopulateVisualTreeVisitor;
-import org.lemsml.jlems.api.interfaces.ILEMSDocument;
+import org.neuroml.model.BaseCell;
 import org.neuroml.model.NeuroMLDocument;
 
 /**
- * Abstract feature class for populating neuroml visual tree
+ * Populates visual tree for an aspect, given a NeuroMLDocument object
+ * to extract visualization objects from.
  * 
  * @author Jesus R Martinez (jesus@metacell.us)
  *
@@ -64,11 +70,9 @@ public class NeuroMLVisualTreeFeature implements IVisualTreeFeature{
 	
 	private PopulateVisualTreeVisitor _populateVisualTree = new PopulateVisualTreeVisitor();
 	private GeppettoFeature type = GeppettoFeature.VISUAL_TREE_FEATURE;
-	private NeuroMLDocument neuroMLDocument;
 
-	public NeuroMLVisualTreeFeature(NeuroMLDocument document, ILEMSDocument lemsDocument) {
+	public NeuroMLVisualTreeFeature() {
 		_visualizationNodes = new HashMap<String, List<ANode>>();
-		neuroMLDocument = document;
 	}
 
 	@Override
@@ -77,7 +81,7 @@ public class NeuroMLVisualTreeFeature implements IVisualTreeFeature{
 	}
 	
 	/*
-	 * (non-Javadoc)
+	 * Populates visualization for aspect
 	 * 
 	 * @see
 	 * org.geppetto.core.simulator.ISimulator#populateVisualTree(org.geppetto
@@ -89,17 +93,37 @@ public class NeuroMLVisualTreeFeature implements IVisualTreeFeature{
 		long start=System.currentTimeMillis();
 		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
 
+		IModel model = aspectNode.getModel();
+		Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
+
+		String parentEntityID = aspectNode.getParent().getId();
+		
+		BaseCell cell = cellMapping.get(parentEntityID);
 		try {
-			if (neuroMLDocument != null) {
-				_populateVisualTree.createNodesFromNeuroMLDocument(visualizationTree, neuroMLDocument, null, _visualizationNodes);
-				//If a cell is not part of a network or there is not a target component, add it to to the visualizationtree
-				for (List<ANode> visualizationNodesItem : _visualizationNodes.values()){
-					visualizationTree.addChildren(visualizationNodesItem);
+			if (cell != null) {
+				
+				// create visual object for this instance
+				List<ANode> visualObjects = _populateVisualTree.getVisualObjectForCell(cell, cell.getId(), visualizationTree, null);
+				
+				// add visual object to appropriate sub entity
+				for (ANode visualObject : visualObjects){
+					visualizationTree.addChild(visualObject);
 				}
-				visualizationTree.setModified(true);
-				aspectNode.setModified(true);
-				((EntityNode) aspectNode.getParentEntity()).updateParentEntitiesFlags(true);
+				
+			}else{
+				NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
+				if (neuroml != null) {
+					_populateVisualTree.createNodesFromNeuroMLDocument(visualizationTree, neuroml, null, _visualizationNodes);
+					
+					//If a cell is not part of a network or there is not a target component, add it to to the visualizationtree
+					for (List<ANode> visualizationNodesItem : _visualizationNodes.values()){
+						visualizationTree.addChildren(visualizationNodesItem);
+					}
+				}	
 			}
+			visualizationTree.setModified(true);
+			aspectNode.setModified(true);
+			((EntityNode) aspectNode.getParentEntity()).updateParentEntitiesFlags(true);
 		} catch (Exception e) {
 			throw new ModelInterpreterException(e);
 		}
