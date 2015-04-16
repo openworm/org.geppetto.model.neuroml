@@ -43,7 +43,10 @@ public enum ResourcesDomainType
 	
 	SYNAPSE("Synapse"),
 	PREFRACTIONALONG("PreFractionAlong"),
-	POSTFRACTIONALONG("PostFractionAlong");
+	POSTFRACTIONALONG("PostFractionAlong"),
+	IONCHANNEL("IonChannel"),
+	NETWORK("Network"),
+	CELL("Cell");
 	
 	
 	private String _value;
