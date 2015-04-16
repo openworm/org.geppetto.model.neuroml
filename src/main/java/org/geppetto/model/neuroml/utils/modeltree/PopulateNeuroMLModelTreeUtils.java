@@ -743,6 +743,8 @@ public class PopulateNeuroMLModelTreeUtils {
 		if (ionChannelBase != null){
 			// Ion Channel
 			CompositeNode ionChannelNode = new CompositeNode(ionChannelBase.getId());
+			ionChannelNode.setDomainType(ResourcesDomainType.IONCHANNEL.get());
+
 			if (ionChannelBase instanceof IonChannel){
 				ionChannelNode.setName(Resources.ION_CHANNEL.get());
 			}
