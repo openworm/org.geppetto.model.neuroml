@@ -233,11 +233,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
 		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
-		AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.WATCH_TREE);
+		AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
 
 		modelTree.setId(AspectTreeType.MODEL_TREE.toString());
 		visualizationTree.setId(AspectTreeType.VISUALIZATION_TREE.toString());
-		simulationTree.setId(AspectTreeType.WATCH_TREE.toString());
+		simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
 		populateSubEntities(aspectNode);
 		return true;
 	}

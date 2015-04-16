@@ -3,7 +3,7 @@ package org.geppetto.model.neuroml.features;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.geppetto.core.features.ISimulationTreeFeature;
+import org.geppetto.core.features.IWatchableVariableListFeature;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ACompositeNode;
@@ -26,14 +26,14 @@ import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.util.NeuroMLException;
 
-public class LEMSSimulationTreeFeature implements ISimulationTreeFeature
+public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 {
 	private Lems lems;
 	private AspectSubTreeNode watchTree;
 	private Map<String, BaseCell> cellMapping;
 	private Map<String, EntityNode> mapping;
-	
-	private GeppettoFeature type = GeppettoFeature.VARIABLE_LIST_FEATURE;
+
+	private GeppettoFeature type = GeppettoFeature.WATCHABLE_VARIABLE_LIST_FEATURE;
 
 	@Override
 	public GeppettoFeature getType()
@@ -42,12 +42,12 @@ public class LEMSSimulationTreeFeature implements ISimulationTreeFeature
 	}
 
 	@Override
-	public boolean populateSimulationTree(AspectNode aspectNode) throws ModelInterpreterException
+	public boolean listWatchableVariablea(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		boolean modified = true;
 
-		watchTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.WATCH_TREE);
-		watchTree.setId(AspectTreeType.WATCH_TREE.toString());
+		watchTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
+		watchTree.setId(AspectTreeType.SIMULATION_TREE.toString());
 		watchTree.setModified(modified);
 
 		mapping = (Map<String, EntityNode>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
@@ -124,13 +124,14 @@ public class LEMSSimulationTreeFeature implements ISimulationTreeFeature
 				{
 					if(aspectNode.getId() == watchTree.getParent().getId())
 					{
-						AspectSubTreeNode simulationTreeSubEntity = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.WATCH_TREE);
+
+						AspectSubTreeNode simulationTreeSubEntity = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
 						Component cellComponent = lems.getComponent(value.getId());
+						this.watchTree = simulationTreeSubEntity;
 
 						LEMSSimulationTreeFeature lemsSimulationTreeFeature = new LEMSSimulationTreeFeature();
-						lemsSimulationTreeFeature.setWatchTree(simulationTreeSubEntity);
 						lemsSimulationTreeFeature.extractWatchableVariables(cellComponent, "");
-						
+
 						simulationTreeSubEntity.setModified(true);
 					}
 				}
@@ -144,7 +145,15 @@ public class LEMSSimulationTreeFeature implements ISimulationTreeFeature
 			}
 			for(Component componentChild : component.getAllChildren())
 			{
-				extractWatchableVariables(componentChild, instancePath + ((componentChild.getID() == null) ? componentChild.getTypeName() : componentChild.getID()) + ".");
+				//FIXME
+				if(cellMapping != null && cellMapping.size() == 1 && componentChild.getComponentType().getName().equals("cell"))
+				{
+					String newInstancePath = instancePath.substring(0, instancePath.length()-1) + "[0]" + ".";
+					extractWatchableVariables(componentChild, newInstancePath);
+				}
+				else{
+					extractWatchableVariables(componentChild, instancePath + ((componentChild.getID() == null) ? componentChild.getTypeName() : componentChild.getID()) + ".");
+				}
 			}
 		}
 	}
