@@ -49,6 +49,7 @@ import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.neuroml.export.info.model.ExpressionNode;
@@ -203,6 +204,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	
 	public CompositeNode createCellNode(BaseCell c) throws ModelInterpreterException, ContentError{
 		CompositeNode cellNode = new CompositeNode(Resources.CELL.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.CELL.get(), c));
+		cellNode.setDomainType(ResourcesDomainType.CELL.get());
 		// Cell types
 		if (c instanceof Cell){
 			Cell cell = (Cell) c;
