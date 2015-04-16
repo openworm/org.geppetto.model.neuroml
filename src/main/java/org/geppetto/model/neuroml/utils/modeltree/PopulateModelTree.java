@@ -34,7 +34,6 @@ package org.geppetto.model.neuroml.utils.modeltree;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +52,6 @@ import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.ParamValue;
 import org.neuroml.export.info.InfoTreeCreator;
 import org.neuroml.export.info.model.InfoNode;
@@ -106,16 +104,18 @@ public class PopulateModelTree {
 		Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
 		
 		List<String> _discoveredNestedComponentsId = ((ArrayList<String>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID));
-		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
-		HashMap<String, ANode> _discoveredNodesInNeuroML =  new HashMap<String, ANode>();
+		Map<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
+		Map<String, ANode> _discoveredNodesInNeuroML =  new HashMap<String, ANode>();
 		
 		populateNeuroMLModelTreeUtils.setModel((ModelWrapper) model);
 		
 		try {
 			//Check if it is a entity (parse the whole document) or a subentity (create a component node from the cell element)
+			//TODO: WAT? Adrian needs to clarify.
 			if (modelTree.getParent().getParent().getParent().getId().equals("scene")){
 
 		 		//Generate Model Tree for Subentities (We don't as network as it has been implicit added through the entities structure)
+				//TODO: WAT? Adrian needs to clarify.
 				if (cellMapping.size() > 1){
 					for (Map.Entry<String, BaseCell> entry : cellMapping.entrySet()) {
 					    String key = entry.getKey();
@@ -143,7 +143,7 @@ public class PopulateModelTree {
 				
 				
 				//Iterate through all standalone elements
-		        LinkedHashMap<String,Standalone> standalones = NeuroMLConverter.getAllStandaloneElements(neuroml);
+		        Map<String,Standalone> standalones = NeuroMLConverter.getAllStandaloneElements(neuroml);
 		        InfoNode infoNode = new InfoNode();
 		        for (Standalone element: standalones.values())
 		        {
@@ -198,7 +198,7 @@ public class PopulateModelTree {
 						try {
 							CompositeNode compositeNode = new CompositeNode(element.getId(), element.getId());
 			                Component comp = Utils.convertNeuroMLToComponent(element);
-			                ComponentType ct = comp.getComponentType();
+			                //ComponentType ct = comp.getComponentType();
 			                for (ParamValue pv: comp.getParamValues()) {
 			                    if (comp.hasAttribute(pv.getName())) {
 			                        String orig = comp.getStringValue(pv.getName());
