@@ -274,7 +274,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		else if(networks.size() == 1)
 		{
 			// there's only one network, we consider the entity for it our network entity
-			addNetworkSubEntities(networks.get(0), (EntityNode) aspectNode.getParentEntity(), url, aspectNode, (ModelWrapper) aspectNode.getModel());
+			//TODO: WAT? Adrian needs to clarify.
+			EntityNode networkEntity = aspectNode.getParentEntity();
+			networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
+			addNetworkSubEntities(networks.get(0), networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
 			createConnections(networks.get(0), aspectNode);
 		}
 		else if(networks.size() > 1)
@@ -283,6 +286,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			for(Network n : networks)
 			{
 				EntityNode networkEntity = new EntityNode(n.getId());
+				networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
 				addNetworkSubEntities(n, networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
 				createConnections(n, aspectNode);
 				aspectNode.getChildren().add(networkEntity);
