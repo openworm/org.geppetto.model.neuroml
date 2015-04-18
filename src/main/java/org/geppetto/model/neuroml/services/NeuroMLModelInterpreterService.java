@@ -39,8 +39,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.xml.bind.JAXBException;
@@ -48,10 +50,12 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.quantities.PhysicalQuantity;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
@@ -59,10 +63,14 @@ import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.ConnectionNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.VisualObjectReferenceNode;
 import org.geppetto.core.model.simulation.ConnectionType;
+import org.geppetto.core.model.values.AValue;
+import org.geppetto.core.model.values.DoubleValue;
 import org.geppetto.core.model.values.StringValue;
+import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.VariablePathSerializer;
@@ -102,7 +110,7 @@ import org.springframework.stereotype.Service;
  * 
  */
 @Service
-public class NeuroMLModelInterpreterService extends AModelInterpreter
+public class NeuroMLModelInterpreterService extends AModelInterpreter implements ISetParameterFeature
 {
 	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
 
@@ -578,6 +586,27 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
 		modelFormatList.add(ModelFormat.NEUROML);
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
+	}
+
+	@Override
+	public GeppettoFeature getType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setParameter(Map<String, String> parameters) {
+		HashMap<String, ParameterSpecificationNode> modelParameters =
+				this.populateModelTree.getParametersNode();
+		
+		Set<String> paramValues = parameters.keySet();
+		Iterator<String> it = paramValues.iterator();
+		while(it.hasNext()){
+			String s = it.next();
+			AValue value = new DoubleValue(Double.valueOf(parameters.get(s)));
+			ParameterSpecificationNode node = modelParameters.get(s);
+			node.getValue().setValue(value);
+		}
 	}
 
 }

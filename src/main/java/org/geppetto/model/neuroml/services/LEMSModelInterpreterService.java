@@ -37,17 +37,20 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
@@ -72,7 +75,7 @@ import org.springframework.stereotype.Service;
  * 
  */
 @Service
-public class LEMSModelInterpreterService extends AModelInterpreter
+public class LEMSModelInterpreterService extends AModelInterpreter implements ISetParameterFeature
 {
 
 	private static Log _logger = LogFactory.getLog(LEMSModelInterpreterService.class);
@@ -194,6 +197,17 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
 		modelFormatList.add(ModelFormat.LEMS);
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
+	}
+
+	@Override
+	public GeppettoFeature getType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setParameter(Map<String, String> parameters) {
+		// TODO Auto-generated method stub
 	}
 	
 	

@@ -38,6 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ANode;
@@ -46,6 +47,7 @@ import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.values.StringValue;
 import org.geppetto.model.neuroml.services.ModelFormat;
@@ -90,6 +92,9 @@ public class PopulateModelTree {
 	public PopulateModelTree() {		
 	}
 	
+	public HashMap<String, ParameterSpecificationNode> getParametersNode(){
+		return this.populateNeuroMLModelTreeUtils.getParameterNodes();
+	}
 	/**
 	 * Method that is contacted to start populating the model tree
 	 * 
