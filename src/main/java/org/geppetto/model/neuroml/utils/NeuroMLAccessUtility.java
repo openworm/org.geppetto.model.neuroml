@@ -49,10 +49,11 @@ public class NeuroMLAccessUtility
 	public static final String SUBENTITIES_MAPPING_ID = "entitiesMapping";
 	public static final String DISCOVERED_NESTED_COMPONENTS_ID = "discoveredNestedComponents";
 	public static final String CELL_SUBENTITIES_MAPPING_ID = "cellEntitiesMapping";
-	
+
 	private LEMSAccessUtility lemsAccessUtility = new LEMSAccessUtility();
-	
-	public NeuroMLAccessUtility() {
+
+	public NeuroMLAccessUtility()
+	{
 		super();
 	}
 
@@ -61,84 +62,88 @@ public class NeuroMLAccessUtility
 	 * @param neuroml
 	 * @param url
 	 * @return
-	 * @throws ModelInterpreterException 
-	 * @throws ContentError 
+	 * @throws ModelInterpreterException
+	 * @throws ContentError
 	 */
 	public Object getComponent(String componentId, ModelWrapper model, Resources componentType) throws ModelInterpreterException
 	{
 		Object component;
-		//Check if we have already discovered this component
-		if (componentType == Resources.COMPONENT_TYPE){
+		// Check if we have already discovered this component
+		if(componentType == Resources.COMPONENT_TYPE)
+		{
 			component = this.lemsAccessUtility.getComponent(componentId, model);
 		}
-		else{
+		else
+		{
 			component = this.getComponentFromCache(componentId, model);
-			
-//			if (component == null){
-//				component = this.lemsAccessUtility.getComponentFromCache(componentId, model);
-//			}
-			
+
 			// let's first check if the cell is of a predefined neuroml type
-			if(component == null){
-				try {
+			if(component == null)
+			{
+				try
+				{
 					component = getComponentById(componentId, model, componentType);
-				} catch (ContentError e1) {
-					//throw new ModelInterpreterException("Can't find the componet " + componentId);
+					if(component != null)
+					{
+						registerAsDiscoverNestedComponents(componentId, model);
+					}
+				}
+				catch(ContentError e1)
+				{
 					return null;
 				}
 			}
-		}	
+		}
 
 		if(component == null)
 		{
 			// sorry no luck!
-			//throw new ModelInterpreterException("Can't find the componet " + componentId);
 			return null;
 		}
 		return component;
 	}
-	
-	public Base getComponentFromCache(String componentId, ModelWrapper model){
-		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
-		List<String> _discoveredNestedComponentsId = ((ArrayList<String>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID));
-		
-		//TODO We may think about storing nodes instead of components
+
+	public Base getComponentFromCache(String componentId, ModelWrapper model)
+	{
+		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
+
+		// TODO We may think about storing nodes instead of components
 		if(_discoveredComponents.containsKey(componentId))
 		{
-			if (!_discoveredNestedComponentsId.contains(componentId)){
-				_discoveredNestedComponentsId.add(componentId);
-			}
+			registerAsDiscoverNestedComponents(componentId, model);
+
 			return _discoveredComponents.get(componentId);
 		}
-		
+
 		return null;
 	}
-	
-	
+
 	private Object getComponentById(String componentId, ModelWrapper model, Resources componentType) throws ContentError
 	{
-		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
-		
+		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
 		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
-		
-		switch (componentType) {
+
+		switch(componentType)
+		{
 			case ION_CHANNEL:
-				for (IonChannel ionChannel : doc.getIonChannel()){
+				for(IonChannel ionChannel : doc.getIonChannel())
+				{
 					_discoveredComponents.put(ionChannel.getId(), ionChannel);
 					if(ionChannel.getId().equals(componentId))
 					{
 						return ionChannel;
 					}
 				}
-				for (IonChannelHH ionChannelHH : doc.getIonChannelHH()){
+				for(IonChannelHH ionChannelHH : doc.getIonChannelHH())
+				{
 					_discoveredComponents.put(ionChannelHH.getId(), ionChannelHH);
 					if(ionChannelHH.getId().equals(componentId))
 					{
 						return ionChannelHH;
 					}
 				}
-			case CELL:	
-				
+			case CELL:
+
 				for(AdExIaFCell c : doc.getAdExIaFCell())
 				{
 					_discoveredComponents.put(c.getId(), c);
@@ -203,7 +208,7 @@ public class NeuroMLAccessUtility
 						return c;
 					}
 				}
-				
+
 			case CONCENTRATION_MODEL:
 				for(FixedFactorConcentrationModel c : doc.getFixedFactorConcentrationModel())
 				{
@@ -213,7 +218,7 @@ public class NeuroMLAccessUtility
 						return c;
 					}
 				}
-				
+
 				for(DecayingPoolConcentrationModel c : doc.getDecayingPoolConcentrationModel())
 				{
 					_discoveredComponents.put(c.getId(), c);
@@ -222,94 +227,114 @@ public class NeuroMLAccessUtility
 						return c;
 					}
 				}
-				
-			case POPULATION:	
-				for(Network n : doc.getNetwork()){
-					for (Population p : n.getPopulation()){
-						if (p.getId().equals(componentId)){
+
+			case POPULATION:
+				for(Network n : doc.getNetwork())
+				{
+					for(Population p : n.getPopulation())
+					{
+						if(p.getId().equals(componentId))
+						{
 							return p;
 						}
 					}
 				}
-				
+
 			case SYNAPSE:
-				for (ExpTwoSynapse s : doc.getExpTwoSynapse()){
+				for(ExpTwoSynapse s : doc.getExpTwoSynapse())
+				{
 					_discoveredComponents.put(s.getId(), s);
 					if(s.getId().equals(componentId))
 					{
 						return s;
 					}
 				}
-				for (ExpOneSynapse s : doc.getExpOneSynapse()){
+				for(ExpOneSynapse s : doc.getExpOneSynapse())
+				{
 					_discoveredComponents.put(s.getId(), s);
 					if(s.getId().equals(componentId))
 					{
 						return s;
 					}
 				}
-				for (BlockingPlasticSynapse s : doc.getBlockingPlasticSynapse()){
+				for(BlockingPlasticSynapse s : doc.getBlockingPlasticSynapse())
+				{
 					_discoveredComponents.put(s.getId(), s);
 					if(s.getId().equals(componentId))
 					{
 						return s;
 					}
 				}
-				
+
 			case EXTRACELLULAR_P:
-			 	for (ExtracellularProperties e : doc.getExtracellularProperties()){
-			 		_discoveredComponents.put(e.getId(), e);
+				for(ExtracellularProperties e : doc.getExtracellularProperties())
+				{
+					_discoveredComponents.put(e.getId(), e);
 					if(e.getId().equals(componentId))
 					{
 						return e;
 					}
-		 		}
+				}
 			case PYNN_SYNAPSE:
-				for (AlphaCondSynapse s : doc.getAlphaCondSynapse()){
+				for(AlphaCondSynapse s : doc.getAlphaCondSynapse())
+				{
 					_discoveredComponents.put(s.getId(), s);
 					if(s.getId().equals(componentId))
 					{
 						return s;
 					}
-		 			
-		 		}
-		 		for (ExpCondSynapse s : doc.getExpCondSynapse()){
-		 			_discoveredComponents.put(s.getId(), s);
+
+				}
+				for(ExpCondSynapse s : doc.getExpCondSynapse())
+				{
+					_discoveredComponents.put(s.getId(), s);
 					if(s.getId().equals(componentId))
 					{
 						return s;
 					}
-		 			
-		 		}
-		 		for (ExpCurrSynapse s : doc.getExpCurrSynapse()){
-		 			_discoveredComponents.put(s.getId(), s);
+
+				}
+				for(ExpCurrSynapse s : doc.getExpCurrSynapse())
+				{
+					_discoveredComponents.put(s.getId(), s);
 					if(s.getId().equals(componentId))
 					{
 						return s;
 					}
-		 			
-		 		}
-		 		for (AlphaCurrSynapse s : doc.getAlphaCurrSynapse()){
-		 			_discoveredComponents.put(s.getId(), s);
+
+				}
+				for(AlphaCurrSynapse s : doc.getAlphaCurrSynapse())
+				{
+					_discoveredComponents.put(s.getId(), s);
 					if(s.getId().equals(componentId))
 					{
 						return s;
 					}
-		 		}
-		 		
+				}
+
 			case BIOPHYSICAL_PROPERTIES:
-				for (BiophysicalProperties b : doc.getBiophysicalProperties()){
+				for(BiophysicalProperties b : doc.getBiophysicalProperties())
+				{
 					_discoveredComponents.put(b.getId(), b);
 					if(b.getId().equals(componentId))
 					{
 						return b;
 					}
-		 		}
-				
-		default:
-			return this.lemsAccessUtility.getComponentById(componentId, model);
+				}
+
+			default:
+				return this.lemsAccessUtility.getComponentById(componentId, model);
 		}
-		
+
+	}
+	
+	private void registerAsDiscoverNestedComponents(String componentId, ModelWrapper model)
+	{
+		List<String> _discoveredNestedComponentsId = ((ArrayList<String>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID));
+		if(!_discoveredNestedComponentsId.contains(componentId))
+		{
+			_discoveredNestedComponentsId.add(componentId);
+		}
 	}
 
-	
 }
