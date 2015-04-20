@@ -29,7 +29,7 @@ import org.neuroml.model.util.NeuroMLException;
 public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 {
 	private Lems lems;
-	private AspectSubTreeNode watchTree;
+	private AspectSubTreeNode simulationTree;
 	private Map<String, BaseCell> cellMapping;
 	private Map<String, EntityNode> mapping;
 
@@ -42,13 +42,13 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 	}
 
 	@Override
-	public boolean listWatchableVariablea(AspectNode aspectNode) throws ModelInterpreterException
+	public boolean listWatchableVariables(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		boolean modified = true;
 
-		watchTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
-		watchTree.setId(AspectTreeType.SIMULATION_TREE.toString());
-		watchTree.setModified(modified);
+		simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
+		simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
+		simulationTree.setModified(modified);
 
 		mapping = (Map<String, EntityNode>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
 		cellMapping = (Map<String, BaseCell>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
@@ -66,7 +66,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 		}
 
 		// Check if it is a entity (parse the whole document) or a subentity (create a component node from the cell element)
-		if(watchTree.getParent().getParent().getParent().getId().equals("scene"))
+		if(simulationTree.getParent().getParent().getParent().getId().equals("scene"))
 		{
 
 			try
@@ -94,7 +94,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 		{
 			try
 			{
-				BaseCell baseCell = cellMapping.get(watchTree.getParent().getParent().getId());
+				BaseCell baseCell = cellMapping.get(simulationTree.getParent().getParent().getId());
 				Component cellComponent = lems.getComponent(baseCell.getId());
 				extractWatchableVariables(cellComponent, cellComponent.getID() + ".");
 			}
@@ -122,18 +122,18 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 				EntityNode entityNode = mapping.get(key);
 				for(AspectNode aspectNode : entityNode.getAspects())
 				{
-					if(aspectNode.getId() == watchTree.getParent().getId())
+					if(aspectNode.getId() == simulationTree.getParent().getId())
 					{
 
 						Component cellComponent = lems.getComponent(value.getId());
-						this.watchTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
-						this.watchTree.setId(AspectTreeType.SIMULATION_TREE.toString());
+						this.simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
+						this.simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
 
 						LEMSSimulationTreeFeature lemsSimulationTreeFeature = new LEMSSimulationTreeFeature();
-						lemsSimulationTreeFeature.setWatchTree(this.watchTree);
+						lemsSimulationTreeFeature.setWatchTree(this.simulationTree);
 						lemsSimulationTreeFeature.extractWatchableVariables(cellComponent, cellComponent.getID() + ".");
 
-						this.watchTree.setModified(true);
+						this.simulationTree.setModified(true);
 					}
 				}
 			}
@@ -164,7 +164,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 	public void createWatchableVariableNode(String watchableVariableInstancePath)
 	{
 		StringTokenizer tokenizer = new StringTokenizer(watchableVariableInstancePath, ".");
-		ACompositeNode node = watchTree;
+		ACompositeNode node = simulationTree;
 		while(tokenizer.hasMoreElements())
 		{
 			String current = tokenizer.nextToken();
@@ -209,7 +209,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 
 	public void setWatchTree(AspectSubTreeNode watchTree)
 	{
-		this.watchTree = watchTree;
+		this.simulationTree = watchTree;
 	}
 
 }

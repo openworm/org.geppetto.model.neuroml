@@ -46,15 +46,12 @@ import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.EntityNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
-import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
 import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
+import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -62,9 +59,6 @@ import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.Exposure;
-import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.NeuroMLDocument;
@@ -131,13 +125,10 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 				model.wrapModel(ModelFormat.NEUROML, neuroml_inclusions);
 				
 				//add visual tree feature to the model service
-				LEMSVisualTreeFeature lemsTreeFeature 
-					= new LEMSVisualTreeFeature(neuroml_inclusions,document);
-				this.addFeature(lemsTreeFeature);
+				this.addFeature(new LEMSVisualTreeFeature(neuroml_inclusions,document));
 			}
 			
-			LEMSSimulationTreeFeature lemsSimulationTreeFeature = new LEMSSimulationTreeFeature();
-			this.addFeature(lemsSimulationTreeFeature);
+			this.addFeature(new LEMSSimulationTreeFeature());
 			
 			model.wrapModel(ModelFormat.LEMS, document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
@@ -182,18 +173,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		return _neuroMLModelInterpreter.populateModelTree(aspectNode);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto.core.model.runtime.AspectNode)
-	 */
-	//@Override
-//	public boolean populateSimulationTree(AspectNode aspectNode) throws ModelInterpreterException
-//	{
-//		LEMSSimulationTreeFeature wV = new LEMSSimulationTreeFeature();
-//		return wV.populateWatchableVariables(aspectNode);
-//	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
