@@ -96,7 +96,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 			{
 				BaseCell baseCell = cellMapping.get(watchTree.getParent().getParent().getId());
 				Component cellComponent = lems.getComponent(baseCell.getId());
-				extractWatchableVariables(cellComponent, "");
+				extractWatchableVariables(cellComponent, cellComponent.getID() + ".");
 			}
 			catch(NeuroMLException | LEMSException e)
 			{
@@ -131,7 +131,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 
 						LEMSSimulationTreeFeature lemsSimulationTreeFeature = new LEMSSimulationTreeFeature();
 						lemsSimulationTreeFeature.setWatchTree(this.watchTree);
-						lemsSimulationTreeFeature.extractWatchableVariables(cellComponent, "");
+						lemsSimulationTreeFeature.extractWatchableVariables(cellComponent, cellComponent.getID() + ".");
 
 						this.watchTree.setModified(true);
 					}
@@ -146,13 +146,15 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 			}
 			for(Component componentChild : component.getAllChildren())
 			{
-				//FIXME
+
 				if(cellMapping != null && cellMapping.size() == 1 && componentChild.getComponentType().getName().equals("cell"))
 				{
-					String newInstancePath = instancePath.substring(0, instancePath.length()-1) + "[0]" + ".";
+					// FIXME: This a quick and dirty solution but we have to define the way we would like to specify the variable to be watched in the runtime tree
+					String newInstancePath = instancePath.substring(0, instancePath.length() - 1) + "[0]" + ".";
 					extractWatchableVariables(componentChild, newInstancePath);
 				}
-				else{
+				else
+				{
 					extractWatchableVariables(componentChild, instancePath + ((componentChild.getID() == null) ? componentChild.getTypeName() : componentChild.getID()) + ".");
 				}
 			}
@@ -167,7 +169,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 		{
 			String current = tokenizer.nextToken();
 			boolean found = false;
-			
+
 			for(ANode child : node.getChildren())
 			{
 				if(child.getId().equals(current))
