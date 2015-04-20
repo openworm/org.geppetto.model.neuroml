@@ -63,7 +63,8 @@ import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.NeuroMLDocument;
 
 /**
- * Abstract feature class for populating lems visual tree
+ * Populates visual tree for an aspect, given a NeuroMLDocument object
+ * to extract visualization objects from.
  * 
  * @author Jesus R Martinez (jesus@metacell.us)
  *
@@ -77,7 +78,7 @@ public class LEMSVisualTreeFeature implements IVisualTreeFeature{
 	private GeppettoFeature type = GeppettoFeature.VISUAL_TREE_FEATURE;
 	private NeuroMLDocument _neuroMLDocument;
 
-	public LEMSVisualTreeFeature(NeuroMLDocument neuroMLDocument, ILEMSDocument document) {
+	public LEMSVisualTreeFeature(NeuroMLDocument neuroMLDocument, ILEMSDocument document) throws ModelInterpreterException {
 		try {
 			_visualizationNodes = new HashMap<String, List<ANode>>();
 			_neuroMLDocument = neuroMLDocument;
@@ -106,9 +107,9 @@ public class LEMSVisualTreeFeature implements IVisualTreeFeature{
 				_targetCells = null;
 			}
 		} catch (ContentError | ParseError e) {
-			e.printStackTrace();
+			throw new ModelInterpreterException(e);
 		} catch (LEMSBuildException e) {
-			e.printStackTrace();
+			throw new ModelInterpreterException(e);
 		}
 
 	}

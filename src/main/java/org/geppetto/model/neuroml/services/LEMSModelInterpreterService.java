@@ -193,7 +193,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	@Override
 	public void registerGeppettoService() {
 		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
-		modelFormatList.add(ModelFormat.NEUROML);
 		modelFormatList.add(ModelFormat.LEMS);
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
