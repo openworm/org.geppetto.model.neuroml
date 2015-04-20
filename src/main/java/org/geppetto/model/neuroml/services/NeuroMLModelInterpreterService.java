@@ -455,6 +455,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		{
 			// there's only one cell whose name is the same as the geppetto entity, don't create any subentities
 			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(n.getPopulation().get(0).getComponent(), model, Resources.CELL);
+			parentEntity.setDomainType(ResourcesDomainType.CELL.get());
 			mapCellIdToEntity(parentEntity.getId(), parentEntity, aspect, cell);
 			return;
 		}
@@ -469,6 +470,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				{
 					String id = VariablePathSerializer.getArrayName(p.getId(), i);
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
+					e.setDomainType(ResourcesDomainType.CELL.get());
 
 					if(instance.getLocation() != null)
 					{
@@ -490,6 +492,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					String id = VariablePathSerializer.getArrayName(p.getId(), i);
 					// TODO why do we need the cell?
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
+					e.setDomainType(ResourcesDomainType.CELL.get());
 					e.setId(id);
 					parentEntity.addChild(e);
 				}

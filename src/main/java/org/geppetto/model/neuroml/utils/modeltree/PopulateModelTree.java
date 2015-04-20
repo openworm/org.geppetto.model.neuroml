@@ -109,13 +109,23 @@ public class PopulateModelTree {
 		
 		populateNeuroMLModelTreeUtils.setModel((ModelWrapper) model);
 		
+		/*
+		 * According to the Geppetto NeuroML model, we can have any (NeuroML)
+		 * standalone element in the ModelTree root. All hildren entities of the
+		 * root node will correspond to NeuroML Cells.
+		 * 
+		 * Here we need to check if we are getting the ModelTree of the root
+		 * entity -- in which case we have to parse the whole document -- or of
+		 * one of its children -- in which case we will create a Component Node
+		 * from the cell element
+		 */
 		try {
-			//Check if it is a entity (parse the whole document) or a subentity (create a component node from the cell element)
-			//TODO: WAT? Adrian needs to clarify.
 			if (modelTree.getParent().getParent().getParent().getId().equals("scene")){
+				// if the grandgrandfather of the node is "scene", we can assume
+				// that this is the root node
 
-		 		//Generate Model Tree for Subentities (We don't as network as it has been implicit added through the entities structure)
-				//TODO: WAT? Adrian needs to clarify.
+				//Generate Model Tree for Subentities (We don't add network as it has been
+				//implicitly added through the entities structure), so we go straight for cells
 				if (cellMapping.size() > 1){
 					for (Map.Entry<String, BaseCell> entry : cellMapping.entrySet()) {
 					    String key = entry.getKey();
