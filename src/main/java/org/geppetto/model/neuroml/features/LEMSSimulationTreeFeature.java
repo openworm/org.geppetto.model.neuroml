@@ -125,14 +125,15 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 					if(aspectNode.getId() == watchTree.getParent().getId())
 					{
 
-						AspectSubTreeNode simulationTreeSubEntity = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
 						Component cellComponent = lems.getComponent(value.getId());
-						this.watchTree = simulationTreeSubEntity;
+						this.watchTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
+						this.watchTree.setId(AspectTreeType.SIMULATION_TREE.toString());
 
 						LEMSSimulationTreeFeature lemsSimulationTreeFeature = new LEMSSimulationTreeFeature();
+						lemsSimulationTreeFeature.setWatchTree(this.watchTree);
 						lemsSimulationTreeFeature.extractWatchableVariables(cellComponent, "");
 
-						simulationTreeSubEntity.setModified(true);
+						this.watchTree.setModified(true);
 					}
 				}
 			}
@@ -160,13 +161,13 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 
 	public void createWatchableVariableNode(String watchableVariableInstancePath)
 	{
-
 		StringTokenizer tokenizer = new StringTokenizer(watchableVariableInstancePath, ".");
 		ACompositeNode node = watchTree;
 		while(tokenizer.hasMoreElements())
 		{
 			String current = tokenizer.nextToken();
 			boolean found = false;
+			
 			for(ANode child : node.getChildren())
 			{
 				if(child.getId().equals(current))
