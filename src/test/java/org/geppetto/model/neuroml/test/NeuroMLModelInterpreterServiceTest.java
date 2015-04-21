@@ -33,12 +33,21 @@
 
 package org.geppetto.model.neuroml.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.runtime.AspectNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
+import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.model.runtime.ParameterSpecificationNode;
+import org.geppetto.core.model.runtime.RuntimeTreeRoot;
 import org.geppetto.model.neuroml.services.ModelFormat;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.Test;
@@ -64,7 +73,44 @@ public class NeuroMLModelInterpreterServiceTest
 		assertNotNull(model.getModel("url"));
 		assertNotNull(model.getModel(ModelFormat.LEMS));
 		assertNotNull(model.getModel(ModelFormat.NEUROML));
-
+	}
+	
+	/**
+	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
+	 * @throws ModelInterpreterException 
+	 */
+	@Test
+	public void testSetParameters() throws ModelInterpreterException
+	{
+		NeuroMLModelInterpreterService modelInterpreter = new NeuroMLModelInterpreterService();
+		URL url = this.getClass().getResource("/purk.nml");
+		ModelWrapper model = (ModelWrapper) modelInterpreter.readModel(url,null,"");
+		assertNotNull(model);
+		assertNotNull(model.getModel("url"));
+		assertNotNull(model.getModel(ModelFormat.LEMS));
+		assertNotNull(model.getModel(ModelFormat.NEUROML));
+		RuntimeTreeRoot root = new RuntimeTreeRoot("scene");
+		EntityNode entity = new EntityNode("purkinje");
+		AspectNode aspectNode = new AspectNode("electrical");
+		entity.addChild(aspectNode);
+		root.addChild(entity);
+		aspectNode.setModel(model);
+		modelInterpreter.populateRuntimeTree(aspectNode);
+		modelInterpreter.populateModelTree(aspectNode);
+		String parameterNode = "purkinje.electrical.ModelTree.Cell.biophys.MembraneProperties.SpecificCapacitance_25";
+		TestParametersVisitor visitor = new TestParametersVisitor();
+		aspectNode.apply(visitor);
+		ParameterSpecificationNode original
+				= visitor.getParametersMap().get(parameterNode);
+		assertEquals("4.64862", original.getValue().getValue().getStringValue());
+		Map<String,String> parameters =new HashMap<String, String>();
+		parameters.put(parameterNode, "10");
+		modelInterpreter.setParameter(parameters);
+		
+		aspectNode.apply(visitor);
+		ParameterSpecificationNode newOne
+				= visitor.getParametersMap().get(parameterNode);
+		assertEquals("10.0", newOne.getValue().getValue().getStringValue());
 	}
 
 }

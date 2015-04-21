@@ -53,6 +53,7 @@ import org.geppetto.core.model.values.StringValue;
 import org.geppetto.model.neuroml.services.ModelFormat;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.visitors.TrackParameterSpecsNodesVisitors;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.ComponentType;
@@ -88,12 +89,15 @@ public class PopulateModelTree {
 	private boolean _populated = false;
 	
 	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils();
+
+	private Map<String, ParameterSpecificationNode> _parameterNodes = 
+			new HashMap<String, ParameterSpecificationNode>();
 	
 	public PopulateModelTree() {		
 	}
 	
-	public HashMap<String, ParameterSpecificationNode> getParametersNode(){
-		return this.populateNeuroMLModelTreeUtils.getParameterNodes();
+	public Map<String, ParameterSpecificationNode> getParametersNode(){
+		return _parameterNodes ;
 	}
 	/**
 	 * Method that is contacted to start populating the model tree
@@ -246,6 +250,11 @@ public class PopulateModelTree {
 			}
 			
 	 		_populated = true;
+	 		
+	 		//store parameter specs nodes in map for easy access using visitor
+	 		TrackParameterSpecsNodesVisitors visitor = new TrackParameterSpecsNodesVisitors();
+	 		modelTree.apply(visitor);
+	 		this._parameterNodes = visitor.getParametersMap();
 		} catch (Exception e) {
 			_populated = false;
 			throw new ModelInterpreterException(e);
