@@ -278,7 +278,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		else if(networks.size() == 1)
 		{
 			// there's only one network, we consider the entity for it our network entity
-			addNetworkSubEntities(networks.get(0), (EntityNode) aspectNode.getParentEntity(), url, aspectNode, (ModelWrapper) aspectNode.getModel());
+			//TODO: WAT? Adrian needs to clarify.
+			EntityNode networkEntity = aspectNode.getParentEntity();
+			networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
+			addNetworkSubEntities(networks.get(0), networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
 			createConnections(networks.get(0), aspectNode);
 		}
 		else if(networks.size() > 1)
@@ -287,6 +290,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			for(Network n : networks)
 			{
 				EntityNode networkEntity = new EntityNode(n.getId());
+				networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
 				addNetworkSubEntities(n, networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
 				createConnections(n, aspectNode);
 				aspectNode.getChildren().add(networkEntity);
@@ -455,6 +459,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		{
 			// there's only one cell whose name is the same as the geppetto entity, don't create any subentities
 			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(n.getPopulation().get(0).getComponent(), model, Resources.CELL);
+			parentEntity.setDomainType(ResourcesDomainType.CELL.get());
 			mapCellIdToEntity(parentEntity.getId(), parentEntity, aspect, cell);
 			return;
 		}
@@ -469,6 +474,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				{
 					String id = VariablePathSerializer.getArrayName(p.getId(), i);
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
+					e.setDomainType(ResourcesDomainType.CELL.get());
 
 					if(instance.getLocation() != null)
 					{
@@ -490,6 +496,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					String id = VariablePathSerializer.getArrayName(p.getId(), i);
 					// TODO why do we need the cell?
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
+					e.setDomainType(ResourcesDomainType.CELL.get());
 					e.setId(id);
 					parentEntity.addChild(e);
 				}
