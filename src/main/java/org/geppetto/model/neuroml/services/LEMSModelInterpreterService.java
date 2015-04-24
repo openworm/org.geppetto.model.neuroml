@@ -50,6 +50,7 @@ import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
 import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
@@ -124,10 +125,10 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 				model.wrapModel(ModelFormat.NEUROML, neuroml_inclusions);
 				
 				//add visual tree feature to the model service
-				LEMSVisualTreeFeature lemsTreeFeature 
-					= new LEMSVisualTreeFeature(neuroml_inclusions,document);
-				this.addFeature(lemsTreeFeature);
+				this.addFeature(new LEMSVisualTreeFeature(neuroml_inclusions,document));
 			}
+			
+			this.addFeature(new LEMSSimulationTreeFeature());
 			
 			model.wrapModel(ModelFormat.LEMS, document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
@@ -143,7 +144,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
-
+			
 			addRecordings(recordings, instancePath, model);
 		}
 		catch(IOException e)
@@ -171,7 +172,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	{
 		return _neuroMLModelInterpreter.populateModelTree(aspectNode);
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -195,7 +196,5 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		modelFormatList.add(ModelFormat.LEMS);
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
-	
-	
 
 }
