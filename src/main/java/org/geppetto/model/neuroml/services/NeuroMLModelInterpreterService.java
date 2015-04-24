@@ -66,6 +66,7 @@ import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
+import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
 import org.geppetto.model.neuroml.features.NeuroMLVisualTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
@@ -174,6 +175,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			NeuroMLVisualTreeFeature visualTreeFeature 
 						= new NeuroMLVisualTreeFeature();
 			this.addFeature(visualTreeFeature);
+			this.addFeature(new LEMSSimulationTreeFeature());
 		}
 		catch(IOException e)
 		{
