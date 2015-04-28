@@ -35,6 +35,8 @@ package org.geppetto.model.neuroml.features;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.features.IWatchableVariableListFeature;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
@@ -73,6 +75,8 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 
 	private GeppettoFeature type = GeppettoFeature.WATCHABLE_VARIABLE_LIST_FEATURE;
 
+	private static Log _logger = LogFactory.getLog(LEMSSimulationTreeFeature.class);
+
 	@Override
 	public GeppettoFeature getType()
 	{
@@ -82,6 +86,8 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 	@Override
 	public boolean listWatchableVariables(AspectNode aspectNode) throws ModelInterpreterException
 	{
+		long start = System.currentTimeMillis();
+
 		boolean modified = true;
 
 		simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
@@ -142,6 +148,8 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 				throw new ModelInterpreterException(e);
 			}
 		}
+
+		_logger.info("Populate simulation tree completed, took " + (System.currentTimeMillis() - start) + "ms");
 
 		return modified;
 	}
