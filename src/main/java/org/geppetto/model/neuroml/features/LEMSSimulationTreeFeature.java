@@ -124,14 +124,14 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 				}
 				catch(NeuroMLException | LEMSException e)
 				{
-					// FIXME: Throw proper exception
+					// FIXME: AQP Throw proper exception
 					throw new ModelInterpreterException(e);
 				}
 			}
 			catch(ContentError e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				// FIXME: Throw proper exception
+				throw new ModelInterpreterException(e);
 			}
 		}
 		else
