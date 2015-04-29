@@ -37,6 +37,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ANode;
@@ -82,8 +84,9 @@ import org.neuroml.model.util.NeuroMLException;
 public class PopulateModelTree {
 
 	private boolean _populated = false;
-	
 	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils();
+	
+	private static Log _logger = LogFactory.getLog(PopulateModelTree.class);
 	
 	public PopulateModelTree() {		
 	}
@@ -98,6 +101,8 @@ public class PopulateModelTree {
 	 */
 	public boolean populateModelTree(AspectSubTreeNode modelTree, ModelWrapper model) throws ModelInterpreterException
 	{		
+		long start = System.currentTimeMillis();
+		
 		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
 
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
@@ -255,6 +260,9 @@ public class PopulateModelTree {
 			_populated = false;
 			throw new ModelInterpreterException(e);
 		}
+		
+		_logger.info("Populate model tree completed, took " + (System.currentTimeMillis() - start) + "ms");
+		
  		return _populated;
 	}
 	
