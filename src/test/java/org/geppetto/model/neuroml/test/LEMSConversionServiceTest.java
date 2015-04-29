@@ -53,8 +53,6 @@ import org.junit.Test;
 import org.lemsml.jlems.api.LEMSBuildException;
 import org.lemsml.jlems.core.sim.LEMSException;
 
-import com.sun.source.tree.AssertTree;
-
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  * 
