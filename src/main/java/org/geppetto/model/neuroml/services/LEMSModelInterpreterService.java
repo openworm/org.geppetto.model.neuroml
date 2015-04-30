@@ -33,7 +33,6 @@
 package org.geppetto.model.neuroml.services;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +48,10 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.services.IModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
+import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -69,7 +72,7 @@ import org.springframework.stereotype.Service;
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  * 
  */
-
+@Service
 public class LEMSModelInterpreterService extends AModelInterpreter
 {
 
@@ -78,7 +81,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -108,9 +110,9 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			 * PrintWriter out = new PrintWriter("LEMS.txt"); out.println(reader.getLEMSString()); out.close();
 			 */
 			
-			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, document);
-			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			
+			model = new ModelWrapper(UUID.randomUUID().toString());
+			model.setInstancePath(instancePath);
 			/*
 			 * NEUROML
 			 */
@@ -120,13 +122,20 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 				NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 				NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 				_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
-				model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml_inclusions);
+				model.wrapModel(ModelFormat.NEUROML, neuroml_inclusions);
+				
+				//add visual tree feature to the model service
+				this.addFeature(new LEMSVisualTreeFeature(neuroml_inclusions,document));
 			}
+			
+			this.addFeature(new LEMSSimulationTreeFeature());
+			
+			model.wrapModel(ModelFormat.LEMS, document);
+			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
+			
 			/*
 			 * out = new PrintWriter("NEUROML.txt"); out.println(reader.getNeuroMLString()); out.close();
 			 */
-
-
 
 			// TODO: This need to be changed (BaseCell, String)
 			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
@@ -135,7 +144,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
-
+			
 			addRecordings(recordings, instancePath, model);
 		}
 		catch(IOException e)
@@ -149,7 +158,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		catch(NeuroMLException e)
 		{
 			throw new ModelInterpreterException(e);
-		}
+		} 
 		return model;
 	}
 
@@ -163,7 +172,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	{
 		return _neuroMLModelInterpreter.populateModelTree(aspectNode);
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -179,6 +188,13 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	public String getName()
 	{
 		return this.jlemsModelInterpreterConfig.getModelInterpreterName();
+	}
+
+	@Override
+	public void registerGeppettoService() {
+		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
+		modelFormatList.add(ModelFormat.LEMS);
+		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
 
 }

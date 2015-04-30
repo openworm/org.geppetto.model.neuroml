@@ -183,14 +183,22 @@ public class OptimizedLEMSReader
 					try
 					{
 						_inclusions.add(urlPath);
-						long startRead = System.currentTimeMillis();
 						String s = URLReader.readStringFromURL(url);
-						_logger.info("Reading of " + url.toString() + " took " + (System.currentTimeMillis() - startRead) + "ms");
+						
+						//If it is file and is not found, try to read at url base + file name
+						if (s.equals("") && kind.equals("file")){
+							urlPath = urlBase + urlPath.replace("file:///", "");
+							url = new URL(urlPath);
+							_inclusions.add(urlPath);
+							s = URLReader.readStringFromURL(url);
+						}	
+
 						int index = url.toString().lastIndexOf('/');
 						String newUrlBase = url.toString().substring(0, index + 1);
 						Map<NMLDOCTYPE, StringBuffer> included = processLEMSInclusions(s, newUrlBase, inclusionType);
 						lemsInclusion = trimOuterElement(included.get(NMLDOCTYPE.LEMS).toString()); // lems representation of the inclusion
 						nmlInclusion = trimOuterElement(included.get(NMLDOCTYPE.NEUROML).toString()); // nml representation of the inclusion
+						
 					}
 					catch(IOException | NeuroMLException e)
 					{

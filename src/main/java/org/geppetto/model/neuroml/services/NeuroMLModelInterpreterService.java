@@ -34,7 +34,6 @@
 package org.geppetto.model.neuroml.services;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -63,8 +62,12 @@ import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.VisualObjectReferenceNode;
 import org.geppetto.core.model.simulation.ConnectionType;
 import org.geppetto.core.model.values.StringValue;
+import org.geppetto.core.services.IModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
+import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
+import org.geppetto.model.neuroml.features.NeuroMLVisualTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -154,8 +157,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 
-			model.wrapModel(NeuroMLAccessUtility.LEMS_ID, lemsDocument);
-			model.wrapModel(NeuroMLAccessUtility.NEUROML_ID, neuroml);
+			model.wrapModel(ModelFormat.LEMS, lemsDocument);
+			model.wrapModel(ModelFormat.NEUROML, neuroml);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 
 			// TODO: This need to be changed (BaseCell, String)
@@ -167,6 +170,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 
 			addRecordings(recordings, instancePath, model);
+			
+			//add visual tree feature to the model service
+			NeuroMLVisualTreeFeature visualTreeFeature 
+						= new NeuroMLVisualTreeFeature();
+			this.addFeature(visualTreeFeature);
+			this.addFeature(new LEMSSimulationTreeFeature());
 		}
 		catch(IOException e)
 		{
@@ -200,7 +209,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		IModel model = aspectNode.getModel();
 		try
 		{
-			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.NEUROML_ID);
+			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
 			if(neuroml != null)
 			{
 				modified = populateModelTree.populateModelTree(modelTree, ((ModelWrapper) model));
@@ -225,9 +234,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
 		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
+		AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
 
 		modelTree.setId(AspectTreeType.MODEL_TREE.toString());
 		visualizationTree.setId(AspectTreeType.VISUALIZATION_TREE.toString());
+		simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
 		populateSubEntities(aspectNode);
 		return true;
 	}
@@ -246,7 +257,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		long start = System.currentTimeMillis();
-		NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.NEUROML_ID);
+		NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.NEUROML);
 		if(nmlDoc != null)
 		{
 			//Pure LEMS document don't have a neuroml document
@@ -257,7 +268,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private void extractSubEntities(AspectNode aspectNode, NeuroMLDocument neuroml) throws ModelInterpreterException
 	{
-		URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(neuroMLAccessUtility.URL_ID);
+		URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID);
 
 		List<Network> networks = neuroml.getNetwork();
 		if(networks == null || networks.size() == 0)
@@ -267,7 +278,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		else if(networks.size() == 1)
 		{
 			// there's only one network, we consider the entity for it our network entity
-			addNetworkSubEntities(networks.get(0), (EntityNode) aspectNode.getParentEntity(), url, aspectNode, (ModelWrapper) aspectNode.getModel());
+			//TODO: WAT? Adrian needs to clarify.
+			EntityNode networkEntity = aspectNode.getParentEntity();
+			networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
+			addNetworkSubEntities(networks.get(0), networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
 			createConnections(networks.get(0), aspectNode);
 		}
 		else if(networks.size() > 1)
@@ -276,6 +290,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			for(Network n : networks)
 			{
 				EntityNode networkEntity = new EntityNode(n.getId());
+				networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
 				addNetworkSubEntities(n, networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
 				createConnections(n, aspectNode);
 				aspectNode.getChildren().add(networkEntity);
@@ -444,6 +459,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		{
 			// there's only one cell whose name is the same as the geppetto entity, don't create any subentities
 			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(n.getPopulation().get(0).getComponent(), model, Resources.CELL);
+			parentEntity.setDomainType(ResourcesDomainType.CELL.get());
 			mapCellIdToEntity(parentEntity.getId(), parentEntity, aspect, cell);
 			return;
 		}
@@ -458,6 +474,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				{
 					String id = VariablePathSerializer.getArrayName(p.getId(), i);
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
+					e.setDomainType(ResourcesDomainType.CELL.get());
 
 					if(instance.getLocation() != null)
 					{
@@ -479,6 +496,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					String id = VariablePathSerializer.getArrayName(p.getId(), i);
 					// TODO why do we need the cell?
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
+					e.setDomainType(ResourcesDomainType.CELL.get());
 					e.setId(id);
 					parentEntity.addChild(e);
 				}
@@ -504,8 +522,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		entity.getAspects().add(aspectNode);
 		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
 		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
+		AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
 		modelTree.setId(AspectTreeType.MODEL_TREE.toString());
 		visualizationTree.setId(AspectTreeType.VISUALIZATION_TREE.toString());
+		simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
 		mapCellIdToEntity(id, entity, parentAspectNode, c);
 		return entity;
 	}
@@ -562,6 +582,14 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		point.setY(location.getY().doubleValue());
 		point.setZ(location.getZ().doubleValue());
 		return point;
+	}
+
+	@Override
+	public void registerGeppettoService()
+	{
+		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
+		modelFormatList.add(ModelFormat.NEUROML);
+		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
 
 }
