@@ -128,47 +128,28 @@ public class PopulateVisualTreeVisitor
 
 		return groupNode;
 	}
-	
+
 	/**
 	 * Creates Node objects by reading neuroml document.
 	 * 
 	 * @param neuroml
-	 * @param targetComponents 
+	 * @param targetComponents
 	 * @return
 	 */
 	public void createNodesFromNeuroMLDocument(AspectSubTreeNode visualizationTree, NeuroMLDocument neuroml, List<String> targetCells, Map<String, List<ANode>> visualizationNodes)
 	{
-//		Commented until we have a proper model library
-//		Find morphologies inside neuroml document
-//		List<Morphology> morphologies = neuroml.getMorphology();
-//		if(morphologies != null)
-//		{
-//			for(Morphology m : morphologies)
-//			{
-//				if (targetMorphologies == null || targetMorphologies.contains(m.getId())){
-//					processMorphology(m, visualizationTree);
-//				}
-//			}
-//		}
-
-		// find cells inside neuroml document
-		List<Cell> cells = neuroml.getCell();
-		if(cells != null)
-		{
-			for(Cell c : cells)
-			{
-				if (targetCells == null || targetCells.contains(c.getId())){
-					List<ANode> visualizationNodesItem = new ArrayList<ANode>();
-					if(!c.getMorphology().getSegmentGroup().isEmpty()){
-						visualizationNodesItem.addAll(processMorphologyFromGroup(c, visualizationTree));
-					}
-					else{
-						visualizationNodesItem.add(processMorphology(c.getMorphology(), visualizationTree));
-					}
-					visualizationNodes.put(c.getId(), visualizationNodesItem);
-				}	
-			}
-		}
+		// Commented until we have a proper model library
+		// Find morphologies inside neuroml document
+		// List<Morphology> morphologies = neuroml.getMorphology();
+		// if(morphologies != null)
+		// {
+		// for(Morphology m : morphologies)
+		// {
+		// if (targetMorphologies == null || targetMorphologies.contains(m.getId())){
+		// processMorphology(m, visualizationTree);
+		// }
+		// }
+		// }
 
 		// find networks inside neuroml document
 		List<Network> networks = neuroml.getNetwork();
@@ -184,6 +165,35 @@ public class PopulateVisualTreeVisitor
 				addNetworkTo(networks.get(0), networkNode, (AspectNode) visualizationTree.getParent(), targetCells);
 			}
 		}
+
+		//Business rule: If there is a network in the NeuroML file we don't visualize spur cells which 
+		//"most likely" are just included types in NeuroML and are instantiated as part of the network
+		//populations
+		if(networks.size() == 0)
+		{
+			// find cells inside neuroml document
+			List<Cell> cells = neuroml.getCell();
+			if(cells != null)
+			{
+				for(Cell c : cells)
+				{
+					if(targetCells == null || targetCells.contains(c.getId()))
+					{
+						List<ANode> visualizationNodesItem = new ArrayList<ANode>();
+						if(!c.getMorphology().getSegmentGroup().isEmpty())
+						{
+							visualizationNodesItem.addAll(processMorphologyFromGroup(c, visualizationTree));
+						}
+						else
+						{
+							visualizationNodesItem.add(processMorphology(c.getMorphology(), visualizationTree));
+						}
+						visualizationNodes.put(c.getId(), visualizationNodesItem);
+					}
+				}
+			}
+		}
+
 	}
 
 	/**
@@ -198,12 +208,13 @@ public class PopulateVisualTreeVisitor
 		ANode node = getVisualObjectsFromListOfSegments(m.getSegment(), segmentsMap, m.getId());
 		return node;
 	}
-	
+
 	/**
 	 * @param c
 	 * @param visualizationTree
 	 */
-	public List<ANode> processMorphologyFromGroup(Cell c, AspectSubTreeNode visualizationTree){
+	public List<ANode> processMorphologyFromGroup(Cell c, AspectSubTreeNode visualizationTree)
+	{
 		List<ANode> visualizationNodes = new ArrayList<ANode>();
 
 		// create nodes for visual objects, segments of cell
@@ -213,8 +224,11 @@ public class PopulateVisualTreeVisitor
 		// create density groups for each cell, if it has some
 		CompositeNode densities = this.createChannelDensities(c);
 		// add density groups to visualization tree
-		if(densities != null){visualizationNodes.add(densities);}
-		
+		if(densities != null)
+		{
+			visualizationNodes.add(densities);
+		}
+
 		return visualizationNodes;
 	}
 
@@ -227,16 +241,20 @@ public class PopulateVisualTreeVisitor
 	public List<ANode> getVisualObjectForCell(BaseCell c, String id, AspectSubTreeNode visualizationTree, Point location)
 	{
 		List<ANode> visObject = new ArrayList<ANode>();
-		if(c instanceof Cell){
+		if(c instanceof Cell)
+		{
 			Cell cell = (Cell) c;
-			if(!cell.getMorphology().getSegmentGroup().isEmpty()){
+			if(!cell.getMorphology().getSegmentGroup().isEmpty())
+			{
 				visObject.addAll(processMorphologyFromGroup(cell, visualizationTree));
 			}
-			else{
+			else
+			{
 				visObject.add(processMorphology(cell.getMorphology(), visualizationTree));
 			}
 		}
-		else{
+		else
+		{
 			SphereNode sphereNode = new SphereNode(id);
 			sphereNode.setRadius(1.2d);
 			Point origin = null;
@@ -277,23 +295,27 @@ public class PopulateVisualTreeVisitor
 				int i = 0;
 				for(Instance instance : p.getInstance())
 				{
-					if (targetCells == null || targetCells.contains(p.getComponent())){
+					if(targetCells == null || targetCells.contains(p.getComponent()))
+					{
 						Point location = null;
 						if(instance.getLocation() != null)
 						{
 							location = getPoint(instance.getLocation());
 						}
 						AspectSubTreeNode visualizationTree = aspect.getSubTree(AspectTreeType.VISUALIZATION_TREE);
-						
+
 						// create visual object for this instance
 						List<ANode> visualObject = getVisualObjectForCell(cell, p.getId(), visualizationTree, location);
-						
+
 						// add visual object to appropriate sub entity
 						addVisualObjectToVizTree(VariablePathSerializer.getArrayName(p.getId(), i), visualObject, parent, aspect, model);
-						
-						if (targetCells != null){targetCells.remove(cell.getId());}
+
+						if(targetCells != null)
+						{
+							targetCells.remove(cell.getId());
+						}
 					}
-					
+
 					i++;
 				}
 			}
@@ -303,13 +325,17 @@ public class PopulateVisualTreeVisitor
 
 				for(int i = 0; i < size; i++)
 				{
-					if (targetCells == null || targetCells.contains(cell.getId())){
+					if(targetCells == null || targetCells.contains(cell.getId()))
+					{
 						// FIXME the position of the population within the network needs to be specified in neuroml
 						AspectSubTreeNode visualizationTree = aspect.getSubTree(AspectTreeType.VISUALIZATION_TREE);
 						List<ANode> visualObject = getVisualObjectForCell(cell, cell.getId(), visualizationTree, null);
 						addVisualObjectToVizTree(VariablePathSerializer.getArrayName(p.getId(), i), visualObject, parent, aspect, model);
-						
-						if (targetCells != null){targetCells.remove(cell.getId());}
+
+						if(targetCells != null)
+						{
+							targetCells.remove(cell.getId());
+						}
 					}
 				}
 			}
@@ -353,22 +379,25 @@ public class PopulateVisualTreeVisitor
 					AspectSubTreeNode subEntityVizTree = a.getSubTree(AspectTreeType.VISUALIZATION_TREE);
 					if(composite instanceof AspectSubTreeNode)
 					{
-						for (ANode visualObject : visualObjects){
+						for(ANode visualObject : visualObjects)
+						{
 							subEntityVizTree.addChild(visualObject);
 						}
 					}
 					else if(composite instanceof CompositeNode)
 					{
-						for (ANode visualObject : visualObjects){
+						for(ANode visualObject : visualObjects)
+						{
 							getCompositeNode(subEntityVizTree, composite.getId()).addChild(visualObject);
-						}	
+						}
 					}
 				}
 			}
 		}
 		else
 		{
-			for (ANode visualObject : visualObjects){
+			for(ANode visualObject : visualObjects)
+			{
 				composite.addChild(visualObject);
 			}
 		}
