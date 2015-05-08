@@ -166,7 +166,7 @@ public class PopulateVisualTreeVisitor
 			}
 		}
 
-		//Business rule: If there is a network in the NeuroML file we don't visualize spur cells which 
+		//Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which 
 		//"most likely" are just included types in NeuroML and are instantiated as part of the network
 		//populations
 		if(networks.size() == 0)
