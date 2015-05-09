@@ -968,8 +968,8 @@ public class PopulateNeuroMLModelTreeUtils {
 			standaloneChildren.add(annotationNode);
 		}
 		
-		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(standaloneComponent.getNotes())));
-		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.METAID.get(), Resources.METAID.getId(),  new StringValue(standaloneComponent.getMetaid())));
+		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.getId(), Resources.NOTES.get(),  new StringValue(standaloneComponent.getNotes())));
+		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.METAID.getId(), Resources.METAID.get(),  new StringValue(standaloneComponent.getMetaid())));
 		
 		return standaloneChildren;
 	}
