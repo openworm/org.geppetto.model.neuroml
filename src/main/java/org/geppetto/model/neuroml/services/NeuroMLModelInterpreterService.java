@@ -606,6 +606,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 			AValue value = new DoubleValue(Double.valueOf(parameters.get(s)));
 			ParameterSpecificationNode node = modelParameters.get(s);
 			node.getValue().setValue(value);
+			//FIXME: the parameter needs to be set also in the NeuroML/LEMS model
+			//the runtime tree (where we are setting now the parameter) is only used for
+			//visualization purposes, the NeuroML/LEMS model is what is actually used
+			//during the simulation. We need to store in the map to which NeuroML/LEMS
+			//model the ParameterSpecificationNode we are changing the value of maps to.
 		}
 	}
 
