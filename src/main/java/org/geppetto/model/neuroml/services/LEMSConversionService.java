@@ -34,6 +34,7 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +42,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.conversion.AConversion;
@@ -52,7 +54,10 @@ import org.lemsml.export.base.IBaseWriter;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
+import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Lems;
+import org.lemsml.jlems.core.type.Target;
+import org.lemsml.jlems.core.util.StringUtil;
 import org.neuroml.export.exceptions.GenerationException;
 import org.neuroml.export.exceptions.ModelFeatureSupportException;
 import org.neuroml.export.utils.ExportFactory;
@@ -134,6 +139,34 @@ public class LEMSConversionService extends AConversion
 //			Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxrwx--x");
 //		    FileAttribute<Set<PosixFilePermission>> fileAttributes = PosixFilePermissions.asFileAttribute(perms);
 //			Path tmpFolder = Files.createTempDirectory(outputFolder.toPath(), output.toString(), new FileAttribute<?>[0]);
+
+			// Writing mapping file for variables and file/column
+			PrintWriter writer = new PrintWriter(outputFolder + "/outputMapping.dat");
+			
+			Target target = lems.getTarget();
+            Component simCpt = target.getComponent();
+			for(Component ofComp : simCpt.getAllChildren())
+            {
+                if(ofComp.getTypeName().equals("OutputFile"))
+                {
+                	// Probably we should delete results path 
+                	//String fileName = ofComp.getTextParam("fileName").substring(ofComp.getTextParam("fileName").lastIndexOf('/') + 1);
+                	String fileName = ofComp.getTextParam("fileName");
+                	writer.println(fileName);
+                	
+                	String variables = "time";
+                	for(Component colComp: ofComp.getAllChildren())
+                    {
+                        if(colComp.getTypeName().equals("OutputColumn"))
+                        {
+                        	variables += " " + colComp.getStringValue("quantity");
+                        }
+                    }
+                	writer.println(variables.replace("/", "."));
+                }
+            }   
+			writer.close();
+			
 			
 			//FIXME: the py extension can be added inside.
 			String outputFileName = "main_script.py"; 

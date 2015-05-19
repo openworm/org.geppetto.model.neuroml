@@ -49,6 +49,7 @@ import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.neuroml.export.info.model.ExpressionNode;
@@ -203,6 +204,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	
 	public CompositeNode createCellNode(BaseCell c) throws ModelInterpreterException, ContentError{
 		CompositeNode cellNode = new CompositeNode(Resources.CELL.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.CELL.get(), c));
+		cellNode.setDomainType(ResourcesDomainType.CELL.get());
 		// Cell types
 		if (c instanceof Cell){
 			Cell cell = (Cell) c;
@@ -741,6 +743,8 @@ public class PopulateNeuroMLModelTreeUtils {
 		if (ionChannelBase != null){
 			// Ion Channel
 			CompositeNode ionChannelNode = new CompositeNode(ionChannelBase.getId());
+			ionChannelNode.setDomainType(ResourcesDomainType.IONCHANNEL.get());
+
 			if (ionChannelBase instanceof IonChannel){
 				ionChannelNode.setName(Resources.ION_CHANNEL.get());
 			}
@@ -964,8 +968,8 @@ public class PopulateNeuroMLModelTreeUtils {
 			standaloneChildren.add(annotationNode);
 		}
 		
-		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.get(), Resources.NOTES.getId(),  new StringValue(standaloneComponent.getNotes())));
-		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.METAID.get(), Resources.METAID.getId(),  new StringValue(standaloneComponent.getMetaid())));
+		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.getId(), Resources.NOTES.get(),  new StringValue(standaloneComponent.getNotes())));
+		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.METAID.getId(), Resources.METAID.get(),  new StringValue(standaloneComponent.getMetaid())));
 		
 		return standaloneChildren;
 	}
