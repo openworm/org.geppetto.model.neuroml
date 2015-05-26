@@ -235,4 +235,18 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 		return new File(outputFile.substring(0, outputFile.lastIndexOf("/")));
 	}
 
+	@Override
+	public List<IModelFormat> getSupportedOutputs(AspectNode aspectNode) throws ModelInterpreterException
+	{
+		LEMSConversionService lemsConversionService = new LEMSConversionService();
+		try
+		{
+			return lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ModelFormat.LEMS);
+		}
+		catch(ConversionException e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+	}
+
 }

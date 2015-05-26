@@ -42,7 +42,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.conversion.AConversion;
@@ -57,7 +56,6 @@ import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.Target;
-import org.lemsml.jlems.core.util.StringUtil;
 import org.neuroml.export.exceptions.GenerationException;
 import org.neuroml.export.exceptions.ModelFeatureSupportException;
 import org.neuroml.export.utils.ExportFactory;
