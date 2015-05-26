@@ -33,6 +33,7 @@
 
 package org.geppetto.model.neuroml.services;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -55,7 +56,6 @@ import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.quantities.PhysicalQuantity;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
@@ -137,7 +137,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 			OptimizedLEMSReader reader = new OptimizedLEMSReader();
 			int index = url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0, index + 1);
-			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.NEUROML); // expand it to have all the inclusions
+			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.NEUROML); // expand
+																				// it
+																				// to
+																				// have
+																				// all
+																				// the
+																				// inclusions
 
 			/*
 			 * LEMS
@@ -178,10 +184,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 
 			addRecordings(recordings, instancePath, model);
-			
-			//add visual tree feature to the model service
-			NeuroMLVisualTreeFeature visualTreeFeature 
-						= new NeuroMLVisualTreeFeature();
+
+			// add visual tree feature to the model service
+			NeuroMLVisualTreeFeature visualTreeFeature = new NeuroMLVisualTreeFeature();
 			this.addFeature(visualTreeFeature);
 			this.addFeature(new LEMSSimulationTreeFeature());
 		}
@@ -203,7 +208,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto.core.model.runtime.AspectNode)
+	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto .core.model.runtime.AspectNode)
 	 */
 	@Override
 	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException
@@ -235,7 +240,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.geppetto.core.model.IModelInterpreter#populateRuntimeTree(org.geppetto.core.model.runtime.AspectNode)
+	 * @see org.geppetto.core.model.IModelInterpreter#populateRuntimeTree(org.geppetto .core.model.runtime.AspectNode)
 	 */
 	@Override
 	public boolean populateRuntimeTree(AspectNode aspectNode) throws ModelInterpreterException
@@ -268,7 +273,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 		NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.NEUROML);
 		if(nmlDoc != null)
 		{
-			//Pure LEMS document don't have a neuroml document
+			// Pure LEMS document don't have a neuroml document
 			extractSubEntities(aspectNode, nmlDoc);
 			_logger.info("Extracted subEntities, took " + (System.currentTimeMillis() - start) + "ms");
 		}
@@ -285,8 +290,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 		}
 		else if(networks.size() == 1)
 		{
-			// there's only one network, we consider the entity for it our network entity
-			//TODO: WAT? Adrian needs to clarify.
+			// there's only one network, we consider the entity for it our
+			// network entity
 			EntityNode networkEntity = aspectNode.getParentEntity();
 			networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
 			addNetworkSubEntities(networks.get(0), networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
@@ -436,7 +441,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 					connectionNodeFrom.setType(ConnectionType.FROM);
 					connectionNodeTo.setType(ConnectionType.TO);
 
-					// Store Path to entity connection points to and set the parent
+					// Store Path to entity connection points to and set the
+					// parent
 					connectionNodeFrom.setEntityInstancePath(entityNodeTo.getInstancePath());
 					connectionNodeFrom.setParent(entityNodeFrom);
 					connectionNodeTo.setEntityInstancePath(entityNodeFrom.getInstancePath());
@@ -465,7 +471,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	{
 		if(n.getPopulation().size() == 1 && parentEntity.getId().equals(n.getPopulation().get(0).getComponent()) && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
 		{
-			// there's only one cell whose name is the same as the geppetto entity, don't create any subentities
+			// there's only one cell whose name is the same as the geppetto
+			// entity, don't create any subentities
 			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(n.getPopulation().get(0).getComponent(), model, Resources.CELL);
 			parentEntity.setDomainType(ResourcesDomainType.CELL.get());
 			mapCellIdToEntity(parentEntity.getId(), parentEntity, aspect, cell);
@@ -500,7 +507,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 
 				for(int i = 0; i < size; i++)
 				{
-					// FIXME the position of the population within the network needs to be specified in neuroml
+					// FIXME the position of the population within the network
+					// needs to be specified in neuroml
 					String id = VariablePathSerializer.getArrayName(p.getId(), i);
 					// TODO why do we need the cell?
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
@@ -555,9 +563,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	 * @param cell
 	 * @return
 	 */
-	// public static AspectSubTreeNode getSubEntityAspectSubTreeNode(BaseCell cell, AspectSubTreeNode.AspectTreeType type, AspectNode aspect, ModelWrapper model)
+	// public static AspectSubTreeNode getSubEntityAspectSubTreeNode(BaseCell
+	// cell, AspectSubTreeNode.AspectTreeType type, AspectNode aspect,
+	// ModelWrapper model)
 	// {
-	// EntityNode entity = ((Map<BaseCell, EntityNode>) model.getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID2)).get(cell);
+	// EntityNode entity = ((Map<BaseCell, EntityNode>)
+	// model.getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID2)).get(cell);
 	// for(AspectNode a : entity.getAspects())
 	// {
 	// if(a.getId().equals(aspect.getId()))
@@ -601,29 +612,43 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	}
 
 	@Override
-	public GeppettoFeature getType() {
+	public GeppettoFeature getType()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void setParameter(Map<String, String> parameters) {
-		Map<String, ParameterSpecificationNode> modelParameters =
-				this.populateModelTree.getParametersNode();
-		
+	public void setParameter(Map<String, String> parameters)
+	{
+		Map<String, ParameterSpecificationNode> modelParameters = this.populateModelTree.getParametersNode();
+
 		Set<String> paramValues = parameters.keySet();
 		Iterator<String> it = paramValues.iterator();
-		while(it.hasNext()){
+		while(it.hasNext())
+		{
 			String s = it.next();
 			AValue value = new DoubleValue(Double.valueOf(parameters.get(s)));
 			ParameterSpecificationNode node = modelParameters.get(s);
 			node.getValue().setValue(value);
-			//FIXME: the parameter needs to be set also in the NeuroML/LEMS model
-			//the runtime tree (where we are setting now the parameter) is only used for
-			//visualization purposes, the NeuroML/LEMS model is what is actually used
-			//during the simulation. We need to store in the map to which NeuroML/LEMS
-			//model the ParameterSpecificationNode we are changing the value of maps to.
+			// FIXME: the parameter needs to be set also in the NeuroML/LEMS
+			// model
+			// the runtime tree (where we are setting now the parameter) is only
+			// used for
+			// visualization purposes, the NeuroML/LEMS model is what is
+			// actually used
+			// during the simulation. We need to store in the map to which
+			// NeuroML/LEMS
+			// model the ParameterSpecificationNode we are changing the value of
+			// maps to.
 		}
+	}
+
+	@Override
+	public File downloadModel(AspectNode aspectNode, IModelFormat format) throws ModelInterpreterException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -32,6 +32,7 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.services;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -43,13 +44,16 @@ import java.util.UUID;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
@@ -84,6 +88,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -101,7 +106,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
-			
+
 			/*
 			 * LEMS
 			 */
@@ -112,8 +117,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 			/*
 			 * PrintWriter out = new PrintWriter("LEMS.txt"); out.println(reader.getLEMSString()); out.close();
 			 */
-			
-			
+
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 			/*
@@ -126,16 +130,16 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 				NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 				_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
 				model.wrapModel(ModelFormat.NEUROML, neuroml_inclusions);
-				
-				//add visual tree feature to the model service
-				this.addFeature(new LEMSVisualTreeFeature(neuroml_inclusions,document));
+
+				// add visual tree feature to the model service
+				this.addFeature(new LEMSVisualTreeFeature(neuroml_inclusions, document));
 			}
-			
+
 			this.addFeature(new LEMSSimulationTreeFeature());
-			
+
 			model.wrapModel(ModelFormat.LEMS, document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
-			
+
 			/*
 			 * out = new PrintWriter("NEUROML.txt"); out.println(reader.getNeuroMLString()); out.close();
 			 */
@@ -147,7 +151,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
-			
+
 			addRecordings(recordings, instancePath, model);
 		}
 		catch(IOException e)
@@ -161,25 +165,25 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 		catch(NeuroMLException e)
 		{
 			throw new ModelInterpreterException(e);
-		} 
+		}
 		return model;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto.core.model.runtime.AspectNode)
+	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto .core.model.runtime.AspectNode)
 	 */
 	@Override
 	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		return _neuroMLModelInterpreter.populateModelTree(aspectNode);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.geppetto.core.model.IModelInterpreter#populateRuntimeTree(org.geppetto.core.model.runtime.AspectNode)
+	 * @see org.geppetto.core.model.IModelInterpreter#populateRuntimeTree(org.geppetto .core.model.runtime.AspectNode)
 	 */
 	@Override
 	public boolean populateRuntimeTree(AspectNode aspectNode) throws ModelInterpreterException
@@ -194,21 +198,41 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 	}
 
 	@Override
-	public void registerGeppettoService() {
+	public void registerGeppettoService()
+	{
 		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
 		modelFormatList.add(ModelFormat.LEMS);
 		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
 	}
 
 	@Override
-	public GeppettoFeature getType() {
+	public GeppettoFeature getType()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void setParameter(Map<String, String> parameters) {
+	public void setParameter(Map<String, String> parameters)
+	{
 		// TODO Auto-generated method stub
-	} 
+	}
+
+	@Override
+	public File downloadModel(AspectNode aspectNode, IModelFormat format) throws ModelInterpreterException
+	{
+		LEMSConversionService lemsConversionService = new LEMSConversionService();
+		ModelWrapper outputModel;
+		try
+		{
+			outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ModelFormat.LEMS, ModelFormat.NEURON);
+		}
+		catch(ConversionException e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+		String outputFile = (String) outputModel.getModel(ModelFormat.NEURON);
+		return new File(outputFile.substring(0, outputFile.lastIndexOf("/")));
+	}
 
 }
