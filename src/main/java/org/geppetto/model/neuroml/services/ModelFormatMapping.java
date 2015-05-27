@@ -32,13 +32,12 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.services;
 
-import org.geppetto.core.services.IModelFormat;
 
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  *
  */
-public enum ModelFormat implements IModelFormat
+public enum ModelFormatMapping 
 {
 
 	NEUROML("NeuroML"),
@@ -66,7 +65,7 @@ public enum ModelFormat implements IModelFormat
 	
 	private String _value;
 	
-	private ModelFormat(String value)
+	private ModelFormatMapping(String value)
 	{
 		_value = value;
 	}
@@ -76,9 +75,9 @@ public enum ModelFormat implements IModelFormat
 		return _value;
 	}
 	
-	public static ModelFormat fromExportValue(String format) {
+	public static ModelFormatMapping fromExportValue(String format) {
 	    if (format != null) {
-	      for (ModelFormat mf : ModelFormat.values()) {
+	      for (ModelFormatMapping mf : ModelFormatMapping.values()) {
 	        if (format.equalsIgnoreCase(mf.getExportValue())) {
 	          return mf;
 	        }

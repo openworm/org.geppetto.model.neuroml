@@ -39,6 +39,7 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -70,7 +71,7 @@ import org.geppetto.core.model.values.AValue;
 import org.geppetto.core.model.values.DoubleValue;
 import org.geppetto.core.model.values.StringValue;
 import org.geppetto.core.services.GeppettoFeature;
-import org.geppetto.core.services.IModelFormat;
+import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
@@ -137,13 +138,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 			OptimizedLEMSReader reader = new OptimizedLEMSReader();
 			int index = url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0, index + 1);
-			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.NEUROML); // expand
-																				// it
-																				// to
-																				// have
-																				// all
-																				// the
-																				// inclusions
+			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.NEUROML); // expand it to have all the inclusions
 
 			/*
 			 * LEMS
@@ -171,8 +166,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 			model = new ModelWrapper(UUID.randomUUID().toString());
 			model.setInstancePath(instancePath);
 
-			model.wrapModel(ModelFormat.LEMS, lemsDocument);
-			model.wrapModel(ModelFormat.NEUROML, neuroml);
+			model.wrapModel(ServicesRegistry.getModelFormat("LEMS"), lemsDocument);
+			model.wrapModel(ServicesRegistry.getModelFormat("NEUROML"), neuroml);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 
 			// TODO: This need to be changed (BaseCell, String)
@@ -222,7 +217,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 		IModel model = aspectNode.getModel();
 		try
 		{
-			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
+			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
 			if(neuroml != null)
 			{
 				modified = populateModelTree.populateModelTree(modelTree, ((ModelWrapper) model));
@@ -270,7 +265,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		long start = System.currentTimeMillis();
-		NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.NEUROML);
+		NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("NEUROML"));
 		if(nmlDoc != null)
 		{
 			// Pure LEMS document don't have a neuroml document
@@ -606,9 +601,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	@Override
 	public void registerGeppettoService()
 	{
-		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
-		modelFormatList.add(ModelFormat.NEUROML);
-		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
+		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("NEUROML")));
+		ServicesRegistry.registerModelInterpreterService(this, modelFormats);
 	}
 
 	@Override
@@ -645,14 +639,14 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	}
 
 	@Override
-	public File downloadModel(AspectNode aspectNode, IModelFormat format) throws ModelInterpreterException
+	public File downloadModel(AspectNode aspectNode, ModelFormat format) throws ModelInterpreterException
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<IModelFormat> getSupportedOutputs(AspectNode aspectNode) throws ModelInterpreterException
+	public List<ModelFormat> getSupportedOutputs(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		// TODO Auto-generated method stub
 		return null;

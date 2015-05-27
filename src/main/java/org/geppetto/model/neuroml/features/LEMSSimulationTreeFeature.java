@@ -49,7 +49,7 @@ import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.VariableNode;
 import org.geppetto.core.services.GeppettoFeature;
-import org.geppetto.model.neuroml.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -96,7 +96,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 
 		mapping = (Map<String, EntityNode>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
 		cellMapping = (Map<String, BaseCell>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
-		lems = (Lems) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.LEMS);
+		lems = (Lems) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("LEMS"));
 		try
 		{
 			lems.setResolveModeLoose();

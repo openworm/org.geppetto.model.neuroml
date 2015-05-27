@@ -44,11 +44,13 @@ import junit.framework.Assert;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.services.IModelFormat;
+import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.services.LEMSConversionService;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
-import org.geppetto.model.neuroml.services.ModelFormat;
+import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lemsml.jlems.api.LEMSBuildException;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -59,6 +61,20 @@ import org.lemsml.jlems.core.sim.LEMSException;
  */
 public class LEMSConversionServiceTest
 {
+	//FIXME: We have to use OSGI text or spring app context initialization
+	@BeforeClass
+	public static void initializeServiceRegistry() throws Exception
+	{
+		LEMSConversionService lemsConversionService = new LEMSConversionService();
+		lemsConversionService.registerGeppettoService();
+		
+		LEMSModelInterpreterService lemsModelInterpreter = new LEMSModelInterpreterService();
+		lemsModelInterpreter.registerGeppettoService();
+		
+		NeuroMLModelInterpreterService neuromlModelInterpreter = new NeuroMLModelInterpreterService();
+		neuromlModelInterpreter.registerGeppettoService();
+	}
+
 
 	/**
 	 * "" Test method for {@link org.geppetto.model.neuroml.services.LEMSConversionService#readModel(java.net.URL)}.
@@ -78,9 +94,9 @@ public class LEMSConversionServiceTest
 		URL url = new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml");
 
 		ModelWrapper modelWrapper = (ModelWrapper) modelInterpreter.readModel(url, null, "");
-		ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ModelFormat.LEMS, ModelFormat.NEURON);
+		ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ServicesRegistry.getModelFormat("LEMS"), ServicesRegistry.getModelFormat("NEURON"));
 		
-		String outputFileName = (String) outputModel.getModel(ModelFormat.NEURON);
+		String outputFileName = (String) outputModel.getModel(ServicesRegistry.getModelFormat("NEURON"));
 		File file = new File(outputFileName);
 		assertTrue(file.exists());
 
@@ -104,9 +120,9 @@ public class LEMSConversionServiceTest
 		URL url = new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml");
 
 		ModelWrapper modelWrapper = (ModelWrapper) modelInterpreter.readModel(url, null, "");
-		for (IModelFormat modelFormat : lemsConversionService.getSupportedOutputs(modelWrapper, ModelFormat.LEMS)){
+		for (ModelFormat modelFormat : lemsConversionService.getSupportedOutputs(modelWrapper, ServicesRegistry.getModelFormat("LEMS"))){
 			System.out.println(modelFormat);
-			ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ModelFormat.LEMS, modelFormat);
+			ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ServicesRegistry.getModelFormat("LEMS"), modelFormat);
 			
 			String outputFileName = (String) outputModel.getModel(modelFormat);
 			File file = new File(outputFileName);
@@ -134,10 +150,10 @@ public class LEMSConversionServiceTest
 
 		ModelWrapper modelWrapper = (ModelWrapper) modelInterpreter.readModel(url, null, "");
 
-		List<IModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
+		List<ModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
 		Assert.assertTrue(modelFormats.size() > 0 );
 		
-		modelFormats = lemsConversionService.getSupportedOutputs(modelWrapper, ModelFormat.LEMS);
+		modelFormats = lemsConversionService.getSupportedOutputs(modelWrapper, ServicesRegistry.getModelFormat("LEMS"));
 		Assert.assertTrue(modelFormats.size() > 0 );
 	}
 

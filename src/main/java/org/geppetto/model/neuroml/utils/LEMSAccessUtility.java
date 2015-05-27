@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.model.neuroml.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Lems;
 
@@ -70,7 +70,7 @@ public class LEMSAccessUtility
 	public Object getComponentById(String componentId, ModelWrapper model) throws ContentError
 	{
 		//Look for the model in the document
-		Lems lems = (Lems) ((ModelWrapper) model).getModel(ModelFormat.LEMS);
+		Lems lems = (Lems) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("LEMS"));
 //		System.out.println(lems.getComponents());
 		Object component = lems.getComponentTypeByName(componentId);
 		//Store the component in the cache

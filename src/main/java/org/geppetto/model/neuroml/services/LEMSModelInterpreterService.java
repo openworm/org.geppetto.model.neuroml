@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,7 @@ import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.services.GeppettoFeature;
-import org.geppetto.core.services.IModelFormat;
+import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
 import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
@@ -129,7 +130,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 				NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 				NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 				_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
-				model.wrapModel(ModelFormat.NEUROML, neuroml_inclusions);
+				model.wrapModel(ServicesRegistry.getModelFormat("NEUROML"), neuroml_inclusions);
 
 				// add visual tree feature to the model service
 				this.addFeature(new LEMSVisualTreeFeature(neuroml_inclusions, document));
@@ -137,7 +138,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 
 			this.addFeature(new LEMSSimulationTreeFeature());
 
-			model.wrapModel(ModelFormat.LEMS, document);
+			model.wrapModel(ServicesRegistry.getModelFormat("LEMS"), document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 
 			/*
@@ -200,9 +201,8 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 	@Override
 	public void registerGeppettoService()
 	{
-		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
-		modelFormatList.add(ModelFormat.LEMS);
-		ServicesRegistry.registerModelInterpreterService(this, modelFormatList);
+		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("LEMS")));
+		ServicesRegistry.registerModelInterpreterService(this, modelFormats);
 	}
 
 	@Override
@@ -219,29 +219,29 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 	}
 
 	@Override
-	public File downloadModel(AspectNode aspectNode, IModelFormat format) throws ModelInterpreterException
+	public File downloadModel(AspectNode aspectNode, ModelFormat format) throws ModelInterpreterException
 	{
 		LEMSConversionService lemsConversionService = new LEMSConversionService();
 		ModelWrapper outputModel;
 		try
 		{
-			outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ModelFormat.LEMS, ModelFormat.NEURON);
+			outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), ServicesRegistry.getModelFormat("NEURON"));
 		}
 		catch(ConversionException e)
 		{
 			throw new ModelInterpreterException(e);
 		}
-		String outputFile = (String) outputModel.getModel(ModelFormat.NEURON);
+		String outputFile = (String) outputModel.getModel(ServicesRegistry.getModelFormat("NEURON"));
 		return new File(outputFile.substring(0, outputFile.lastIndexOf("/")));
 	}
 
 	@Override
-	public List<IModelFormat> getSupportedOutputs(AspectNode aspectNode) throws ModelInterpreterException
+	public List<ModelFormat> getSupportedOutputs(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		LEMSConversionService lemsConversionService = new LEMSConversionService();
 		try
 		{
-			return lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ModelFormat.LEMS);
+			return lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"));
 		}
 		catch(ConversionException e)
 		{

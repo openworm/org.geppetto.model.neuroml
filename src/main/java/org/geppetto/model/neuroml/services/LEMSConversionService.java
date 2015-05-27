@@ -48,7 +48,8 @@ import org.geppetto.core.conversion.AConversion;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.services.IModelFormat;
+import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.lemsml.export.base.IBaseWriter;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -75,36 +76,59 @@ public class LEMSConversionService extends AConversion
 	private static Log _logger = LogFactory.getLog(LEMSConversionService.class);
 	
 	@Override
-	public List<IModelFormat> getSupportedInputs() throws ConversionException
+	public List<ModelFormat> getSupportedInputs() throws ConversionException
 	{
-		return new ArrayList<IModelFormat>(Arrays.asList(ModelFormat.LEMS));
+		return new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.getModelFormat("LEMS")));
+	}
+	
+	@Override
+	public void registerGeppettoService() throws ConversionException
+	{
+		//Input Model Format
+		List<ModelFormat> inputModelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("LEMS")));
+		
+		//Output Model Formats
+		List<ModelFormat> outputModelFormats = new ArrayList<ModelFormat>(); 
+		for (Format format : SupportedFormats.getSupportedOutputs()){
+			// Convert from export formats to Geppetto formats
+			ModelFormatMapping modelFormatMapping = ModelFormatMapping.fromExportValue(format.toString());
+			if (modelFormatMapping != null){
+				ModelFormat modelFormat = ServicesRegistry.registerModelFormat(modelFormatMapping.name());
+				if (modelFormat != null) outputModelFormats.add(modelFormat);
+			}
+		}
+		
+		ServicesRegistry.registerConversionService(this, inputModelFormats, outputModelFormats);
 	}
 
 	@Override
-	public List<IModelFormat> getSupportedOutputs() throws ConversionException
+	public List<ModelFormat> getSupportedOutputs() throws ConversionException
 	{
 		_logger.info("Getting supported outputs");
-		List<IModelFormat> modelFormats = new ArrayList<IModelFormat>(); 
+		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(); 
 		for (Format format : SupportedFormats.getSupportedOutputs()){
 			// Convert from export formats to Geppetto formats
-			IModelFormat modelFormat = ModelFormat.fromExportValue(format.toString());
-			if (modelFormat != null) modelFormats.add(modelFormat);
+			ModelFormatMapping modelFormatMapping = ModelFormatMapping.fromExportValue(format.toString());
+			if (modelFormatMapping != null){
+				ModelFormat modelFormat = ServicesRegistry.getModelFormat(modelFormatMapping.name());
+				if (modelFormat != null) modelFormats.add(modelFormat);
+			}	
 		}
 		return modelFormats;
 	}
 
 	@Override
-	public List<IModelFormat> getSupportedOutputs(IModel model, IModelFormat input) throws ConversionException
+	public List<ModelFormat> getSupportedOutputs(IModel model, ModelFormat input) throws ConversionException
 	{
 		_logger.info("Getting supported outputs for a specific model and input format " + input);
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(input);
 		processLems(lems);
-		List<IModelFormat> modelFormats = new ArrayList<IModelFormat>(); 
+		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(); 
 		try
 		{
 			for (Format format : SupportedFormats.getSupportedOutputs(lems)){
 				// Convert from export formats to Geppetto formats
-				ModelFormat modelFormat = ModelFormat.fromExportValue(format.toString());
+				ModelFormat modelFormat = ServicesRegistry.getModelFormat(ModelFormatMapping.fromExportValue(format.toString()).name());
 				if (modelFormat != null) modelFormats.add(modelFormat);
 			}
 		}
@@ -117,13 +141,13 @@ public class LEMSConversionService extends AConversion
 	}
 
 	@Override
-	public IModel convert(IModel model, IModelFormat input, IModelFormat output) throws ConversionException
+	public IModel convert(IModel model, ModelFormat input, ModelFormat output) throws ConversionException
 	{
 		_logger.info("Converting model from " + input + " to " + output);
 		//checkSupportedFormat(input);
 
 		//Read lems
-		Lems lems = (Lems) ((ModelWrapper) model).getModel(ModelFormat.LEMS);
+		Lems lems = (Lems) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("LEMS"));
 		processLems(lems);
 
 		ModelWrapper outputModel = new ModelWrapper(UUID.randomUUID().toString());
@@ -170,7 +194,7 @@ public class LEMSConversionService extends AConversion
 			String outputFileName = "main_script.py"; 
 			
 			//Convert model
-			IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormat.valueOf(output.toString()).getExportValue());
+			IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormatMapping.valueOf(output.getModelFormat()).getExportValue());
 			List<File> outputFiles = exportWriter.convert();
 			
 			//Create model from converted model
