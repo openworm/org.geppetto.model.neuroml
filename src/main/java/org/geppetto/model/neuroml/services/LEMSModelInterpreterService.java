@@ -52,9 +52,7 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.EntityNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
@@ -225,13 +223,13 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 		ModelWrapper outputModel;
 		try
 		{
-			outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), ServicesRegistry.getModelFormat("NEURON"));
+			outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format);
 		}
 		catch(ConversionException e)
 		{
 			throw new ModelInterpreterException(e);
 		}
-		String outputFile = (String) outputModel.getModel(ServicesRegistry.getModelFormat("NEURON"));
+		String outputFile = (String) outputModel.getModel(format);
 		return new File(outputFile.substring(0, outputFile.lastIndexOf("/")));
 	}
 
