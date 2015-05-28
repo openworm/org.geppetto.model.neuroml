@@ -156,7 +156,7 @@ public class LEMSConversionService extends AConversion
 		try
 		{
 			// Create Folder
-			String tmpFolder = output.toString() + new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
+			String tmpFolder = output.getModelFormat() + new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
 			File outputFolder = new File(this.getConvertedResultsPath(), tmpFolder);
 			if(!outputFolder.exists()) outputFolder.mkdirs();
 			// This only works in linux
