@@ -117,7 +117,7 @@ public class NeuroMLModelInterpreterServiceTest
 		assertEquals("4.64862", original.getValue().getValue().getStringValue());
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put(parameterNode, "10");
-		modelInterpreter.setParameter(parameters);
+		modelInterpreter.setParameter(parameters, model);
 
 		aspectNode.apply(visitor);
 		ParameterSpecificationNode newOne = visitor.getParametersMap().get(parameterNode);

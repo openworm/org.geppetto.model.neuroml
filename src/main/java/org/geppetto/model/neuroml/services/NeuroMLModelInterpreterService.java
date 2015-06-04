@@ -613,7 +613,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	}
 
 	@Override
-	public void setParameter(Map<String, String> parameters)
+	public void setParameter(Map<String, String> parameters,IModel model)
 	{
 		Map<String, ParameterSpecificationNode> modelParameters = this.populateModelTree.getParametersNode();
 
