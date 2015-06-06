@@ -170,10 +170,14 @@ public class PopulateNeuroMLModelTreeUtils {
 			}
 			ParameterSpecificationNode rateN = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.RATE.getId(), Resources.RATE.get(), rate.getRate());
 			rateGateNode.addChild(rateN);
-			this._parameterNodesToObjectMap.put(rateN, rate);
-			rateGateNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.MIDPOINT.getId(), Resources.MIDPOINT.get(), rate.getMidpoint()));
-			rateGateNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.SCALE.getId(), Resources.SCALE.get(), rate.getScale()));
-			
+			this.addToMaps(rate, "setRate", rateN);
+			ParameterSpecificationNode mid = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.MIDPOINT.getId(), Resources.MIDPOINT.get(), rate.getMidpoint());
+			rateGateNode.addChild(mid);
+			this.addToMaps(rate, "setMidpoint", mid);
+			ParameterSpecificationNode scale = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.SCALE.getId(), Resources.SCALE.get(), rate.getScale()) ;
+			rateGateNode.addChild(scale);
+			this.addToMaps(rate, "setScale", scale);
+
 			return rateGateNode;
 		}
 		return null;
@@ -329,11 +333,21 @@ public class PopulateNeuroMLModelTreeUtils {
 	
 	public Collection<ParameterSpecificationNode> createBasePyNNIaFCellChildren(BasePyNNIaFCell c) throws ModelInterpreterException{
 		Collection<ParameterSpecificationNode> basePyNNIaFCellChildren = new ArrayList<ParameterSpecificationNode>();
-		basePyNNIaFCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAU_M.getId(), Resources.TAU_M.get(), c.getTauM().toString()));
-		basePyNNIaFCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAU_REFRAC.getId(), Resources.TAU_REFRAC.get(), c.getTauRefrac().toString()));
-		basePyNNIaFCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.V_RESET.getId(), Resources.V_RESET.get(), c.getVReset().toString()));
-		basePyNNIaFCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.V_REST.getId(), Resources.V_REST.get(), c.getVRest().toString()));
-		basePyNNIaFCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.V_THRESH.getId(), Resources.V_THRESH.get(), c.getVThresh().toString()));
+		ParameterSpecificationNode tauM = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAU_M.getId(), Resources.TAU_M.get(), c.getTauM().toString());
+		basePyNNIaFCellChildren.add(tauM);
+		this.addToMaps(c, "setTauM", tauM);
+		ParameterSpecificationNode tauR = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAU_REFRAC.getId(), Resources.TAU_REFRAC.get(), c.getTauRefrac().toString());
+		basePyNNIaFCellChildren.add(tauR);
+		this.addToMaps(c, "setTauRefrac", tauR);
+		ParameterSpecificationNode reset = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.V_RESET.getId(), Resources.V_RESET.get(), c.getVReset().toString());
+		basePyNNIaFCellChildren.add(reset);
+		this.addToMaps(c, "setVReset", reset);
+		ParameterSpecificationNode rest =PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.V_REST.getId(), Resources.V_REST.get(), c.getVRest().toString());
+		basePyNNIaFCellChildren.add(rest);
+		this.addToMaps(c, "setVRest", rest);
+		ParameterSpecificationNode thresh = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.V_THRESH.getId(), Resources.V_THRESH.get(), c.getVThresh().toString());
+		basePyNNIaFCellChildren.add(thresh);
+		this.addToMaps(c, "setVThresh", thresh);
 		
 		basePyNNIaFCellChildren.addAll(createBasePyNNCellChildren(c));
 		

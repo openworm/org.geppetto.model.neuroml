@@ -127,7 +127,7 @@ public class NeuroMLModelInterpreterServiceTest
 		
 		aspectNode.apply(visitor);
 		assertEquals("10.0", node.getValue().getValue().getStringValue());
-		assertEquals("10.0 mS_per_cm2", density.getCondDensity());
+		assertEquals("10.0", density.getCondDensity());
 	}
 
 }
