@@ -36,6 +36,8 @@ package org.geppetto.model.neuroml.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +53,7 @@ import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neuroml.model.ChannelDensity;
 
 /**
  * @author matteocantarelli
@@ -110,18 +113,21 @@ public class NeuroMLModelInterpreterServiceTest
 		aspectNode.setModel(model);
 		modelInterpreter.populateRuntimeTree(aspectNode);
 		modelInterpreter.populateModelTree(aspectNode);
-		String parameterNode = "purkinje.electrical.ModelTree.Cell.biophys.MembraneProperties.SpecificCapacitance_25";
+		String parameterNodeInstancePath = "purkinje.electrical.ModelTree.Cell.biophys.MembraneProperties.CaP_ModelViewParmSubset_2.PassiveConductanceDensity";
+		
 		TestParametersVisitor visitor = new TestParametersVisitor();
 		aspectNode.apply(visitor);
-		ParameterSpecificationNode original = visitor.getParametersMap().get(parameterNode);
-		assertEquals("4.64862", original.getValue().getValue().getStringValue());
+		ParameterSpecificationNode node = visitor.getParametersMap().get(parameterNodeInstancePath);
+		ChannelDensity density = (ChannelDensity) modelInterpreter.getObjectsMap().get(node);
+		assertEquals("4.5", node.getValue().getValue().getStringValue());
+		assertEquals("4.5 mS_per_cm2", density.getCondDensity());
 		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put(parameterNode, "10");
-		modelInterpreter.setParameter(parameters, model);
-
+		parameters.put(parameterNodeInstancePath, "10");
+		modelInterpreter.setParameter(parameters);
+		
 		aspectNode.apply(visitor);
-		ParameterSpecificationNode newOne = visitor.getParametersMap().get(parameterNode);
-		assertEquals("10.0", newOne.getValue().getValue().getStringValue());
+		assertEquals("10.0", node.getValue().getValue().getStringValue());
+		assertEquals("10.0 mS_per_cm2", density.getCondDensity());
 	}
 
 }

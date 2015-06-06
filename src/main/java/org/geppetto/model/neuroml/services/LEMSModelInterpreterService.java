@@ -211,7 +211,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 	}
 
 	@Override
-	public void setParameter(Map<String, String> parameters,IModel model)
+	public void setParameter(Map<String, String> parameters)
 	{
 		// TODO Auto-generated method stub
 	}

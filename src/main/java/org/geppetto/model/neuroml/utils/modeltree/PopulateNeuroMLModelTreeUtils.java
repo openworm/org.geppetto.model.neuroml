@@ -33,9 +33,11 @@
 
 package org.geppetto.model.neuroml.utils.modeltree;
 
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -134,9 +136,13 @@ public class PopulateNeuroMLModelTreeUtils {
 	
 	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
 	
-//	private PopulateModelTreeUtils PopulateModelTreeUtils = new PopulateModelTreeUtils();
+	//Maps parameter spec node to setter method 
+	private Map<ParameterSpecificationNode, Object> _parameterNodesToObjectMap=
+			new HashMap<ParameterSpecificationNode,Object>();
 	
-//	private PopulateLEMSModelTreeUtils PopulateLEMSModelTreeUtils = new PopulateLEMSModelTreeUtils();
+	//Maps parameter spec node to instance object in NeuroML object
+	private Map<ParameterSpecificationNode, Object> _parameterNodesToMethodsMap=
+			new HashMap<ParameterSpecificationNode,Object>();
 	
 	private ModelWrapper model;
 	
@@ -148,13 +154,23 @@ public class PopulateNeuroMLModelTreeUtils {
 		this.model = model;
 	}
 	
+	public Map<ParameterSpecificationNode,Object> getParametersNodeToMethodsMap(){
+		return _parameterNodesToMethodsMap ;
+	}
+	
+	public Map<ParameterSpecificationNode,Object> getParametersNodeToObjectsMap(){
+		return _parameterNodesToObjectMap ;
+	}
+	
 	public CompositeNode createRateGateNode(Resources name, HHRate rate) throws ModelInterpreterException, ContentError{
 		if (rate != null){
 			CompositeNode rateGateNode = new CompositeNode(name.getId(), name.get());
 			if (rate.getType() != null){
 				rateGateNode.addChild(PopulateLEMSModelTreeUtils.createCompositeNodeFromComponentType(rate.getType(), rate.getType(), (ComponentType) neuroMLAccessUtility.getComponent(rate.getType(), model, Resources.COMPONENT_TYPE)));
 			}
-			rateGateNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.RATE.getId(), Resources.RATE.get(), rate.getRate()));
+			ParameterSpecificationNode rateN = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.RATE.getId(), Resources.RATE.get(), rate.getRate());
+			rateGateNode.addChild(rateN);
+			this._parameterNodesToObjectMap.put(rateN, rate);
 			rateGateNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.MIDPOINT.getId(), Resources.MIDPOINT.get(), rate.getMidpoint()));
 			rateGateNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.SCALE.getId(), Resources.SCALE.get(), rate.getScale()));
 			
@@ -311,7 +327,7 @@ public class PopulateNeuroMLModelTreeUtils {
 		return cellNode;
 	}
 	
-	public Collection<ParameterSpecificationNode> createBasePyNNIaFCellChildren(BasePyNNIaFCell c){
+	public Collection<ParameterSpecificationNode> createBasePyNNIaFCellChildren(BasePyNNIaFCell c) throws ModelInterpreterException{
 		Collection<ParameterSpecificationNode> basePyNNIaFCellChildren = new ArrayList<ParameterSpecificationNode>();
 		basePyNNIaFCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAU_M.getId(), Resources.TAU_M.get(), c.getTauM().toString()));
 		basePyNNIaFCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAU_REFRAC.getId(), Resources.TAU_REFRAC.get(), c.getTauRefrac().toString()));
@@ -324,13 +340,23 @@ public class PopulateNeuroMLModelTreeUtils {
 		return basePyNNIaFCellChildren;
 	}
 	
-	public Collection<ParameterSpecificationNode> createBasePyNNCellChildren(BasePyNNCell c){
+	public Collection<ParameterSpecificationNode> createBasePyNNCellChildren(BasePyNNCell c) throws ModelInterpreterException{
 		Collection<ParameterSpecificationNode> basePyNNCellChildren = new ArrayList<ParameterSpecificationNode>();
-		basePyNNCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.CM.getId(), Resources.CM.get(), c.getCm().toString()));
-		basePyNNCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.I_OFFSET.getId(), Resources.I_OFFSET.get(), c.getIOffset().toString()));
-		basePyNNCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAU_SYN_E.getId(), Resources.TAU_SYN_E.get(), c.getTauSynE().toString()));
-		basePyNNCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAU_SYN_I.getId(), Resources.TAU_SYN_I.get(), c.getTauSynI().toString()));
-		basePyNNCellChildren.add(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.V_INIT.getId(), Resources.V_INIT.get(), c.getVInit().toString()));
+		ParameterSpecificationNode cm = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.CM.getId(), Resources.CM.get(), c.getCm().toString());
+		basePyNNCellChildren.add(cm);
+		this.addToMaps(c, "setCm", cm);
+		ParameterSpecificationNode offset = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.I_OFFSET.getId(), Resources.I_OFFSET.get(), c.getIOffset().toString());
+		basePyNNCellChildren.add(offset);
+		this.addToMaps(c, "setIOffset", offset);
+		ParameterSpecificationNode tau = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAU_SYN_E.getId(), Resources.TAU_SYN_E.get(), c.getTauSynE().toString());
+		basePyNNCellChildren.add(tau);
+		this.addToMaps(c, "setTauSynE", tau);
+		ParameterSpecificationNode tau2 = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAU_SYN_I.getId(), Resources.TAU_SYN_I.get(), c.getTauSynI().toString());
+		basePyNNCellChildren.add(tau2);
+		this.addToMaps(c, "setTauSynI", tau2);
+		ParameterSpecificationNode vinit = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.V_INIT.getId(), Resources.V_INIT.get(), c.getVInit().toString());
+		basePyNNCellChildren.add(vinit);
+		this.addToMaps(c, "setVInit", vinit);
 		return basePyNNCellChildren;
 	}
 	
@@ -354,8 +380,11 @@ public class PopulateNeuroMLModelTreeUtils {
 				// Ion
 				channelPopulationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.getId(), Resources.ION.get(),  new StringValue(channelPopulation.getIon())));
 				
+				ParameterSpecificationNode erev = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.EREV.getId(), Resources.EREV.get(), channelPopulation.getErev());
 				// Reverse Potential					
-				channelPopulationNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.EREV.getId(), Resources.EREV.get(), channelPopulation.getErev()));
+				channelPopulationNode.addChild(erev);
+				
+				this.addToMaps(channelPopulation, "setErev", erev);
 				
 				// Number
 				channelPopulationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NUMBER_CHANNEL.getId(), Resources.NUMBER_CHANNEL.get(),  new IntValue(channelPopulation.getNumber().intValue())));
@@ -377,14 +406,20 @@ public class PopulateNeuroMLModelTreeUtils {
 				// Ion Channel
 				channelDensityNode.addChild(createChannelNode((IonChannel) neuroMLAccessUtility.getComponent(channelDensity.getIonChannel(), model, Resources.ION_CHANNEL)));
 				
+				ParameterSpecificationNode pcd = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY.getId(), Resources.COND_DENSITY.get(), channelDensity.getCondDensity());
 				// Passive conductance density				
-				channelDensityNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY.getId(), Resources.COND_DENSITY.get(), channelDensity.getCondDensity()));
+				channelDensityNode.addChild(pcd);
+				
+				this.addToMaps(channelDensity, "setCondDensity", pcd);
 				
 				// Ion
 				channelDensityNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.getId(), Resources.ION.get(),  new StringValue(channelDensity.getIon())));
 				
+				ParameterSpecificationNode erev = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.EREV.getId(), Resources.EREV.get(), channelDensity.getErev());
 				// Reverse Potential					
-				channelDensityNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.EREV.getId(), Resources.EREV.get(), channelDensity.getErev()));
+				channelDensityNode.addChild(erev);
+				
+				this.addToMaps(channelDensity, "setErev", erev);
 				
 				// Variable Parameter
 				channelDensityNode.addChild(createVariableParameterNode(channelDensity.getVariableParameter()));
@@ -403,9 +438,12 @@ public class PopulateNeuroMLModelTreeUtils {
 				// Ion Channel
 				channelDensityNernstNode.addChild(createChannelNode((IonChannel) neuroMLAccessUtility.getComponent(channelDensityNernst.getIonChannel(), model, Resources.ION_CHANNEL)));
 				
+				ParameterSpecificationNode density = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY.getId(), Resources.COND_DENSITY.get(), channelDensityNernst.getCondDensity());
 				// Passive conductance density				
-				channelDensityNernstNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.COND_DENSITY.getId(), Resources.COND_DENSITY.get(), channelDensityNernst.getCondDensity()));
+				channelDensityNernstNode.addChild(density);
 				
+				this.addToMaps(channelDensityNernstNode, "setCondDensity", density);
+
 				// Ion
 				channelDensityNernstNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.getId(), Resources.ION.get(),  new StringValue(channelDensityNernst.getIon())));
 				
@@ -426,9 +464,12 @@ public class PopulateNeuroMLModelTreeUtils {
 				// Ion Channel
 				channelDensityGHKNode.addChild(createChannelNode((IonChannel) neuroMLAccessUtility.getComponent(channelDensityGHK.getIonChannel(), model, Resources.ION_CHANNEL)));
 				
+				ParameterSpecificationNode perm = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.PERMEABILITY.getId(), Resources.PERMEABILITY.get(), channelDensityGHK.getPermeability());
 				// Permeability				
-				channelDensityGHKNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.PERMEABILITY.getId(), Resources.PERMEABILITY.get(), channelDensityGHK.getPermeability()));
+				channelDensityGHKNode.addChild(perm);
 				
+				this.addToMaps(channelDensityGHK, "setPermeability", perm);
+
 				// Ion
 				channelDensityGHKNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.getId(), Resources.ION.get(),  new StringValue(channelDensityGHK.getIon())));
 				
@@ -449,9 +490,12 @@ public class PopulateNeuroMLModelTreeUtils {
 				// Ion Channel
 				channelDensityNonUniformNode.addChild(createChannelNode((IonChannel) neuroMLAccessUtility.getComponent(channelDensityNonUniform.getIonChannel(), model, Resources.ION_CHANNEL)));
 				
+				ParameterSpecificationNode n = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.EREV.getId(), Resources.EREV.get(), channelDensityNonUniform.getErev());
 				// Reverse Potential					
-				channelDensityNonUniformNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.EREV.getId(), Resources.EREV.get(), channelDensityNonUniform.getErev()));
+				channelDensityNonUniformNode.addChild(n);
 				
+				this.addToMaps(channelDensityNonUniform, "setErev", n);
+
 				// Ion
 				channelDensityNonUniformNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.getId(), Resources.ION.get(),  new StringValue(channelDensityNonUniform.getIon())));
 				
@@ -487,19 +531,25 @@ public class PopulateNeuroMLModelTreeUtils {
 			// Spike threshold
 			List<SpikeThresh> spikeThreshs = membraneProperties.getSpikeThresh();
 			for(int i = 0; i < spikeThreshs.size(); i++){
-				membranePropertiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(PopulateGeneralModelTreeUtils.getUniqueId(Resources.SPIKE_THRESHOLD.getId(), i), PopulateGeneralModelTreeUtils.getUniqueName(Resources.SPIKE_THRESHOLD.get(), i), spikeThreshs.get(i).getValue()));
+				ParameterSpecificationNode n = PopulateNodesModelTreeUtils.createParameterSpecificationNode(PopulateGeneralModelTreeUtils.getUniqueId(Resources.SPIKE_THRESHOLD.getId(), i), PopulateGeneralModelTreeUtils.getUniqueName(Resources.SPIKE_THRESHOLD.get(), i), spikeThreshs.get(i).getValue());
+				membranePropertiesNode.addChild(n);
+				this.addToMaps(spikeThreshs.get(i), "setValue", n);
 			}
 
 			// Specific Capacitance
 			List<SpecificCapacitance> specificCapacitances = membraneProperties.getSpecificCapacitance();
 			for(int i = 0; i < specificCapacitances.size(); i++){
-				membranePropertiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(PopulateGeneralModelTreeUtils.getUniqueId(Resources.SPECIFIC_CAPACITANCE.getId(), i), PopulateGeneralModelTreeUtils.getUniqueName(Resources.SPECIFIC_CAPACITANCE.get(), i), specificCapacitances.get(i).getValue()));
+				ParameterSpecificationNode n = PopulateNodesModelTreeUtils.createParameterSpecificationNode(PopulateGeneralModelTreeUtils.getUniqueId(Resources.SPECIFIC_CAPACITANCE.getId(), i), PopulateGeneralModelTreeUtils.getUniqueName(Resources.SPECIFIC_CAPACITANCE.get(), i), specificCapacitances.get(i).getValue());
+				membranePropertiesNode.addChild(n);
+				this.addToMaps(specificCapacitances.get(i), "setValue", n);
 			}
 			
 			// Initial Membrance Potentials
 			List<InitMembPotential> initMembPotentials = membraneProperties.getInitMembPotential();
 			for(int i = 0; i < initMembPotentials.size(); i++){
-				membranePropertiesNode.addChild(PopulateNodesModelTreeUtils.createParameterSpecificationNode(PopulateGeneralModelTreeUtils.getUniqueId(Resources.INIT_MEMBRANE_POTENTIAL.getId(), i), PopulateGeneralModelTreeUtils.getUniqueName(Resources.INIT_MEMBRANE_POTENTIAL.get(), i), initMembPotentials.get(i).getValue()));
+				ParameterSpecificationNode n =PopulateNodesModelTreeUtils.createParameterSpecificationNode(PopulateGeneralModelTreeUtils.getUniqueId(Resources.INIT_MEMBRANE_POTENTIAL.getId(), i), PopulateGeneralModelTreeUtils.getUniqueName(Resources.INIT_MEMBRANE_POTENTIAL.get(), i), initMembPotentials.get(i).getValue());
+				membranePropertiesNode.addChild(n);
+				this.addToMaps(initMembPotentials.get(i), "setValue", n);
 			}
 			
 			biophysicalPropertiesNode.addChild(membranePropertiesNode);
@@ -1062,6 +1112,18 @@ public class PopulateNeuroMLModelTreeUtils {
 		    	}
 		    }
 		return summaryElementList;
+	}
+	
+	private void addToMaps(Object instance, String method, ParameterSpecificationNode node) throws ModelInterpreterException{
+		Class objectClass = instance.getClass();
+
+		try {
+			Method setter = objectClass.getMethod(method, String.class);
+			this._parameterNodesToMethodsMap.put(node, setter);
+			this._parameterNodesToObjectMap.put(node, instance);
+		} catch (Exception e) {
+			throw new ModelInterpreterException(e);
+		}
 	}
 
 }

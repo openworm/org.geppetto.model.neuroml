@@ -35,6 +35,7 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -46,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
 
@@ -613,7 +615,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	}
 
 	@Override
-	public void setParameter(Map<String, String> parameters,IModel model)
+	public void setParameter(Map<String, String> parameters) throws ModelInterpreterException
 	{
 		Map<String, ParameterSpecificationNode> modelParameters = this.populateModelTree.getParametersNode();
 
@@ -621,20 +623,21 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 		Iterator<String> it = paramValues.iterator();
 		while(it.hasNext())
 		{
-			String s = it.next();
-			AValue value = new DoubleValue(Double.valueOf(parameters.get(s)));
-			ParameterSpecificationNode node = modelParameters.get(s);
+			String newValue = it.next();
+			AValue value = new DoubleValue(Double.valueOf(parameters.get(newValue)));
+			ParameterSpecificationNode node = modelParameters.get(newValue);
 			node.getValue().setValue(value);
-			// FIXME: the parameter needs to be set also in the NeuroML/LEMS
-			// model
-			// the runtime tree (where we are setting now the parameter) is only
-			// used for
-			// visualization purposes, the NeuroML/LEMS model is what is
-			// actually used
-			// during the simulation. We need to store in the map to which
-			// NeuroML/LEMS
-			// model the ParameterSpecificationNode we are changing the value of
-			// maps to.
+			
+			//retrieve NeuroML object instance associated with param node
+			Object instance = this.getObjectsMap().get(node);
+			//retrieve setter method from instance associated with param node
+			Method method = (Method) this.getMethodsMap().get(node);
+			try {
+				//invoke setter method passing instance and new value
+				method.invoke(instance, value.toString());
+			} catch (Exception e) {
+				throw new ModelInterpreterException(e);
+			}
 		}
 	}
 
@@ -652,4 +655,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 		return null;
 	}
 
+	public Map<ParameterSpecificationNode, Object> getMethodsMap(){
+		return this.populateModelTree.getParametersNodeToMethodsMap();
+	}
+	
+	public Map<ParameterSpecificationNode, Object> getObjectsMap(){
+		return this.populateModelTree.getParametersNodeToObjectsMap();
+	}
 }

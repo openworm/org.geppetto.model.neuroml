@@ -92,12 +92,24 @@ public class PopulateModelTree {
 
 	private Map<String, ParameterSpecificationNode> _parameterNodes = 
 			new HashMap<String, ParameterSpecificationNode>();
+	private Map<ParameterSpecificationNode, Object> _parametersToMethodsMap=
+		new HashMap<ParameterSpecificationNode,Object>();
+	private Map<ParameterSpecificationNode, Object> _parametersToObjectssMap=
+			new HashMap<ParameterSpecificationNode,Object>();
 	
 	public PopulateModelTree() {		
 	}
 	
 	public Map<String, ParameterSpecificationNode> getParametersNode(){
 		return _parameterNodes ;
+	}
+	
+	public Map<ParameterSpecificationNode,Object> getParametersNodeToMethodsMap(){
+		return _parametersToMethodsMap ;
+	}
+	
+	public Map<ParameterSpecificationNode,Object> getParametersNodeToObjectsMap(){
+		return _parametersToObjectssMap ;
 	}
 	/**
 	 * Method that is contacted to start populating the model tree
@@ -269,6 +281,8 @@ public class PopulateModelTree {
 	 		TrackParameterSpecsNodesVisitors visitor = new TrackParameterSpecsNodesVisitors();
 	 		modelTree.apply(visitor);
 	 		this._parameterNodes = visitor.getParametersMap();
+	 		this._parametersToObjectssMap = this.populateNeuroMLModelTreeUtils.getParametersNodeToObjectsMap();
+	 		this._parametersToMethodsMap = this.populateNeuroMLModelTreeUtils.getParametersNodeToMethodsMap();
 		} catch (Exception e) {
 			_populated = false;
 			throw new ModelInterpreterException(e);
