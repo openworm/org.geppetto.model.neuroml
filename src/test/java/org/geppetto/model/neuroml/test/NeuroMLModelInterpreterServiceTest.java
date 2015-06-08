@@ -113,13 +113,13 @@ public class NeuroMLModelInterpreterServiceTest
 		aspectNode.setModel(model);
 		modelInterpreter.populateRuntimeTree(aspectNode);
 		modelInterpreter.populateModelTree(aspectNode);
-		String parameterNodeInstancePath = "purkinje.electrical.ModelTree.Cell.biophys.MembraneProperties.CaP_ModelViewParmSubset_2.PassiveConductanceDensity";
+		String parameterNodeInstancePath = "scene.purkinje.electrical.ModelTree.Cell.biophys.MembraneProperties.CaP_ModelViewParmSubset_2.PassiveConductanceDensity";
 		
 		TestParametersVisitor visitor = new TestParametersVisitor();
 		aspectNode.apply(visitor);
 		ParameterSpecificationNode node = visitor.getParametersMap().get(parameterNodeInstancePath);
 		ChannelDensity density = (ChannelDensity) modelInterpreter.getObjectsMap().get(node);
-		assertEquals("4.5", node.getValue().getValue().getStringValue());
+		assertEquals("4.5", node.getValue().getValue().toString());
 		assertEquals("4.5 mS_per_cm2", density.getCondDensity());
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put(parameterNodeInstancePath, "10");

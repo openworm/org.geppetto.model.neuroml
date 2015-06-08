@@ -185,6 +185,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 			// add visual tree feature to the model service
 			NeuroMLVisualTreeFeature visualTreeFeature = new NeuroMLVisualTreeFeature();
 			this.addFeature(visualTreeFeature);
+			this.addFeature(this);
 			this.addFeature(new LEMSSimulationTreeFeature());
 		}
 		catch(IOException e)
