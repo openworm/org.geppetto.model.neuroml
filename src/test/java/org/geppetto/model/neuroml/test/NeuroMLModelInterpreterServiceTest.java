@@ -113,7 +113,7 @@ public class NeuroMLModelInterpreterServiceTest
 		aspectNode.setModel(model);
 		modelInterpreter.populateRuntimeTree(aspectNode);
 		modelInterpreter.populateModelTree(aspectNode);
-		String parameterNodeInstancePath = "scene.purkinje.electrical.ModelTree.Cell.biophys.MembraneProperties.CaP_ModelViewParmSubset_2.PassiveConductanceDensity";
+		String parameterNodeInstancePath = "purkinje.electrical.ModelTree.Cell.biophys.MembraneProperties.CaP_ModelViewParmSubset_2.PassiveConductanceDensity";
 		
 		TestParametersVisitor visitor = new TestParametersVisitor();
 		aspectNode.apply(visitor);
