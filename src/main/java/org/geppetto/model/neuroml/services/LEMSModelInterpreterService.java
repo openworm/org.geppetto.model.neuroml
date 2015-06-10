@@ -46,6 +46,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.conversion.ConversionException;
+import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
@@ -217,20 +218,23 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 	}
 
 	@Override
-	public File downloadModel(AspectNode aspectNode, ModelFormat format) throws ModelInterpreterException
+	public File downloadModel(AspectNode aspectNode, ModelFormat format, List<? extends IAspectConfiguration> aspectConfigurations) throws ModelInterpreterException
 	{
 		LEMSConversionService lemsConversionService = new LEMSConversionService();
-		ModelWrapper outputModel;
+		ModelWrapper outputModel = null;
 		try
 		{
-			outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format, null);
+			for(IAspectConfiguration aspectConfig : aspectConfigurations)
+			{
+				outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format, aspectConfig);
+			}
 		}
 		catch(ConversionException e)
 		{
 			throw new ModelInterpreterException(e);
 		}
 		String outputFile = (String) outputModel.getModel(format);
-		return new File(outputFile.substring(0, outputFile.lastIndexOf("/")));
+		return new File(outputFile.substring(0, outputFile.lastIndexOf(File.separator)));
 	}
 
 	@Override

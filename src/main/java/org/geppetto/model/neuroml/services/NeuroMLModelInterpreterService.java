@@ -54,6 +54,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
@@ -643,7 +644,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	}
 
 	@Override
-	public File downloadModel(AspectNode aspectNode, ModelFormat format) throws ModelInterpreterException
+	public File downloadModel(AspectNode aspectNode, ModelFormat format, List<? extends IAspectConfiguration> aspectConfigurations) throws ModelInterpreterException
 	{
 		// TODO Auto-generated method stub
 		return null;
