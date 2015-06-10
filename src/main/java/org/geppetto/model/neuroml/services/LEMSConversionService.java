@@ -168,46 +168,76 @@ public class LEMSConversionService extends AConversion
 			// Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxrwx--x");
 			// FileAttribute<Set<PosixFilePermission>> fileAttributes = PosixFilePermissions.asFileAttribute(perms);
 			// Path tmpFolder = Files.createTempDirectory(outputFolder.toPath(), output.toString(), new FileAttribute<?>[0]);
-			
+
 			// Extracting watch variables from aspect configuration
 			// Delete any output file block
 			Target target = lems.getTarget();
 			PrintWriter writer = new PrintWriter(outputFolder + "/outputMapping.dat");
-			if (target != null){
-				//FIXME: Getting length, step and target from previous sim component. It should be read from the aspect configuration
-				Component simulationComponent = new Component("sim1", new ComponentType("Simulation"));
-				simulationComponent.addAttribute(new XMLAttribute("length", target.getComponent().getAttributeValue("length")));
-				simulationComponent.addAttribute(new XMLAttribute("step", target.getComponent().getAttributeValue("step")));
-				simulationComponent.addAttribute(new XMLAttribute("target", target.getComponent().getAttributeValue("target")));
-				
-				//Delete previous simulation component from LEMS
-				LemsCollection<Component> lemsComponent = lems.getComponents();
-				lemsComponent.getContents().remove(target.getComponent());
-				
-				//Create output file component and add file to outputmapping file
-				Component outputFile = new Component("outputFile1", new ComponentType("OutputFile"));
-				outputFile.addAttribute(new XMLAttribute("fileName", "results/results.dat"));
-				writer.println("results/results.dat");
-				
-				//Add outputcolumn and variable to outputmapping file per watch variable
-				String variables = "time";
-				if (aspectConfig.getWatchedVariables() != null){
-					for (IInstancePath watchedVariable : aspectConfig.getWatchedVariables()){
-						Component outputColumn = new Component("v", new ComponentType("OutputColumn"));
-						outputColumn.addAttribute(new XMLAttribute("quantity", watchedVariable.getLocalInstancePath().replace(".", "/")));
-						outputFile.addComponent(outputColumn);
-						variables += " " + watchedVariable.getLocalInstancePath();
+			if(target != null)
+			{
+				if(aspectConfig != null)
+				{
+					// FIXME: Getting length, step and target from previous sim component. It should be read from the aspect configuration
+					Component simulationComponent = new Component("sim1", new ComponentType("Simulation"));
+					simulationComponent.addAttribute(new XMLAttribute("length", target.getComponent().getAttributeValue("length")));
+					simulationComponent.addAttribute(new XMLAttribute("step", target.getComponent().getAttributeValue("step")));
+					simulationComponent.addAttribute(new XMLAttribute("target", target.getComponent().getAttributeValue("target")));
+
+					// Delete previous simulation component from LEMS
+					LemsCollection<Component> lemsComponent = lems.getComponents();
+					lemsComponent.getContents().remove(target.getComponent());
+
+					// Create output file component and add file to outputmapping file
+					Component outputFile = new Component("outputFile1", new ComponentType("OutputFile"));
+					outputFile.addAttribute(new XMLAttribute("fileName", "results/results.dat"));
+					writer.println("results/results.dat");
+
+					// Add outputcolumn and variable to outputmapping file per watch variable
+					String variables = "time";
+					if(aspectConfig.getWatchedVariables() != null)
+					{
+						for(IInstancePath watchedVariable : aspectConfig.getWatchedVariables())
+						{
+							Component outputColumn = new Component("v", new ComponentType("OutputColumn"));
+							outputColumn.addAttribute(new XMLAttribute("quantity", watchedVariable.getLocalInstancePath().replace(".", "/")));
+							outputFile.addComponent(outputColumn);
+							variables += " " + watchedVariable.getLocalInstancePath();
+						}
+					}
+					writer.println(variables);
+
+					// Add block to lems and process lems doc
+					simulationComponent.addComponent(outputFile);
+					lems.addComponent(simulationComponent);
+					lems.setTargetComponent(simulationComponent);
+					target.setComponentID("sim1");
+					processLems(lems);
+
+				}
+				else
+				{
+					Component simCpt = target.getComponent();
+					for(Component ofComp : simCpt.getAllChildren())
+					{
+						if(ofComp.getTypeName().equals("OutputFile"))
+						{
+							// Probably we should delete results path
+							// String fileName = ofComp.getTextParam("fileName").substring(ofComp.getTextParam("fileName").lastIndexOf('/') + 1);
+							String fileName = ofComp.getTextParam("fileName");
+							writer.println(fileName);
+
+							String variables = "time";
+							for(Component colComp : ofComp.getAllChildren())
+							{
+								if(colComp.getTypeName().equals("OutputColumn"))
+								{
+									variables += " " + colComp.getStringValue("quantity");
+								}
+							}
+							writer.println(variables.replace("/", "."));
+						}
 					}
 				}
-				writer.println(variables);
-				
-				//Add block to lems and process lems doc
-				simulationComponent.addComponent(outputFile);
-				lems.addComponent(simulationComponent);
-				lems.setTargetComponent(simulationComponent);
-				target.setComponentID("sim1");
-				processLems(lems);
-			
 			}
 			writer.close();
 
