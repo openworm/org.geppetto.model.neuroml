@@ -45,6 +45,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.conversion.AConversion;
 import org.geppetto.core.conversion.ConversionException;
+import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.ModelFormat;
@@ -143,7 +144,7 @@ public class LEMSConversionService extends AConversion
 	}
 
 	@Override
-	public IModel convert(IModel model, ModelFormat input, ModelFormat output) throws ConversionException
+	public IModel convert(IModel model, ModelFormat input, ModelFormat output, IAspectConfiguration aspectConfig) throws ConversionException
 	{
 		_logger.info("Converting model from " + input + " to " + output);
 		// checkSupportedFormat(input);
