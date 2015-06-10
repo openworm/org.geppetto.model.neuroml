@@ -223,7 +223,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 		ModelWrapper outputModel;
 		try
 		{
-			outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format);
+			outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format, null);
 		}
 		catch(ConversionException e)
 		{
