@@ -663,7 +663,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 				//unspeakable things happening, going from a method name to parameter name
 				String paramName = Character.toLowerCase(method.getName().charAt(3))+method.getName().substring(4);
 				ParamValue lemsParam = comp.getParamValue(paramName); 
-				String valueWithUnit=node.getValue().getValue() +node.getValue().getUnit();
+				String valueWithUnit=node.getValue().getValue().toString() +node.getValue().getUnit();
 				DimensionalQuantity dq = QuantityReader.parseValue(valueWithUnit, lems.getUnits());
 				lemsParam.setDoubleValue(dq.getDoubleValue());
 

@@ -57,13 +57,16 @@ import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.ComponentType;
+import org.lemsml.jlems.core.type.Dimension;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.LemsCollection;
+import org.lemsml.jlems.core.type.PathEvaluator;
 import org.lemsml.jlems.core.type.Target;
 import org.lemsml.jlems.core.xml.XMLAttribute;
 import org.neuroml.export.utils.ExportFactory;
 import org.neuroml.export.utils.Format;
 import org.neuroml.export.utils.SupportedFormats;
+import org.neuroml.export.utils.Utils;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.stereotype.Service;
 
@@ -198,10 +201,11 @@ public class LEMSConversionService extends AConversion
 					{
 						for(IInstancePath watchedVariable : aspectConfig.getWatchedVariables())
 						{
-							Component outputColumn = new Component("v", new ComponentType("OutputColumn"));
-							outputColumn.addAttribute(new XMLAttribute("quantity", watchedVariable.getLocalInstancePath().replace(".", "/")));
+							String localInstancePath = watchedVariable.getLocalInstancePath();
+							Component outputColumn = new Component(localInstancePath.substring(localInstancePath.lastIndexOf(".") + 1), new ComponentType("OutputColumn"));
+							outputColumn.addAttribute(new XMLAttribute("quantity", localInstancePath.replace(".", "/")));
 							outputFile.addComponent(outputColumn);
-							variables += " " + watchedVariable.getLocalInstancePath();
+							variables += " " + localInstancePath;
 						}
 					}
 					writer.println(variables);
@@ -212,6 +216,8 @@ public class LEMSConversionService extends AConversion
 					lems.setTargetComponent(simulationComponent);
 					target.setComponentID("sim1");
 					processLems(lems);
+
+					// Utils.getSIUnitInNeuroML()
 
 				}
 				else
@@ -253,6 +259,7 @@ public class LEMSConversionService extends AConversion
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			throw new ConversionException(e);
 		}
 

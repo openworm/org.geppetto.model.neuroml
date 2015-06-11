@@ -40,6 +40,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.features.IWatchableVariableListFeature;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.quantities.Unit;
 import org.geppetto.core.model.runtime.ACompositeNode;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
@@ -57,6 +58,7 @@ import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.Lems;
+import org.neuroml.export.utils.Utils;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.util.NeuroMLException;
 
@@ -188,7 +190,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 		{
 			for(Exposure exposure : component.getComponentType().getExposures())
 			{
-				createWatchableVariableNode(instancePath + exposure.getName());
+				createWatchableVariableNode(instancePath, exposure);
 			}
 			for(Component componentChild : component.getAllChildren())
 			{
@@ -207,8 +209,10 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 		}
 	}
 
-	public void createWatchableVariableNode(String watchableVariableInstancePath)
+	public void createWatchableVariableNode(String instancePath, Exposure exposure) throws NeuroMLException
 	{
+		String watchableVariableInstancePath = instancePath + exposure.getName();
+
 		StringTokenizer tokenizer = new StringTokenizer(watchableVariableInstancePath, ".");
 		ACompositeNode node = simulationTree;
 		while(tokenizer.hasMoreElements())
@@ -246,8 +250,17 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 				{
 					// it's a leaf node
 					VariableNode newNode = new VariableNode(current);
-					// newNode.setId(current);
+
+					String unit = Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol();
+					newNode.setUnit(new Unit(unit));
+
 					node.addChild(newNode);
+
+					// PathEvaluator pathEvaluator = new PathEvaluator();
+					// String targetId = simulationComponent.getAttributeValue("target");
+					// Component tgtComp = lems.getComponent(targetId);
+					// pathEvaluator.getComponent(tgtComp, watchedVariable.getLocalInstancePath().replace(".", "/"));
+
 				}
 			}
 		}
