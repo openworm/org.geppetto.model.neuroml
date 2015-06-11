@@ -651,16 +651,22 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 				throw new ModelInterpreterException(e);
 			}
 
-			// Change the parameter value also in the LEMS model
-			Lems lems = (Lems) model.getModel(ServicesRegistry.getModelFormat("LEMS"));
-
 			try
 			{
-				Component comp = lems.getComponent(instance.toString()); //TODO Change to be the id of the neuroml object instead of toString
-				ParamValue lemsParam = comp.getParamValue(method.getName().replace("set", "")); //TODO Check this works, it should be the name of the parameter
-				DimensionalQuantity dq = QuantityReader.parseValue(newValue+node.getValue().getUnit(), lems.getUnits());
-	            lemsParam.setDoubleValue(dq.getDoubleValue());
-				
+				// Change the parameter value also in the LEMS model
+				Lems lems = (Lems) model.getModel(ServicesRegistry.getModelFormat("LEMS"));
+				lems.setResolveModeLoose();
+				lems.deduplicate();
+				lems.resolve();
+				lems.evaluateStatic();
+				Component comp = LEMSAccessUtility.findLEMSComponent(lems.getComponents().getContents(), ((Base) instance).getId());
+				//unspeakable things happening, going from a method name to parameter name
+				String paramName = Character.toLowerCase(method.getName().charAt(3))+method.getName().substring(4);
+				ParamValue lemsParam = comp.getParamValue(paramName); 
+				String valueWithUnit=node.getValue().getValue() +node.getValue().getUnit();
+				DimensionalQuantity dq = QuantityReader.parseValue(valueWithUnit, lems.getUnits());
+				lemsParam.setDoubleValue(dq.getDoubleValue());
+
 			}
 			catch(ContentError e)
 			{
@@ -673,6 +679,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 
 		}
 	}
+
+	
 
 	@Override
 	public File downloadModel(AspectNode aspectNode, ModelFormat format, List<? extends IAspectConfiguration> aspectConfigurations) throws ModelInterpreterException
