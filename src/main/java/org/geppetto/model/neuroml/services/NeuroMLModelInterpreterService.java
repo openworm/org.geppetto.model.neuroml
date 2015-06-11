@@ -47,7 +47,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
 
@@ -92,7 +91,13 @@ import org.geppetto.model.neuroml.utils.modeltree.PopulateNodesModelTreeUtils;
 import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
+import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
+import org.lemsml.jlems.core.type.Component;
+import org.lemsml.jlems.core.type.DimensionalQuantity;
+import org.lemsml.jlems.core.type.Lems;
+import org.lemsml.jlems.core.type.ParamValue;
+import org.lemsml.jlems.core.type.QuantityReader;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.BaseConductanceBasedSynapse;
@@ -128,6 +133,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 
 	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils();
 
+	private ModelWrapper model;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -135,7 +142,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 	 */
 	public IModel readModel(URL url, List<URL> recordings, String instancePath) throws ModelInterpreterException
 	{
-		ModelWrapper model = new ModelWrapper(instancePath);
+		model = new ModelWrapper(instancePath);
 		try
 		{
 			OptimizedLEMSReader reader = new OptimizedLEMSReader();
@@ -629,17 +636,41 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 			AValue value = new DoubleValue(Double.valueOf(parameters.get(newValue)));
 			ParameterSpecificationNode node = modelParameters.get(newValue);
 			node.getValue().setValue(value);
-			
-			//retrieve NeuroML object instance associated with param node
+
+			// retrieve NeuroML object instance associated with param node
 			Object instance = this.getObjectsMap().get(node);
-			//retrieve setter method from instance associated with param node
+			// retrieve setter method from instance associated with param node
 			Method method = (Method) this.getMethodsMap().get(node);
-			try {
-				//invoke setter method passing instance and new value
+			try
+			{
+				// invoke setter method passing instance and new value
 				method.invoke(instance, value.toString());
-			} catch (Exception e) {
+			}
+			catch(Exception e)
+			{
 				throw new ModelInterpreterException(e);
 			}
+
+			// Change the parameter value also in the LEMS model
+			Lems lems = (Lems) model.getModel(ServicesRegistry.getModelFormat("LEMS"));
+
+			try
+			{
+				Component comp = lems.getComponent(instance.toString()); //TODO Change to be the id of the neuroml object instead of toString
+				ParamValue lemsParam = comp.getParamValue(method.getName().replace("set", "")); //TODO Check this works, it should be the name of the parameter
+				DimensionalQuantity dq = QuantityReader.parseValue(newValue+node.getValue().getUnit(), lems.getUnits());
+	            lemsParam.setDoubleValue(dq.getDoubleValue());
+				
+			}
+			catch(ContentError e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+			catch(ParseError e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+
 		}
 	}
 
@@ -657,11 +688,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 		return null;
 	}
 
-	public Map<ParameterSpecificationNode, Object> getMethodsMap(){
+	public Map<ParameterSpecificationNode, Object> getMethodsMap()
+	{
 		return this.populateModelTree.getParametersNodeToMethodsMap();
 	}
-	
-	public Map<ParameterSpecificationNode, Object> getObjectsMap(){
+
+	public Map<ParameterSpecificationNode, Object> getObjectsMap()
+	{
 		return this.populateModelTree.getParametersNodeToObjectsMap();
 	}
 }
