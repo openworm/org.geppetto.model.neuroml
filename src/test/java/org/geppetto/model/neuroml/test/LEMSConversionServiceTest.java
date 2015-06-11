@@ -42,6 +42,7 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.geppetto.core.conversion.ConversionException;
+import org.geppetto.core.data.model.local.LocalAspectConfiguration;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.ModelFormat;
@@ -94,7 +95,7 @@ public class LEMSConversionServiceTest
 		URL url = new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml");
 
 		ModelWrapper modelWrapper = (ModelWrapper) modelInterpreter.readModel(url, null, "");
-		ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ServicesRegistry.getModelFormat("LEMS"), ServicesRegistry.getModelFormat("NEURON"), null);
+		ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ServicesRegistry.getModelFormat("LEMS"), ServicesRegistry.getModelFormat("NEURON"), new LocalAspectConfiguration(0, null, null, null, null));
 		
 		String outputFileName = (String) outputModel.getModel(ServicesRegistry.getModelFormat("NEURON"));
 		File file = new File(outputFileName);
@@ -122,7 +123,7 @@ public class LEMSConversionServiceTest
 		ModelWrapper modelWrapper = (ModelWrapper) modelInterpreter.readModel(url, null, "");
 		for (ModelFormat modelFormat : lemsConversionService.getSupportedOutputs(modelWrapper, ServicesRegistry.getModelFormat("LEMS"))){
 			System.out.println(modelFormat);
-			ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ServicesRegistry.getModelFormat("LEMS"), modelFormat, null);
+			ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ServicesRegistry.getModelFormat("LEMS"), modelFormat, new LocalAspectConfiguration(0, null, null, null, null));
 			
 			String outputFileName = (String) outputModel.getModel(modelFormat);
 			File file = new File(outputFileName);

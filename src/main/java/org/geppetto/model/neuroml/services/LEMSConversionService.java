@@ -249,7 +249,7 @@ public class LEMSConversionService extends AConversion
 			List<File> outputFiles = exportWriter.convert();
 
 			// Create model from converted model
-			outputModel.wrapModel(output, outputFolder + System.getProperty("file.separator") + outputFileName);
+			outputModel.wrapModel(output, outputFolder + File.separator + outputFileName);
 		}
 		catch(Exception e)
 		{
