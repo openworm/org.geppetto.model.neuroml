@@ -55,6 +55,7 @@ public class LEMSParametersFeature implements ISetParameterFeature{
 			AValue value = new DoubleValue(Double.valueOf(parameters.get(newValue)));
 			ParameterSpecificationNode node = modelParameters.get(newValue);
 			node.getValue().setValue(value);
+			node.setModified(true);
 
 			// retrieve NeuroML object instance associated with param node
 			Object instance = this.populateModelTree.getParametersNodeToObjectsMap().get(node);
