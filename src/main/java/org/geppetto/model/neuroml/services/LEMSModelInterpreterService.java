@@ -57,6 +57,7 @@ import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
 import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
@@ -80,7 +81,7 @@ import org.springframework.stereotype.Service;
  * 
  */
 @Service
-public class LEMSModelInterpreterService extends AModelInterpreter implements ISetParameterFeature
+public class LEMSModelInterpreterService extends AModelInterpreter
 {
 
 	private static Log _logger = LogFactory.getLog(LEMSModelInterpreterService.class);
@@ -135,8 +136,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 				this.addFeature(new LEMSVisualTreeFeature(neuroml_inclusions, document));
 			}
 
-			this.addFeature(new LEMSSimulationTreeFeature());
-
 			model.wrapModel(ServicesRegistry.getModelFormat("LEMS"), document);
 			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 
@@ -153,6 +152,9 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 
 			addRecordings(recordings, instancePath, model);
+			
+			this.addFeature(new LEMSParametersFeature(this._neuroMLModelInterpreter.getPopulateModelTree(),model));
+			this.addFeature(new LEMSSimulationTreeFeature());
 		}
 		catch(IOException e)
 		{
@@ -202,19 +204,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter implements IS
 	{
 		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("LEMS")));
 		ServicesRegistry.registerModelInterpreterService(this, modelFormats);
-	}
-
-	@Override
-	public GeppettoFeature getType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setParameter(Map<String, String> parameters)
-	{
-		// TODO Auto-generated method stub
 	}
 
 	@Override

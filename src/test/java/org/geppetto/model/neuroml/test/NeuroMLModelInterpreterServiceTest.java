@@ -41,12 +41,14 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.RuntimeTreeRoot;
+import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
@@ -127,7 +129,7 @@ public class NeuroMLModelInterpreterServiceTest
 		assertEquals("50.0 mS_per_cm2", density.getCondDensity());
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put(parameterNodeInstancePath, "10");
-		modelInterpreter.setParameter(parameters);
+		((ISetParameterFeature)modelInterpreter.getFeature(GeppettoFeature.SET_PARAMETERS_FEATURE)).setParameter(parameters);
 		
 		aspectNode.apply(visitor);
 		assertEquals("10.0", node.getValue().getValue().getStringValue());

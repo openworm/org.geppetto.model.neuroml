@@ -77,6 +77,7 @@ import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
+import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
 import org.geppetto.model.neuroml.features.NeuroMLVisualTreeFeature;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
@@ -119,7 +120,7 @@ import org.springframework.stereotype.Service;
  * 
  */
 @Service
-public class NeuroMLModelInterpreterService extends AModelInterpreter implements ISetParameterFeature
+public class NeuroMLModelInterpreterService extends AModelInterpreter
 {
 	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
 
@@ -193,7 +194,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 			// add visual tree feature to the model service
 			NeuroMLVisualTreeFeature visualTreeFeature = new NeuroMLVisualTreeFeature();
 			this.addFeature(visualTreeFeature);
-			this.addFeature(this);
+			this.addFeature(new LEMSParametersFeature(this.populateModelTree,model));
 			this.addFeature(new LEMSSimulationTreeFeature());
 		}
 		catch(IOException e)
@@ -615,73 +616,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("NEUROML")));
 		ServicesRegistry.registerModelInterpreterService(this, modelFormats);
 	}
-
-	@Override
-	public GeppettoFeature getType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setParameter(Map<String, String> parameters) throws ModelInterpreterException
-	{
-		Map<String, ParameterSpecificationNode> modelParameters = this.populateModelTree.getParametersNode();
-
-		Set<String> paramValues = parameters.keySet();
-		Iterator<String> it = paramValues.iterator();
-		while(it.hasNext())
-		{
-			String newValue = it.next();
-			AValue value = new DoubleValue(Double.valueOf(parameters.get(newValue)));
-			ParameterSpecificationNode node = modelParameters.get(newValue);
-			node.getValue().setValue(value);
-
-			// retrieve NeuroML object instance associated with param node
-			Object instance = this.getObjectsMap().get(node);
-			// retrieve setter method from instance associated with param node
-			Method method = (Method) this.getMethodsMap().get(node);
-			try
-			{
-				// invoke setter method passing instance and new value
-				method.invoke(instance, value.toString());
-			}
-			catch(Exception e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-
-			try
-			{
-				// Change the parameter value also in the LEMS model
-				Lems lems = (Lems) model.getModel(ServicesRegistry.getModelFormat("LEMS"));
-				lems.setResolveModeLoose();
-				lems.deduplicate();
-				lems.resolve();
-				lems.evaluateStatic();
-				Component comp = LEMSAccessUtility.findLEMSComponent(lems.getComponents().getContents(), ((Base) instance).getId());
-				//unspeakable things happening, going from a method name to parameter name
-				String paramName = Character.toLowerCase(method.getName().charAt(3))+method.getName().substring(4);
-				ParamValue lemsParam = comp.getParamValue(paramName); 
-				String valueWithUnit=node.getValue().getValue().toString() +node.getValue().getUnit();
-				DimensionalQuantity dq = QuantityReader.parseValue(valueWithUnit, lems.getUnits());
-				lemsParam.setDoubleValue(dq.getDoubleValue());
-
-			}
-			catch(ContentError e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-			catch(ParseError e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-
-		}
-	}
-
 	
-
 	@Override
 	public File downloadModel(AspectNode aspectNode, ModelFormat format, List<? extends IAspectConfiguration> aspectConfigurations) throws ModelInterpreterException
 	{
@@ -696,6 +631,14 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter implements
 		return null;
 	}
 
+	public PopulateModelTree getPopulateModelTree() {
+		return this.populateModelTree;
+	}
+
+	public ModelWrapper getModel() {
+		return this.model;
+	}
+	
 	public Map<ParameterSpecificationNode, Object> getMethodsMap()
 	{
 		return this.populateModelTree.getParametersNodeToMethodsMap();
