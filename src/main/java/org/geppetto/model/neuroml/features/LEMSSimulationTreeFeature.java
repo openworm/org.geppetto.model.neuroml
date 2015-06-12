@@ -255,12 +255,6 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 					newNode.setUnit(new Unit(unit));
 
 					node.addChild(newNode);
-
-					// PathEvaluator pathEvaluator = new PathEvaluator();
-					// String targetId = simulationComponent.getAttributeValue("target");
-					// Component tgtComp = lems.getComponent(targetId);
-					// pathEvaluator.getComponent(tgtComp, watchedVariable.getLocalInstancePath().replace(".", "/"));
-
 				}
 			}
 		}

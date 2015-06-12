@@ -57,16 +57,13 @@ import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.ComponentType;
-import org.lemsml.jlems.core.type.Dimension;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.LemsCollection;
-import org.lemsml.jlems.core.type.PathEvaluator;
 import org.lemsml.jlems.core.type.Target;
 import org.lemsml.jlems.core.xml.XMLAttribute;
 import org.neuroml.export.utils.ExportFactory;
 import org.neuroml.export.utils.Format;
 import org.neuroml.export.utils.SupportedFormats;
-import org.neuroml.export.utils.Utils;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.stereotype.Service;
 
