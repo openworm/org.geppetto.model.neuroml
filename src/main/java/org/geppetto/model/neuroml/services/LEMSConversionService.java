@@ -183,6 +183,9 @@ public class LEMSConversionService extends AConversion
 					simulationComponent.addAttribute(new XMLAttribute("step", target.getComponent().getAttributeValue("step")));
 					simulationComponent.addAttribute(new XMLAttribute("target", target.getComponent().getAttributeValue("target")));
 
+//					aspectConfig.getSimulatorConfiguration().getTimestep();
+//					aspectConfig.getSimulatorConfiguration().getParameters()
+					
 					// Delete previous simulation component from LEMS
 					LemsCollection<Component> lemsComponent = lems.getComponents();
 					lemsComponent.getContents().remove(target.getComponent());
@@ -217,30 +220,30 @@ public class LEMSConversionService extends AConversion
 					// Utils.getSIUnitInNeuroML()
 
 				}
-				else
-				{
-					Component simCpt = target.getComponent();
-					for(Component ofComp : simCpt.getAllChildren())
-					{
-						if(ofComp.getTypeName().equals("OutputFile"))
-						{
-							// Probably we should delete results path
-							// String fileName = ofComp.getTextParam("fileName").substring(ofComp.getTextParam("fileName").lastIndexOf('/') + 1);
-							String fileName = ofComp.getTextParam("fileName");
-							writer.println(fileName);
-
-							String variables = "time";
-							for(Component colComp : ofComp.getAllChildren())
-							{
-								if(colComp.getTypeName().equals("OutputColumn"))
-								{
-									variables += " " + colComp.getStringValue("quantity");
-								}
-							}
-							writer.println(variables.replace("/", "."));
-						}
-					}
-				}
+//				else
+//				{
+//					Component simCpt = target.getComponent();
+//					for(Component ofComp : simCpt.getAllChildren())
+//					{
+//						if(ofComp.getTypeName().equals("OutputFile"))
+//						{
+//							// Probably we should delete results path
+//							// String fileName = ofComp.getTextParam("fileName").substring(ofComp.getTextParam("fileName").lastIndexOf('/') + 1);
+//							String fileName = ofComp.getTextParam("fileName");
+//							writer.println(fileName);
+//
+//							String variables = "time";
+//							for(Component colComp : ofComp.getAllChildren())
+//							{
+//								if(colComp.getTypeName().equals("OutputColumn"))
+//								{
+//									variables += " " + colComp.getStringValue("quantity");
+//								}
+//							}
+//							writer.println(variables.replace("/", "."));
+//						}
+//					}
+//				}
 			}
 			writer.close();
 
