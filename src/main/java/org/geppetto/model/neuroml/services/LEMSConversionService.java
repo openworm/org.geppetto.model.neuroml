@@ -171,80 +171,52 @@ public class LEMSConversionService extends AConversion
 
 			// Extracting watch variables from aspect configuration
 			// Delete any output file block
-			Target target = lems.getTarget();
 			PrintWriter writer = new PrintWriter(outputFolder + "/outputMapping.dat");
+
+			Target target = lems.getTarget();
 			if(target != null)
 			{
-				if(aspectConfig != null)
-				{
-					// FIXME: Getting length, step and target from previous sim component. It should be read from the aspect configuration
-					Component simulationComponent = new Component("sim1", new ComponentType("Simulation"));
-					simulationComponent.addAttribute(new XMLAttribute("length", target.getComponent().getAttributeValue("length")));
-					simulationComponent.addAttribute(new XMLAttribute("step", target.getComponent().getAttributeValue("step")));
-					simulationComponent.addAttribute(new XMLAttribute("target", target.getComponent().getAttributeValue("target")));
-
-//					aspectConfig.getSimulatorConfiguration().getTimestep();
-//					aspectConfig.getSimulatorConfiguration().getParameters()
-					
-					// Delete previous simulation component from LEMS
-					LemsCollection<Component> lemsComponent = lems.getComponents();
-					lemsComponent.getContents().remove(target.getComponent());
-
-					// Create output file component and add file to outputmapping file
-					Component outputFile = new Component("outputFile1", new ComponentType("OutputFile"));
-					outputFile.addAttribute(new XMLAttribute("fileName", "results/results.dat"));
-					writer.println("results/results.dat");
-
-					// Add outputcolumn and variable to outputmapping file per watch variable
-					String variables = "time";
-					if(aspectConfig.getWatchedVariables() != null)
-					{
-						for(IInstancePath watchedVariable : aspectConfig.getWatchedVariables())
-						{
-							String localInstancePath = watchedVariable.getLocalInstancePath();
-							Component outputColumn = new Component(localInstancePath.substring(localInstancePath.lastIndexOf(".") + 1), new ComponentType("OutputColumn"));
-							outputColumn.addAttribute(new XMLAttribute("quantity", localInstancePath.replace(".", "/")));
-							outputFile.addComponent(outputColumn);
-							variables += " " + localInstancePath;
-						}
-					}
-					writer.println(variables);
-
-					// Add block to lems and process lems doc
-					simulationComponent.addComponent(outputFile);
-					lems.addComponent(simulationComponent);
-					lems.setTargetComponent(simulationComponent);
-					target.setComponentID("sim1");
-					processLems(lems);
-
-					// Utils.getSIUnitInNeuroML()
-
-				}
-//				else
-//				{
-//					Component simCpt = target.getComponent();
-//					for(Component ofComp : simCpt.getAllChildren())
-//					{
-//						if(ofComp.getTypeName().equals("OutputFile"))
-//						{
-//							// Probably we should delete results path
-//							// String fileName = ofComp.getTextParam("fileName").substring(ofComp.getTextParam("fileName").lastIndexOf('/') + 1);
-//							String fileName = ofComp.getTextParam("fileName");
-//							writer.println(fileName);
-//
-//							String variables = "time";
-//							for(Component colComp : ofComp.getAllChildren())
-//							{
-//								if(colComp.getTypeName().equals("OutputColumn"))
-//								{
-//									variables += " " + colComp.getStringValue("quantity");
-//								}
-//							}
-//							writer.println(variables.replace("/", "."));
-//						}
-//					}
-//				}
+				// Delete previous simulation component from LEMS. Not sure if this is needed
+				LemsCollection<Component> lemsComponent = lems.getComponents();
+				lemsComponent.getContents().remove(target.getComponent());
 			}
+			
+			if(aspectConfig != null)
+			{
+				// FIXME: Units in seconds
+				Component simulationComponent = new Component("sim1", new ComponentType("Simulation"));
+				simulationComponent.addAttribute(new XMLAttribute("length", Float.toString(aspectConfig.getSimulatorConfiguration().getLength()) + "s"));
+				simulationComponent.addAttribute(new XMLAttribute("step", Float.toString(aspectConfig.getSimulatorConfiguration().getTimestep()) + "s"));
+				simulationComponent.addAttribute(new XMLAttribute("target", aspectConfig.getSimulatorConfiguration().getParameters().get("target")));
+				
+				// Create output file component and add file to outputmapping file
+				Component outputFile = new Component("outputFile1", new ComponentType("OutputFile"));
+				outputFile.addAttribute(new XMLAttribute("fileName", "results/results.dat"));
+				writer.println("results/results.dat");
+
+				// Add outputcolumn and variable to outputmapping file per watch variable
+				String variables = "time";
+				if(aspectConfig.getWatchedVariables() != null)
+				{
+					for(IInstancePath watchedVariable : aspectConfig.getWatchedVariables())
+					{
+						String localInstancePath = watchedVariable.getLocalInstancePath();
+						Component outputColumn = new Component(localInstancePath.substring(localInstancePath.lastIndexOf(".") + 1), new ComponentType("OutputColumn"));
+						outputColumn.addAttribute(new XMLAttribute("quantity", localInstancePath.replace(".", "/")));
+						outputFile.addComponent(outputColumn);
+						variables += " " + localInstancePath;
+					}
+				}
+				writer.println(variables);
+
+				// Add block to lems and process lems doc
+				simulationComponent.addComponent(outputFile);
+				lems.addComponent(simulationComponent);
+				lems.setTargetComponent(simulationComponent);
+				processLems(lems);
+
+			}
+
 			writer.close();
 
 			// FIXME: the py extension can be added inside.
