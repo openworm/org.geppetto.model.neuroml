@@ -169,6 +169,9 @@ public class LEMSConversionService extends AConversion
 			// FileAttribute<Set<PosixFilePermission>> fileAttributes = PosixFilePermissions.asFileAttribute(perms);
 			// Path tmpFolder = Files.createTempDirectory(outputFolder.toPath(), output.toString(), new FileAttribute<?>[0]);
 
+			
+			//FIXME: When we can convert models without targets this needs to be changed
+			
 			// Extracting watch variables from aspect configuration
 			// Delete any output file block
 			PrintWriter writer = new PrintWriter(outputFolder + "/outputMapping.dat");

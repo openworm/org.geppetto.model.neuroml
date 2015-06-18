@@ -252,6 +252,9 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 					VariableNode newNode = new VariableNode(current);
 
 					String unit = Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol();
+					if (unit.equals("none")){
+						unit = "";
+					}
 					newNode.setUnit(new Unit(unit));
 
 					node.addChild(newNode);

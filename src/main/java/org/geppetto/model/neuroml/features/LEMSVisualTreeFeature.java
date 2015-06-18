@@ -92,19 +92,18 @@ public class LEMSVisualTreeFeature implements IVisualTreeFeature{
 			ILEMSBuildConfiguration config = new LEMSBuildConfiguration();
 			builder.build(config, options); // pre-build to read the run
 			Lems lems = (Lems) document;
-			String targetComponent;
-			targetComponent = LEMSDocumentReader.getTarget(document);
-			if(targetComponent != null)
-			{
-				_targetCells = new ArrayList<String>();
-				for(Component population : lems.getComponent(targetComponent).getChildrenAL("populations"))
+			
+			_targetCells = null;
+			if (lems.getTargets().size() > 0){
+				String targetComponent = LEMSDocumentReader.getTarget(document);
+				if(targetComponent != null)
 				{
-					_targetCells.add(population.getAttributes().getByName("component").getValue());
+					_targetCells = new ArrayList<String>();
+					for(Component population : lems.getComponent(targetComponent).getChildrenAL("populations"))
+					{
+						_targetCells.add(population.getAttributes().getByName("component").getValue());
+					}
 				}
-			}
-			else
-			{
-				_targetCells = null;
 			}
 		} catch (ContentError | ParseError e) {
 			throw new ModelInterpreterException(e);
