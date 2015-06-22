@@ -84,6 +84,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	private static Log _logger = LogFactory.getLog(LEMSModelInterpreterService.class);
 	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
 
+
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
 
@@ -94,10 +95,11 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	 */
 	public IModel readModel(URL url, List<URL> recordings, String instancePath) throws ModelInterpreterException
 	{
+		dependentModels.clear();
 		ModelWrapper model = new ModelWrapper(instancePath);
 		try
 		{
-			OptimizedLEMSReader reader = new OptimizedLEMSReader();
+			OptimizedLEMSReader reader = new OptimizedLEMSReader(dependentModels);
 			int index = url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0, index + 1);
 			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.LEMS);
@@ -149,8 +151,8 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 
 			addRecordings(recordings, instancePath, model);
-			
-			this.addFeature(new LEMSParametersFeature(this._neuroMLModelInterpreter.getPopulateModelTree(),model));
+
+			this.addFeature(new LEMSParametersFeature(this._neuroMLModelInterpreter.getPopulateModelTree(), model));
 			this.addFeature(new LEMSSimulationTreeFeature());
 		}
 		catch(IOException e)

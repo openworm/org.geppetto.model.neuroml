@@ -35,17 +35,14 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.xml.bind.JAXBException;
@@ -54,7 +51,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.data.model.IAspectConfiguration;
-import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
@@ -69,10 +65,7 @@ import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.VisualObjectReferenceNode;
 import org.geppetto.core.model.simulation.ConnectionType;
-import org.geppetto.core.model.values.AValue;
-import org.geppetto.core.model.values.DoubleValue;
 import org.geppetto.core.model.values.StringValue;
-import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.VariablePathSerializer;
@@ -92,13 +85,7 @@ import org.geppetto.model.neuroml.utils.modeltree.PopulateNodesModelTreeUtils;
 import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
-import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.DimensionalQuantity;
-import org.lemsml.jlems.core.type.Lems;
-import org.lemsml.jlems.core.type.ParamValue;
-import org.lemsml.jlems.core.type.QuantityReader;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.BaseConductanceBasedSynapse;
@@ -143,10 +130,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 */
 	public IModel readModel(URL url, List<URL> recordings, String instancePath) throws ModelInterpreterException
 	{
+		dependentModels.clear();
 		model = new ModelWrapper(instancePath);
 		try
 		{
-			OptimizedLEMSReader reader = new OptimizedLEMSReader();
+			OptimizedLEMSReader reader = new OptimizedLEMSReader(this.dependentModels);
 			int index = url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0, index + 1);
 			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.NEUROML); // expand it to have all the inclusions
@@ -648,4 +636,5 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		return this.populateModelTree.getParametersNodeToObjectsMap();
 	}
+	
 }

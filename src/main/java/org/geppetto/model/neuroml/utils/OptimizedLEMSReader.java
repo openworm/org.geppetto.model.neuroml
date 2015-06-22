@@ -49,10 +49,12 @@ public class OptimizedLEMSReader
 
 	private StringBuffer _LEMSString;
 	private StringBuffer _neuroMLString;
+	private List<URL> dependentModels;
 
-	public OptimizedLEMSReader() throws NeuroMLException
+	public OptimizedLEMSReader(List<URL> dependentModels) throws NeuroMLException
 	{
 		super();
+		this.dependentModels=dependentModels;
 	}
 
 	/**
@@ -68,6 +70,7 @@ public class OptimizedLEMSReader
 		try
 		{
 			long start = System.currentTimeMillis();
+			dependentModels.add(url);
 			Map<NMLDOCTYPE, StringBuffer> returned = processLEMSInclusions(URLReader.readStringFromURL(url), urlBase, type);
 			_neuroMLString = returned.get(NMLDOCTYPE.NEUROML);
 			_LEMSString = returned.get(NMLDOCTYPE.LEMS);
@@ -195,6 +198,7 @@ public class OptimizedLEMSReader
 
 						int index = url.toString().lastIndexOf('/');
 						String newUrlBase = url.toString().substring(0, index + 1);
+						dependentModels.add(new URL(newUrlBase));
 						Map<NMLDOCTYPE, StringBuffer> included = processLEMSInclusions(s, newUrlBase, inclusionType);
 						lemsInclusion = trimOuterElement(included.get(NMLDOCTYPE.LEMS).toString()); // lems representation of the inclusion
 						nmlInclusion = trimOuterElement(included.get(NMLDOCTYPE.NEUROML).toString()); // nml representation of the inclusion
