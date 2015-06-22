@@ -186,6 +186,7 @@ public class OptimizedLEMSReader
 					try
 					{
 						_inclusions.add(urlPath);
+						dependentModels.add(new URL(urlPath));
 						String s = URLReader.readStringFromURL(url);
 						
 						//If it is file and is not found, try to read at url base + file name
@@ -198,7 +199,6 @@ public class OptimizedLEMSReader
 
 						int index = url.toString().lastIndexOf('/');
 						String newUrlBase = url.toString().substring(0, index + 1);
-						dependentModels.add(new URL(newUrlBase));
 						Map<NMLDOCTYPE, StringBuffer> included = processLEMSInclusions(s, newUrlBase, inclusionType);
 						lemsInclusion = trimOuterElement(included.get(NMLDOCTYPE.LEMS).toString()); // lems representation of the inclusion
 						nmlInclusion = trimOuterElement(included.get(NMLDOCTYPE.NEUROML).toString()); // nml representation of the inclusion
