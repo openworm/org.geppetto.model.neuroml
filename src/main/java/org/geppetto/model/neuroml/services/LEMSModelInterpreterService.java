@@ -212,25 +212,40 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	@Override
 	public File downloadModel(AspectNode aspectNode, ModelFormat format, List<? extends IAspectConfiguration> aspectConfigurations) throws ModelInterpreterException
 	{
-		if(format.equals(ServicesRegistry.getModelFormat("LEMS")))
+		if(format.equals(ServicesRegistry.getModelFormat("LEMS")) || format.equals(ServicesRegistry.getModelFormat("NEUROML")))
 		{
 			try
 			{
-				// Serialize LEMS object
-				Lems lems = (Lems) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("LEMS"));
-				String lemsString = XMLSerializer.serialize(lems);
-
-				// Write to disc
+				// Create file and folder
 				File outputFolder = URLReader.createProjectFolder(format, getPathConfiguration().getConvertedResultsPath());
 				String outputFile = ((URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID)).getPath();
 
+				// Serialise objects
+				String serialisedModel = "";
+				if(format.equals(ServicesRegistry.getModelFormat("LEMS")))
+				{
+					// Serialise LEMS object
+					Lems lems = (Lems) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("LEMS"));
+					serialisedModel = XMLSerializer.serialize(lems);
+				}
+				else
+				{
+					// Serialise NEUROML object
+					NeuroMLDocument neuroMLDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("NEUROML"));
+					NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
+					serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
+					// Change extension to nml
+					outputFile = outputFile.substring(0, outputFile.lastIndexOf(".") + 1) + "nml";
+				}
+
+				// Write to disc
 				PrintWriter writer = new PrintWriter(outputFolder + outputFile.substring(outputFile.lastIndexOf(File.separator)));
-				writer.print(lemsString);
+				writer.print(serialisedModel);
 				writer.close();
 				return outputFolder;
 
 			}
-			catch(ContentError | IOException e)
+			catch(ContentError | IOException | NeuroMLException e)
 			{
 				throw new ModelInterpreterException(e);
 			}
@@ -239,6 +254,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		else
 		{
 
+			// Call conversion service
 			LEMSConversionService lemsConversionService = new LEMSConversionService();
 			ModelWrapper outputModel = null;
 			try
