@@ -143,12 +143,12 @@ public class OptimizedLEMSReader
 
 			// Let's figure out if it's a NML document or a LEMS one
 			NMLDOCTYPE inclusionType = null;
-			if(urlPath.endsWith(".nml"))
+			if(urlPath.endsWith(".nml") || urlPath.endsWith(".nml?dl=1"))
 			{
 				inclusionType = NMLDOCTYPE.NEUROML;
 				_includeNeuroML = true; // if we find any NML inclusion we'll have to add the neuroml definitions
 			}
-			else if(urlPath.endsWith(".xml"))
+			else if(urlPath.endsWith(".xml") || urlPath.endsWith(".xml?dl=1"))
 			{
 				inclusionType = NMLDOCTYPE.LEMS;
 			}
