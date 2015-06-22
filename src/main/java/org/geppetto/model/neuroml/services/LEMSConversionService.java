@@ -51,6 +51,7 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.core.utilities.URLReader;
 import org.lemsml.export.base.IBaseWriter;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -110,6 +111,7 @@ public class LEMSConversionService extends AConversion
 	{
 		_logger.info("Getting supported outputs");
 		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
+		
 		for(Format format : SupportedFormats.getSupportedOutputs())
 		{
 			// Convert from export formats to Geppetto formats
@@ -127,9 +129,10 @@ public class LEMSConversionService extends AConversion
 	public List<ModelFormat> getSupportedOutputs(IModel model, ModelFormat input) throws ConversionException
 	{
 		_logger.info("Getting supported outputs for a specific model and input format " + input);
+		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
+		
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(input);
 		processLems(lems);
-		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
 		try
 		{
 			for(Format format : SupportedFormats.getSupportedOutputs(lems))
@@ -161,14 +164,7 @@ public class LEMSConversionService extends AConversion
 		try
 		{
 			// Create Folder
-			String tmpFolder = output.getModelFormat() + new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
-			File outputFolder = new File(this.getConvertedResultsPath(), tmpFolder);
-			if(!outputFolder.exists()) outputFolder.mkdirs();
-			// This only works in linux
-			// Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxrwx--x");
-			// FileAttribute<Set<PosixFilePermission>> fileAttributes = PosixFilePermissions.asFileAttribute(perms);
-			// Path tmpFolder = Files.createTempDirectory(outputFolder.toPath(), output.toString(), new FileAttribute<?>[0]);
-
+			File outputFolder = URLReader.createProjectFolder(output, this.getConvertedResultsPath());
 			
 			//FIXME: When we can convert models without targets this needs to be changed
 			
@@ -240,6 +236,8 @@ public class LEMSConversionService extends AConversion
 
 		return outputModel;
 	}
+
+
 
 	private void processLems(Lems lems) throws ConversionException
 	{

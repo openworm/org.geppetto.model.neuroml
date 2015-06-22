@@ -50,6 +50,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
@@ -182,7 +183,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			// add visual tree feature to the model service
 			NeuroMLVisualTreeFeature visualTreeFeature = new NeuroMLVisualTreeFeature();
 			this.addFeature(visualTreeFeature);
-			this.addFeature(new LEMSParametersFeature(this.populateModelTree,model));
+			this.addFeature(new LEMSParametersFeature(this.populateModelTree, model));
 			this.addFeature(new LEMSSimulationTreeFeature());
 		}
 		catch(IOException e)
@@ -604,29 +605,39 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("NEUROML")));
 		ServicesRegistry.registerModelInterpreterService(this, modelFormats);
 	}
-	
+
 	@Override
 	public File downloadModel(AspectNode aspectNode, ModelFormat format, List<? extends IAspectConfiguration> aspectConfigurations) throws ModelInterpreterException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return downloadModel(aspectNode, format, aspectConfigurations);
 	}
 
 	@Override
 	public List<ModelFormat> getSupportedOutputs(AspectNode aspectNode) throws ModelInterpreterException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		List<ModelFormat> supportedOutputs = super.getSupportedOutputs(aspectNode);
+		try
+		{
+			LEMSConversionService lemsConversionService = new LEMSConversionService();
+			supportedOutputs.addAll(lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS")));
+		}
+		catch(ConversionException e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+		return supportedOutputs;
 	}
 
-	public PopulateModelTree getPopulateModelTree() {
+	public PopulateModelTree getPopulateModelTree()
+	{
 		return this.populateModelTree;
 	}
 
-	public ModelWrapper getModel() {
+	public ModelWrapper getModel()
+	{
 		return this.model;
 	}
-	
+
 	public Map<ParameterSpecificationNode, Object> getMethodsMap()
 	{
 		return this.populateModelTree.getParametersNodeToMethodsMap();
@@ -636,5 +647,5 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		return this.populateModelTree.getParametersNodeToObjectsMap();
 	}
-	
+
 }

@@ -34,6 +34,7 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +55,7 @@ import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.core.utilities.URLReader;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
 import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
@@ -64,6 +66,9 @@ import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
+import org.lemsml.jlems.core.type.Lems;
+import org.lemsml.jlems.io.util.FileUtil;
+import org.lemsml.jlems.io.xmlio.XMLSerializer;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.NeuroMLDocument;
@@ -83,7 +88,6 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 
 	private static Log _logger = LogFactory.getLog(LEMSModelInterpreterService.class);
 	private NeuroMLModelInterpreterService _neuroMLModelInterpreter = new NeuroMLModelInterpreterService();
-
 
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
@@ -208,35 +212,65 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	@Override
 	public File downloadModel(AspectNode aspectNode, ModelFormat format, List<? extends IAspectConfiguration> aspectConfigurations) throws ModelInterpreterException
 	{
-		LEMSConversionService lemsConversionService = new LEMSConversionService();
-		ModelWrapper outputModel = null;
-		try
+		if(format.equals(ServicesRegistry.getModelFormat("LEMS")))
 		{
-			for(IAspectConfiguration aspectConfig : aspectConfigurations)
+			try
 			{
-				outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format, aspectConfig);
+				// Serialize LEMS object
+				Lems lems = (Lems) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("LEMS"));
+				String lemsString = XMLSerializer.serialize(lems);
+
+				// Write to disc
+				File outputFolder = URLReader.createProjectFolder(format, getPathConfiguration().getConvertedResultsPath());
+				String outputFile = ((URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID)).getPath();
+
+				PrintWriter writer = new PrintWriter(outputFolder + outputFile.substring(outputFile.lastIndexOf(File.separator)));
+				writer.print(lemsString);
+				writer.close();
+				return outputFolder;
+
 			}
+			catch(ContentError | IOException e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+
 		}
-		catch(ConversionException e)
+		else
 		{
-			throw new ModelInterpreterException(e);
+
+			LEMSConversionService lemsConversionService = new LEMSConversionService();
+			ModelWrapper outputModel = null;
+			try
+			{
+				for(IAspectConfiguration aspectConfig : aspectConfigurations)
+				{
+					outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format, aspectConfig);
+				}
+			}
+			catch(ConversionException e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+			String outputFile = (String) outputModel.getModel(format);
+			return new File(outputFile.substring(0, outputFile.lastIndexOf(File.separator)));
 		}
-		String outputFile = (String) outputModel.getModel(format);
-		return new File(outputFile.substring(0, outputFile.lastIndexOf(File.separator)));
 	}
 
 	@Override
 	public List<ModelFormat> getSupportedOutputs(AspectNode aspectNode) throws ModelInterpreterException
 	{
-		LEMSConversionService lemsConversionService = new LEMSConversionService();
+		List<ModelFormat> supportedOutputs = super.getSupportedOutputs(aspectNode);
 		try
 		{
-			return lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"));
+			LEMSConversionService lemsConversionService = new LEMSConversionService();
+			supportedOutputs.addAll(lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS")));
 		}
 		catch(ConversionException e)
 		{
 			throw new ModelInterpreterException(e);
 		}
+		return supportedOutputs;
 	}
 
 }
