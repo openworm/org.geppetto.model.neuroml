@@ -114,6 +114,7 @@ import org.neuroml.model.Network;
 import org.neuroml.model.PlasticityMechanism;
 import org.neuroml.model.Population;
 import org.neuroml.model.PopulationTypes;
+import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Q10Settings;
 import org.neuroml.model.Resistivity;
 import org.neuroml.model.Species;
@@ -464,11 +465,38 @@ public class PopulateNeuroMLModelTreeUtils {
 		return basePyNNCellChildren;
 	}
 	
-	public CompositeNode createBiophysicalPropertiesNode(BiophysicalProperties properties) throws ModelInterpreterException, ContentError{
-		CompositeNode biophysicalPropertiesNode = new CompositeNode(properties.getId(), Resources.BIOPHYSICAL_PROPERTIES.get());
+	public CompositeNode createPulseGeneratorNode(PulseGenerator pulseGenerator) throws ModelInterpreterException
+	{
+		
+		CompositeNode pulseGeneratorNode = new CompositeNode(pulseGenerator.getId(), Resources.PULSE_GENERATOR.get());
+		
+		// Amplitude		
+		ParameterSpecificationNode amplitude = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.AMPLITUDE.getId(), Resources.AMPLITUDE.get(), pulseGenerator.getAmplitude());
+		pulseGeneratorNode.addChild(amplitude);
+		this.addToMaps(pulseGenerator, "setAmplitude", amplitude);
+		
+		// Delay		
+		ParameterSpecificationNode delay = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.DELAY.getId(), Resources.DELAY.get(), pulseGenerator.getDelay());
+		pulseGeneratorNode.addChild(delay);
+		this.addToMaps(pulseGenerator, "setDelay", delay);
+		
+		// Amplitude		
+		ParameterSpecificationNode duration = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.DURATION.getId(), Resources.DURATION.get(), pulseGenerator.getDuration());
+		pulseGeneratorNode.addChild(duration);
+		this.addToMaps(pulseGenerator, "setDuration", duration);
+				
+		//Standalone Properties
+		pulseGeneratorNode.addChildren(createStandaloneChildren(pulseGenerator));
+		
+		// TODO Auto-generated method stub
+		return pulseGeneratorNode;
+	}
+	
+	public CompositeNode createBiophysicalPropertiesNode(BiophysicalProperties biophysicalProperties) throws ModelInterpreterException, ContentError{
+		CompositeNode biophysicalPropertiesNode = new CompositeNode(biophysicalProperties.getId(), Resources.BIOPHYSICAL_PROPERTIES.get());
 		
 		// Membrane Properties
-		MembraneProperties membraneProperties = properties.getMembraneProperties();
+		MembraneProperties membraneProperties = biophysicalProperties.getMembraneProperties();
 		if(membraneProperties != null)
 		{
 			CompositeNode membranePropertiesNode = new CompositeNode(Resources.MEMBRANE_P.getId(), Resources.MEMBRANE_P.get());
@@ -484,10 +512,9 @@ public class PopulateNeuroMLModelTreeUtils {
 				// Ion
 				channelPopulationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.getId(), Resources.ION.get(),  new StringValue(channelPopulation.getIon())));
 				
+				// Reverse Potential				
 				ParameterSpecificationNode erev = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.EREV.getId(), Resources.EREV.get(), channelPopulation.getErev());
-				// Reverse Potential					
 				channelPopulationNode.addChild(erev);
-				
 				this.addToMaps(channelPopulation, "setErev", erev);
 				
 				// Number
@@ -660,10 +687,13 @@ public class PopulateNeuroMLModelTreeUtils {
 		}
 		
 		// Intracellular Properties
-		biophysicalPropertiesNode.addChild(createIntracellularPropertiesNode(properties.getIntracellularProperties()));
+		biophysicalPropertiesNode.addChild(createIntracellularPropertiesNode(biophysicalProperties.getIntracellularProperties()));
 
 		// Extracellular Properties
-		biophysicalPropertiesNode.addChild(createExtracellularPropertiesNode(properties.getExtracellularProperties()));
+		biophysicalPropertiesNode.addChild(createExtracellularPropertiesNode(biophysicalProperties.getExtracellularProperties()));
+		
+		//Standalone Properties
+		biophysicalPropertiesNode.addChildren(createStandaloneChildren(biophysicalProperties));
 		
 		return biophysicalPropertiesNode;
 	}
@@ -1303,5 +1333,6 @@ public class PopulateNeuroMLModelTreeUtils {
 			throw new ModelInterpreterException(e);
 		}
 	}
+
 
 }

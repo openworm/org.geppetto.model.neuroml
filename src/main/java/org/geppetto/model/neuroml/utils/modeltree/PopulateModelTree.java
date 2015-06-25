@@ -72,6 +72,7 @@ import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.Network;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
@@ -217,6 +218,10 @@ public class PopulateModelTree {
 					else if(element instanceof BiophysicalProperties)
 					{
 						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createBiophysicalPropertiesNode((BiophysicalProperties)element));
+					}
+					else if(element instanceof PulseGenerator)
+					{
+						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createPulseGeneratorNode((PulseGenerator)element));
 					}
 					else if(element instanceof Network)
 					{
