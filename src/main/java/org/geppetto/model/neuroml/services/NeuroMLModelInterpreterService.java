@@ -678,6 +678,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	public List<ModelFormat> getSupportedOutputs(AspectNode aspectNode) throws ModelInterpreterException
 	{
 		List<ModelFormat> supportedOutputs = super.getSupportedOutputs(aspectNode);
+		supportedOutputs.add(ServicesRegistry.getModelFormat("LEMS"));
 		try
 		{
 			LEMSConversionService lemsConversionService = new LEMSConversionService();
