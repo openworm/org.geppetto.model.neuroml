@@ -35,6 +35,7 @@ package org.geppetto.model.neuroml.features;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.features.IWatchableVariableListFeature;
@@ -60,6 +61,8 @@ import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.BaseCell;
+import org.neuroml.model.Cell;
+import org.neuroml.model.Segment;
 import org.neuroml.model.util.NeuroMLException;
 
 /**
@@ -74,6 +77,8 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 	private AspectSubTreeNode simulationTree;
 	private Map<String, BaseCell> cellMapping;
 	private Map<String, EntityNode> mapping;
+
+	// private boolean isMultiCompartimental;
 
 	private GeppettoFeature type = GeppettoFeature.WATCHABLE_VARIABLE_LIST_FEATURE;
 
@@ -141,8 +146,30 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 			try
 			{
 				BaseCell baseCell = cellMapping.get(simulationTree.getParent().getParent().getId());
-				Component cellComponent = lems.getComponent(baseCell.getId());
-				extractWatchableVariables(cellComponent, cellComponent.getID() + ".");
+				if(baseCell instanceof Cell)
+				{
+					Cell cell = (Cell) baseCell;
+					Component cellComponent = lems.getComponent(baseCell.getId());
+
+					String instancePath = cellComponent.getID() + ".";
+
+					for(Segment segment : cell.getMorphology().getSegment())
+					{
+						String relativePath = "";
+						if(cell.getMorphology().getSegment().size() >= 1)
+						{
+							relativePath = segment.getId() + ".";
+						}
+						extractWatchableVariables(cellComponent, instancePath + relativePath);
+					}
+
+				}
+				else
+				{
+					Component cellComponent = lems.getComponent(baseCell.getId());
+					extractWatchableVariables(cellComponent, cellComponent.getID() + ".");
+				}
+
 			}
 			catch(NeuroMLException | LEMSException e)
 			{
@@ -172,7 +199,6 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 				{
 					if(aspectNode.getId() == simulationTree.getParent().getId())
 					{
-
 						Component cellComponent = lems.getComponent(value.getId());
 						this.simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
 						this.simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
@@ -203,7 +229,13 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 				}
 				else
 				{
-					extractWatchableVariables(componentChild, instancePath + ((componentChild.getID() == null) ? componentChild.getTypeName() : componentChild.getID()) + ".");
+					String relativePath = "";
+					if(!componentChild.getComponentType().getName().equals("morphology") && !componentChild.getComponentType().getName().equals("segment"))
+					{
+						relativePath = ((componentChild.getID() == null) ? componentChild.getTypeName() : componentChild.getID()) + ".";
+					}
+
+					extractWatchableVariables(componentChild, instancePath + relativePath);
 				}
 			}
 		}
@@ -252,7 +284,8 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 					VariableNode newNode = new VariableNode(current);
 
 					String unit = Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol();
-					if (unit.equals("none")){
+					if(unit.equals("none"))
+					{
 						unit = "";
 					}
 					newNode.setUnit(new Unit(unit));
