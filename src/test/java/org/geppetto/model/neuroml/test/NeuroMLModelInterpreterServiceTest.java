@@ -133,7 +133,7 @@ public class NeuroMLModelInterpreterServiceTest
 		
 		aspectNode.apply(visitor);
 		assertEquals("10.0", node.getValue().getValue().getStringValue());
-		assertEquals("10.0", density.getCondDensity());
+		assertEquals("10.0mS_per_cm2", density.getCondDensity());
 		
 		Lems lems = (Lems) model.getModel(ServicesRegistry.getModelFormat("LEMS"));
 		Component comp = LEMSAccessUtility.findLEMSComponent(lems.getComponents().getContents(), density.getId());
