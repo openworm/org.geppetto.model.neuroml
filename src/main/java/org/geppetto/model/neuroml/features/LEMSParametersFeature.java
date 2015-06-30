@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
@@ -26,7 +28,10 @@ import org.neuroml.model.Base;
 
 public class LEMSParametersFeature implements ISetParameterFeature{
 
+	private static Log logger = LogFactory.getLog(LEMSParametersFeature.class);
+	
 	private PopulateModelTree populateModelTree = new PopulateModelTree();
+	
 	private ModelWrapper model;
 
 	private GeppettoFeature type = GeppettoFeature.SET_PARAMETERS_FEATURE;
@@ -86,7 +91,7 @@ public class LEMSParametersFeature implements ISetParameterFeature{
 				String valueWithUnit=node.getValue().getValue().toString() +node.getValue().getUnit();
 				DimensionalQuantity dq = QuantityReader.parseValue(valueWithUnit, lems.getUnits());
 				lemsParam.setDoubleValue(dq.getDoubleValue());
-
+				logger.info("The value of the LEMS parameter "+paramName+" has changed, new value is "+valueWithUnit);
 			}
 			catch(ContentError e)
 			{
