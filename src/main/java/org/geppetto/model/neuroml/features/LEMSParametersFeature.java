@@ -69,7 +69,8 @@ public class LEMSParametersFeature implements ISetParameterFeature{
 			try
 			{
 				// invoke setter method passing instance and new value
-				method.invoke(instance, value.toString());
+				String valueWithUnit=node.getValue().getValue().toString() +node.getValue().getUnit();
+				method.invoke(instance, valueWithUnit);
 			}
 			catch(Exception e)
 			{
