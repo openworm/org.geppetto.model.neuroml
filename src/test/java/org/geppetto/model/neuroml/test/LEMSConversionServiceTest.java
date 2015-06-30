@@ -43,6 +43,7 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
+import org.geppetto.core.beans.Settings;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.local.LocalAspectConfiguration;
 import org.geppetto.core.data.model.local.LocalSimulatorConfiguration;
@@ -168,7 +169,7 @@ public class LEMSConversionServiceTest
 
 	@AfterClass
     public static void teardown() throws Exception {
-		File tmp = new File(System.getProperty("user.dir")+"/geppettoTmp");
+		File tmp = new File(Settings.getPathInTempFolder(""));
 		if(tmp.exists()){
 			deleteDirectory(tmp);
 		}
