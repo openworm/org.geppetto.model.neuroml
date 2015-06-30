@@ -611,7 +611,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	}
 
 	@Override
-	public File downloadModel(AspectNode aspectNode, ModelFormat format, List<? extends IAspectConfiguration> aspectConfigurations) throws ModelInterpreterException
+	public File downloadModel(AspectNode aspectNode, ModelFormat format, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
 	{
 		if(format.equals(ServicesRegistry.getModelFormat("LEMS")) || format.equals(ServicesRegistry.getModelFormat("NEUROML")))
 		{
@@ -660,10 +660,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			ModelWrapper outputModel = null;
 			try
 			{
-				for(IAspectConfiguration aspectConfig : aspectConfigurations)
-				{
-					outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format, aspectConfig);
-				}
+				outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format, aspectConfiguration);
 			}
 			catch(ConversionException e)
 			{

@@ -38,6 +38,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.features.IWatchableVariableListFeature;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
@@ -91,7 +92,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 	}
 
 	@Override
-	public boolean listWatchableVariables(AspectNode aspectNode) throws ModelInterpreterException
+	public boolean listWatchableVariables(AspectNode aspectNode, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
 	{
 		long start = System.currentTimeMillis();
 
@@ -122,9 +123,8 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 
 			try
 			{
-				Component simCpt = lems.getTarget().getComponent();
-				String targetId = simCpt.getStringValue("target");
-				Component tgtComp = lems.getComponent(targetId);
+				
+				Component tgtComp = lems.getComponent(aspectConfiguration.getSimulatorConfiguration().getParameters().get("target"));
 				try
 				{
 					extractWatchableVariables(tgtComp, "");
