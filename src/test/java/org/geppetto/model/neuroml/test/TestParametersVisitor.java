@@ -39,7 +39,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
-import org.geppetto.core.model.state.visitors.DefaultStateVisitor;
+import org.geppetto.core.model.state.visitors.RuntimeTreeVisitor;
 
 /**
  * Visitor used testing setting parameter specification nodes inside model tree.
@@ -47,7 +47,7 @@ import org.geppetto.core.model.state.visitors.DefaultStateVisitor;
  * @author  Jesus R. Martinez (jesus@metacell.us)
  *
  */
-public class TestParametersVisitor extends DefaultStateVisitor{
+public class TestParametersVisitor extends RuntimeTreeVisitor{
 
 	private static Log _logger = LogFactory.getLog(TestParametersVisitor.class);
 
