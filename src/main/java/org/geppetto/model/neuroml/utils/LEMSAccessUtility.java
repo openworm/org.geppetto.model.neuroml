@@ -118,5 +118,32 @@ public class LEMSAccessUtility
 		}
 		return null;
 	}
+	
+	public static String getSimulationTreePathType(Component targetComponent) throws ModelInterpreterException
+	{
+		if(targetComponent.getDeclaredType().equals("network"))
+		{
+			// It is a network
+			for(Component componentChild : targetComponent.getAllChildren())
+			{
+				if(componentChild.getDeclaredType().equals("population"))
+				{
+					//population = componentChild;
+					if(componentChild.getComponentType().getName().equals("populationList"))
+					{
+						return "populationList";
+					}
+				}
+			}
+			return "population";
+
+		}
+		else
+		{
+			// It is a cell
+			return "cell";
+		}
+
+	}
 
 }

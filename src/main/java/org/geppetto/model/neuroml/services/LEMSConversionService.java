@@ -34,10 +34,8 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,6 +50,7 @@ import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.URLReader;
+import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.lemsml.export.base.IBaseWriter;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -65,6 +64,7 @@ import org.lemsml.jlems.core.xml.XMLAttribute;
 import org.neuroml.export.utils.ExportFactory;
 import org.neuroml.export.utils.Format;
 import org.neuroml.export.utils.SupportedFormats;
+import org.neuroml.model.Base;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.stereotype.Service;
 
@@ -171,13 +171,12 @@ public class LEMSConversionService extends AConversion
 			// Extracting watch variables from aspect configuration
 			// Delete any output file block
 			PrintWriter writer = new PrintWriter(outputFolder + "/outputMapping.dat");
-
-			Target target = lems.getTarget();
-			if(target != null)
+			
+			if(lems.getTargets().size() > 0)
 			{
 				// Delete previous simulation component from LEMS. Not sure if this is needed
 				LemsCollection<Component> lemsComponent = lems.getComponents();
-				lemsComponent.getContents().remove(target.getComponent());
+				lemsComponent.getContents().remove(lems.getTarget().getComponent());
 			}
 			
 			if(aspectConfig != null)
@@ -201,7 +200,14 @@ public class LEMSConversionService extends AConversion
 					{
 						String localInstancePath = watchedVariable.getLocalInstancePath();
 						Component outputColumn = new Component(localInstancePath.substring(localInstancePath.lastIndexOf(".") + 1), new ComponentType("OutputColumn"));
-						outputColumn.addAttribute(new XMLAttribute("quantity", localInstancePath.replace(".", "/")));
+						
+						Component comp = LEMSAccessUtility.findLEMSComponent(lems.getComponents().getContents(), aspectConfig.getSimulatorConfiguration().getParameters().get("target"));
+						String quantity = localInstancePath.replace(".", "/");
+						if (LEMSAccessUtility.getSimulationTreePathType(comp).equals("populationList")){
+							quantity = quantity.replace("[", "/").replace("]","");
+						}
+						outputColumn.addAttribute(new XMLAttribute("quantity", quantity));
+						
 						outputFile.addComponent(outputColumn);
 						variables += " " + localInstancePath;
 					}
