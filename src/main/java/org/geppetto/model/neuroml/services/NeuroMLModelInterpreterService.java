@@ -606,7 +606,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Override
 	public void registerGeppettoService()
 	{
-		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("NEUROML")));
+		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("NEUROML"), ServicesRegistry.registerModelFormat("LEMS")));
 		ServicesRegistry.registerModelInterpreterService(this, modelFormats);
 	}
 
