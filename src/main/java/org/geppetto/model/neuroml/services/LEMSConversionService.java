@@ -34,10 +34,8 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -111,7 +109,7 @@ public class LEMSConversionService extends AConversion
 	{
 		_logger.info("Getting supported outputs");
 		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
-		
+
 		for(Format format : SupportedFormats.getSupportedOutputs())
 		{
 			// Convert from export formats to Geppetto formats
@@ -130,7 +128,7 @@ public class LEMSConversionService extends AConversion
 	{
 		_logger.info("Getting supported outputs for a specific model and input format " + input);
 		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
-		
+
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(input);
 		processLems(lems);
 		try
@@ -153,7 +151,7 @@ public class LEMSConversionService extends AConversion
 	@Override
 	public IModel convert(IModel model, ModelFormat input, ModelFormat output, IAspectConfiguration aspectConfig) throws ConversionException
 	{
-		_logger.info("Converting model from " + input + " to " + output);
+		_logger.info("Converting model from " + input.getModelFormat() + " to " + output.getModelFormat());
 		// checkSupportedFormat(input);
 
 		// Read lems
@@ -165,9 +163,9 @@ public class LEMSConversionService extends AConversion
 		{
 			// Create Folder
 			File outputFolder = URLReader.createProjectFolder(output, this.getConvertedResultsPath());
-			
-			//FIXME: When we can convert models without targets this needs to be changed
-			
+
+			// FIXME: When we can convert models without targets this needs to be changed
+
 			// Extracting watch variables from aspect configuration
 			// Delete any output file block
 			PrintWriter writer = new PrintWriter(outputFolder + "/outputMapping.dat");
@@ -179,7 +177,7 @@ public class LEMSConversionService extends AConversion
 				LemsCollection<Component> lemsComponent = lems.getComponents();
 				lemsComponent.getContents().remove(target.getComponent());
 			}
-			
+
 			if(aspectConfig != null)
 			{
 				// FIXME: Units in seconds
@@ -187,7 +185,7 @@ public class LEMSConversionService extends AConversion
 				simulationComponent.addAttribute(new XMLAttribute("length", Float.toString(aspectConfig.getSimulatorConfiguration().getLength()) + "s"));
 				simulationComponent.addAttribute(new XMLAttribute("step", Float.toString(aspectConfig.getSimulatorConfiguration().getTimestep()) + "s"));
 				simulationComponent.addAttribute(new XMLAttribute("target", aspectConfig.getSimulatorConfiguration().getParameters().get("target")));
-				
+
 				// Create output file component and add file to outputmapping file
 				Component outputFile = new Component("outputFile1", new ComponentType("OutputFile"));
 				outputFile.addAttribute(new XMLAttribute("fileName", "results/results.dat"));
@@ -218,14 +216,18 @@ public class LEMSConversionService extends AConversion
 
 			writer.close();
 
-			// FIXME: the py extension can be added inside.
-			String outputFileName = "main_script.py";
+			String outputFileName="";
+			if(convertModel)
+			{
+				// FIXME: the py extension can be added inside.
+				outputFileName = "main_script.py";
 
-			// Convert model
-			IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormatMapping.valueOf(output.getModelFormat()).getExportValue());
-			List<File> outputFiles = exportWriter.convert();
+				// Convert model
+				IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormatMapping.valueOf(output.getModelFormat()).getExportValue());
+				List<File> outputFiles = exportWriter.convert();
+			}
 
-			// Create model from converted model
+			// Create model from converted model, if we are not converting we send the outputFolder
 			outputModel.wrapModel(output, outputFolder + File.separator + outputFileName);
 		}
 		catch(Exception e)
@@ -236,8 +238,6 @@ public class LEMSConversionService extends AConversion
 
 		return outputModel;
 	}
-
-
 
 	private void processLems(Lems lems) throws ConversionException
 	{
