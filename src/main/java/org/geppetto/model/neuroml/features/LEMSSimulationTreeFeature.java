@@ -118,14 +118,11 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 			throw new ModelInterpreterException(e);
 		}
 
-		
 		try
 		{
-
 			// First we identify what sort of network/cell it is and depending on this we will generate the Simulation Tree format
 			targetComponent = lems.getComponent(aspectConfiguration.getSimulatorConfiguration().getParameters().get("target"));
 			simulationTreePathType = LEMSAccessUtility.getSimulationTreePathType(targetComponent);
-
 		}
 		catch(LEMSException e)
 		{
@@ -133,52 +130,31 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 			throw new ModelInterpreterException(e);
 		}
 
-		// Check if it is a entity (parse the whole document) or a subentity (create a component node from the cell element)
+		// Check if it is a entity and a network or a subentity (create a component node from the cell element)
 		if(simulationTree.getParent().getParent().getParent().getId().equals("scene") && cellMapping.size() > 1)
 		{
+			//Traverse for all the aspect nodes
+			for(Map.Entry<String, BaseCell> entry : cellMapping.entrySet())
+			{
+				String key = entry.getKey();
+				BaseCell value = entry.getValue();
 
-//			try
-//			{
-				// Generate Simulation Tree for Subentities (We don't as network as it has been implicit added through the entities structure)
-				// if(cellMapping != null && cellMapping.size() > 1
-				// && (targetComponent.getComponentType().getName().equals("population") || targetComponent.getComponentType().getName().equals("populationList")))
-				// {
-
-				for(Map.Entry<String, BaseCell> entry : cellMapping.entrySet())
+				EntityNode entityNode = mapping.get(key);
+				for(AspectNode currentAspectNode : entityNode.getAspects())
 				{
-					String key = entry.getKey();
-					BaseCell value = entry.getValue();
-
-					EntityNode entityNode = mapping.get(key);
-					for(AspectNode currentAspectNode : entityNode.getAspects())
+					if(currentAspectNode.getId() == simulationTree.getParent().getId())
 					{
-						if(currentAspectNode.getId() == simulationTree.getParent().getId())
-						{
-							//Component cellComponent = lems.getComponent(value.getId());
-							this.simulationTree = (AspectSubTreeNode) currentAspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
-							this.simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
+						//Component cellComponent = lems.getComponent(value.getId());
+						this.simulationTree = (AspectSubTreeNode) currentAspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
+						this.simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
 
-							LEMSSimulationTreeFeature lemsSimulationTreeFeature = new LEMSSimulationTreeFeature();
-							lemsSimulationTreeFeature.setWatchTree(this.simulationTree);
-							// lemsSimulationTreeFeature.extractWatchableVariables(cellComponent, cellComponent.getID() + ".");
-							//lemsSimulationTreeFeature.createCellSimulationTree();
-							lemsSimulationTreeFeature.listWatchableVariables(currentAspectNode, aspectConfiguration);
-							this.simulationTree.setModified(true);
-						}
+						LEMSSimulationTreeFeature lemsSimulationTreeFeature = new LEMSSimulationTreeFeature();
+						lemsSimulationTreeFeature.setWatchTree(this.simulationTree);
+						lemsSimulationTreeFeature.listWatchableVariables(currentAspectNode, aspectConfiguration);
+						this.simulationTree.setModified(true);
 					}
 				}
-				// }
-				// else
-				// {
-				// extractWatchableVariables(targetComponent, "");
-				// }
-//			}
-//			catch(LEMSException e)
-//			{
-//				// FIXME: Throw proper exception
-//				throw new ModelInterpreterException(e);
-//			}
-
+			}
 		}
 		else
 		{
@@ -190,10 +166,11 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 				if(baseCell instanceof Cell)
 				{
 					Cell cell = (Cell) baseCell;
-					// FIXME: This will only work if cell is at root level
-					//Component cellComponent = lems.getComponent(baseCell.getId());
+					
+					//Look for the lems object
 					Component cellComponent = LEMSAccessUtility.findLEMSComponent(lems.getComponents().getContents(), baseCell.getId());
 
+					//Create path for cells and network
 					String instancePath = "";
 					if(cellMapping != null && cellMapping.size() == 1)
 					{
@@ -213,16 +190,12 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 						instancePath = populationName + "[" + populationInstance + "].";
 					}
 
+					//Create path depending on the sort of path
 					if(simulationTreePathType.equals("populationList"))
 					{
-						// instancePath += cellComponent.getID();
 						for(Segment segment : cell.getMorphology().getSegment())
 						{
 							String relativePath = cellComponent.getID() + "[" + segment.getId() + "].";
-							// if(cell.getMorphology().getSegment().size() >= 1)
-							// {
-							// relativePath = segment.getId() + ".";
-							// }
 							extractWatchableVariables(cellComponent, instancePath + relativePath);
 						}
 					}
@@ -260,15 +233,6 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 		}
 		for(Component componentChild : component.getAllChildren())
 		{
-
-			// if(cellMapping != null && cellMapping.size() == 1 && componentChild.getComponentType().getName().equals("cell"))
-			// {
-			// // FIXME: This a quick and dirty solution but we have to define the way we would like to specify the variable to be watched in the runtime tree
-			// String newInstancePath = instancePath.substring(0, instancePath.length() - 1) + "[0]" + ".";
-			// extractWatchableVariables(componentChild, newInstancePath);
-			// }
-			// else
-			// {
 			String relativePath = "";
 			if(!componentChild.getComponentType().getName().equals("morphology") && !componentChild.getComponentType().getName().equals("segment"))
 			{
@@ -281,7 +245,6 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 			}
 
 			extractWatchableVariables(componentChild, instancePath + relativePath);
-			// }
 		}
 	}
 
