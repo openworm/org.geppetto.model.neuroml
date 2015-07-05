@@ -326,8 +326,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				// Theoretically cellid and postif cannot be null but...
 				if(connection.getPreCellId() != null && connection.getPostCellId() != null)
 				{
-					ConnectionNode connectionNodeFrom = new ConnectionNode(projection.getId() + connection.getId());
-					ConnectionNode connectionNodeTo = new ConnectionNode(projection.getId() + connection.getId());
+					ConnectionNode connectionNodeFrom = new ConnectionNode(projection.getId() + connection.getId(), aspectNode);
+					ConnectionNode connectionNodeTo = new ConnectionNode(projection.getId() + connection.getId(), aspectNode);
 
 					// Get connections entities
 					String preCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPreCellId());
