@@ -468,7 +468,7 @@ public class PopulateNeuroMLModelTreeUtils {
 	public CompositeNode createPulseGeneratorNode(PulseGenerator pulseGenerator) throws ModelInterpreterException
 	{
 		
-		CompositeNode pulseGeneratorNode = new CompositeNode(pulseGenerator.getId(), Resources.PULSE_GENERATOR.get());
+		CompositeNode pulseGeneratorNode = new CompositeNode(pulseGenerator.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.PULSE_GENERATOR.get(), pulseGenerator));
 		
 		// Amplitude		
 		ParameterSpecificationNode amplitude = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.AMPLITUDE.getId(), Resources.AMPLITUDE.get(), pulseGenerator.getAmplitude());
