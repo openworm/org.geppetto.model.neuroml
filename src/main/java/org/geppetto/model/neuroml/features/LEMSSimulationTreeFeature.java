@@ -185,9 +185,9 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 					}
 					else
 					{
-						String populationName = cellId.substring(0, cellId.lastIndexOf("_"));
-						String populationInstance = cellId.substring(cellId.lastIndexOf("_") + 1);
-						instancePath = populationName + "[" + populationInstance + "].";
+//						String populationName = cellId.substring(0, cellId.lastIndexOf("_"));
+//						String populationInstance = cellId.substring(cellId.lastIndexOf("_") + 1);
+//						instancePath = populationName + "[" + populationInstance + "].";
 					}
 
 					//Create path depending on the sort of path

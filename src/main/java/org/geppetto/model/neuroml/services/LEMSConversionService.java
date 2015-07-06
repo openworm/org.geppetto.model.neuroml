@@ -199,17 +199,34 @@ public class LEMSConversionService extends AConversion
 					for(IInstancePath watchedVariable : aspectConfig.getWatchedVariables())
 					{
 						String localInstancePath = watchedVariable.getLocalInstancePath();
+						String subEntityPath = "";
+						
+						// Create output column component
 						Component outputColumn = new Component(localInstancePath.substring(localInstancePath.lastIndexOf(".") + 1), new ComponentType("OutputColumn"));
 						
+						// Create LEMS variable Path 
+						String quantity = "";
+						String[] splittedEntityInstancePath = watchedVariable.getEntityInstancePath().split("\\.");
+						if (splittedEntityInstancePath.length >1){
+							String entityPath = splittedEntityInstancePath[1];
+							
+							String populationName = entityPath.substring(0, entityPath.lastIndexOf("_"));
+							String populationInstance = entityPath.substring(entityPath.lastIndexOf("_") + 1);
+							
+							subEntityPath = populationName + "[" + populationInstance + "].";
+						}
+						
+						quantity += subEntityPath + localInstancePath;
+						quantity = quantity.replace(".", "/");
 						Component comp = LEMSAccessUtility.findLEMSComponent(lems.getComponents().getContents(), aspectConfig.getSimulatorConfiguration().getParameters().get("target"));
-						String quantity = localInstancePath.replace(".", "/");
 						if (LEMSAccessUtility.getSimulationTreePathType(comp).equals("populationList")){
 							quantity = quantity.replace("[", "/").replace("]","");
 						}
 						outputColumn.addAttribute(new XMLAttribute("quantity", quantity));
-						
+
+						//Add output column component to file
 						outputFile.addComponent(outputColumn);
-						variables += " " + localInstancePath;
+						variables += " " + watchedVariable.getInstancePath();
 					}
 				}
 				writer.println(variables);
