@@ -32,7 +32,6 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.features;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,10 +45,11 @@ import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
-import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
+import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.services.GeppettoFeature;
-import org.geppetto.model.neuroml.services.ModelFormat;
+import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.visitors.PopulateVisualTreeVisitor;
 import org.neuroml.model.BaseCell;
@@ -111,7 +111,7 @@ public class NeuroMLVisualTreeFeature implements IVisualTreeFeature{
 				}
 				
 			}else{
-				NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
+				NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
 				if (neuroml != null) {
 					_populateVisualTree.createNodesFromNeuroMLDocument(visualizationTree, neuroml, null, _visualizationNodes);
 					

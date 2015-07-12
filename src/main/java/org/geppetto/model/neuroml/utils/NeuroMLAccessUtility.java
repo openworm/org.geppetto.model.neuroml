@@ -9,7 +9,8 @@ import java.util.List;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.model.neuroml.services.ModelFormat;
+import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.AlphaCondSynapse;
@@ -121,7 +122,7 @@ public class NeuroMLAccessUtility
 	private Object getComponentById(String componentId, ModelWrapper model, Resources componentType) throws ContentError
 	{
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
-		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
+		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
 
 		switch(componentType)
 		{

@@ -1,7 +1,7 @@
 /*******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2011, 2013 OpenWorm.
+ * Copyright (c) 2011 - 2015 OpenWorm.
  * http://openworm.org
  *
  * All rights reserved. This program and the accompanying materials
@@ -30,61 +30,40 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package org.geppetto.model.neuroml.services;
+package org.geppetto.model.neuroml.test;
 
-import org.geppetto.core.services.IModelFormat;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.model.runtime.ParameterSpecificationNode;
+import org.geppetto.core.model.state.visitors.RuntimeTreeVisitor;
 
 /**
- * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
+ * Visitor used testing setting parameter specification nodes inside model tree.
+ * 
+ * @author  Jesus R. Martinez (jesus@metacell.us)
  *
  */
-public enum ModelFormat implements IModelFormat
-{
+public class TestParametersVisitor extends RuntimeTreeVisitor{
 
-	NEUROML("NeuroML"),
-	LEMS("LEMS"),
+	private static Log _logger = LogFactory.getLog(TestParametersVisitor.class);
 
-	//LEMS
-	C("C"),
-	DLEMS("DLEMS"),
-	MATLAB("MATLAB"),
-	MODELICA("MODELICA"),
-	SEDML("SEDML"),
-	//NEUROML
-	BRIAN("BRIAN"),
-	CELLML("CELLML"),
-	DN_SIM("DN_SIM"),
-	GRAPH_VIZ("GRAPH_VIZ"),
-	NEST("NEST"),
-	NEURON("NEURON"),
-	PYNN("PYNN"),
-	SBML("SBML"),
-	SVG("SVG"),
-	XINEML("XINEML"),
-	XPP("XPP");
-	
-	
-	private String _value;
-	
-	private ModelFormat(String value)
+	private Map<String, ParameterSpecificationNode> _parameters = new HashMap<String,ParameterSpecificationNode>();
+
+	/* (non-Javadoc)
+	 * @see org.geppetto.core.model.state.visitors.DefaultStateVisitor#inCompositeStateNode(org.geppetto.core.model.state.CompositeStateNode)
+	 */
+	@Override
+	public boolean visitParameterSpecificationNode(ParameterSpecificationNode node)
 	{
-		_value = value;
+		this._parameters.put(node.getInstancePath(),node);
+		return true;
 	}
-	
-	public String getExportValue()
-	{
-		return _value;
+
+	public Map<String, ParameterSpecificationNode> getParametersMap() {
+		return this._parameters;
 	}
-	
-	public static ModelFormat fromExportValue(String format) {
-	    if (format != null) {
-	      for (ModelFormat mf : ModelFormat.values()) {
-	        if (format.equalsIgnoreCase(mf.getExportValue())) {
-	          return mf;
-	        }
-	      }
-	    }
-	    return null;
-	  }
-	
 }

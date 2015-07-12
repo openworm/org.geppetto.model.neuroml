@@ -37,9 +37,11 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.features.IWatchableVariableListFeature;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.quantities.Unit;
 import org.geppetto.core.model.runtime.ACompositeNode;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
@@ -49,7 +51,8 @@ import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.VariableNode;
 import org.geppetto.core.services.GeppettoFeature;
-import org.geppetto.model.neuroml.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -57,7 +60,10 @@ import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.Lems;
+import org.neuroml.export.utils.Utils;
 import org.neuroml.model.BaseCell;
+import org.neuroml.model.Cell;
+import org.neuroml.model.Segment;
 import org.neuroml.model.util.NeuroMLException;
 
 /**
@@ -73,6 +79,9 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 	private Map<String, BaseCell> cellMapping;
 	private Map<String, EntityNode> mapping;
 
+	private String simulationTreePathType = "";
+	private Component targetComponent;
+
 	private GeppettoFeature type = GeppettoFeature.WATCHABLE_VARIABLE_LIST_FEATURE;
 
 	private static Log _logger = LogFactory.getLog(LEMSSimulationTreeFeature.class);
@@ -84,7 +93,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 	}
 
 	@Override
-	public boolean listWatchableVariables(AspectNode aspectNode) throws ModelInterpreterException
+	public boolean listWatchableVariables(AspectNode aspectNode, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
 	{
 		long start = System.currentTimeMillis();
 
@@ -96,7 +105,7 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 
 		mapping = (Map<String, EntityNode>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
 		cellMapping = (Map<String, BaseCell>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
-		lems = (Lems) ((ModelWrapper) aspectNode.getModel()).getModel(ModelFormat.LEMS);
+		lems = (Lems) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("LEMS"));
 		try
 		{
 			lems.setResolveModeLoose();
@@ -109,38 +118,99 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 			throw new ModelInterpreterException(e);
 		}
 
-		// Check if it is a entity (parse the whole document) or a subentity (create a component node from the cell element)
-		if(simulationTree.getParent().getParent().getParent().getId().equals("scene"))
+		try
 		{
+			// First we identify what sort of network/cell it is and depending on this we will generate the Simulation Tree format
+			targetComponent = lems.getComponent(aspectConfiguration.getSimulatorConfiguration().getParameters().get("target"));
+			simulationTreePathType = LEMSAccessUtility.getSimulationTreePathType(targetComponent);
+		}
+		catch(LEMSException e)
+		{
+			// FIXME: Throw proper exception
+			throw new ModelInterpreterException(e);
+		}
 
-			try
+		// Check if it is a entity and a network or a subentity (create a component node from the cell element)
+		if(simulationTree.getParent().getParent().getParent().getId().equals("scene") && cellMapping.size() > 1)
+		{
+			//Traverse for all the aspect nodes
+			for(Map.Entry<String, BaseCell> entry : cellMapping.entrySet())
 			{
-				Component simCpt = lems.getTarget().getComponent();
-				String targetId = simCpt.getStringValue("target");
-				Component tgtComp = lems.getComponent(targetId);
-				try
+				String key = entry.getKey();
+				BaseCell value = entry.getValue();
+
+				EntityNode entityNode = mapping.get(key);
+				for(AspectNode currentAspectNode : entityNode.getAspects())
 				{
-					extractWatchableVariables(tgtComp, "");
+					if(currentAspectNode.getId() == simulationTree.getParent().getId())
+					{
+						//Component cellComponent = lems.getComponent(value.getId());
+						this.simulationTree = (AspectSubTreeNode) currentAspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
+						this.simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
+
+						LEMSSimulationTreeFeature lemsSimulationTreeFeature = new LEMSSimulationTreeFeature();
+						lemsSimulationTreeFeature.setWatchTree(this.simulationTree);
+						lemsSimulationTreeFeature.listWatchableVariables(currentAspectNode, aspectConfiguration);
+						this.simulationTree.setModified(true);
+					}
 				}
-				catch(NeuroMLException | LEMSException e)
-				{
-					// FIXME: AQP Throw proper exception
-					throw new ModelInterpreterException(e);
-				}
-			}
-			catch(ContentError e)
-			{
-				// FIXME: Throw proper exception
-				throw new ModelInterpreterException(e);
 			}
 		}
 		else
 		{
 			try
 			{
-				BaseCell baseCell = cellMapping.get(simulationTree.getParent().getParent().getId());
-				Component cellComponent = lems.getComponent(baseCell.getId());
-				extractWatchableVariables(cellComponent, cellComponent.getID() + ".");
+				String cellId = simulationTree.getParent().getParent().getId();
+
+				BaseCell baseCell = cellMapping.get(cellId);
+				if(baseCell instanceof Cell)
+				{
+					Cell cell = (Cell) baseCell;
+					
+					//Look for the lems object
+					Component cellComponent = LEMSAccessUtility.findLEMSComponent(lems.getComponents().getContents(), baseCell.getId());
+
+					//Create path for cells and network
+					String instancePath = "";
+					if(cellMapping != null && cellMapping.size() == 1)
+					{
+						for(Component componentChild : targetComponent.getAllChildren())
+						{
+							if(componentChild.getDeclaredType().equals("population"))
+							{
+								instancePath = componentChild.getID() + "[0].";
+							}
+						}	
+						
+					}
+					else
+					{
+//						String populationName = cellId.substring(0, cellId.lastIndexOf("_"));
+//						String populationInstance = cellId.substring(cellId.lastIndexOf("_") + 1);
+//						instancePath = populationName + "[" + populationInstance + "].";
+					}
+
+					//Create path depending on the sort of path
+					if(simulationTreePathType.equals("populationList"))
+					{
+						for(Segment segment : cell.getMorphology().getSegment())
+						{
+							String relativePath = cellComponent.getID() + "[" + segment.getId() + "].";
+							extractWatchableVariables(cellComponent, instancePath + relativePath);
+						}
+					}
+					else
+					{
+						extractWatchableVariables(cellComponent, instancePath);
+					}
+
+				}
+				else
+				{
+					Component cellComponent = lems.getComponent(baseCell.getId());
+					extractWatchableVariables(cellComponent, cellComponent.getID() + ".");
+				}
+
 			}
 			catch(NeuroMLException | LEMSException e)
 			{
@@ -156,59 +226,32 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 
 	public void extractWatchableVariables(Component component, String instancePath) throws NeuroMLException, LEMSException, ModelInterpreterException
 	{
-		// Generate Simulation Tree for Subentities (We don't as network as it has been implicit added through the entities structure)
-		if(cellMapping != null && cellMapping.size() > 1 && (component.getComponentType().getName().equals("population") || component.getComponentType().getName().equals("populationList")))
+
+		for(Exposure exposure : component.getComponentType().getExposures())
 		{
-
-			for(Map.Entry<String, BaseCell> entry : cellMapping.entrySet())
-			{
-				String key = entry.getKey();
-				BaseCell value = entry.getValue();
-
-				EntityNode entityNode = mapping.get(key);
-				for(AspectNode aspectNode : entityNode.getAspects())
-				{
-					if(aspectNode.getId() == simulationTree.getParent().getId())
-					{
-
-						Component cellComponent = lems.getComponent(value.getId());
-						this.simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
-						this.simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
-
-						LEMSSimulationTreeFeature lemsSimulationTreeFeature = new LEMSSimulationTreeFeature();
-						lemsSimulationTreeFeature.setWatchTree(this.simulationTree);
-						lemsSimulationTreeFeature.extractWatchableVariables(cellComponent, cellComponent.getID() + ".");
-
-						this.simulationTree.setModified(true);
-					}
-				}
-			}
+			createWatchableVariableNode(instancePath, exposure);
 		}
-		else
+		for(Component componentChild : component.getAllChildren())
 		{
-			for(Exposure exposure : component.getComponentType().getExposures())
+			String relativePath = "";
+			if(!componentChild.getComponentType().getName().equals("morphology") && !componentChild.getComponentType().getName().equals("segment"))
 			{
-				createWatchableVariableNode(instancePath + exposure.getName());
+				relativePath = ((componentChild.getID() == null) ? componentChild.getTypeName() : componentChild.getID());
+				if(componentChild.getComponentType().getName().equals("population"))
+				{
+					relativePath += "[0]";
+				}
+				relativePath += ".";
 			}
-			for(Component componentChild : component.getAllChildren())
-			{
 
-				if(cellMapping != null && cellMapping.size() == 1 && componentChild.getComponentType().getName().equals("cell"))
-				{
-					// FIXME: This a quick and dirty solution but we have to define the way we would like to specify the variable to be watched in the runtime tree
-					String newInstancePath = instancePath.substring(0, instancePath.length() - 1) + "[0]" + ".";
-					extractWatchableVariables(componentChild, newInstancePath);
-				}
-				else
-				{
-					extractWatchableVariables(componentChild, instancePath + ((componentChild.getID() == null) ? componentChild.getTypeName() : componentChild.getID()) + ".");
-				}
-			}
+			extractWatchableVariables(componentChild, instancePath + relativePath);
 		}
 	}
 
-	public void createWatchableVariableNode(String watchableVariableInstancePath)
+	public void createWatchableVariableNode(String instancePath, Exposure exposure) throws NeuroMLException
 	{
+		String watchableVariableInstancePath = instancePath + exposure.getName();
+
 		StringTokenizer tokenizer = new StringTokenizer(watchableVariableInstancePath, ".");
 		ACompositeNode node = simulationTree;
 		while(tokenizer.hasMoreElements())
@@ -246,7 +289,14 @@ public class LEMSSimulationTreeFeature implements IWatchableVariableListFeature
 				{
 					// it's a leaf node
 					VariableNode newNode = new VariableNode(current);
-					// newNode.setId(current);
+
+					String unit = Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol();
+					if(unit.equals("none"))
+					{
+						unit = "";
+					}
+					newNode.setUnit(new Unit(unit));
+
 					node.addChild(newNode);
 				}
 			}
