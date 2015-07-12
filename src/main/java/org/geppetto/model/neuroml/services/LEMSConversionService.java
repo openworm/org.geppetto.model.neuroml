@@ -41,6 +41,7 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.conversion.AConversion;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
@@ -49,7 +50,6 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
-import org.geppetto.core.utilities.URLReader;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.lemsml.export.base.IBaseWriter;
 import org.lemsml.jlems.core.expression.ParseError;
@@ -59,12 +59,10 @@ import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.LemsCollection;
-import org.lemsml.jlems.core.type.Target;
 import org.lemsml.jlems.core.xml.XMLAttribute;
 import org.neuroml.export.utils.ExportFactory;
 import org.neuroml.export.utils.Format;
 import org.neuroml.export.utils.SupportedFormats;
-import org.neuroml.model.Base;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.stereotype.Service;
 
@@ -164,7 +162,7 @@ public class LEMSConversionService extends AConversion
 		try
 		{
 			// Create Folder
-			File outputFolder = URLReader.createProjectFolder(output, this.getConvertedResultsPath());
+			File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId, PathConfiguration.getName(this.getConvertedResultsFolderName(),true));
 
 			// FIXME: When we can convert models without targets this needs to be changed
 

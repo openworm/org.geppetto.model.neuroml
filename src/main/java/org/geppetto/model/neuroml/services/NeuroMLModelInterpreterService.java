@@ -51,6 +51,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.model.AModelInterpreter;
@@ -70,7 +71,6 @@ import org.geppetto.core.model.simulation.ConnectionType;
 import org.geppetto.core.model.values.StringValue;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
-import org.geppetto.core.utilities.URLReader;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
@@ -618,7 +618,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			try
 			{
 				// Create file and folder
-				File outputFolder = URLReader.createProjectFolder(format, getPathConfiguration().getConvertedResultsPath());
+				File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId, PathConfiguration.getName(format.getModelFormat()+ PathConfiguration.convertedResultsPath,true));
 				String outputFile = ((URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID)).getPath();
 
 				// Serialise objects

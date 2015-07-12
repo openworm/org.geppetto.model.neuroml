@@ -45,6 +45,7 @@ import java.util.UUID;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.model.AModelInterpreter;
@@ -55,7 +56,6 @@ import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
-import org.geppetto.core.utilities.URLReader;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
 import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
@@ -216,7 +216,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			try
 			{
 				// Create file and folder
-				File outputFolder = URLReader.createProjectFolder(format, getPathConfiguration().getConvertedResultsPath());
+				File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId, PathConfiguration.getName(format.getModelFormat()+ PathConfiguration.downloadModelFolderName,true));
 				String outputFile = ((URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID)).getPath();
 
 				// Serialise objects
