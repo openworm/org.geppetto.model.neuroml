@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.quantities.PhysicalQuantity;
+import org.geppetto.core.model.quantities.Unit;
 import org.geppetto.core.model.runtime.ACompositeNode;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AVisualObjectNode;
@@ -560,7 +561,7 @@ public class PopulateVisualTreeVisitor
 						{
 							PhysicalQuantity physicalQuantity = new PhysicalQuantity();
 							physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
-							physicalQuantity.setUnit(matcher.group(2));
+							physicalQuantity.setUnit(new Unit(matcher.group(2)));
 							element.setParameter(physicalQuantity);
 						}
 
@@ -588,7 +589,7 @@ public class PopulateVisualTreeVisitor
 						{
 							PhysicalQuantity physicalQuantity = new PhysicalQuantity();
 							physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
-							physicalQuantity.setUnit(matcher.group(2));
+							physicalQuantity.setUnit(new Unit(matcher.group(2)));
 							element.setParameter(physicalQuantity);
 						}
 

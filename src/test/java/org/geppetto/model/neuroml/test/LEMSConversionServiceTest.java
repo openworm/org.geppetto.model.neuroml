@@ -37,18 +37,25 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Assert;
 
+import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.conversion.ConversionException;
+import org.geppetto.core.data.model.local.LocalAspectConfiguration;
+import org.geppetto.core.data.model.local.LocalSimulatorConfiguration;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.services.IModelFormat;
+import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.services.LEMSConversionService;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
-import org.geppetto.model.neuroml.services.ModelFormat;
+import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lemsml.jlems.api.LEMSBuildException;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -59,6 +66,20 @@ import org.lemsml.jlems.core.sim.LEMSException;
  */
 public class LEMSConversionServiceTest
 {
+	//FIXME: We have to use OSGI text or spring app context initialization
+	@BeforeClass
+	public static void initializeServiceRegistry() throws Exception
+	{
+		LEMSConversionService lemsConversionService = new LEMSConversionService();
+		lemsConversionService.registerGeppettoService();
+		
+		LEMSModelInterpreterService lemsModelInterpreter = new LEMSModelInterpreterService();
+		lemsModelInterpreter.registerGeppettoService();
+		
+		NeuroMLModelInterpreterService neuromlModelInterpreter = new NeuroMLModelInterpreterService();
+		neuromlModelInterpreter.registerGeppettoService();
+	}
+
 
 	/**
 	 * "" Test method for {@link org.geppetto.model.neuroml.services.LEMSConversionService#readModel(java.net.URL)}.
@@ -78,9 +99,12 @@ public class LEMSConversionServiceTest
 		URL url = new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml");
 
 		ModelWrapper modelWrapper = (ModelWrapper) modelInterpreter.readModel(url, null, "");
-		ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ModelFormat.LEMS, ModelFormat.NEURON);
 		
-		String outputFileName = (String) outputModel.getModel(ModelFormat.NEURON);
+		Map<String,String> parametersSimulatorConfiguration = new HashMap<String, String>(){{put("target","net1");}};
+		LocalSimulatorConfiguration localSimulatorConfiguration = new LocalSimulatorConfiguration(0, "0", "0", 0.05f, 300f, parametersSimulatorConfiguration);
+		ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ServicesRegistry.getModelFormat("LEMS"), ServicesRegistry.getModelFormat("NEURON"), new LocalAspectConfiguration(0, null, null, null, localSimulatorConfiguration));
+		
+		String outputFileName = (String) outputModel.getModel(ServicesRegistry.getModelFormat("NEURON"));
 		File file = new File(outputFileName);
 		assertTrue(file.exists());
 
@@ -104,9 +128,11 @@ public class LEMSConversionServiceTest
 		URL url = new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml");
 
 		ModelWrapper modelWrapper = (ModelWrapper) modelInterpreter.readModel(url, null, "");
-		for (IModelFormat modelFormat : lemsConversionService.getSupportedOutputs(modelWrapper, ModelFormat.LEMS)){
-			System.out.println(modelFormat);
-			ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ModelFormat.LEMS, modelFormat);
+		for (ModelFormat modelFormat : lemsConversionService.getSupportedOutputs(modelWrapper, ServicesRegistry.getModelFormat("LEMS"))){
+			
+			Map<String,String> parametersSimulatorConfiguration = new HashMap<String, String>(){{put("target","net1");}};
+			LocalSimulatorConfiguration localSimulatorConfiguration = new LocalSimulatorConfiguration(0, "0", "0", 0.05f, 300f, parametersSimulatorConfiguration);
+			ModelWrapper outputModel = (ModelWrapper) lemsConversionService.convert(modelWrapper, ServicesRegistry.getModelFormat("LEMS"), modelFormat, new LocalAspectConfiguration(0, null, null, null, localSimulatorConfiguration));
 			
 			String outputFileName = (String) outputModel.getModel(modelFormat);
 			File file = new File(outputFileName);
@@ -134,16 +160,16 @@ public class LEMSConversionServiceTest
 
 		ModelWrapper modelWrapper = (ModelWrapper) modelInterpreter.readModel(url, null, "");
 
-		List<IModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
+		List<ModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
 		Assert.assertTrue(modelFormats.size() > 0 );
 		
-		modelFormats = lemsConversionService.getSupportedOutputs(modelWrapper, ModelFormat.LEMS);
+		modelFormats = lemsConversionService.getSupportedOutputs(modelWrapper, ServicesRegistry.getModelFormat("LEMS"));
 		Assert.assertTrue(modelFormats.size() > 0 );
 	}
 
 	@AfterClass
     public static void teardown() throws Exception {
-		File tmp = new File(System.getProperty("user.dir")+"/geppettoTmp");
+		File tmp = new File(PathConfiguration.getPathInTempFolder(""));
 		if(tmp.exists()){
 			deleteDirectory(tmp);
 		}

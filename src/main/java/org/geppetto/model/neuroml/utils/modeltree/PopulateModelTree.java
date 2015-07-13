@@ -47,11 +47,13 @@ import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.EntityNode;
+import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.values.StringValue;
-import org.geppetto.model.neuroml.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.visitors.TrackParameterSpecsNodesVisitors;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.ParamValue;
@@ -70,6 +72,7 @@ import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.Network;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
@@ -87,10 +90,28 @@ public class PopulateModelTree {
 	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils();
 	
 	private static Log _logger = LogFactory.getLog(PopulateModelTree.class);
+
+	private Map<String, ParameterSpecificationNode> _parameterNodes = 
+			new HashMap<String, ParameterSpecificationNode>();
+	private Map<ParameterSpecificationNode, Object> _parametersToMethodsMap=
+		new HashMap<ParameterSpecificationNode,Object>();
+	private Map<ParameterSpecificationNode, Object> _parametersToObjectssMap=
+			new HashMap<ParameterSpecificationNode,Object>();
 	
 	public PopulateModelTree() {		
 	}
 	
+	public Map<String, ParameterSpecificationNode> getParametersNode(){
+		return _parameterNodes ;
+	}
+	
+	public Map<ParameterSpecificationNode,Object> getParametersNodeToMethodsMap(){
+		return _parametersToMethodsMap ;
+	}
+	
+	public Map<ParameterSpecificationNode,Object> getParametersNodeToObjectsMap(){
+		return _parametersToObjectssMap ;
+	}
 	/**
 	 * Method that is contacted to start populating the model tree
 	 * 
@@ -103,7 +124,7 @@ public class PopulateModelTree {
 	{		
 		long start = System.currentTimeMillis();
 		
-		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ModelFormat.NEUROML);
+		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
 
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
 		Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
@@ -198,6 +219,10 @@ public class PopulateModelTree {
 					{
 						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createBiophysicalPropertiesNode((BiophysicalProperties)element));
 					}
+					else if(element instanceof PulseGenerator)
+					{
+						_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createPulseGeneratorNode((PulseGenerator)element));
+					}
 					else if(element instanceof Network)
 					{
 						if (mapping.size() == 1){
@@ -256,6 +281,13 @@ public class PopulateModelTree {
 			}
 			
 	 		_populated = true;
+	 		
+	 		//store parameter specs nodes in map for easy access using visitor
+	 		TrackParameterSpecsNodesVisitors visitor = new TrackParameterSpecsNodesVisitors();
+	 		modelTree.apply(visitor);
+	 		this._parameterNodes = visitor.getParametersMap();
+	 		this._parametersToObjectssMap = this.populateNeuroMLModelTreeUtils.getParametersNodeToObjectsMap();
+	 		this._parametersToMethodsMap = this.populateNeuroMLModelTreeUtils.getParametersNodeToMethodsMap();
 		} catch (Exception e) {
 			_populated = false;
 			throw new ModelInterpreterException(e);

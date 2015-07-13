@@ -11,33 +11,24 @@
        						http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
 
 
-	<osgi:service id="NeuroMLModelExporter" ref="neuroMLModelInterpreterService"
+	<osgi:service id="NeuroMLModelExporter" ref="neuroMLModelInterpreter"
 		interface="org.geppetto.core.model.IModelInterpreter">
-		<osgi:service-properties>
-			<entry key="discoverableID" value="neuroMLModelInterpreter" />
-		</osgi:service-properties>
 	</osgi:service>
-	<bean id="neuroMLModelInterpreterService" scope="thread" class="org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService">
+	<bean id="neuroMLModelInterpreter" scope="prototype" class="org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService">
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	
-	<osgi:service id="LEMSModelExporter" ref="LEMSModelInterpreterService"
+	<osgi:service id="LEMSModelExporter" ref="lemsModelInterpreter"
 		interface="org.geppetto.core.model.IModelInterpreter">
-		<osgi:service-properties>
-			<entry key="discoverableID" value="lemsModelInterpreter" />
-		</osgi:service-properties>
 	</osgi:service>
-	<bean id="LEMSModelInterpreterService" scope="thread" class="org.geppetto.model.neuroml.services.LEMSModelInterpreterService">
+	<bean id="lemsModelInterpreter" scope="prototype" class="org.geppetto.model.neuroml.services.LEMSModelInterpreterService">
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	
-	<osgi:service id="LEMSConversionExporter" ref="LEMSConversionService"
+	<osgi:service id="LEMSConversionExporter" ref="lemsConversion"
 		interface="org.geppetto.core.conversion.IConversion">
-		<osgi:service-properties>
-			<entry key="discoverableID" value="lemsConversion" />
-		</osgi:service-properties>
 	</osgi:service>
-	<bean id="LEMSConversionService" scope="thread" class="org.geppetto.model.neuroml.services.LEMSConversionService">
+	<bean id="lemsConversion" scope="prototype" class="org.geppetto.model.neuroml.services.LEMSConversionService">
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	

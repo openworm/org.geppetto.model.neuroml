@@ -49,10 +49,12 @@ public class OptimizedLEMSReader
 
 	private StringBuffer _LEMSString;
 	private StringBuffer _neuroMLString;
+	private List<URL> dependentModels;
 
-	public OptimizedLEMSReader() throws NeuroMLException
+	public OptimizedLEMSReader(List<URL> dependentModels) throws NeuroMLException
 	{
 		super();
+		this.dependentModels=dependentModels;
 	}
 
 	/**
@@ -68,6 +70,7 @@ public class OptimizedLEMSReader
 		try
 		{
 			long start = System.currentTimeMillis();
+			dependentModels.add(url);
 			Map<NMLDOCTYPE, StringBuffer> returned = processLEMSInclusions(URLReader.readStringFromURL(url), urlBase, type);
 			_neuroMLString = returned.get(NMLDOCTYPE.NEUROML);
 			_LEMSString = returned.get(NMLDOCTYPE.LEMS);
@@ -140,12 +143,12 @@ public class OptimizedLEMSReader
 
 			// Let's figure out if it's a NML document or a LEMS one
 			NMLDOCTYPE inclusionType = null;
-			if(urlPath.endsWith(".nml"))
+			if(urlPath.endsWith(".nml") || urlPath.endsWith(".nml?dl=1"))
 			{
 				inclusionType = NMLDOCTYPE.NEUROML;
 				_includeNeuroML = true; // if we find any NML inclusion we'll have to add the neuroml definitions
 			}
-			else if(urlPath.endsWith(".xml"))
+			else if(urlPath.endsWith(".xml") || urlPath.endsWith(".xml?dl=1"))
 			{
 				inclusionType = NMLDOCTYPE.LEMS;
 			}
@@ -183,6 +186,7 @@ public class OptimizedLEMSReader
 					try
 					{
 						_inclusions.add(urlPath);
+						dependentModels.add(new URL(urlPath));
 						String s = URLReader.readStringFromURL(url);
 						
 						//If it is file and is not found, try to read at url base + file name

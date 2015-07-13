@@ -33,33 +33,33 @@
 package org.geppetto.model.neuroml.services;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.conversion.AConversion;
 import org.geppetto.core.conversion.ConversionException;
+import org.geppetto.core.data.model.IAspectConfiguration;
+import org.geppetto.core.data.model.IInstancePath;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.services.IModelFormat;
+import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.lemsml.export.base.IBaseWriter;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
+import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.Lems;
-import org.lemsml.jlems.core.type.Target;
-import org.lemsml.jlems.core.util.StringUtil;
-import org.neuroml.export.exceptions.GenerationException;
-import org.neuroml.export.exceptions.ModelFeatureSupportException;
+import org.lemsml.jlems.core.type.LemsCollection;
+import org.lemsml.jlems.core.xml.XMLAttribute;
 import org.neuroml.export.utils.ExportFactory;
 import org.neuroml.export.utils.Format;
 import org.neuroml.export.utils.SupportedFormats;
@@ -75,39 +75,69 @@ public class LEMSConversionService extends AConversion
 {
 
 	private static Log _logger = LogFactory.getLog(LEMSConversionService.class);
-	
+
 	@Override
-	public List<IModelFormat> getSupportedInputs() throws ConversionException
+	public List<ModelFormat> getSupportedInputs() throws ConversionException
 	{
-		return new ArrayList<IModelFormat>(Arrays.asList(ModelFormat.LEMS));
+		return new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.getModelFormat("LEMS")));
 	}
 
 	@Override
-	public List<IModelFormat> getSupportedOutputs() throws ConversionException
+	public void registerGeppettoService() throws ConversionException
+	{
+		// Input Model Format
+		List<ModelFormat> inputModelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("LEMS")));
+
+		// Output Model Formats
+		List<ModelFormat> outputModelFormats = new ArrayList<ModelFormat>();
+		for(Format format : SupportedFormats.getSupportedOutputs())
+		{
+			// Convert from export formats to Geppetto formats
+			ModelFormatMapping modelFormatMapping = ModelFormatMapping.fromExportValue(format.toString());
+			if(modelFormatMapping != null)
+			{
+				ModelFormat modelFormat = ServicesRegistry.registerModelFormat(modelFormatMapping.name());
+				if(modelFormat != null) outputModelFormats.add(modelFormat);
+			}
+		}
+
+		ServicesRegistry.registerConversionService(this, inputModelFormats, outputModelFormats);
+	}
+
+	@Override
+	public List<ModelFormat> getSupportedOutputs() throws ConversionException
 	{
 		_logger.info("Getting supported outputs");
-		List<IModelFormat> modelFormats = new ArrayList<IModelFormat>(); 
-		for (Format format : SupportedFormats.getSupportedOutputs()){
+		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
+
+		for(Format format : SupportedFormats.getSupportedOutputs())
+		{
 			// Convert from export formats to Geppetto formats
-			IModelFormat modelFormat = ModelFormat.fromExportValue(format.toString());
-			if (modelFormat != null) modelFormats.add(modelFormat);
+			ModelFormatMapping modelFormatMapping = ModelFormatMapping.fromExportValue(format.toString());
+			if(modelFormatMapping != null)
+			{
+				ModelFormat modelFormat = ServicesRegistry.getModelFormat(modelFormatMapping.name());
+				if(modelFormat != null) modelFormats.add(modelFormat);
+			}
 		}
 		return modelFormats;
 	}
 
 	@Override
-	public List<IModelFormat> getSupportedOutputs(IModel model, IModelFormat input) throws ConversionException
+	public List<ModelFormat> getSupportedOutputs(IModel model, ModelFormat input) throws ConversionException
 	{
 		_logger.info("Getting supported outputs for a specific model and input format " + input);
+		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
+
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(input);
 		processLems(lems);
-		List<IModelFormat> modelFormats = new ArrayList<IModelFormat>(); 
 		try
 		{
-			for (Format format : SupportedFormats.getSupportedOutputs(lems)){
+			for(Format format : SupportedFormats.getSupportedOutputs(lems))
+			{
 				// Convert from export formats to Geppetto formats
-				ModelFormat modelFormat = ModelFormat.fromExportValue(format.toString());
-				if (modelFormat != null) modelFormats.add(modelFormat);
+				ModelFormat modelFormat = ServicesRegistry.getModelFormat(ModelFormatMapping.fromExportValue(format.toString()).name());
+				if(modelFormat != null) modelFormats.add(modelFormat);
 			}
 		}
 		catch(NeuroMLException | LEMSException e)
@@ -119,67 +149,113 @@ public class LEMSConversionService extends AConversion
 	}
 
 	@Override
-	public IModel convert(IModel model, IModelFormat input, IModelFormat output) throws ConversionException
+	public IModel convert(IModel model, ModelFormat input, ModelFormat output, IAspectConfiguration aspectConfig) throws ConversionException
 	{
-		_logger.info("Converting model from " + input + " to " + output);
-		//checkSupportedFormat(input);
+		_logger.info("Converting model from " + input.getModelFormat() + " to " + output.getModelFormat());
+		// checkSupportedFormat(input);
 
-		//Read lems
-		Lems lems = (Lems) ((ModelWrapper) model).getModel(ModelFormat.LEMS);
+		// Read lems
+		Lems lems = (Lems) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("LEMS"));
 		processLems(lems);
 
 		ModelWrapper outputModel = new ModelWrapper(UUID.randomUUID().toString());
 		try
 		{
-			//Create Folder
-			String tmpFolder = output.toString() + new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
-			File outputFolder = new File(this.getConvertedResultsPath(), tmpFolder);
-			if(!outputFolder.exists()) outputFolder.mkdirs();
-			//This only works in linux
-//			Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxrwx--x");
-//		    FileAttribute<Set<PosixFilePermission>> fileAttributes = PosixFilePermissions.asFileAttribute(perms);
-//			Path tmpFolder = Files.createTempDirectory(outputFolder.toPath(), output.toString(), new FileAttribute<?>[0]);
+			// Create Folder
+			File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId, PathConfiguration.getName(output.getModelFormat()+ PathConfiguration.downloadModelFolderName,true));
 
-			// Writing mapping file for variables and file/column
+			// FIXME: When we can convert models without targets this needs to be changed
+
+			// Extracting watch variables from aspect configuration
+			// Delete any output file block
 			PrintWriter writer = new PrintWriter(outputFolder + "/outputMapping.dat");
 			
-			Target target = lems.getTarget();
-            Component simCpt = target.getComponent();
-			for(Component ofComp : simCpt.getAllChildren())
-            {
-                if(ofComp.getTypeName().equals("OutputFile"))
-                {
-                	// Probably we should delete results path 
-                	//String fileName = ofComp.getTextParam("fileName").substring(ofComp.getTextParam("fileName").lastIndexOf('/') + 1);
-                	String fileName = ofComp.getTextParam("fileName");
-                	writer.println(fileName);
-                	
-                	String variables = "time";
-                	for(Component colComp: ofComp.getAllChildren())
-                    {
-                        if(colComp.getTypeName().equals("OutputColumn"))
-                        {
-                        	variables += " " + colComp.getStringValue("quantity");
-                        }
-                    }
-                	writer.println(variables.replace("/", "."));
-                }
-            }   
+			if(lems.getTargets().size() > 0)
+			{
+				// Delete previous simulation component from LEMS. Not sure if this is needed
+				LemsCollection<Component> lemsComponent = lems.getComponents();
+				lemsComponent.getContents().remove(lems.getTarget().getComponent());
+			}
+
+			if(aspectConfig != null)
+			{
+				// FIXME: Units in seconds
+				Component simulationComponent = new Component("sim1", new ComponentType("Simulation"));
+				simulationComponent.addAttribute(new XMLAttribute("length", Float.toString(aspectConfig.getSimulatorConfiguration().getLength()) + "s"));
+				simulationComponent.addAttribute(new XMLAttribute("step", Float.toString(aspectConfig.getSimulatorConfiguration().getTimestep()) + "s"));
+				simulationComponent.addAttribute(new XMLAttribute("target", aspectConfig.getSimulatorConfiguration().getParameters().get("target")));
+
+				// Create output file component and add file to outputmapping file
+				Component outputFile = new Component("outputFile1", new ComponentType("OutputFile"));
+				outputFile.addAttribute(new XMLAttribute("fileName", "results/results.dat"));
+				writer.println("results/results.dat");
+
+				// Add outputcolumn and variable to outputmapping file per watch variable
+				String variables = "time";
+				if(aspectConfig.getWatchedVariables() != null)
+				{
+					for(IInstancePath watchedVariable : aspectConfig.getWatchedVariables())
+					{
+						String localInstancePath = watchedVariable.getLocalInstancePath();
+						String subEntityPath = "";
+						
+						// Create output column component
+						Component outputColumn = new Component(localInstancePath.substring(localInstancePath.lastIndexOf(".") + 1), new ComponentType("OutputColumn"));
+						
+						// Create LEMS variable Path 
+						String quantity = "";
+						String[] splittedEntityInstancePath = watchedVariable.getEntityInstancePath().split("\\.");
+						if (splittedEntityInstancePath.length >1){
+							String entityPath = splittedEntityInstancePath[1];
+							
+							String populationName = entityPath.substring(0, entityPath.lastIndexOf("_"));
+							String populationInstance = entityPath.substring(entityPath.lastIndexOf("_") + 1);
+							
+							subEntityPath = populationName + "[" + populationInstance + "].";
+						}
+						
+						quantity += subEntityPath + localInstancePath;
+						quantity = quantity.replace(".", "/");
+						Component comp = LEMSAccessUtility.findLEMSComponent(lems.getComponents().getContents(), aspectConfig.getSimulatorConfiguration().getParameters().get("target"));
+						if (LEMSAccessUtility.getSimulationTreePathType(comp).equals("populationList")){
+							quantity = quantity.replace("[", "/").replace("]","");
+						}
+						outputColumn.addAttribute(new XMLAttribute("quantity", quantity));
+
+						//Add output column component to file
+						outputFile.addComponent(outputColumn);
+						variables += " " + watchedVariable.getInstancePath();
+					}
+				}
+				writer.println(variables);
+
+				// Add block to lems and process lems doc
+				simulationComponent.addComponent(outputFile);
+				lems.addComponent(simulationComponent);
+				lems.setTargetComponent(simulationComponent);
+				processLems(lems);
+
+			}
+
 			writer.close();
-			
-			
-			//FIXME: the py extension can be added inside.
-			String outputFileName = "main_script.py"; 
-			
-			//Convert model
-			IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormat.valueOf(output.toString()).getExportValue());
-			List<File> outputFiles = exportWriter.convert();
-			
-			//Create model from converted model
-			outputModel.wrapModel(output, outputFolder + System.getProperty("file.separator") + outputFileName);
+
+			String outputFileName="";
+			if(convertModel)
+			{
+				// FIXME: the py extension can be added inside.
+				outputFileName = "main_script.py";
+
+				// Convert model
+				IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormatMapping.valueOf(output.getModelFormat()).getExportValue());
+				List<File> outputFiles = exportWriter.convert();
+			}
+
+			// Create model from converted model, if we are not converting we send the outputFolder
+			outputModel.wrapModel(output, outputFolder + File.separator + outputFileName);
 		}
-		catch(GenerationException | IOException | ModelFeatureSupportException | NeuroMLException | LEMSException e)
+		catch(Exception e)
 		{
+			e.printStackTrace();
 			throw new ConversionException(e);
 		}
 
