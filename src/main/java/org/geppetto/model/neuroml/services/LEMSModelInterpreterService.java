@@ -48,6 +48,7 @@ import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
+import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
@@ -255,6 +256,8 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 
 			// Call conversion service
 			LEMSConversionService lemsConversionService = new LEMSConversionService();
+			lemsConversionService.setProjectId(projectId);
+			lemsConversionService.setScope(Scope.CONNECTION);
 			ModelWrapper outputModel = null;
 			try
 			{

@@ -162,7 +162,7 @@ public class LEMSConversionService extends AConversion
 		try
 		{
 			// Create Folder
-			File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId, PathConfiguration.getName(this.getConvertedResultsFolderName(),true));
+			File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId, PathConfiguration.getName(output.getModelFormat()+ PathConfiguration.downloadModelFolderName,true));
 
 			// FIXME: When we can convert models without targets this needs to be changed
 
