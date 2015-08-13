@@ -306,7 +306,6 @@ public class OptimizedLEMSReader
 	private String cleanLEMSNeuroMLDocument(String lemsString)
 	{
 		String smallerLemsString = lemsString.replaceAll("(?s)<!--.*?-->", ""); // remove comments
-		smallerLemsString = smallerLemsString.replaceAll("<notes>([\\s\\S]*?)</notes>", ""); // remove notes
 		smallerLemsString = smallerLemsString.replaceAll("(?m)^[ \t]*\r?\n", "").trim();// remove empty lines
 		return smallerLemsString;
 	}
