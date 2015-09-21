@@ -56,78 +56,88 @@ import org.neuroml.model.BaseCell;
 import org.neuroml.model.NeuroMLDocument;
 
 /**
- * Populates visual tree for an aspect, given a NeuroMLDocument object
- * to extract visualization objects from.
+ * Populates visual tree for an aspect, given a NeuroMLDocument object to extract visualization objects from.
  * 
  * @author Jesus R Martinez (jesus@metacell.us)
  *
  */
-public class NeuroMLVisualTreeFeature implements IVisualTreeFeature{
+public class NeuroMLVisualTreeFeature implements IVisualTreeFeature
+{
 
 	private static Log _logger = LogFactory.getLog(NeuroMLVisualTreeFeature.class);
 
 	private Map<String, List<ANode>> _visualizationNodes = null;
-	
+
 	private PopulateVisualTreeVisitor _populateVisualTree = new PopulateVisualTreeVisitor();
 	private GeppettoFeature type = GeppettoFeature.VISUAL_TREE_FEATURE;
 
-	public NeuroMLVisualTreeFeature() {
+	public NeuroMLVisualTreeFeature()
+	{
 		_visualizationNodes = new HashMap<String, List<ANode>>();
 	}
 
 	@Override
-	public GeppettoFeature getType() {
-		return type ;
+	public GeppettoFeature getType()
+	{
+		return type;
 	}
-	
+
 	/*
 	 * Populates visualization for aspect
 	 * 
-	 * @see
-	 * org.geppetto.core.simulator.ISimulator#populateVisualTree(org.geppetto
-	 * .core.model.runtime.AspectNode)
+	 * @see org.geppetto.core.simulator.ISimulator#populateVisualTree(org.geppetto .core.model.runtime.AspectNode)
 	 */
 	@Override
-	public boolean populateVisualTree(AspectNode aspectNode) throws ModelInterpreterException {
+	public boolean populateVisualTree(AspectNode aspectNode) throws ModelInterpreterException
+	{
 
-		long start=System.currentTimeMillis();
+		long start = System.currentTimeMillis();
 		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
 
 		IModel model = aspectNode.getModel();
 		Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
 
 		String parentEntityID = aspectNode.getParent().getId();
-		
+
 		BaseCell cell = cellMapping.get(parentEntityID);
-		try {
-			if (cell != null) {
-				
+		try
+		{
+			if(cell != null)
+			{
+
 				// create visual object for this instance
 				List<ANode> visualObjects = _populateVisualTree.getVisualObjectForCell(cell, cell.getId(), visualizationTree, null);
-				
+
 				// add visual object to appropriate sub entity
-				for (ANode visualObject : visualObjects){
+				for(ANode visualObject : visualObjects)
+				{
 					visualizationTree.addChild(visualObject);
 				}
-				
-			}else{
+
+			}
+			else
+			{
 				NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
-				if (neuroml != null) {
+				if(neuroml != null)
+				{
 					_populateVisualTree.createNodesFromNeuroMLDocument(visualizationTree, neuroml, null, _visualizationNodes);
-					
-					//If a cell is not part of a network or there is not a target component, add it to to the visualizationtree
-					for (List<ANode> visualizationNodesItem : _visualizationNodes.values()){
+
+					// If a cell is not part of a network or there is not a target component, add it to to the visualizationtree
+					for(List<ANode> visualizationNodesItem : _visualizationNodes.values())
+					{
 						visualizationTree.addChildren(visualizationNodesItem);
 					}
-				}	
+				}
 			}
 			visualizationTree.setModified(true);
 			aspectNode.setModified(true);
 			((EntityNode) aspectNode.getParentEntity()).updateParentEntitiesFlags(true);
-		} catch (Exception e) {
+		}
+		catch(Exception e)
+		{
 			throw new ModelInterpreterException(e);
 		}
-		_logger.info("Populate visual tree completed, took "+(System.currentTimeMillis()-start)+"ms");
+		_logger.info("Populate visual tree completed, took " + (System.currentTimeMillis() - start) + "ms");
 		return true;
 	}
 }
