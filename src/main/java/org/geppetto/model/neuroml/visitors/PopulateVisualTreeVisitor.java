@@ -617,7 +617,7 @@ public class PopulateVisualTreeVisitor
 			for(Member i : g.getMember())
 			{
 				// segment found
-				String segmentID = i.getSegment().toString();
+				String segmentID = getVisualObjectIdentifier(i.getSegment().toString());
 				// segment not in map, add with new list for groups
 				if(!segmentsMap.containsKey(segmentID))
 				{
@@ -675,7 +675,7 @@ public class PopulateVisualTreeVisitor
 
 			for(ANode g : segments)
 			{
-				if(((AVisualObjectNode) g).getId().equals("vo"+m.getSegment().toString()))
+				if(((AVisualObjectNode) g).getId().equals(getVisualObjectIdentifier(m.getSegment().toString())))
 				{
 					geometries.add((AVisualObjectNode) g);
 				}
@@ -711,13 +711,13 @@ public class PopulateVisualTreeVisitor
 			SphereNode sphere = new SphereNode(s.getName());
 			sphere.setRadius(proximal.getDiameter() / 2);
 			sphere.setPosition(getPoint(proximal));
-			sphere.setId("vo"+s.getId().toString());
+			sphere.setId(getVisualObjectIdentifier(s.getId().toString()));
 			return sphere;
 		}
 		else
 		{
 			CylinderNode cyl = new CylinderNode(s.getName());
-			cyl.setId("vo"+s.getId().toString());
+			cyl.setId(getVisualObjectIdentifier(s.getId().toString()));
 			if(proximal != null)
 			{
 				cyl.setPosition(getPoint(proximal));
@@ -758,4 +758,14 @@ public class PopulateVisualTreeVisitor
 		point.setZ(location.getZ().doubleValue());
 		return point;
 	}
+	
+	/**
+	 * @param neuromlID
+	 * @return
+	 */
+	private String getVisualObjectIdentifier(String neuromlID)
+	{
+		return "vo"+neuromlID;
+	}
+	
 }
