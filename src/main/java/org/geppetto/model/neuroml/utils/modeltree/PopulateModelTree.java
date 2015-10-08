@@ -72,6 +72,8 @@ import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.Network;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.Population;
+import org.neuroml.model.Property;
 import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLConverter;
@@ -252,7 +254,7 @@ public class PopulateModelTree {
 					}
 		        }
 		 		
-		        //Add Sumary Node
+		        //Add Summary Node
 		        CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
 				summaryNode.addChildren(populateNeuroMLModelTreeUtils.createInfoNode(infoNode));
 				_discoveredNodesInNeuroML.put(Resources.SUMMARY.getId(), summaryNode);
@@ -277,6 +279,36 @@ public class PopulateModelTree {
 				summaryNode.addChildren(populateNeuroMLModelTreeUtils.createInfoNode(infoNode));
 				modelTree.addChild(summaryNode);
 				
+				//Add population properties
+				boolean found=false;
+				for(Network n:neuroml.getNetwork())
+				{
+					for(Population p : n.getPopulation())
+					{
+						//This code needs to change during the instance type refactoring. We are going up to the network
+						//to find an instance property. Only thing in this case the property in NeuroML is not even defined at
+						//an instance level but at a population level, so it's neither a type or an instance. Discuss with Padraig.
+				        //<population id="ADAL" type="populationList" component="generic_iaf_cell">
+			            //<property tag="OpenWormBackerAssignedName" value="Xabe"/> <--############# WHAT WE WANT
+			            //<instance id="0">
+			            //    <location y="8.65" x="-239.25" z="31.050000000000001"/>
+			            //</instance>
+			            //</population>
+						if(modelTree.getParent().getParent().getId().startsWith(p.getId()))
+						{
+							for (Property property : p.getProperty()){
+								modelTree.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(property.getTag(), property.getTag(), new StringValue(property.getValue())));
+							}
+							found=true;
+							break;
+						}
+					}
+					if(found)
+					{
+						break;
+					}
+				}
+
 				modelTree.setModified(true);
 			}
 			
