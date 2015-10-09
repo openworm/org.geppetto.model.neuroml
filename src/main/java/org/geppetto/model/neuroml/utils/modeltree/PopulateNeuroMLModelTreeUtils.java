@@ -114,6 +114,7 @@ import org.neuroml.model.Network;
 import org.neuroml.model.PlasticityMechanism;
 import org.neuroml.model.Population;
 import org.neuroml.model.PopulationTypes;
+import org.neuroml.model.Property;
 import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Q10Settings;
 import org.neuroml.model.Resistivity;
@@ -1365,6 +1366,7 @@ public class PopulateNeuroMLModelTreeUtils
 
 		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.getId(), Resources.NOTES.get(), new StringValue(standaloneComponent.getNotes())));
 		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.METAID.getId(), Resources.METAID.get(), new StringValue(standaloneComponent.getMetaid())));
+		
 
 		return standaloneChildren;
 	}
