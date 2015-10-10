@@ -154,17 +154,9 @@ public class PopulateVisualTreeVisitor
 
 		// find networks inside neuroml document
 		List<Network> networks = neuroml.getNetwork();
-		if(networks.size() == 1)
+		for(Network n : networks)
 		{
-			addNetworkTo(networks.get(0), visualizationTree, (AspectNode) visualizationTree.getParent(), targetCells);
-		}
-		else
-		{
-			for(Network n : networks)
-			{
-				CompositeNode networkNode = new CompositeNode(n.getId(), n.getId());
-				addNetworkTo(networks.get(0), networkNode, (AspectNode) visualizationTree.getParent(), targetCells);
-			}
+			addNetworkTo(n, visualizationTree, (AspectNode) visualizationTree.getParent(), targetCells);
 		}
 
 		//Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which 
@@ -220,7 +212,7 @@ public class PopulateVisualTreeVisitor
 
 		// create nodes for visual objects, segments of cell
 		Map<String, List<String>> segmentsMap = this.createCellPartsVisualGroups(c.getMorphology().getSegmentGroup(), visualizationTree);
-		visualizationNodes.add(createNodesFromMorphologyBySegmentGroup(segmentsMap, c));
+		visualizationNodes.addAll(createNodesFromMorphologyBySegmentGroup(segmentsMap, c));
 
 		// create density groups for each cell, if it has some
 		CompositeNode densities = this.createChannelDensities(c);
@@ -424,40 +416,7 @@ public class PopulateVisualTreeVisitor
 		return composite;
 	}
 
-	/**
-	 * @param somaGroup
-	 * @param segmentGeometries
-	 */
-	private void createVisualModelForMacroGroup(SegmentGroup macroGroup, Map<String, List<AVisualObjectNode>> segmentGeometries, List<AVisualObjectNode> allSegments)
-	{
-		// TODO: This method was part of previous visualizer but wasn't used, leaving here in case is needed
-
-		// TextMetadataNode text = new TextMetadataNode();
-		// text.setAdditionalProperty(GROUP_PROPERTY, macroGroup.getId());
-		// visualModel.addChild(text);
-		//
-		// for(Include i : macroGroup.getInclude())
-		// {
-		// if(segmentGeometries.containsKey(i.getSegmentGroup()))
-		// {
-		// visualModel.getObjects().addAll(segmentGeometries.get(i.getSegmentGroup()));
-		// }
-		// }
-		// for(Member m : macroGroup.getMember())
-		// {
-		// for(AVisualObjectNode g : allSegments)
-		// {
-		// if(g.getId().equals(m.getSegment().toString()))
-		// {
-		// visualModel.getObjects().add(g);
-		// allSegments.remove(g);
-		// break;
-		// }
-		// }
-		// }
-		// segmentGeometries.remove(macroGroup.getId());
-		// return visualModel;
-	}
+	
 
 	/**
 	 * @param location
@@ -465,9 +424,9 @@ public class PopulateVisualTreeVisitor
 	 * @param list
 	 * @return
 	 */
-	private CompositeNode createNodesFromMorphologyBySegmentGroup(Map<String, List<String>> segmentsMap, Cell cell)
+	private List<AVisualObjectNode> createNodesFromMorphologyBySegmentGroup(Map<String, List<String>> segmentsMap, Cell cell)
 	{
-		CompositeNode visualCellNode = new CompositeNode(cell.getId());
+		List<AVisualObjectNode> visualCellNodes = new ArrayList<AVisualObjectNode>();
 
 		Morphology cellmorphology = cell.getMorphology();
 		CompositeNode allSegments = getVisualObjectsFromListOfSegments(cellmorphology.getSegment(), segmentsMap, cellmorphology.getId());
@@ -493,30 +452,17 @@ public class PopulateVisualTreeVisitor
 					segmentGeometries.put(sg.getId(), getVisualObjectsForGroup(sg, allSegments));
 				}
 			}
-			for(String sg : segmentGeometries.keySet())
-			{
-				for(AVisualObjectNode vo : segmentGeometries.get(sg))
-				{
-					// TextMetadataNode text = new TextMetadataNode("segment_groups");
-					// text.setValue(getAllGroupsString(sg, subgroupsMap, ""));
-				}
-			}
 
 			// this adds all segment groups not contained in the macro groups if any
 			for(String sgId : segmentGeometries.keySet())
 			{
-				List<AVisualObjectNode> segments = segmentGeometries.get(sgId);
-
-				for(AVisualObjectNode s : segments)
-				{
-					s.setParent(visualCellNode);
-				}
-				visualCellNode.getChildren().addAll(segments);
+				visualCellNodes.addAll(segmentGeometries.get(sgId));
+			
 			}
 
 		}
 
-		return visualCellNode;
+		return visualCellNodes;
 	}
 
 	/**
@@ -671,7 +617,7 @@ public class PopulateVisualTreeVisitor
 			for(Member i : g.getMember())
 			{
 				// segment found
-				String segmentID = i.getSegment().toString();
+				String segmentID = getVisualObjectIdentifier(i.getSegment().toString());
 				// segment not in map, add with new list for groups
 				if(!segmentsMap.containsKey(segmentID))
 				{
@@ -714,26 +660,6 @@ public class PopulateVisualTreeVisitor
 		return segmentsMap;
 	}
 
-	/**
-	 * @param targetSg
-	 * @param subgroupsMap
-	 * @param allGroupsStringp
-	 * @return a semicolon separated string containing all the subgroups that contain a given subgroup
-	 */
-	private String getAllGroupsString(String targetSg, Map<String, List<String>> subgroupsMap, String allGroupsStringp)
-	{
-		if(subgroupsMap.containsKey(targetSg))
-		{
-			StringBuilder allGroupsString = new StringBuilder(allGroupsStringp);
-			for(String containerGroup : subgroupsMap.get(targetSg))
-			{
-				allGroupsString.append(containerGroup + "; ");
-				allGroupsString.append(getAllGroupsString(containerGroup, subgroupsMap, ""));
-			}
-			return allGroupsString.toString();
-		}
-		return allGroupsStringp.trim();
-	}
 
 	/**
 	 * @param sg
@@ -749,7 +675,7 @@ public class PopulateVisualTreeVisitor
 
 			for(ANode g : segments)
 			{
-				if(((AVisualObjectNode) g).getId().equals(m.getSegment().toString()))
+				if(((AVisualObjectNode) g).getId().equals(getVisualObjectIdentifier(m.getSegment().toString())))
 				{
 					geometries.add((AVisualObjectNode) g);
 				}
@@ -785,13 +711,13 @@ public class PopulateVisualTreeVisitor
 			SphereNode sphere = new SphereNode(s.getName());
 			sphere.setRadius(proximal.getDiameter() / 2);
 			sphere.setPosition(getPoint(proximal));
-			sphere.setId(s.getId().toString());
+			sphere.setId(getVisualObjectIdentifier(s.getId().toString()));
 			return sphere;
 		}
 		else
 		{
 			CylinderNode cyl = new CylinderNode(s.getName());
-			cyl.setId(s.getId().toString());
+			cyl.setId(getVisualObjectIdentifier(s.getId().toString()));
 			if(proximal != null)
 			{
 				cyl.setPosition(getPoint(proximal));
@@ -832,4 +758,14 @@ public class PopulateVisualTreeVisitor
 		point.setZ(location.getZ().doubleValue());
 		return point;
 	}
+	
+	/**
+	 * @param neuromlID
+	 * @return
+	 */
+	private String getVisualObjectIdentifier(String neuromlID)
+	{
+		return "vo"+neuromlID;
+	}
+	
 }

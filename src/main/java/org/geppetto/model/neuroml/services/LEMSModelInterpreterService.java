@@ -239,7 +239,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 				}
 
 				// Write to disc
-				PrintWriter writer = new PrintWriter(outputFolder + outputFile.substring(outputFile.lastIndexOf(File.separator)));
+				PrintWriter writer = new PrintWriter(outputFolder + outputFile.substring(outputFile.lastIndexOf("/")));
 				writer.print(serialisedModel);
 				writer.close();
 				return outputFolder;

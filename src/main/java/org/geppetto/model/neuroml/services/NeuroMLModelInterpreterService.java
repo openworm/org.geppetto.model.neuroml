@@ -59,6 +59,7 @@ import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.geppettomodel.ConnectionType;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
@@ -68,7 +69,6 @@ import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.VisualObjectReferenceNode;
-import org.geppetto.core.model.simulation.ConnectionType;
 import org.geppetto.core.model.values.StringValue;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
@@ -95,6 +95,7 @@ import org.lemsml.jlems.io.xmlio.XMLSerializer;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.BaseConductanceBasedSynapse;
+import org.neuroml.model.Cell;
 import org.neuroml.model.Instance;
 import org.neuroml.model.Location;
 import org.neuroml.model.Network;
@@ -287,7 +288,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		List<Network> networks = neuroml.getNetwork();
 		if(networks == null || networks.size() == 0)
 		{
-			// What do we do?
+			// no network, if there is just a single cell we will add it to cell mapping
+			List<Cell> cells = neuroml.getCell();
+			if(cells != null && cells.size() == 1)
+			{
+				Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
+				cellMapping.put(aspectNode.getParentEntity().getId(), cells.get(0));
+			}
 		}
 		else if(networks.size() == 1)
 		{
@@ -470,7 +477,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 */
 	private void addNetworkSubEntities(Network n, EntityNode parentEntity, URL url, AspectNode aspect, ModelWrapper model) throws ModelInterpreterException
 	{
-		if(n.getPopulation().size() == 1 && parentEntity.getId().equals(n.getPopulation().get(0).getComponent()) && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
+		if(n.getPopulation().size() == 1 && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
 		{
 			// there's only one cell whose name is the same as the geppetto
 			// entity, don't create any subentities
