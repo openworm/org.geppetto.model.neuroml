@@ -615,7 +615,7 @@ public class PopulateNeuroMLModelTreeUtils
 				// Passive conductance density
 				channelDensityNernstNode.addChild(density);
 
-				this.addToMaps(channelDensityNernstNode, "setCondDensity", density);
+				this.addToMaps(channelDensityNernst, "setCondDensity", density);
 
 				// Ion
 				channelDensityNernstNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.getId(), Resources.ION.get(), new StringValue(channelDensityNernst.getIon())));
