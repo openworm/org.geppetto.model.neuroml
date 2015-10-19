@@ -93,12 +93,9 @@ public class PopulateModelTree {
 	
 	private static Log _logger = LogFactory.getLog(PopulateModelTree.class);
 
-	private Map<String, ParameterSpecificationNode> _parameterNodes = 
-			new HashMap<String, ParameterSpecificationNode>();
-	private Map<ParameterSpecificationNode, Object> _parametersToMethodsMap=
-		new HashMap<ParameterSpecificationNode,Object>();
-	private Map<ParameterSpecificationNode, Object> _parametersToObjectssMap=
-			new HashMap<ParameterSpecificationNode,Object>();
+	private Map<String, ParameterSpecificationNode> _parameterNodes = new HashMap<String, ParameterSpecificationNode>();
+	private Map<ParameterSpecificationNode, Object> _parametersToMethodsMap = new HashMap<ParameterSpecificationNode,Object>();
+	private Map<ParameterSpecificationNode, Object> _parametersToObjectssMap = new HashMap<ParameterSpecificationNode,Object>();
 	
 	public PopulateModelTree() {		
 	}
@@ -258,7 +255,10 @@ public class PopulateModelTree {
 		        CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
 				summaryNode.addChildren(populateNeuroMLModelTreeUtils.createInfoNode(infoNode));
 				_discoveredNodesInNeuroML.put(Resources.SUMMARY.getId(), summaryNode);
-		        
+				
+				//Add Description Node
+				_discoveredNodesInNeuroML.put(Resources.MODEL_DESCRIPTION.getId(), populateNeuroMLModelTreeUtils.createDescriptionNode(neuroml));
+				
 				//Add only nodes which are not pointed by any other node
 		 		for (Map.Entry<String, ANode> entry : _discoveredNodesInNeuroML.entrySet()) {
 		 		   if (!_discoveredNestedComponentsId.contains(entry.getKey())){

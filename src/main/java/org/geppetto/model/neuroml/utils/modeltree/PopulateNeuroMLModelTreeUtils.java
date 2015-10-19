@@ -35,17 +35,21 @@ package org.geppetto.model.neuroml.utils.modeltree;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.FunctionNode;
+import org.geppetto.core.model.runtime.HTMLMetadataNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
@@ -111,10 +115,10 @@ import org.neuroml.model.IonChannel;
 import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.MembraneProperties;
 import org.neuroml.model.Network;
+import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.PlasticityMechanism;
 import org.neuroml.model.Population;
 import org.neuroml.model.PopulationTypes;
-import org.neuroml.model.Property;
 import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Q10Settings;
 import org.neuroml.model.Resistivity;
@@ -145,6 +149,9 @@ public class PopulateNeuroMLModelTreeUtils
 	// Maps parameter spec node to instance object in NeuroML object
 	private Map<ParameterSpecificationNode, Object> _parameterNodesToMethodsMap = new HashMap<ParameterSpecificationNode, Object>();
 
+	// Create Map of NeuroMlComponent and Nodes for description node
+	private Map<ResourcesDomainType, Set<ANode>> modelDescriptionComponents = new HashMap<ResourcesDomainType, Set<ANode>>();
+	
 	private ModelWrapper model;
 
 	public ModelWrapper getModel()
@@ -166,7 +173,7 @@ public class PopulateNeuroMLModelTreeUtils
 	{
 		return _parameterNodesToObjectMap;
 	}
-
+	
 	public CompositeNode createRateGateNode(Resources name, HHRate rate) throws ModelInterpreterException, ContentError
 	{
 		if(rate != null)
@@ -249,11 +256,26 @@ public class PopulateNeuroMLModelTreeUtils
 		}
 		return null;
 	}
+	
+	private void addNodeToModelDescription(ResourcesDomainType domainType, ANode node){
+		if (modelDescriptionComponents.containsKey(domainType)){
+			modelDescriptionComponents.get(domainType).add(node);
+		}
+		else{
+			Set<ANode> cellComponents = new HashSet<ANode>();
+			cellComponents.add(node);
+			modelDescriptionComponents.put(domainType, cellComponents);
+		}
+	}
 
 	public CompositeNode createCellNode(BaseCell c) throws ModelInterpreterException, ContentError
 	{
 		CompositeNode cellNode = new CompositeNode(Resources.CELL.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.CELL.get(), c));
 		cellNode.setDomainType(ResourcesDomainType.CELL.get());
+		
+		// Add Component and node to description map
+		addNodeToModelDescription(ResourcesDomainType.CELL, cellNode);
+		
 		// Cell types
 		if(c instanceof Cell)
 		{
@@ -503,7 +525,12 @@ public class PopulateNeuroMLModelTreeUtils
 	{
 
 		CompositeNode pulseGeneratorNode = new CompositeNode(pulseGenerator.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.PULSE_GENERATOR.get(), pulseGenerator));
-
+		pulseGeneratorNode.setDomainType(ResourcesDomainType.PULSEGENERATOR.get());
+		
+		// Add Component and node to description map
+		addNodeToModelDescription(ResourcesDomainType.PULSEGENERATOR, pulseGeneratorNode);
+		
+		
 		// Amplitude
 		ParameterSpecificationNode amplitude = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.AMPLITUDE.getId(), Resources.AMPLITUDE.get(), pulseGenerator.getAmplitude());
 		pulseGeneratorNode.addChild(amplitude);
@@ -1055,6 +1082,9 @@ public class PopulateNeuroMLModelTreeUtils
 			// Ion Channel
 			CompositeNode ionChannelNode = new CompositeNode(ionChannelBase.getId());
 			ionChannelNode.setDomainType(ResourcesDomainType.IONCHANNEL.get());
+			
+			// Add Component and node to description map
+			addNodeToModelDescription(ResourcesDomainType.IONCHANNEL, ionChannelNode);
 
 			if(ionChannelBase instanceof IonChannel)
 			{
@@ -1174,7 +1204,11 @@ public class PopulateNeuroMLModelTreeUtils
 		for(Population p : populations)
 		{
 			CompositeNode populationNode = new CompositeNode(p.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.POPULATION.get(), p));
-
+			populationNode.setDomainType(ResourcesDomainType.POPULATION.get());
+			
+			// Add Component and node to description map
+			addNodeToModelDescription(ResourcesDomainType.POPULATION, populationNode);
+			
 			populationNode.addChildren(createStandaloneChildren(p));
 
 			BaseCell baseCell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
@@ -1209,6 +1243,10 @@ public class PopulateNeuroMLModelTreeUtils
 		if(synapse != null)
 		{
 			CompositeNode synapseNode = new CompositeNode(synapse.getId());
+			synapseNode.setDomainType(ResourcesDomainType.SYNAPSE.get());
+			
+			// Add Component and node to description map
+			addNodeToModelDescription(ResourcesDomainType.SYNAPSE, synapseNode);
 
 			synapseNode.addChildren(createStandaloneChildren(synapse));
 
@@ -1299,7 +1337,11 @@ public class PopulateNeuroMLModelTreeUtils
 	public CompositeNode createPynnSynapseNode(BasePynnSynapse pynnSynapse) throws ContentError, ModelInterpreterException
 	{
 		CompositeNode pynnSynapsesNode = new CompositeNode(pynnSynapse.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.PYNN_SYNAPSE.get(), pynnSynapse));
-
+		pynnSynapsesNode.setDomainType(ResourcesDomainType.SYNAPSE.get());
+		
+		// Add Component and node to description map
+	    addNodeToModelDescription(ResourcesDomainType.SYNAPSE, pynnSynapsesNode);
+		
 		pynnSynapsesNode.addChildren(createStandaloneChildren(pynnSynapse));
 		ParameterSpecificationNode tauSyn = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAUSYN.getId(), Resources.TAUSYN.get(), String.valueOf(pynnSynapse.getTauSyn()));
 		pynnSynapsesNode.addChild(tauSyn);
@@ -1420,6 +1462,49 @@ public class PopulateNeuroMLModelTreeUtils
 		return baseChildren;
 	}
 
+	public HTMLMetadataNode createDescriptionNode(NeuroMLDocument neuroml) throws ModelInterpreterException
+	{
+		URL modelUrl = (URL) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.URL_ID);
+		
+		StringBuilder modelDescription = new StringBuilder(); 
+		modelDescription.append("<b>Model Summary</b><br/>"); 
+		modelDescription.append("Description...");
+		modelDescription.append("<a target=\"_blank\" href=\"" + modelUrl.toString() + "\">NeuroML Source File</a>");
+		
+		if (modelDescriptionComponents.containsKey(ResourcesDomainType.POPULATION)){
+			modelDescription.append("<b>Populations</b>");
+			for (ANode node : modelDescriptionComponents.get(ResourcesDomainType.POPULATION)){
+				modelDescription.append("$" + node.getInstancePath() + "$");
+			}
+		}
+		if (modelDescriptionComponents.containsKey(ResourcesDomainType.CELL)){
+			modelDescription.append("<b>Cells</b>");
+			for (ANode node : modelDescriptionComponents.get(ResourcesDomainType.CELL)){
+				modelDescription.append("$" + node.getInstancePath() + "$");
+			}
+		}
+		if (modelDescriptionComponents.containsKey(ResourcesDomainType.IONCHANNEL)){
+			modelDescription.append("<b>Channels</b>");
+			for (ANode node : modelDescriptionComponents.get(ResourcesDomainType.IONCHANNEL)){
+				modelDescription.append("$" + node.getInstancePath() + "$");
+			}
+		}
+		if (modelDescriptionComponents.containsKey(ResourcesDomainType.SYNAPSE)){
+			modelDescription.append("<b>Synapses</b>");
+			for (ANode node : modelDescriptionComponents.get(ResourcesDomainType.SYNAPSE)){
+				modelDescription.append("$" + node.getInstancePath() + "$");
+			}
+		}
+		if (modelDescriptionComponents.containsKey(ResourcesDomainType.PULSEGENERATOR)){
+			modelDescription.append("<b>Inputs</b>");
+			for (ANode node : modelDescriptionComponents.get(ResourcesDomainType.PULSEGENERATOR)){
+				modelDescription.append("$" + node.getInstancePath() + "$");
+			}
+		}
+		
+		return new HTMLMetadataNode(Resources.MODEL_DESCRIPTION.getId(), Resources.MODEL_DESCRIPTION.get(), new StringValue(modelDescription.toString()));
+	}
+	
 	public List<ANode> createInfoNode(InfoNode infoNode) throws ModelInterpreterException
 	{
 		List<ANode> summaryElementList = new ArrayList<ANode>();

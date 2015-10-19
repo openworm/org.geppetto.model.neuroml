@@ -302,7 +302,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			// network entity
 			EntityNode networkEntity = aspectNode.getParentEntity();
 			networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
-			addNetworkSubEntities(networks.get(0), networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
+			addNetworkSubEntities(networks.get(0), networkEntity, aspectNode, (ModelWrapper) aspectNode.getModel());
 			createConnections(networks.get(0), aspectNode);
 		}
 		else if(networks.size() > 1)
@@ -312,7 +312,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 				EntityNode networkEntity = new EntityNode(n.getId());
 				networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
-				addNetworkSubEntities(n, networkEntity, url, aspectNode, (ModelWrapper) aspectNode.getModel());
+				addNetworkSubEntities(n, networkEntity, aspectNode, (ModelWrapper) aspectNode.getModel());
 				createConnections(n, aspectNode);
 				aspectNode.getChildren().add(networkEntity);
 			}
@@ -434,9 +434,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					CompositeNode synapsesNode;
 					try
 					{
-						synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse) neuroMLAccessUtility.getComponent(projection.getSynapse(), model,
-								Resources.SYNAPSE));
-						synapsesNode.setDomainType(ResourcesDomainType.SYNAPSE.get());
+						synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse) neuroMLAccessUtility.getComponent(projection.getSynapse(), model, Resources.SYNAPSE));
 					}
 					catch(ContentError | ModelInterpreterException e)
 					{
@@ -475,7 +473,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 * @throws ModelInterpreterException
 	 * @throws ContentError
 	 */
-	private void addNetworkSubEntities(Network n, EntityNode parentEntity, URL url, AspectNode aspect, ModelWrapper model) throws ModelInterpreterException
+	private void addNetworkSubEntities(Network n, EntityNode parentEntity, AspectNode aspect, ModelWrapper model) throws ModelInterpreterException
 	{
 		if(n.getPopulation().size() == 1 && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
 		{
@@ -495,6 +493,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				int i = 0;
 				for(Instance instance : p.getInstance())
 				{
+					
 					String id = VariablePathSerializer.getArrayName(p.getId(), i);
 					EntityNode e = getEntityNodefromCell(cell, id, aspect);
 					e.setDomainType(ResourcesDomainType.CELL.get());
