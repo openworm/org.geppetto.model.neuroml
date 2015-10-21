@@ -126,7 +126,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Autowired
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
 
-	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils();
+	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils;
 
 	private ModelWrapper model;
 
@@ -247,6 +247,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Override
 	public boolean populateRuntimeTree(AspectNode aspectNode) throws ModelInterpreterException
 	{
+		populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils(model);
+		
 		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
 		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
 		AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
