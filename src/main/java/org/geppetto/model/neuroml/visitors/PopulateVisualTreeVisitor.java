@@ -61,6 +61,7 @@ import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
+import org.neuroml.model.ChannelDensityNonUniform;
 import org.neuroml.model.Include;
 import org.neuroml.model.Instance;
 import org.neuroml.model.Location;
@@ -546,6 +547,72 @@ public class PopulateVisualTreeVisitor
 
 					densities.addChild(vis);
 					groupsMap.put(density.getIonChannel(), vis);
+				}
+			}
+			
+			for(ChannelDensityNonUniform densityNonUniform : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniform())
+			{
+				if(!groupsMap.containsKey(densityNonUniform.getIonChannel()))
+				{
+					VisualGroupNode vis = new VisualGroupNode(densityNonUniform.getIonChannel());
+					vis.setName(densityNonUniform.getIonChannel());
+					vis.setType(type);
+					vis.setHighSpectrumColor(highSpectrum);
+					vis.setLowSpectrumColor(lowSpectrum);
+					vis.setParent(densities);
+					if(!densityNonUniform.getId().equals("Leak_all"))
+					{
+						//FIXME
+						VisualGroupElementNode element = new VisualGroupElementNode(densityNonUniform.getVariableParameter().get(0).getSegmentGroup());
+						element.setName(densityNonUniform.getId());
+
+//						String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
+//						Pattern pattern = Pattern.compile(regExp);
+//						Matcher matcher = pattern.matcher(density.getCondDensity());
+//						if(matcher.find())
+//						{
+//							PhysicalQuantity physicalQuantity = new PhysicalQuantity();
+//							physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
+//							physicalQuantity.setUnit(new Unit(matcher.group(2)));
+//							element.setParameter(physicalQuantity);
+//						}
+
+						element.setParent(vis);
+						element.setDefaultColor(defaultColor);
+						vis.getVisualGroupElements().add(element);
+					}
+
+					densities.addChild(vis);
+					groupsMap.put(densityNonUniform.getIonChannel(), vis);
+				}
+				else
+				{
+					VisualGroupNode vis = groupsMap.get(densityNonUniform.getIonChannel());
+
+					if(!densityNonUniform.getId().equals("Leak_all"))
+					{
+						//FIXME
+						VisualGroupElementNode element = new VisualGroupElementNode(densityNonUniform.getVariableParameter().get(0).getSegmentGroup());
+						element.setName(densityNonUniform.getId());
+
+//						String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
+//						Pattern pattern = Pattern.compile(regExp);
+//						Matcher matcher = pattern.matcher(density.getCondDensity());
+//						if(matcher.find())
+//						{
+//							PhysicalQuantity physicalQuantity = new PhysicalQuantity();
+//							physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
+//							physicalQuantity.setUnit(new Unit(matcher.group(2)));
+//							element.setParameter(physicalQuantity);
+//						}
+
+						element.setParent(vis);
+						element.setDefaultColor(defaultColor);
+						vis.getVisualGroupElements().add(element);
+					}
+
+					densities.addChild(vis);
+					groupsMap.put(densityNonUniform.getIonChannel(), vis);
 				}
 			}
 		}
