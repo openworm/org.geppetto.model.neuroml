@@ -159,9 +159,9 @@ public class PopulateVisualTreeVisitor
 			addNetworkTo(n, visualizationTree, (AspectNode) visualizationTree.getParent(), targetCells);
 		}
 
-		//Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which 
-		//"most likely" are just included types in NeuroML and are instantiated as part of the network
-		//populations
+		// Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which
+		// "most likely" are just included types in NeuroML and are instantiated as part of the network
+		// populations
 		if(networks.size() == 0)
 		{
 			// find cells inside neuroml document
@@ -416,8 +416,6 @@ public class PopulateVisualTreeVisitor
 		return composite;
 	}
 
-	
-
 	/**
 	 * @param location
 	 * @param visualizationTree
@@ -457,7 +455,7 @@ public class PopulateVisualTreeVisitor
 			for(String sgId : segmentGeometries.keySet())
 			{
 				visualCellNodes.addAll(segmentGeometries.get(sgId));
-			
+
 			}
 
 		}
@@ -489,14 +487,15 @@ public class PopulateVisualTreeVisitor
 			{
 				if(!groupsMap.containsKey(density.getIonChannel()))
 				{
-					VisualGroupNode vis = new VisualGroupNode(density.getIonChannel());
-					vis.setName(density.getIonChannel());
-					vis.setType(type);
-					vis.setHighSpectrumColor(highSpectrum);
-					vis.setLowSpectrumColor(lowSpectrum);
-					vis.setParent(densities);
-					if(!density.getId().equals("Leak_all"))
+					if(!density.getId().endsWith("_all"))
 					{
+						VisualGroupNode vis = new VisualGroupNode(density.getIonChannel());
+						vis.setName(density.getIonChannel());
+						vis.setType(type);
+						vis.setHighSpectrumColor(highSpectrum);
+						vis.setLowSpectrumColor(lowSpectrum);
+						vis.setParent(densities);
+
 						VisualGroupElementNode element = new VisualGroupElementNode(density.getSegmentGroup());
 						element.setName(density.getId());
 
@@ -514,16 +513,17 @@ public class PopulateVisualTreeVisitor
 						element.setParent(vis);
 						element.setDefaultColor(defaultColor);
 						vis.getVisualGroupElements().add(element);
+						densities.addChild(vis);
+
+						groupsMap.put(density.getIonChannel(), vis);
 					}
 
-					densities.addChild(vis);
-					groupsMap.put(density.getIonChannel(), vis);
 				}
 				else
 				{
 					VisualGroupNode vis = groupsMap.get(density.getIonChannel());
 
-					if(!density.getId().equals("Leak_all"))
+					if(!density.getId().endsWith("_all"))
 					{
 						VisualGroupElementNode element = new VisualGroupElementNode(density.getSegmentGroup());
 						element.setName(density.getId());
@@ -660,7 +660,6 @@ public class PopulateVisualTreeVisitor
 		return segmentsMap;
 	}
 
-
 	/**
 	 * @param sg
 	 * @param allSegments
@@ -758,14 +757,14 @@ public class PopulateVisualTreeVisitor
 		point.setZ(location.getZ().doubleValue());
 		return point;
 	}
-	
+
 	/**
 	 * @param neuromlID
 	 * @return
 	 */
 	private String getVisualObjectIdentifier(String neuromlID)
 	{
-		return "vo"+neuromlID;
+		return "vo" + neuromlID;
 	}
-	
+
 }
