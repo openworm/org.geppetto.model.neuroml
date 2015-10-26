@@ -264,7 +264,7 @@ public class PopulateNeuroMLModelTreeUtils
 		cellNode.setDomainType(ResourcesDomainType.CELL.get());
 
 		// Add Component and node to description map
-		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.CELL, cellNode);
+		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.CELL, c, cellNode);
 
 		// Cell types
 		if(c instanceof Cell)
@@ -518,7 +518,7 @@ public class PopulateNeuroMLModelTreeUtils
 		pulseGeneratorNode.setDomainType(ResourcesDomainType.PULSEGENERATOR.get());
 
 		// Add Component and node to description map
-		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.PULSEGENERATOR, pulseGeneratorNode);
+		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.PULSEGENERATOR, pulseGenerator, pulseGeneratorNode);
 
 		// Amplitude
 		ParameterSpecificationNode amplitude = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.AMPLITUDE.getId(), Resources.AMPLITUDE.get(), pulseGenerator.getAmplitude());
@@ -1073,7 +1073,7 @@ public class PopulateNeuroMLModelTreeUtils
 			ionChannelNode.setDomainType(ResourcesDomainType.IONCHANNEL.get());
 
 			// Add Component and node to description map
-			populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.IONCHANNEL, ionChannelNode);
+			populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.IONCHANNEL, ionChannelBase, ionChannelNode);
 
 			if(ionChannelBase instanceof IonChannel)
 			{
@@ -1178,19 +1178,11 @@ public class PopulateNeuroMLModelTreeUtils
 		networkNode.addChildren(createStandaloneChildren(n));
 
 		// Add Component and node to description map
-		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.NETWORK, networkNode);
+		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.NETWORK, n, networkNode);
 					
-		// for(InputList i : n.getInputList()){
-		//
-		// }
-		//
-		// for(ExplicitInput e : n.getExplicitInput()){
-		//
-		// }
-		//
-		// for(Region r : n.getRegion()){
-		//
-		// }
+		// for(InputList i : n.getInputList()){}
+		// for(ExplicitInput e : n.getExplicitInput()){}
+		// for(Region r : n.getRegion()){}
 
 		List<Population> populations = n.getPopulation();
 		for(Population p : populations)
@@ -1199,7 +1191,7 @@ public class PopulateNeuroMLModelTreeUtils
 			populationNode.setDomainType(ResourcesDomainType.POPULATION.get());
 
 			// Add Component and node to description map
-			populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.POPULATION, populationNode);
+			populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.POPULATION, p, populationNode);
 
 			populationNode.addChildren(createStandaloneChildren(p));
 
@@ -1214,8 +1206,7 @@ public class PopulateNeuroMLModelTreeUtils
 			PopulationTypes populationType = p.getType();
 			if(populationType != null)
 			{
-				populationNode
-						.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POPULATION_TYPE.getId(), Resources.POPULATION_TYPE.get(), new StringValue(populationType.value())));
+				populationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POPULATION_TYPE.getId(), Resources.POPULATION_TYPE.get(), new StringValue(populationType.value())));
 			}
 
 			// TODO: Just reading the number of instances and displaying as a text metadata node
@@ -1238,7 +1229,7 @@ public class PopulateNeuroMLModelTreeUtils
 			synapseNode.setDomainType(ResourcesDomainType.SYNAPSE.get());
 
 			// Add Component and node to description map
-			populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.SYNAPSE, synapseNode);
+			populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.SYNAPSE, synapse, synapseNode);
 
 			synapseNode.addChildren(createStandaloneChildren(synapse));
 
@@ -1332,7 +1323,7 @@ public class PopulateNeuroMLModelTreeUtils
 		pynnSynapsesNode.setDomainType(ResourcesDomainType.SYNAPSE.get());
 
 		// Add Component and node to description map
-		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.SYNAPSE, pynnSynapsesNode);
+		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.SYNAPSE, pynnSynapse, pynnSynapsesNode);
 
 		pynnSynapsesNode.addChildren(createStandaloneChildren(pynnSynapse));
 		ParameterSpecificationNode tauSyn = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAUSYN.getId(), Resources.TAUSYN.get(), String.valueOf(pynnSynapse.getTauSyn()));

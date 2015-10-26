@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.runtime.ACompositeNode;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
@@ -246,18 +247,16 @@ public class PopulateModelTree {
 		        //Add Summary Node
 				_discoveredNodesInNeuroML.put(Resources.SUMMARY.getId(), populateNeuroMLModelTreeUtils.getSummaryNode());
 				
-				//Add Description Node
-				if (cellMapping.size() > 1 || mapping.size() ==1){
-					_discoveredNodesInNeuroML.put(Resources.MODEL_DESCRIPTION.getId(), populateNeuroMLModelTreeUtils.getDescriptionNode());
-				}
-				
 				//Add only nodes which are not pointed by any other node
 		 		for (Map.Entry<String, ANode> entry : _discoveredNodesInNeuroML.entrySet()) {
 		 		   if (!_discoveredNestedComponentsId.contains(entry.getKey())){
 		 			   modelTree.addChild(entry.getValue());
 		 		   }
 		 		}
-		 		
+
+				//Add Description Node
+		 		modelTree.addChild(populateNeuroMLModelTreeUtils.getDescriptionNode());
+//		 		((ACompositeNode)((ACompositeNode)modelTree.getChildren().get(1)).getChildren().get(1)).getChildren().get(1).getInstancePath()
 			}
 			else{
 				//Populate model tree for a subentity

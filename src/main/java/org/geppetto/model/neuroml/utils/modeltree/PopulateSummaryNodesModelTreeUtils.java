@@ -145,12 +145,13 @@ public class PopulateSummaryNodesModelTreeUtils
 
 	public PopulateSummaryNodesModelTreeUtils(ModelWrapper model) {	
 		this.model = model;
+		initialiseModelDescription();
 	}
 	
 	private ModelWrapper model;
 	
 	// Create Map of NeuroMlComponent and Nodes for description node
-	private Map<ResourcesDomainType, Set<ANode>> modelDescriptionComponents = new HashMap<ResourcesDomainType, Set<ANode>>();
+	private Map<ResourcesDomainType, Map<Standalone, ANode>> modelDescriptionComponents;
 	
 	private InfoNode infoNode = new InfoNode();
 	
@@ -159,74 +160,92 @@ public class PopulateSummaryNodesModelTreeUtils
 		infoNode.putAll(InfoTreeCreator.createPropertiesFromStandaloneComponent(element));
 	}
 	
-	public void addNodeToModelDescription(ResourcesDomainType domainType, ANode node){
-		if (modelDescriptionComponents.containsKey(domainType)){
-			modelDescriptionComponents.get(domainType).add(node);
-		}
-		else{
-			Set<ANode> cellComponents = new HashSet<ANode>();
-			cellComponents.add(node);
-			modelDescriptionComponents.put(domainType, cellComponents);
+	public void initialiseModelDescription(){
+		modelDescriptionComponents = new HashMap<ResourcesDomainType, Map<Standalone, ANode>>();
+		modelDescriptionComponents.put(ResourcesDomainType.NETWORK, new HashMap<Standalone, ANode>());
+		modelDescriptionComponents.put(ResourcesDomainType.POPULATION, new HashMap<Standalone, ANode>());
+		modelDescriptionComponents.put(ResourcesDomainType.SYNAPSE, new HashMap<Standalone, ANode>());
+		modelDescriptionComponents.put(ResourcesDomainType.CELL, new HashMap<Standalone, ANode>());
+		modelDescriptionComponents.put(ResourcesDomainType.PULSEGENERATOR, new HashMap<Standalone, ANode>());
+		modelDescriptionComponents.put(ResourcesDomainType.IONCHANNEL, new HashMap<Standalone, ANode>());
+	}
+	
+	public void addNodeToModelDescription(ResourcesDomainType domainType, Standalone standalone, ANode node){
+		Map<Standalone, ANode> modelDescriptionComponentsItem = modelDescriptionComponents.get(domainType);
+		if (!modelDescriptionComponentsItem.containsKey(standalone)){
+			modelDescriptionComponentsItem.put(standalone, node);
 		}
 	}
-
-	
 
 	public HTMLMetadataNode createDescriptionNode() throws ModelInterpreterException
 	{
 		//Design doodle: https://docs.google.com/drawings/d/1NDwzCU6LfG9Wq162_S9huNNuAekxPKn8VT8Q0PoC-aw/edit
-		
 		URL modelUrl = (URL) model.getModel(NeuroMLAccessUtility.URL_ID);
+		
+		Map<Standalone, ANode> networkComponents = modelDescriptionComponents.get(ResourcesDomainType.NETWORK);
+		Map<Standalone, ANode> populationComponents = modelDescriptionComponents.get(ResourcesDomainType.POPULATION);
+		Map<Standalone, ANode> cellComponents = modelDescriptionComponents.get(ResourcesDomainType.CELL);
+		Map<Standalone, ANode> ionChannelComponents = modelDescriptionComponents.get(ResourcesDomainType.IONCHANNEL);
+		Map<Standalone, ANode> synapseComponents = modelDescriptionComponents.get(ResourcesDomainType.SYNAPSE);
+		Map<Standalone, ANode> pulseGeneratorComponents = modelDescriptionComponents.get(ResourcesDomainType.PULSEGENERATOR);
 		
 		StringBuilder modelDescription = new StringBuilder(); 
 		modelDescription.append("<b>Model Summary</b><br/>");
 
-		//FIXME: Just for networks and cells?
-		StringBuilder descriptionLabel = new StringBuilder(); 
-		if (modelDescriptionComponents.containsKey(ResourcesDomainType.POPULATION)){
-			//FIXME: We need to add something about how beautiful the network is and so on
-			descriptionLabel.append("Description ");
-			for (ANode node : modelDescriptionComponents.get(ResourcesDomainType.NETWORK)){
-				descriptionLabel.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
+		//FIXME: We need to extract the main component (target component) and extract the description from it in order to do this feature generic. This will wait until the instance/type refactor
+		//FIXME: We need to add something about how beautiful the network is and so on
+		if (networkComponents.size() > 0){
+			modelDescription.append("Description: ");
+			for (ANode node : networkComponents.values()){
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
 			}
-			descriptionLabel.append("<br/>");
-			modelDescription.append(descriptionLabel);
 		}
-		modelDescription.append("<a target=\"_blank\" href=\"" + modelUrl.toString() + "\">NeuroML Source File</a><br/>");
+		modelDescription.append("<br/><a target=\"_blank\" href=\"" + modelUrl.toString() + "\">NeuroML Source File</a><br/>");
 		
-		if (modelDescriptionComponents.containsKey(ResourcesDomainType.POPULATION)){
-			//FIXME: We should improve this once the instance/type refactor is done as we need the cell type
+		//FIXME: We should improve this once the instance/type refactor is done as we need the cell type
+		if (populationComponents.size() > 0){
 			modelDescription.append("<b>Populations</b><br/>");
-			for (ANode node : modelDescriptionComponents.get(ResourcesDomainType.POPULATION)){
-				modelDescription.append("Population " + node.getName() + ":<br/>");
+			for (Map.Entry<Standalone, ANode> node : populationComponents.entrySet()){
+				modelDescription.append("Population " + node.getValue().getName() + ": ");
+				Population population = ((Population)node.getKey());
+				
+				for (Map.Entry<Standalone, ANode> cellNode : cellComponents.entrySet()){
+					if (cellNode.getKey().getId().equals(population.getComponent())){
+						modelDescription.append("<a href=\"#\" instancePath=\"$" + cellNode.getValue().getInstancePath() + "$\">" + population.getInstance().size() + " " + cellNode.getValue().getName()  + "</a><br/>");
+					}
+				}
 			}
 			modelDescription.append("<br/>");
 		}
-		if (modelDescriptionComponents.containsKey(ResourcesDomainType.CELL)){
+			
+		if (cellComponents.size() > 0){
 			modelDescription.append("<b>Cells</b><br/>");
-			for (ANode node : modelDescriptionComponents.get(ResourcesDomainType.CELL)){
+			for (ANode node : cellComponents.values()){
 				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
 		}
-		if (modelDescriptionComponents.containsKey(ResourcesDomainType.IONCHANNEL)){
+		
+		if (ionChannelComponents.size() > 0){
 			modelDescription.append("<b>Channels</b><br/>");
-			for (ANode node : modelDescriptionComponents.get(ResourcesDomainType.IONCHANNEL)){
+			for (ANode node : ionChannelComponents.values()){
 				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
 		}
-		if (modelDescriptionComponents.containsKey(ResourcesDomainType.SYNAPSE)){
+		
+		if (synapseComponents.size() > 0){
 			modelDescription.append("<b>Synapses</b><br/>");
-			for (ANode node : modelDescriptionComponents.get(ResourcesDomainType.SYNAPSE)){
+			for (ANode node : synapseComponents.values()){
 				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
 		}
-		if (modelDescriptionComponents.containsKey(ResourcesDomainType.PULSEGENERATOR)){
+		
+		if (pulseGeneratorComponents.size() > 0){
 			//FIXME: Pulse generator? InputList? ExplicitList?
 			modelDescription.append("<b>Inputs</b><br/>");
-			for (ANode node : modelDescriptionComponents.get(ResourcesDomainType.PULSEGENERATOR)){
+			for (ANode node : pulseGeneratorComponents.values()){
 				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
