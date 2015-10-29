@@ -57,10 +57,15 @@ import org.geppetto.core.model.runtime.VisualGroupNode;
 import org.geppetto.core.model.values.FloatValue;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
+import org.lemsml.jlems.core.eval.DoubleEvaluator;
+import org.lemsml.jlems.core.expression.ParseTree;
+import org.lemsml.jlems.core.expression.Parser;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
+import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
+import org.neuroml.model.ChannelDensityNernst;
 import org.neuroml.model.ChannelDensityNonUniform;
 import org.neuroml.model.Include;
 import org.neuroml.model.Instance;
@@ -216,7 +221,7 @@ public class PopulateVisualTreeVisitor
 		visualizationNodes.addAll(createNodesFromMorphologyBySegmentGroup(segmentsMap, c));
 
 		// create density groups for each cell, if it has some
-		CompositeNode densities = this.createChannelDensities(c);
+		CompositeNode densities = this.createChannelDensities(c, visualizationNodes);
 		// add density groups to visualization tree
 		if(densities != null)
 		{
@@ -471,153 +476,213 @@ public class PopulateVisualTreeVisitor
 	 *            - Densities visual groups for this cell
 	 * @return
 	 */
-	private CompositeNode createChannelDensities(Cell cell)
+	private CompositeNode createChannelDensities(Cell cell, List<ANode> visualizationNodes)
 	{
 
 		Map<String, VisualGroupNode> groupsMap = new HashMap<String, VisualGroupNode>();
 
 		CompositeNode densities = null;
 
-		if(cell.getBiophysicalProperties() != null && cell.getBiophysicalProperties().getMembraneProperties() != null
-				&& cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity() != null)
+		BiophysicalProperties biophysicalProperties = cell.getBiophysicalProperties();
+		if(biophysicalProperties != null && biophysicalProperties.getMembraneProperties() != null
+				&& (biophysicalProperties.getMembraneProperties().getChannelDensity() != null || biophysicalProperties.getMembraneProperties().getChannelDensityNernst() != null || biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform() != null))
 		{
 			densities = new CompositeNode("ChannelDensities");
 			densities.setName("Channel Densities");
 
 			for(ChannelDensity density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
 			{
-				if(!groupsMap.containsKey(density.getIonChannel()))
+				createVisualGroupElement(groupsMap, densities, density);
+			}
+			
+			for(ChannelDensityNernst density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
+			{
+				createVisualGroupElement(groupsMap, densities, density);
+			}
+			
+			List<ChannelDensityNonUniform> channelDensityNonUniformList = biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform();
+			
+			if (channelDensityNonUniformList != null){
+				List<Segment> segmentList = cell.getMorphology().getSegment();
+				
+				
+				for(ChannelDensityNonUniform densityNonUniform : channelDensityNonUniformList)
 				{
-					if(!density.getId().endsWith("_all"))
+					String ionChannel = "Density_Non_Uniform_" + densityNonUniform.getIonChannel();
+					
+					if(!groupsMap.containsKey(ionChannel))
 					{
-						VisualGroupNode vis = new VisualGroupNode(density.getIonChannel());
-						vis.setName(density.getIonChannel());
+						VisualGroupNode vis = new VisualGroupNode(ionChannel);
+						vis.setName(ionChannel);
 						vis.setType(type);
 						vis.setHighSpectrumColor(highSpectrum);
 						vis.setLowSpectrumColor(lowSpectrum);
 						vis.setParent(densities);
-
-						VisualGroupElementNode element = new VisualGroupElementNode(density.getSegmentGroup());
-						element.setName(density.getId());
-
-						String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
-						Pattern pattern = Pattern.compile(regExp);
-						Matcher matcher = pattern.matcher(density.getCondDensity());
-						if(matcher.find())
+						if(!densityNonUniform.getId().equals("Leak_all"))
 						{
-							PhysicalQuantity physicalQuantity = new PhysicalQuantity();
-							physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
-							physicalQuantity.setUnit(new Unit(matcher.group(2)));
-							element.setParameter(physicalQuantity);
+							String e = "1e4 * ((-0.869600 + 2.087000*exp((p-0.000000)*0.003100))*0.000080)";
+							Parser parser = new Parser();
+							ParseTree parseTree = parser.parseExpression(e);
+							DoubleEvaluator doubleEvaluator = parseTree.makeFloatEvaluator();
+							HashMap<String, Double> valHM;
+							
+							
+							
+							for (ANode visualizationNode : visualizationNodes){
+								if (visualizationNode instanceof CylinderNode && ((CylinderNode)visualizationNode).getGroupElementsMap().contains(densityNonUniform.getVariableParameter().get(0).getSegmentGroup())){
+									//FIXME
+									VisualGroupElementNode element = new VisualGroupElementNode(densityNonUniform.getVariableParameter().get(0).getSegmentGroup() + "_" + ((CylinderNode)visualizationNode).getId());
+									element.setName(densityNonUniform.getId());
+									
+									((CylinderNode)visualizationNode).getDistal()
+	
+									valHM = new HashMap<String, Double>();
+									valHM.put("p", );
+									doubleEvaluator.evalD(arg0);
+									
+									
+									PhysicalQuantity physicalQuantity = new PhysicalQuantity();
+									physicalQuantity.setValue(new FloatValue(Float.parseFloat("0.3")));
+									physicalQuantity.setUnit(new Unit("mS_per_cm2"));
+									element.setParameter(physicalQuantity);
+									
+	//								String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
+	//								Pattern pattern = Pattern.compile(regExp);
+	//								Matcher matcher = pattern.matcher(density.getCondDensity());
+	//								if(matcher.find())
+	//								{
+	//									PhysicalQuantity physicalQuantity = new PhysicalQuantity();
+	//									physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
+	//									physicalQuantity.setUnit(new Unit(matcher.group(2)));
+	//									element.setParameter(physicalQuantity);
+	//								}
+	
+									element.setParent(vis);
+									element.setDefaultColor(defaultColor);
+									vis.getVisualGroupElements().add(element);
+								}
+							}
+							
 						}
-
-						element.setParent(vis);
-						element.setDefaultColor(defaultColor);
-						vis.getVisualGroupElements().add(element);
+	
 						densities.addChild(vis);
-
-						groupsMap.put(density.getIonChannel(), vis);
+						groupsMap.put(ionChannel, vis);
 					}
-
-				}
-				else
-				{
-					VisualGroupNode vis = groupsMap.get(density.getIonChannel());
-
-					if(!density.getId().endsWith("_all"))
+					else
 					{
-						VisualGroupElementNode element = new VisualGroupElementNode(density.getSegmentGroup());
-						element.setName(density.getId());
-
-						String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
-						Pattern pattern = Pattern.compile(regExp);
-						Matcher matcher = pattern.matcher(density.getCondDensity());
-						if(matcher.find())
+						VisualGroupNode vis = groupsMap.get(densityNonUniform.getIonChannel());
+	
+						if(!densityNonUniform.getId().equals("Leak_all"))
 						{
-							PhysicalQuantity physicalQuantity = new PhysicalQuantity();
-							physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
-							physicalQuantity.setUnit(new Unit(matcher.group(2)));
-							element.setParameter(physicalQuantity);
+							//FIXME
+							VisualGroupElementNode element = new VisualGroupElementNode(densityNonUniform.getVariableParameter().get(0).getSegmentGroup());
+							element.setName(densityNonUniform.getId());
+	
+	//						String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
+	//						Pattern pattern = Pattern.compile(regExp);
+	//						Matcher matcher = pattern.matcher(density.getCondDensity());
+	//						if(matcher.find())
+	//						{
+	//							PhysicalQuantity physicalQuantity = new PhysicalQuantity();
+	//							physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
+	//							physicalQuantity.setUnit(new Unit(matcher.group(2)));
+	//							element.setParameter(physicalQuantity);
+	//						}
+	
+							element.setParent(vis);
+							element.setDefaultColor(defaultColor);
+							vis.getVisualGroupElements().add(element);
 						}
-
-						element.setParent(vis);
-						element.setDefaultColor(defaultColor);
-						vis.getVisualGroupElements().add(element);
+	
+						densities.addChild(vis);
+						groupsMap.put(densityNonUniform.getIonChannel(), vis);
 					}
-
-					densities.addChild(vis);
-					groupsMap.put(density.getIonChannel(), vis);
-				}
-			}
-			
-			for(ChannelDensityNonUniform densityNonUniform : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniform())
-			{
-				if(!groupsMap.containsKey(densityNonUniform.getIonChannel()))
-				{
-					VisualGroupNode vis = new VisualGroupNode(densityNonUniform.getIonChannel());
-					vis.setName(densityNonUniform.getIonChannel());
-					vis.setType(type);
-					vis.setHighSpectrumColor(highSpectrum);
-					vis.setLowSpectrumColor(lowSpectrum);
-					vis.setParent(densities);
-					if(!densityNonUniform.getId().equals("Leak_all"))
-					{
-						//FIXME
-						VisualGroupElementNode element = new VisualGroupElementNode(densityNonUniform.getVariableParameter().get(0).getSegmentGroup());
-						element.setName(densityNonUniform.getId());
-
-//						String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
-//						Pattern pattern = Pattern.compile(regExp);
-//						Matcher matcher = pattern.matcher(density.getCondDensity());
-//						if(matcher.find())
-//						{
-//							PhysicalQuantity physicalQuantity = new PhysicalQuantity();
-//							physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
-//							physicalQuantity.setUnit(new Unit(matcher.group(2)));
-//							element.setParameter(physicalQuantity);
-//						}
-
-						element.setParent(vis);
-						element.setDefaultColor(defaultColor);
-						vis.getVisualGroupElements().add(element);
-					}
-
-					densities.addChild(vis);
-					groupsMap.put(densityNonUniform.getIonChannel(), vis);
-				}
-				else
-				{
-					VisualGroupNode vis = groupsMap.get(densityNonUniform.getIonChannel());
-
-					if(!densityNonUniform.getId().equals("Leak_all"))
-					{
-						//FIXME
-						VisualGroupElementNode element = new VisualGroupElementNode(densityNonUniform.getVariableParameter().get(0).getSegmentGroup());
-						element.setName(densityNonUniform.getId());
-
-//						String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
-//						Pattern pattern = Pattern.compile(regExp);
-//						Matcher matcher = pattern.matcher(density.getCondDensity());
-//						if(matcher.find())
-//						{
-//							PhysicalQuantity physicalQuantity = new PhysicalQuantity();
-//							physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
-//							physicalQuantity.setUnit(new Unit(matcher.group(2)));
-//							element.setParameter(physicalQuantity);
-//						}
-
-						element.setParent(vis);
-						element.setDefaultColor(defaultColor);
-						vis.getVisualGroupElements().add(element);
-					}
-
-					densities.addChild(vis);
-					groupsMap.put(densityNonUniform.getIonChannel(), vis);
 				}
 			}
 		}
 
 		return densities;
+	}
+
+	private void createVisualGroupElement(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, Base density)
+	{
+		String ionChannel = "";
+		String segmentGroup = "";
+		String condDensity = "";
+		if (density instanceof ChannelDensity){
+			ionChannel = "Density_" + ((ChannelDensity)density).getIonChannel();
+			segmentGroup = ((ChannelDensity)density).getSegmentGroup();
+			condDensity = ((ChannelDensity)density).getCondDensity();
+		}
+		else if (density instanceof ChannelDensityNernst){
+			ionChannel = "Density_Nernst_" + ((ChannelDensityNernst)density).getIonChannel();
+			segmentGroup = ((ChannelDensityNernst)density).getSegmentGroup();
+			condDensity = ((ChannelDensityNernst)density).getCondDensity();
+		} 
+		
+		
+		if(!groupsMap.containsKey(ionChannel))
+		{
+			if(!density.getId().endsWith("_all"))
+			{
+				VisualGroupNode vis = new VisualGroupNode(ionChannel);
+				vis.setName(ionChannel);
+				vis.setType(type);
+				vis.setHighSpectrumColor(highSpectrum);
+				vis.setLowSpectrumColor(lowSpectrum);
+				vis.setParent(densities);
+
+				VisualGroupElementNode element = new VisualGroupElementNode(segmentGroup);
+				element.setName(density.getId());
+
+				String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
+				Pattern pattern = Pattern.compile(regExp);
+				Matcher matcher = pattern.matcher(condDensity);
+				if(matcher.find())
+				{
+					PhysicalQuantity physicalQuantity = new PhysicalQuantity();
+					physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
+					physicalQuantity.setUnit(new Unit(matcher.group(2)));
+					element.setParameter(physicalQuantity);
+				}
+
+				element.setParent(vis);
+				element.setDefaultColor(defaultColor);
+				vis.getVisualGroupElements().add(element);
+				densities.addChild(vis);
+
+				groupsMap.put(ionChannel, vis);
+			}
+
+		}
+		else
+		{
+			VisualGroupNode vis = groupsMap.get(ionChannel);
+
+			if(!density.getId().endsWith("_all"))
+			{
+				VisualGroupElementNode element = new VisualGroupElementNode(segmentGroup);
+				element.setName(density.getId());
+
+				String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
+				Pattern pattern = Pattern.compile(regExp);
+				Matcher matcher = pattern.matcher(condDensity);
+				if(matcher.find())
+				{
+					PhysicalQuantity physicalQuantity = new PhysicalQuantity();
+					physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
+					physicalQuantity.setUnit(new Unit(matcher.group(2)));
+					element.setParameter(physicalQuantity);
+				}
+
+				element.setParent(vis);
+				element.setDefaultColor(defaultColor);
+				vis.getVisualGroupElements().add(element);
+			}
+
+			densities.addChild(vis);
+			groupsMap.put(ionChannel, vis);
+		}
 	}
 
 	/**
