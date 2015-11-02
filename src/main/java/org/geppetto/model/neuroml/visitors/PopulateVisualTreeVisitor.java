@@ -37,12 +37,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.quantities.PhysicalQuantity;
-import org.geppetto.core.model.quantities.Unit;
 import org.geppetto.core.model.runtime.ACompositeNode;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AVisualObjectNode;
@@ -55,23 +51,12 @@ import org.geppetto.core.model.runtime.EntityNode;
 import org.geppetto.core.model.runtime.SphereNode;
 import org.geppetto.core.model.runtime.VisualGroupElementNode;
 import org.geppetto.core.model.runtime.VisualGroupNode;
-import org.geppetto.core.model.values.FloatValue;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.core.visualisation.model.Point;
-import org.lemsml.jlems.core.eval.DoubleEvaluator;
-import org.lemsml.jlems.core.expression.ParseError;
-import org.lemsml.jlems.core.expression.ParseTree;
-import org.lemsml.jlems.core.expression.Parser;
-import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
-import org.neuroml.model.BiophysicalProperties;
 import org.neuroml.model.Cell;
-import org.neuroml.model.ChannelDensity;
-import org.neuroml.model.ChannelDensityNernst;
-import org.neuroml.model.ChannelDensityNonUniform;
 import org.neuroml.model.Include;
-import org.neuroml.model.InhomogeneousParameter;
 import org.neuroml.model.Instance;
 import org.neuroml.model.Location;
 import org.neuroml.model.Member;
@@ -84,7 +69,6 @@ import org.neuroml.model.PopulationTypes;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
 import org.neuroml.model.util.CellUtils;
-import org.neuroml.model.util.NeuroMLException;
 
 /**
  * Helper class to populate visualization tree for neuroml models
@@ -92,10 +76,7 @@ import org.neuroml.model.util.NeuroMLException;
  */
 public class PopulateVisualTreeVisitor
 {
-	private String type = "static";
-	private String highSpectrum = "0XFF0000";
-	private String lowSpectrum = "0XFFFF00";
-	private String defaultColor = "0XFF3300";
+
 	private String axonsColor = "0XFF6600";
 	private String dendritesColor = "0X99CC00";
 	private String somaColor = "0X0066FF";
@@ -227,7 +208,8 @@ public class PopulateVisualTreeVisitor
 		visualizationNodes.addAll(createNodesFromMorphologyBySegmentGroup(segmentsMap, c));
 
 		// create density groups for each cell, if it has some
-		CompositeNode densities = this.createChannelDensities(c);
+		PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups();
+		CompositeNode densities = populateChannelDensityVisualGroups.createChannelDensities(c);
 		// add density groups to visualization tree
 		if(densities != null)
 		{
@@ -491,7 +473,7 @@ public class PopulateVisualTreeVisitor
 	private double calculareDistanceInGroup(double distance, Segment segment, LinkedHashMap<Integer, Segment> idsVsSegments, List<Integer> segmentsPerGroup){
 		if (segmentsPerGroup.contains(segment)){
 			Point3DWithDiam proximal = (segment.getProximal() == null) ? idsVsSegments.get(segment.getParent().getSegment()).getDistal() : segment.getProximal();
-			distance += CellUtils.distance(segment.getProximal(), segment.getDistal());
+			distance += CellUtils.distance(proximal, segment.getDistal());
 		}
 		
 		if(segment.getParent() != null && segmentsPerGroup.contains(segment.getParent().getSegment()))
@@ -501,250 +483,7 @@ public class PopulateVisualTreeVisitor
 		return distance;
 	}
 	
-	/**
-	 * Create Channel densities visual grups for a cell
-	 * 
-	 * @param cell
-	 *            - Densities visual groups for this cell
-	 * @return
-	 */
-	private CompositeNode createChannelDensities(Cell cell)
-	{
-
-		Map<String, VisualGroupNode> groupsMap = new HashMap<String, VisualGroupNode>();
-
-		CompositeNode densities = null;
-
-		BiophysicalProperties biophysicalProperties = cell.getBiophysicalProperties();
-		if(biophysicalProperties != null && biophysicalProperties.getMembraneProperties() != null
-				&& (biophysicalProperties.getMembraneProperties().getChannelDensity() != null || biophysicalProperties.getMembraneProperties().getChannelDensityNernst() != null || biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform() != null))
-		{
-			densities = new CompositeNode("ChannelDensities");
-			densities.setName("Channel Densities");
-
-			for(ChannelDensity density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
-			{
-				createVisualGroupElement(groupsMap, densities, density);
-			}
-			
-			for(ChannelDensityNernst density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
-			{
-				createVisualGroupElement(groupsMap, densities, density);
-			}
-			
-			List<ChannelDensityNonUniform> channelDensityNonUniformList = biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform();
-			
-			if (channelDensityNonUniformList != null){
-				List<Segment> segmentList = cell.getMorphology().getSegment();
-				
-				
-				for(ChannelDensityNonUniform densityNonUniform : channelDensityNonUniformList)
-				{
-					String ionChannel = "Density_Non_Uniform_" + densityNonUniform.getIonChannel();
-					
-					if(!groupsMap.containsKey(ionChannel))
-					{
-						VisualGroupNode vis = new VisualGroupNode(ionChannel);
-						vis.setName(ionChannel);
-						vis.setType(type);
-						vis.setHighSpectrumColor(highSpectrum);
-						vis.setLowSpectrumColor(lowSpectrum);
-						vis.setParent(densities);
-						if(!densityNonUniform.getId().equals("Leak_all"))
-						{
-							
-							
-							for (SegmentGroup segmentGroup : cell.getMorphology().getSegmentGroup()){
-								if (segmentGroup.getId().equals(densityNonUniform.getVariableParameter().get(0).getSegmentGroup())){
-									
-									String e = densityNonUniform.getVariableParameter().get(0).getInhomogeneousValue().getValue();
-									//String e = "1e4 * ((-0.869600 + 2.087000*exp((p-0.000000)*0.003100))*0.000080)";
-									DoubleEvaluator doubleEvaluator = null;
-									try
-									{
-										Parser parser = new Parser();
-										ParseTree parseTree = parser.parseExpression(e);
-										doubleEvaluator = parseTree.makeFloatEvaluator();
-									}
-									catch(ParseError | ContentError e2)
-									{
-										// TODO Auto-generated catch block
-										e2.printStackTrace();
-									}
-									
-									HashMap<String, Double> valHM;
-									
-									List<Integer> segmentsPerGroup = CellUtils.getSegmentIdsInGroup(cell, segmentGroup.getId());
-									LinkedHashMap<Integer, Segment> idsVsSegments = CellUtils.getIdsVsSegments(cell);
-									
-									
-									for (InhomogeneousParameter inhomogeneousParameter : segmentGroup.getInhomogeneousParameter()){
-										if (inhomogeneousParameter.getId().equals(densityNonUniform.getVariableParameter().get(0).getInhomogeneousValue().getInhomogeneousParameter())){
-											inhomogeneousParameter.getVariable();
-											inhomogeneousParameter.getProximal().getTranslationStart();
-											
-											for (Include sgInclude : segmentGroup.getInclude()){
-												double distanceToGroup = 0.0;	
-												double distanceInGroup = 0.0;
-												List<Segment> segmentsPerSubgroup = null;
-												try
-												{
-													segmentsPerSubgroup = CellUtils.getSegmentsInGroup(cell, sgInclude.getSegmentGroup());
-												}
-												catch(NeuroMLException e1)
-												{
-													// TODO Auto-generated catch block
-													e1.printStackTrace();
-												}
-												for (Segment sg : segmentsPerSubgroup){
-													if (distanceToGroup == 0.0) distanceToGroup = calculateDistanceToGroup(0.0, sg, idsVsSegments, segmentsPerGroup);
-													distanceInGroup += calculareDistanceInGroup(distanceInGroup, sg, idsVsSegments, segmentsPerGroup);
-												}
-												
-												double averageDistance = (distanceInGroup + distanceToGroup)/ segmentGroup.getInclude().size();
-												
-												valHM = new HashMap<String, Double>();
-												valHM.put("p", averageDistance);
-												
-												//FIXME
-												VisualGroupElementNode element = new VisualGroupElementNode(sgInclude.getSegmentGroup());
-												element.setName(densityNonUniform.getId());
-												
-												PhysicalQuantity physicalQuantity = new PhysicalQuantity();
-												physicalQuantity.setValue(new FloatValue((float)doubleEvaluator.evalD(valHM)));
-												physicalQuantity.setUnit(new Unit("mS_per_cm2"));
-												element.setParameter(physicalQuantity);
-												element.setParent(vis);
-												element.setDefaultColor(defaultColor);
-												vis.getVisualGroupElements().add(element);
-												
-											}
-											
-										}
-									}
-								}
-							}
-						}
 	
-						densities.addChild(vis);
-						groupsMap.put(ionChannel, vis);
-					}
-					else
-					{
-						VisualGroupNode vis = groupsMap.get(densityNonUniform.getIonChannel());
-	
-						if(!densityNonUniform.getId().equals("Leak_all"))
-						{
-							//FIXME
-							VisualGroupElementNode element = new VisualGroupElementNode(densityNonUniform.getVariableParameter().get(0).getSegmentGroup());
-							element.setName(densityNonUniform.getId());
-	
-	//						String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
-	//						Pattern pattern = Pattern.compile(regExp);
-	//						Matcher matcher = pattern.matcher(density.getCondDensity());
-	//						if(matcher.find())
-	//						{
-	//							PhysicalQuantity physicalQuantity = new PhysicalQuantity();
-	//							physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
-	//							physicalQuantity.setUnit(new Unit(matcher.group(2)));
-	//							element.setParameter(physicalQuantity);
-	//						}
-	
-							element.setParent(vis);
-							element.setDefaultColor(defaultColor);
-							vis.getVisualGroupElements().add(element);
-						}
-	
-						densities.addChild(vis);
-						groupsMap.put(densityNonUniform.getIonChannel(), vis);
-					}
-				}
-			}
-		}
-
-		return densities;
-	}
-
-	private void createVisualGroupElement(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, Base density)
-	{
-		String ionChannel = "";
-		String segmentGroup = "";
-		String condDensity = "";
-		if (density instanceof ChannelDensity){
-			ionChannel = "Density_" + ((ChannelDensity)density).getIonChannel();
-			segmentGroup = ((ChannelDensity)density).getSegmentGroup();
-			condDensity = ((ChannelDensity)density).getCondDensity();
-		}
-		else if (density instanceof ChannelDensityNernst){
-			ionChannel = "Density_Nernst_" + ((ChannelDensityNernst)density).getIonChannel();
-			segmentGroup = ((ChannelDensityNernst)density).getSegmentGroup();
-			condDensity = ((ChannelDensityNernst)density).getCondDensity();
-		} 
-		
-		
-		if(!groupsMap.containsKey(ionChannel))
-		{
-			if(!density.getId().endsWith("_all"))
-			{
-				VisualGroupNode vis = new VisualGroupNode(ionChannel);
-				vis.setName(ionChannel);
-				vis.setType(type);
-				vis.setHighSpectrumColor(highSpectrum);
-				vis.setLowSpectrumColor(lowSpectrum);
-				vis.setParent(densities);
-
-				VisualGroupElementNode element = new VisualGroupElementNode(segmentGroup);
-				element.setName(density.getId());
-
-				String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
-				Pattern pattern = Pattern.compile(regExp);
-				Matcher matcher = pattern.matcher(condDensity);
-				if(matcher.find())
-				{
-					PhysicalQuantity physicalQuantity = new PhysicalQuantity();
-					physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
-					physicalQuantity.setUnit(new Unit(matcher.group(2)));
-					element.setParameter(physicalQuantity);
-				}
-
-				element.setParent(vis);
-				element.setDefaultColor(defaultColor);
-				vis.getVisualGroupElements().add(element);
-				densities.addChild(vis);
-
-				groupsMap.put(ionChannel, vis);
-			}
-
-		}
-		else
-		{
-			VisualGroupNode vis = groupsMap.get(ionChannel);
-
-			if(!density.getId().endsWith("_all"))
-			{
-				VisualGroupElementNode element = new VisualGroupElementNode(segmentGroup);
-				element.setName(density.getId());
-
-				String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
-				Pattern pattern = Pattern.compile(regExp);
-				Matcher matcher = pattern.matcher(condDensity);
-				if(matcher.find())
-				{
-					PhysicalQuantity physicalQuantity = new PhysicalQuantity();
-					physicalQuantity.setValue(new FloatValue(Float.parseFloat(matcher.group(1))));
-					physicalQuantity.setUnit(new Unit(matcher.group(2)));
-					element.setParameter(physicalQuantity);
-				}
-
-				element.setParent(vis);
-				element.setDefaultColor(defaultColor);
-				vis.getVisualGroupElements().add(element);
-			}
-
-			densities.addChild(vis);
-			groupsMap.put(ionChannel, vis);
-		}
-	}
 
 	/**
 	 * Gets all segments group from cell. Creates a map with segments as key of map, and list of groups it belongs as value. Creates visual groups for cell regions while looping through segment
