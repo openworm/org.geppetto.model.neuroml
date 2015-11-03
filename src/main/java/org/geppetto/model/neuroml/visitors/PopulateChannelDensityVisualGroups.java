@@ -135,12 +135,12 @@ public class PopulateChannelDensityVisualGroups
 
 			for(ChannelDensity density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
 			{
-				createVisualGroupElement(groupsMap, densities, density);
+				createVisualGroupFromCondDensity(groupsMap, densities, density, "Density_Nernst_" + density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
 			}
 
 			for(ChannelDensityNernst density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
 			{
-				createVisualGroupElement(groupsMap, densities, density);
+				createVisualGroupFromCondDensity(groupsMap, densities, density, "Density_Nernst_" + density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
 			}
 
 			for(ChannelDensityNonUniform density : biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform())
@@ -185,90 +185,92 @@ public class PopulateChannelDensityVisualGroups
 
 	private void createVisualGroupElement(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, ChannelDensityNonUniform density, Cell cell)
 	{
-		String ionChannel = "Density_Non_Uniform_" + density.getIonChannel();
 
-		if(!groupsMap.containsKey(ionChannel))
+		if(!density.getId().equals("Leak_all"))
 		{
-			VisualGroupNode vis = createVisualGroup(groupsMap, densities, ionChannel);
-			
-			if(!density.getId().equals("Leak_all"))
+			//Get all segments in the cell
+			LinkedHashMap<Integer, Segment> idsVsSegments = CellUtils.getIdsVsSegments(cell);
+
+			// Iterate through the segment groups looking for the right segment group with a variable parameter equals to condDensity
+			for(SegmentGroup segmentGroup : cell.getMorphology().getSegmentGroup())
 			{
-				for(SegmentGroup segmentGroup : cell.getMorphology().getSegmentGroup())
+				for(VariableParameter variableParameter : density.getVariableParameter())
 				{
-					for(VariableParameter variableParameter : density.getVariableParameter())
+					if(variableParameter.getParameter().equals("condDensity") && segmentGroup.getId().equals(variableParameter.getSegmentGroup()))
 					{
-						if(variableParameter.getParameter().equals("condDensity") && segmentGroup.getId().equals(variableParameter.getSegmentGroup()))
+						String ionChannel = "Density_Non_Uniform_" + density.getIonChannel() + "_" + segmentGroup.getId();
+						VisualGroupNode vis = createVisualGroup(groupsMap, densities, ionChannel);
+						
+						// Get expression evaluator for inhomogeneous expresion
+						DoubleEvaluator doubleEvaluator = getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
+
+						// Look for all segment id in this segment group
+						List<Integer> segmentsPerGroup = CellUtils.getSegmentIdsInGroup(cell, segmentGroup.getId());
+
+						// Get the inhomogeneous parameter for the segment group
+						for(InhomogeneousParameter inhomogeneousParameter : segmentGroup.getInhomogeneousParameter())
 						{
-							// Get expression evaluator for inhomogeneous expresion
-							DoubleEvaluator doubleEvaluator = getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
-
-							List<Integer> segmentsPerGroup = CellUtils.getSegmentIdsInGroup(cell, segmentGroup.getId());
-							LinkedHashMap<Integer, Segment> idsVsSegments = CellUtils.getIdsVsSegments(cell);
-
-							for(InhomogeneousParameter inhomogeneousParameter : segmentGroup.getInhomogeneousParameter())
+							if(inhomogeneousParameter.getId().equals(variableParameter.getInhomogeneousValue().getInhomogeneousParameter()))
 							{
-								if(inhomogeneousParameter.getId().equals(density.getVariableParameter().get(0).getInhomogeneousValue().getInhomogeneousParameter()))
+								// FIXME: add translation
+								inhomogeneousParameter.getProximal().getTranslationStart();
+
+								// Iterate segment group and create a visual group element node for each subsegment
+								for(Include subSegment : segmentGroup.getInclude())
 								{
-									inhomogeneousParameter.getVariable();
-									inhomogeneousParameter.getProximal().getTranslationStart();
+									// Calculate average distance for all segments in the sub segment group
+									double averageDistance = calculateDistanceForSegmentGroup(cell, segmentGroup, segmentsPerGroup, idsVsSegments, subSegment);
 
-									for(Include sgInclude : segmentGroup.getInclude())
-									{
-										double distanceToGroup = 0.0;
-										double distanceInGroup = 0.0;
-										List<Segment> segmentsPerSubgroup = null;
-										try
-										{
-											segmentsPerSubgroup = CellUtils.getSegmentsInGroup(cell, sgInclude.getSegmentGroup());
-										}
-										catch(NeuroMLException e1)
-										{
-											// TODO Auto-generated catch block
-											e1.printStackTrace();
-										}
-										for(Segment sg : segmentsPerSubgroup)
-										{
-											if(distanceToGroup == 0.0) distanceToGroup = calculateDistanceToGroup(0.0, sg, idsVsSegments, segmentsPerGroup);
-											distanceInGroup += calculareDistanceInGroup(distanceInGroup, sg, idsVsSegments, segmentsPerGroup);
-										}
+									// Calculate conductance density
+									HashMap<String, Double> valHM = new HashMap<String, Double>();
+									valHM.put(inhomogeneousParameter.getVariable(), averageDistance);
 
-										double averageDistance = (distanceInGroup + distanceToGroup) / segmentGroup.getInclude().size();
+									// Create visual group element
+									VisualGroupElementNode element = new VisualGroupElementNode(subSegment.getSegmentGroup());
+									element.setName(density.getId());
 
-										VisualGroupElementNode element = new VisualGroupElementNode(sgInclude.getSegmentGroup());
-										element.setName(density.getId());
-										
-										// Calculate conductance density
-										HashMap<String, Double> valHM = new HashMap<String, Double>();
-										valHM.put("p", averageDistance);
-										
-										// Create physical quantity
-										//FIXME We are hardcoding the units
-										PhysicalQuantity physicalQuantity = new PhysicalQuantity(new FloatValue((float) doubleEvaluator.evalD(valHM)), new Unit("uF_per_cm2"));
-										element.setParameter(physicalQuantity);
-										element.setParent(vis);
-										element.setDefaultColor(defaultColor);
-										vis.getVisualGroupElements().add(element);
-
-									}
+									// Add calculated value as a physical quantity
+									// FIXME We are hardcoding the units
+									PhysicalQuantity physicalQuantity = new PhysicalQuantity(new FloatValue((float) doubleEvaluator.evalD(valHM)), new Unit("uF_per_cm2"));
+									element.setParameter(physicalQuantity);
+									element.setParent(vis);
+									element.setDefaultColor(defaultColor);
+									vis.getVisualGroupElements().add(element);
 
 								}
+
 							}
 						}
 					}
-
 				}
+
 			}
 		}
+
 	}
-	
-	private void createVisualGroupElement(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, ChannelDensityNernst density)
+
+	private double calculateDistanceForSegmentGroup(Cell cell, SegmentGroup segmentGroup, List<Integer> segmentsPerGroup, LinkedHashMap<Integer, Segment> idsVsSegments, Include sgInclude)
 	{
-		createVisualGroupFromCondDensity(groupsMap, densities, density, "Density_Nernst_" + density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
-		
-	}
-	private void createVisualGroupElement(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, ChannelDensity density)
-	{
-		createVisualGroupFromCondDensity(groupsMap, densities, density, "Density_" + density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
+		double distanceToGroup = 0.0;
+		double distanceInGroup = 0.0;
+		List<Segment> segmentsPerSubgroup = null;
+		try
+		{
+			segmentsPerSubgroup = CellUtils.getSegmentsInGroup(cell, sgInclude.getSegmentGroup());
+		}
+		catch(NeuroMLException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		for(Segment sg : segmentsPerSubgroup)
+		{
+			if(distanceToGroup == 0.0) distanceToGroup = calculateDistanceToGroup(0.0, sg, idsVsSegments, segmentsPerGroup);
+			distanceInGroup += calculareDistanceInGroup(distanceInGroup, sg, idsVsSegments, segmentsPerGroup);
+		}
+
+		double averageDistance = (distanceInGroup + distanceToGroup) / segmentGroup.getInclude().size();
+		return averageDistance;
 	}
 
 	private void createVisualGroupFromCondDensity(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, Base density, String ionChannel, String segmentGroup, String condDensity)
@@ -286,8 +288,7 @@ public class PopulateChannelDensityVisualGroups
 		{
 			VisualGroupNode vis = groupsMap.get(ionChannel);
 
-			if(!density.getId().endsWith("_all"))
-				createVisualGroupElementFromSegmentGroup(density, segmentGroup, condDensity, vis);
+			if(!density.getId().endsWith("_all")) createVisualGroupElementFromSegmentGroup(density, segmentGroup, condDensity, vis);
 
 			densities.addChild(vis);
 			groupsMap.put(ionChannel, vis);
