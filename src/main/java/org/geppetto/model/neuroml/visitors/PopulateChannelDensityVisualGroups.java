@@ -80,34 +80,16 @@ public class PopulateChannelDensityVisualGroups
 
 	private static Log _logger = LogFactory.getLog(PopulateChannelDensityVisualGroups.class);
 
-	private double calculateDistanceToGroup(double distance, Segment segment, LinkedHashMap<Integer, Segment> idsVsSegments, List<Integer> segmentsPerGroup)
+	
+	private Cell cell;
+	//Get all segments in the cell
+	LinkedHashMap<Integer, Segment> idsVsSegments;
+	
+	public PopulateChannelDensityVisualGroups(Cell cell)
 	{
-		if(!segmentsPerGroup.contains(segment.getId()))
-		{
-			Point3DWithDiam proximal = (segment.getProximal() == null) ? idsVsSegments.get(segment.getParent().getSegment()).getDistal() : segment.getProximal();
-			distance += CellUtils.distance(proximal, segment.getDistal());
-		}
-
-		if(segment.getParent() != null)
-		{
-			return calculateDistanceToGroup(distance, idsVsSegments.get(segment.getParent().getSegment()), idsVsSegments, segmentsPerGroup);
-		}
-		return distance;
-	}
-
-	private double calculateDistanceInGroup(double distance, Segment segment, LinkedHashMap<Integer, Segment> idsVsSegments, List<Integer> segmentsPerGroup)
-	{
-		if(segmentsPerGroup.contains(segment.getId()))
-		{
-			Point3DWithDiam proximal = (segment.getProximal() == null) ? idsVsSegments.get(segment.getParent().getSegment()).getDistal() : segment.getProximal();
-			distance += CellUtils.distance(proximal, segment.getDistal());
-		}
-
-		if(segment.getParent() != null && segmentsPerGroup.contains(segment.getParent().getSegment()))
-		{
-			return calculateDistanceInGroup(distance, idsVsSegments.get(segment.getParent().getSegment()), idsVsSegments, segmentsPerGroup);
-		}
-		return distance;
+		super();
+		this.cell = cell;
+		
 	}
 
 	/**
@@ -117,7 +99,7 @@ public class PopulateChannelDensityVisualGroups
 	 *            - Densities visual groups for this cell
 	 * @return
 	 */
-	public CompositeNode createChannelDensities(Cell cell)
+	public CompositeNode createChannelDensities()
 	{
 
 		Map<String, VisualGroupNode> groupsMap = new HashMap<String, VisualGroupNode>();
@@ -133,19 +115,41 @@ public class PopulateChannelDensityVisualGroups
 			densities = new CompositeNode("ChannelDensities");
 			densities.setName("Channel Densities");
 
-			for(ChannelDensity density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
-			{
-				createVisualGroupFromCondDensity(groupsMap, densities, density, "Density_Nernst_" + density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
+			if (biophysicalProperties.getMembraneProperties().getChannelDensity() != null && biophysicalProperties.getMembraneProperties().getChannelDensity().size() > 0){
+				CompositeNode densityNode = new CompositeNode("Density");
+				densityNode.setName("Density");
+				densityNode.setParent(densities);
+				densities.addChild(densityNode);
+				
+				for(ChannelDensity density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
+				{
+					createVisualGroupFromCondDensity(groupsMap, densityNode, density, density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
+				}
+			}
+			
+			if (biophysicalProperties.getMembraneProperties().getChannelDensityNernst() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNernst().size() > 0){
+				CompositeNode densityNode = new CompositeNode("Density_Nernst");
+				densityNode.setName("Density Nernst");
+				densityNode.setParent(densities);
+				densities.addChild(densityNode);
+				
+				for(ChannelDensityNernst density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
+				{
+					createVisualGroupFromCondDensity(groupsMap, densityNode, density, density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
+				}
 			}
 
-			for(ChannelDensityNernst density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
-			{
-				createVisualGroupFromCondDensity(groupsMap, densities, density, "Density_Nernst_" + density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
-			}
-
-			for(ChannelDensityNonUniform density : biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform())
-			{
-				createVisualGroupElement(groupsMap, densities, density, cell);
+			if (biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform().size() > 0){
+				CompositeNode densityNode = new CompositeNode("Density_Non_Uniform");
+				densityNode.setName("Density Non Uniform");
+				densityNode.setParent(densities);
+				densities.addChild(densityNode);
+				
+				idsVsSegments = CellUtils.getIdsVsSegments(cell);
+				for(ChannelDensityNonUniform density : biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform())
+				{
+					createVisualGroupElement(groupsMap, densityNode, density);
+				}
 			}
 
 		}
@@ -183,14 +187,11 @@ public class PopulateChannelDensityVisualGroups
 		return doubleEvaluator;
 	}
 
-	private void createVisualGroupElement(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, ChannelDensityNonUniform density, Cell cell)
+	private void createVisualGroupElement(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, ChannelDensityNonUniform density)
 	{
 
 		if(!density.getId().equals("Leak_all"))
 		{
-			//Get all segments in the cell
-			LinkedHashMap<Integer, Segment> idsVsSegments = CellUtils.getIdsVsSegments(cell);
-
 			// Iterate through the segment groups looking for the right segment group with a variable parameter equals to condDensity
 			for(SegmentGroup segmentGroup : cell.getMorphology().getSegmentGroup())
 			{
@@ -198,7 +199,7 @@ public class PopulateChannelDensityVisualGroups
 				{
 					if(variableParameter.getParameter().equals("condDensity") && segmentGroup.getId().equals(variableParameter.getSegmentGroup()))
 					{
-						String ionChannel = "Density_Non_Uniform_" + density.getIonChannel() + "_" + segmentGroup.getId();
+						String ionChannel = density.getIonChannel() + "_" + segmentGroup.getId();
 						VisualGroupNode vis = createVisualGroup(groupsMap, densities, ionChannel);
 						
 						// Get expression evaluator for inhomogeneous expresion
@@ -219,7 +220,7 @@ public class PopulateChannelDensityVisualGroups
 								for(Include include : segmentGroup.getInclude())
 								{
 									// Calculate average distance for all segments in the sub segment group
-									double averageDistance = calculateDistanceForSegmentGroup(cell, segmentsPerGroup, idsVsSegments, include);
+									double averageDistance = calculateDistanceForSegmentGroup(cell, segmentsPerGroup, include);
 
 									// Calculate conductance density
 									HashMap<String, Double> valHM = new HashMap<String, Double>();
@@ -248,18 +249,51 @@ public class PopulateChannelDensityVisualGroups
 		}
 
 	}
+	
+	private double calculateDistanceToGroup(double distance, Segment segment, List<Integer> segmentsPerGroup)
+	{
+		if(!segmentsPerGroup.contains(segment.getId()))
+		{
+			Point3DWithDiam proximal = (segment.getProximal() == null) ? idsVsSegments.get(segment.getParent().getSegment()).getDistal() : segment.getProximal();
+			distance += CellUtils.distance(proximal, segment.getDistal());
+		}
 
-	private double calculateDistanceForSegmentGroup(Cell cell, List<Integer> segmentsPerGroup, LinkedHashMap<Integer, Segment> idsVsSegments, Include sgInclude)
+		if(segment.getParent() != null)
+		{
+			return calculateDistanceToGroup(distance, idsVsSegments.get(segment.getParent().getSegment()), segmentsPerGroup);
+		}
+		return distance;
+	}
+
+	private double calculateDistanceInGroup(double distance, Segment segment, List<Integer> segmentsPerGroup)
+	{
+		if(segmentsPerGroup.contains(segment.getId()))
+		{
+			Point3DWithDiam proximal = (segment.getProximal() == null) ? idsVsSegments.get(segment.getParent().getSegment()).getDistal() : segment.getProximal();
+			distance += CellUtils.distance(proximal, segment.getDistal());
+		}
+
+		if(segment.getParent() != null && segmentsPerGroup.contains(segment.getParent().getSegment()))
+		{
+			return calculateDistanceInGroup(distance, idsVsSegments.get(segment.getParent().getSegment()), segmentsPerGroup);
+		}
+		return distance;
+	}
+
+	private double calculateDistanceForSegmentGroup(Cell cell, List<Integer> segmentsPerGroup, Include sgInclude)
 	{
 		double distanceAllSegments = 0.0;
 		double distanceToGroup = 0.0;
 		try
 		{
+			//Get all segments for the subgroup
 			List<Segment> segmentsPerSubgroup = CellUtils.getSegmentsInGroup(cell, sgInclude.getSegmentGroup());
-			if(distanceToGroup == 0.0) distanceToGroup = calculateDistanceToGroup(0.0, segmentsPerSubgroup.get(0), idsVsSegments, segmentsPerGroup);
+			//Calculate distance to group
+			if(distanceToGroup == 0.0) distanceToGroup = calculateDistanceToGroup(0.0, segmentsPerSubgroup.get(0), segmentsPerGroup);
+			// Calculate inner distance for each segment
 			for(Segment sg : segmentsPerSubgroup)
 			{
-				double distanceInGroup = calculateDistanceInGroup(0.0, sg, idsVsSegments, segmentsPerGroup);
+				double distanceInGroup = calculateDistanceInGroup(0.0, sg, segmentsPerGroup);
 				distanceAllSegments += distanceInGroup + distanceToGroup;
 			}
 

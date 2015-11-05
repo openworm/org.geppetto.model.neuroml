@@ -208,8 +208,8 @@ public class PopulateVisualTreeVisitor
 		visualizationNodes.addAll(createNodesFromMorphologyBySegmentGroup(segmentsMap, c));
 
 		// create density groups for each cell, if it has some
-		PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups();
-		CompositeNode densities = populateChannelDensityVisualGroups.createChannelDensities(c);
+		PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(c);
+		CompositeNode densities = populateChannelDensityVisualGroups.createChannelDensities();
 		// add density groups to visualization tree
 		if(densities != null)
 		{
