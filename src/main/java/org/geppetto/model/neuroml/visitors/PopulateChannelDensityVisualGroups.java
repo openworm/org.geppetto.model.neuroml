@@ -222,7 +222,7 @@ public class PopulateChannelDensityVisualGroups
 							if(inhomogeneousParameter.getId().equals(variableParameter.getInhomogeneousValue().getInhomogeneousParameter()))
 							{
 								// FIXME: add translation
-								inhomogeneousParameter.getProximal().getTranslationStart();
+								//inhomogeneousParameter.getProximal().getTranslationStart();
 
 								// Look for all segment id in this segment group
 								List<Integer> segmentsPerGroup = CellUtils.getSegmentIdsInGroup(cell, segmentGroup.getId());
@@ -231,7 +231,7 @@ public class PopulateChannelDensityVisualGroups
 								for(Include include : segmentGroup.getInclude())
 								{
 									// Calculate average distance for all segments in the sub segment group
-									double averageDistance = calculateDistanceForSegmentGroup(cell, segmentsPerGroup, include);
+									double averageDistance = calculateDistanceForSegmentGroup(cell, segmentsPerGroup, include, inhomogeneousParameter.getProximal().getTranslationStart());
 
 									// Calculate conductance density
 									HashMap<String, Double> valHM = new HashMap<String, Double>();
@@ -290,7 +290,7 @@ public class PopulateChannelDensityVisualGroups
 		return distance;
 	}
 
-	private double calculateDistanceForSegmentGroup(Cell cell, List<Integer> segmentsPerGroup, Include sgInclude)
+	private double calculateDistanceForSegmentGroup(Cell cell, List<Integer> segmentsPerGroup, Include sgInclude, double translationStart)
 	{
 		double distanceAllSegments = 0.0;
 		double distanceToGroup = 0.0;
@@ -304,7 +304,7 @@ public class PopulateChannelDensityVisualGroups
 			for(Segment sg : segmentsPerSubgroup)
 			{
 				double distanceInGroup = calculateDistanceInGroup(0.0, sg, segmentsPerGroup);
-				distanceAllSegments += distanceInGroup + distanceToGroup;
+				distanceAllSegments += distanceInGroup + distanceToGroup - translationStart;
 			}
 
 			return distanceAllSegments / segmentsPerSubgroup.size();
