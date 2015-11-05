@@ -58,8 +58,10 @@ import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
 import org.neuroml.model.ChannelDensityNernst;
 import org.neuroml.model.ChannelDensityNonUniform;
+import org.neuroml.model.ChannelDensityNonUniformNernst;
 import org.neuroml.model.Include;
 import org.neuroml.model.InhomogeneousParameter;
+import org.neuroml.model.IonChannel;
 import org.neuroml.model.Point3DWithDiam;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
@@ -89,11 +91,10 @@ public class PopulateChannelDensityVisualGroups
 	{
 		super();
 		this.cell = cell;
-		
 	}
 
 	/**
-	 * Create Channel densities visual grups for a cell
+	 * Create Channel densities visual groups for a cell
 	 * 
 	 * @param cell
 	 *            - Densities visual groups for this cell
@@ -101,7 +102,6 @@ public class PopulateChannelDensityVisualGroups
 	 */
 	public CompositeNode createChannelDensities()
 	{
-
 		Map<String, VisualGroupNode> groupsMap = new HashMap<String, VisualGroupNode>();
 
 		CompositeNode densities = null;
@@ -148,12 +148,25 @@ public class PopulateChannelDensityVisualGroups
 				idsVsSegments = CellUtils.getIdsVsSegments(cell);
 				for(ChannelDensityNonUniform density : biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform())
 				{
-					createVisualGroupElement(groupsMap, densityNode, density);
+					createVisualGroupElement(groupsMap, densityNode, density.getId(), density.getIonChannel(), density.getVariableParameter());
+				}
+			}
+			
+			if (biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst().size() > 0){
+				CompositeNode densityNode = new CompositeNode("Density_Non_Uniform_Nernst");
+				densityNode.setName("Density Non Uniform Nernst");
+				densityNode.setParent(densities);
+				densities.addChild(densityNode);
+				
+				idsVsSegments = CellUtils.getIdsVsSegments(cell);
+				for(ChannelDensityNonUniformNernst density : biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst())
+				{
+					createVisualGroupElement(groupsMap, densityNode, density.getId(), density.getIonChannel(), density.getVariableParameter());
 				}
 			}
 
 		}
-
+		
 		return densities;
 	}
 
@@ -187,20 +200,18 @@ public class PopulateChannelDensityVisualGroups
 		return doubleEvaluator;
 	}
 
-	private void createVisualGroupElement(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, ChannelDensityNonUniform density)
+	private void createVisualGroupElement(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, String densityId, String ionChannel, List<VariableParameter> variableParameters)
 	{
 
-		if(!density.getId().equals("Leak_all"))
-		{
 			// Iterate through the segment groups looking for the right segment group with a variable parameter equals to condDensity
 			for(SegmentGroup segmentGroup : cell.getMorphology().getSegmentGroup())
 			{
-				for(VariableParameter variableParameter : density.getVariableParameter())
+				for(VariableParameter variableParameter : variableParameters)
 				{
 					if(variableParameter.getParameter().equals("condDensity") && segmentGroup.getId().equals(variableParameter.getSegmentGroup()))
 					{
-						String ionChannel = density.getIonChannel() + "_" + segmentGroup.getId();
-						VisualGroupNode vis = createVisualGroup(groupsMap, densities, ionChannel);
+						String ionChannelLabel = ionChannel + "_" + segmentGroup.getId();
+						VisualGroupNode vis = createVisualGroup(groupsMap, densities, ionChannelLabel);
 						
 						// Get expression evaluator for inhomogeneous expresion
 						DoubleEvaluator doubleEvaluator = getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
@@ -228,7 +239,7 @@ public class PopulateChannelDensityVisualGroups
 
 									// Create visual group element
 									VisualGroupElementNode element = new VisualGroupElementNode(include.getSegmentGroup());
-									element.setName(density.getId() + "_" + include.getSegmentGroup());
+									element.setName(densityId + "_" + include.getSegmentGroup());
 
 									// Add calculated value as a physical quantity
 									// FIXME We are hardcoding the units
@@ -246,7 +257,6 @@ public class PopulateChannelDensityVisualGroups
 				}
 
 			}
-		}
 
 	}
 	
