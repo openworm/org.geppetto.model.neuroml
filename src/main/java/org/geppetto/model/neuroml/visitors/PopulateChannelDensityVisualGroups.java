@@ -221,35 +221,68 @@ public class PopulateChannelDensityVisualGroups
 						{
 							if(inhomogeneousParameter.getId().equals(variableParameter.getInhomogeneousValue().getInhomogeneousParameter()))
 							{
-								// FIXME: add translation
-								//inhomogeneousParameter.getProximal().getTranslationStart();
-
 								// Look for all segment id in this segment group
-								List<Integer> segmentsPerGroup = CellUtils.getSegmentIdsInGroup(cell, segmentGroup.getId());
-								
-								// Iterate segment group and create a visual group element node for each subsegment
-								for(Include include : segmentGroup.getInclude())
+								//List<Integer> segmentsPerGroup = CellUtils.getSegmentIdsInGroup(cell, segmentGroup.getId());
+
+								// Calculate average distance for all segments in the sub segment group
+								//double averageDistance = calculateDistanceForSegmentGroup(cell, segmentGroup, inhomogeneousParameter.getProximal().getTranslationStart());
+
+								try
 								{
-									// Calculate average distance for all segments in the sub segment group
-									double averageDistance = calculateDistanceForSegmentGroup(cell, segmentsPerGroup, include, inhomogeneousParameter.getProximal().getTranslationStart());
+									//Get all segments for the subgroup
+									List<Segment> segmentsPerSubgroup = CellUtils.getSegmentsInGroup(cell, segmentGroup.getId());
+									for(Segment sg : segmentsPerSubgroup)
+									{
+										double distanceInGroup = calculateDistanceInGroup(0.0, sg);
+										double distanceAllSegments = distanceInGroup - inhomogeneousParameter.getProximal().getTranslationStart();
+										
+										// Calculate conductance density
+										HashMap<String, Double> valHM = new HashMap<String, Double>();
+										valHM.put(inhomogeneousParameter.getVariable(), distanceAllSegments);
 
-									// Calculate conductance density
-									HashMap<String, Double> valHM = new HashMap<String, Double>();
-									valHM.put(inhomogeneousParameter.getVariable(), averageDistance);
+										// Create visual group element
+										VisualGroupElementNode element = new VisualGroupElementNode(sg.getId().toString());
+										element.setName(sg.getName());
 
-									// Create visual group element
-									VisualGroupElementNode element = new VisualGroupElementNode(include.getSegmentGroup());
-									element.setName(densityId + "_" + include.getSegmentGroup());
-
-									// Add calculated value as a physical quantity
-									// FIXME We are hardcoding the units
-									PhysicalQuantity physicalQuantity = new PhysicalQuantity(new FloatValue((float) doubleEvaluator.evalD(valHM)), new Unit("uF_per_cm2"));
-									element.setParameter(physicalQuantity);
-									element.setParent(vis);
-									element.setDefaultColor(defaultColor);
-									vis.getVisualGroupElements().add(element);
+										// Add calculated value as a physical quantity
+										// FIXME We are hardcoding the units
+										PhysicalQuantity physicalQuantity = new PhysicalQuantity(new FloatValue((float) doubleEvaluator.evalD(valHM)), new Unit("S_per_cm2"));
+										element.setParameter(physicalQuantity);
+										element.setParent(vis);
+										element.setDefaultColor(defaultColor);
+										vis.getVisualGroupElements().add(element);
+									}
 
 								}
+								catch(NeuroMLException e1)
+								{
+									_logger.error("Error extracting channel densities");
+								}
+								
+								
+								// Iterate segment group and create a visual group element node for each subsegment
+//								for(Include include : segmentGroup.getInclude())
+//								{
+//									// Calculate average distance for all segments in the sub segment group
+//									double averageDistance = calculateDistanceForSegmentGroup(cell, segmentsPerGroup, include, inhomogeneousParameter.getProximal().getTranslationStart());
+//
+//									// Calculate conductance density
+//									HashMap<String, Double> valHM = new HashMap<String, Double>();
+//									valHM.put(inhomogeneousParameter.getVariable(), averageDistance);
+//
+//									// Create visual group element
+//									VisualGroupElementNode element = new VisualGroupElementNode(include.getSegmentGroup());
+//									element.setName(densityId + "_" + include.getSegmentGroup());
+//
+//									// Add calculated value as a physical quantity
+//									// FIXME We are hardcoding the units
+//									PhysicalQuantity physicalQuantity = new PhysicalQuantity(new FloatValue((float) doubleEvaluator.evalD(valHM)), new Unit("S_per_cm2"));
+//									element.setParameter(physicalQuantity);
+//									element.setParent(vis);
+//									element.setDefaultColor(defaultColor);
+//									vis.getVisualGroupElements().add(element);
+//
+//								}
 
 							}
 						}
@@ -260,51 +293,48 @@ public class PopulateChannelDensityVisualGroups
 
 	}
 	
-	private double calculateDistanceToGroup(double distance, Segment segment, List<Integer> segmentsPerGroup)
+//	private double calculateDistanceToGroup(double distance, Segment segment, List<Integer> segmentsPerGroup)
+//	{
+//		if(!segmentsPerGroup.contains(segment.getId()))
+//		{
+//			Point3DWithDiam proximal = (segment.getProximal() == null) ? idsVsSegments.get(segment.getParent().getSegment()).getDistal() : segment.getProximal();
+//			distance += CellUtils.distance(proximal, segment.getDistal());
+//		}
+//
+//		if(segment.getParent() != null)
+//		{
+//			return calculateDistanceToGroup(distance, idsVsSegments.get(segment.getParent().getSegment()), segmentsPerGroup);
+//		}
+//		return distance;
+//	}
+
+	private double calculateDistanceInGroup(double distance, Segment segment)
 	{
-		if(!segmentsPerGroup.contains(segment.getId()))
-		{
-			Point3DWithDiam proximal = (segment.getProximal() == null) ? idsVsSegments.get(segment.getParent().getSegment()).getDistal() : segment.getProximal();
-			distance += CellUtils.distance(proximal, segment.getDistal());
-		}
+		Point3DWithDiam proximal = (segment.getProximal() == null) ? idsVsSegments.get(segment.getParent().getSegment()).getDistal() : segment.getProximal();
+		distance += CellUtils.distance(proximal, segment.getDistal());
 
 		if(segment.getParent() != null)
 		{
-			return calculateDistanceToGroup(distance, idsVsSegments.get(segment.getParent().getSegment()), segmentsPerGroup);
+			return calculateDistanceInGroup(distance, idsVsSegments.get(segment.getParent().getSegment()));
 		}
 		return distance;
 	}
 
-	private double calculateDistanceInGroup(double distance, Segment segment, List<Integer> segmentsPerGroup)
-	{
-		if(segmentsPerGroup.contains(segment.getId()))
-		{
-			Point3DWithDiam proximal = (segment.getProximal() == null) ? idsVsSegments.get(segment.getParent().getSegment()).getDistal() : segment.getProximal();
-			distance += CellUtils.distance(proximal, segment.getDistal());
-		}
-
-		if(segment.getParent() != null && segmentsPerGroup.contains(segment.getParent().getSegment()))
-		{
-			return calculateDistanceInGroup(distance, idsVsSegments.get(segment.getParent().getSegment()), segmentsPerGroup);
-		}
-		return distance;
-	}
-
-	private double calculateDistanceForSegmentGroup(Cell cell, List<Integer> segmentsPerGroup, Include sgInclude, double translationStart)
+	private double calculateDistanceForSegmentGroup(Cell cell,SegmentGroup segmentGroup, double translationStart)
 	{
 		double distanceAllSegments = 0.0;
-		double distanceToGroup = 0.0;
+		//double distanceToGroup = 0.0;
 		try
 		{
 			//Get all segments for the subgroup
-			List<Segment> segmentsPerSubgroup = CellUtils.getSegmentsInGroup(cell, sgInclude.getSegmentGroup());
+			List<Segment> segmentsPerSubgroup = CellUtils.getSegmentsInGroup(cell, segmentGroup.getId());
 			//Calculate distance to group
-			if(distanceToGroup == 0.0) distanceToGroup = calculateDistanceToGroup(0.0, segmentsPerSubgroup.get(0), segmentsPerGroup);
+			//if(distanceToGroup == 0.0) distanceToGroup = calculateDistanceToGroup(0.0, segmentsPerSubgroup.get(0), segmentsPerGroup);
 			// Calculate inner distance for each segment
 			for(Segment sg : segmentsPerSubgroup)
 			{
-				double distanceInGroup = calculateDistanceInGroup(0.0, sg, segmentsPerGroup);
-				distanceAllSegments += distanceInGroup + distanceToGroup - translationStart;
+				double distanceInGroup = calculateDistanceInGroup(0.0, sg);
+				distanceAllSegments += distanceInGroup - translationStart;
 			}
 
 			return distanceAllSegments / segmentsPerSubgroup.size();
