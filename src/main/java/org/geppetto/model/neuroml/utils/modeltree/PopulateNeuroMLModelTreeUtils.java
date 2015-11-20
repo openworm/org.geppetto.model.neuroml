@@ -34,7 +34,6 @@
 package org.geppetto.model.neuroml.utils.modeltree;
 
 import java.lang.reflect.Method;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,7 +44,7 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.CompositeNode;
-import org.geppetto.core.model.runtime.FunctionNode;
+import org.geppetto.core.model.runtime.HTMLMetadataNode;
 import org.geppetto.core.model.runtime.ParameterSpecificationNode;
 import org.geppetto.core.model.values.IntValue;
 import org.geppetto.core.model.values.StringValue;
@@ -54,10 +53,6 @@ import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.ComponentType;
-import org.neuroml.export.info.model.ExpressionNode;
-import org.neuroml.export.info.model.InfoNode;
-import org.neuroml.export.info.model.PlotMetadataNode;
-import org.neuroml.export.info.model.PlotNode;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.AlphaCondSynapse;
 import org.neuroml.model.Annotation;
@@ -114,7 +109,6 @@ import org.neuroml.model.Network;
 import org.neuroml.model.PlasticityMechanism;
 import org.neuroml.model.Population;
 import org.neuroml.model.PopulationTypes;
-import org.neuroml.model.Property;
 import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Q10Settings;
 import org.neuroml.model.Resistivity;
@@ -123,6 +117,7 @@ import org.neuroml.model.SpecificCapacitance;
 import org.neuroml.model.SpikeThresh;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.VariableParameter;
+import org.neuroml.model.util.NeuroMLException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -137,6 +132,12 @@ import org.w3c.dom.Node;
 public class PopulateNeuroMLModelTreeUtils
 {
 
+	public PopulateNeuroMLModelTreeUtils(ModelWrapper model)
+	{
+		this.model = model;
+		populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(model);
+	}
+
 	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
 
 	// Maps parameter spec node to setter method
@@ -145,17 +146,9 @@ public class PopulateNeuroMLModelTreeUtils
 	// Maps parameter spec node to instance object in NeuroML object
 	private Map<ParameterSpecificationNode, Object> _parameterNodesToMethodsMap = new HashMap<ParameterSpecificationNode, Object>();
 
+	private PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils;
+
 	private ModelWrapper model;
-
-	public ModelWrapper getModel()
-	{
-		return model;
-	}
-
-	public void setModel(ModelWrapper model)
-	{
-		this.model = model;
-	}
 
 	public Map<ParameterSpecificationNode, Object> getParametersNodeToMethodsMap()
 	{
@@ -165,6 +158,21 @@ public class PopulateNeuroMLModelTreeUtils
 	public Map<ParameterSpecificationNode, Object> getParametersNodeToObjectsMap()
 	{
 		return _parameterNodesToObjectMap;
+	}
+
+	public HTMLMetadataNode getDescriptionNode() throws ModelInterpreterException
+	{
+		return populateSummaryNodesModelTreeUtils.createDescriptionNode();
+	}
+
+	public CompositeNode getSummaryNode() throws ModelInterpreterException
+	{
+		return populateSummaryNodesModelTreeUtils.createSummaryNode();
+	}
+
+	public void addInfoNode(Standalone element) throws NeuroMLException
+	{
+		populateSummaryNodesModelTreeUtils.addInfoNode(element);
 	}
 
 	public CompositeNode createRateGateNode(Resources name, HHRate rate) throws ModelInterpreterException, ContentError
@@ -254,6 +262,10 @@ public class PopulateNeuroMLModelTreeUtils
 	{
 		CompositeNode cellNode = new CompositeNode(Resources.CELL.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.CELL.get(), c));
 		cellNode.setDomainType(ResourcesDomainType.CELL.get());
+
+		// Add Component and node to description map
+		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.CELL, c, cellNode);
+
 		// Cell types
 		if(c instanceof Cell)
 		{
@@ -503,6 +515,10 @@ public class PopulateNeuroMLModelTreeUtils
 	{
 
 		CompositeNode pulseGeneratorNode = new CompositeNode(pulseGenerator.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.PULSE_GENERATOR.get(), pulseGenerator));
+		pulseGeneratorNode.setDomainType(ResourcesDomainType.PULSEGENERATOR.get());
+
+		// Add Component and node to description map
+		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.PULSEGENERATOR, pulseGenerator, pulseGeneratorNode);
 
 		// Amplitude
 		ParameterSpecificationNode amplitude = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.AMPLITUDE.getId(), Resources.AMPLITUDE.get(), pulseGenerator.getAmplitude());
@@ -1055,6 +1071,9 @@ public class PopulateNeuroMLModelTreeUtils
 			CompositeNode ionChannelNode = new CompositeNode(ionChannelBase.getId());
 			ionChannelNode.setDomainType(ResourcesDomainType.IONCHANNEL.get());
 
+			// Add Component and node to description map
+			populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.IONCHANNEL, ionChannelBase, ionChannelNode);
+
 			if(ionChannelBase instanceof IonChannel)
 			{
 				ionChannelNode.setName(Resources.ION_CHANNEL.get());
@@ -1154,25 +1173,24 @@ public class PopulateNeuroMLModelTreeUtils
 	{
 
 		CompositeNode networkNode = new CompositeNode(Resources.NETWORK.getId(), Resources.NETWORK.get());
-
+		networkNode.setDomainType(ResourcesDomainType.NETWORK.get());
 		networkNode.addChildren(createStandaloneChildren(n));
 
-		// for(InputList i : n.getInputList()){
-		//
-		// }
-		//
-		// for(ExplicitInput e : n.getExplicitInput()){
-		//
-		// }
-		//
-		// for(Region r : n.getRegion()){
-		//
-		// }
+		// Add Component and node to description map
+		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.NETWORK, n, networkNode);
+					
+		// for(InputList i : n.getInputList()){}
+		// for(ExplicitInput e : n.getExplicitInput()){}
+		// for(Region r : n.getRegion()){}
 
 		List<Population> populations = n.getPopulation();
 		for(Population p : populations)
 		{
 			CompositeNode populationNode = new CompositeNode(p.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.POPULATION.get(), p));
+			populationNode.setDomainType(ResourcesDomainType.POPULATION.get());
+
+			// Add Component and node to description map
+			populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.POPULATION, p, populationNode);
 
 			populationNode.addChildren(createStandaloneChildren(p));
 
@@ -1187,8 +1205,7 @@ public class PopulateNeuroMLModelTreeUtils
 			PopulationTypes populationType = p.getType();
 			if(populationType != null)
 			{
-				populationNode
-						.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POPULATION_TYPE.getId(), Resources.POPULATION_TYPE.get(), new StringValue(populationType.value())));
+				populationNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POPULATION_TYPE.getId(), Resources.POPULATION_TYPE.get(), new StringValue(populationType.value())));
 			}
 
 			// TODO: Just reading the number of instances and displaying as a text metadata node
@@ -1208,6 +1225,10 @@ public class PopulateNeuroMLModelTreeUtils
 		if(synapse != null)
 		{
 			CompositeNode synapseNode = new CompositeNode(synapse.getId());
+			synapseNode.setDomainType(ResourcesDomainType.SYNAPSE.get());
+
+			// Add Component and node to description map
+			populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.SYNAPSE, synapse, synapseNode);
 
 			synapseNode.addChildren(createStandaloneChildren(synapse));
 
@@ -1298,6 +1319,10 @@ public class PopulateNeuroMLModelTreeUtils
 	public CompositeNode createPynnSynapseNode(BasePynnSynapse pynnSynapse) throws ContentError, ModelInterpreterException
 	{
 		CompositeNode pynnSynapsesNode = new CompositeNode(pynnSynapse.getId(), PopulateGeneralModelTreeUtils.getUniqueName(Resources.PYNN_SYNAPSE.get(), pynnSynapse));
+		pynnSynapsesNode.setDomainType(ResourcesDomainType.SYNAPSE.get());
+
+		// Add Component and node to description map
+		populateSummaryNodesModelTreeUtils.addNodeToModelDescription(ResourcesDomainType.SYNAPSE, pynnSynapse, pynnSynapsesNode);
 
 		pynnSynapsesNode.addChildren(createStandaloneChildren(pynnSynapse));
 		ParameterSpecificationNode tauSyn = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.TAUSYN.getId(), Resources.TAUSYN.get(), String.valueOf(pynnSynapse.getTauSyn()));
@@ -1365,7 +1390,6 @@ public class PopulateNeuroMLModelTreeUtils
 
 		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NOTES.getId(), Resources.NOTES.get(), new StringValue(standaloneComponent.getNotes())));
 		standaloneChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.METAID.getId(), Resources.METAID.get(), new StringValue(standaloneComponent.getMetaid())));
-		
 
 		return standaloneChildren;
 	}
@@ -1417,74 +1441,6 @@ public class PopulateNeuroMLModelTreeUtils
 		baseChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ID.getId(), Resources.ID.get(), new StringValue(baseComponent.getId())));
 		baseChildren.add(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.NEUROLEX_ID.getId(), Resources.NEUROLEX_ID.get(), new StringValue(baseComponent.getNeuroLexId())));
 		return baseChildren;
-	}
-
-	public List<ANode> createInfoNode(InfoNode infoNode) throws ModelInterpreterException
-	{
-		List<ANode> summaryElementList = new ArrayList<ANode>();
-		for(Map.Entry<String, Object> properties : ((InfoNode) infoNode).getProperties().entrySet())
-		{
-			String keyProperties = properties.getKey();
-			Object valueProperties = properties.getValue();
-			if(!keyProperties.equals("ID"))
-			{
-
-				if(valueProperties == null)
-				{
-					summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties, new StringValue("")));
-				}
-				else if(valueProperties instanceof String)
-				{
-					summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties, new StringValue(
-							(String) valueProperties)));
-				}
-				else if(valueProperties instanceof BigInteger)
-				{
-					summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties, new StringValue(
-							((BigInteger) valueProperties).toString())));
-				}
-				else if(valueProperties instanceof Integer)
-				{
-					summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties,
-							new StringValue(Integer.toString((Integer) valueProperties))));
-				}
-				else if(valueProperties instanceof PlotNode)
-				{
-
-				}
-				else if(valueProperties instanceof ExpressionNode)
-				{
-					ExpressionNode expressionNode = ((ExpressionNode) valueProperties);
-
-					FunctionNode functionNode = new FunctionNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties);
-					functionNode.setExpression(expressionNode.getExpression());
-					functionNode.getArgument().add("v");
-
-					PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
-					if(plotMetadataNode != null)
-					{
-						functionNode.getPlotMetadata().put("PlotTitle", plotMetadataNode.getPlotTitle());
-						functionNode.getPlotMetadata().put("XAxisLabel", plotMetadataNode.getXAxisLabel());
-						functionNode.getPlotMetadata().put("YAxisLabel", plotMetadataNode.getYAxisLabel());
-						functionNode.getPlotMetadata().put("InitialValue", Double.toString(plotMetadataNode.getInitialValue()));
-						functionNode.getPlotMetadata().put("FinalValue", Double.toString(plotMetadataNode.getFinalValue()));
-						functionNode.getPlotMetadata().put("StepValue", Double.toString(plotMetadataNode.getStepValue()));
-					}
-					summaryElementList.add(functionNode);
-				}
-				else if(valueProperties instanceof InfoNode)
-				{
-					CompositeNode subSummaryElementNode = new CompositeNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties);
-					subSummaryElementNode.addChildren(createInfoNode((InfoNode) valueProperties));
-					summaryElementList.add(subSummaryElementNode);
-				}
-				else
-				{
-					throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());
-				}
-			}
-		}
-		return summaryElementList;
 	}
 
 	/**
