@@ -667,15 +667,13 @@ public class PopulateNeuroMLModelTreeUtils
 				// Ion Channel
 				channelDensityNonUniformNode.addChild(createChannelNode((IonChannel) neuroMLAccessUtility.getComponent(channelDensityNonUniform.getIonChannel(), model, Resources.ION_CHANNEL)));
 
-				ParameterSpecificationNode n = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.EREV.getId(), Resources.EREV.get(), channelDensityNonUniform.getErev());
 				// Reverse Potential
+				ParameterSpecificationNode n = PopulateNodesModelTreeUtils.createParameterSpecificationNode(Resources.EREV.getId(), Resources.EREV.get(), channelDensityNonUniform.getErev());
 				channelDensityNonUniformNode.addChild(n);
-
 				this.addToMaps(channelDensityNonUniform, "setErev", n);
 
 				// Ion
-				channelDensityNonUniformNode
-						.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.getId(), Resources.ION.get(), new StringValue(channelDensityNonUniform.getIon())));
+				channelDensityNonUniformNode.addChild(PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.ION.getId(), Resources.ION.get(), new StringValue(channelDensityNonUniform.getIon())));
 
 				// Variable Parameter
 				channelDensityNonUniformNode.addChild(createVariableParameterNode(channelDensityNonUniform.getVariableParameter()));
@@ -1052,6 +1050,7 @@ public class PopulateNeuroMLModelTreeUtils
 	{
 		if(ionChannelBase != null)
 		{
+			
 			// Ion Channel
 			CompositeNode ionChannelNode = new CompositeNode(ionChannelBase.getId());
 			ionChannelNode.setDomainType(ResourcesDomainType.IONCHANNEL.get());
