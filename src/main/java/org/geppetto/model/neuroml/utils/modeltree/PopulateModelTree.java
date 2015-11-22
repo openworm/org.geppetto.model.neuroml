@@ -41,7 +41,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.runtime.ACompositeNode;
 import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
@@ -58,8 +57,6 @@ import org.geppetto.model.neuroml.visitors.TrackParameterSpecsNodesVisitors;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.ParamValue;
-import org.neuroml.export.info.InfoTreeCreator;
-import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
@@ -255,8 +252,7 @@ public class PopulateModelTree {
 		 		}
 
 				//Add Description Node
-		 		modelTree.addChild(populateNeuroMLModelTreeUtils.getDescriptionNode());
-//		 		((ACompositeNode)((ACompositeNode)modelTree.getChildren().get(1)).getChildren().get(1)).getChildren().get(1).getInstancePath()
+		 		//modelTree.addChild(populateNeuroMLModelTreeUtils.getDescriptionNode());
 			}
 			else{
 				//Populate model tree for a subentity
@@ -264,10 +260,6 @@ public class PopulateModelTree {
 				modelTree.addChildren(populateNeuroMLModelTreeUtils.createCellNode(baseCell).getChildren());
 				
 				//Add Sumary Node
-//				InfoNode infoNode = new InfoNode();
-//				infoNode.putAll(InfoTreeCreator.createPropertiesFromStandaloneComponent(baseCell));
-//		        CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
-//				summaryNode.addChildren(populateNeuroMLModelTreeUtils.createInfoNode(infoNode));
 				populateNeuroMLModelTreeUtils.addInfoNode(baseCell);
 				modelTree.addChild(populateNeuroMLModelTreeUtils.getSummaryNode());
 				
