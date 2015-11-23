@@ -457,34 +457,6 @@ public class PopulateVisualTreeVisitor
 		return visualCellNodes;
 	}
 
-	private double calculateDistanceToGroup(double distance, Segment segment, LinkedHashMap<Integer, Segment> idsVsSegments, List<Integer> segmentsPerGroup){
-		if (!segmentsPerGroup.contains(segment)){
-			Point3DWithDiam proximal = (segment.getProximal() == null) ? idsVsSegments.get(segment.getParent().getSegment()).getDistal() : segment.getProximal();
-			distance += CellUtils.distance(proximal, segment.getDistal());
-		}
-		
-		if(segment.getParent() != null)
-		{
-			return calculateDistanceToGroup(distance, idsVsSegments.get(segment.getParent().getSegment()), idsVsSegments, segmentsPerGroup);
-		}
-		return distance;
-	}
-	
-	private double calculareDistanceInGroup(double distance, Segment segment, LinkedHashMap<Integer, Segment> idsVsSegments, List<Integer> segmentsPerGroup){
-		if (segmentsPerGroup.contains(segment)){
-			Point3DWithDiam proximal = (segment.getProximal() == null) ? idsVsSegments.get(segment.getParent().getSegment()).getDistal() : segment.getProximal();
-			distance += CellUtils.distance(proximal, segment.getDistal());
-		}
-		
-		if(segment.getParent() != null && segmentsPerGroup.contains(segment.getParent().getSegment()))
-		{
-			return calculareDistanceInGroup(distance, idsVsSegments.get(segment.getParent().getSegment()), idsVsSegments, segmentsPerGroup);
-		}
-		return distance;
-	}
-	
-	
-
 	/**
 	 * Gets all segments group from cell. Creates a map with segments as key of map, and list of groups it belongs as value. Creates visual groups for cell regions while looping through segment
 	 * groups.
