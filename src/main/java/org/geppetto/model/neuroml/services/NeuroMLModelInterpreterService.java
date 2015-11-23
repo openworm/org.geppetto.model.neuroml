@@ -41,6 +41,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,21 +60,12 @@ import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.geppettomodel.ConnectionType;
-import org.geppetto.core.model.runtime.AspectNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
-import org.geppetto.core.model.runtime.CompositeNode;
-import org.geppetto.core.model.runtime.ConnectionNode;
-import org.geppetto.core.model.runtime.EntityNode;
-import org.geppetto.core.model.runtime.ParameterSpecificationNode;
-import org.geppetto.core.model.runtime.TextMetadataNode;
 import org.geppetto.core.model.runtime.VisualObjectReferenceNode;
-import org.geppetto.core.model.values.StringValue;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.utilities.VariablePathSerializer;
-import org.geppetto.core.visualisation.model.Point;
+import org.geppetto.model.GeppettoLibrary;
+import org.geppetto.model.LibraryManager;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
 import org.geppetto.model.neuroml.features.NeuroMLVisualTreeFeature;
@@ -86,6 +78,9 @@ import org.geppetto.model.neuroml.utils.modeltree.PopulateGeneralModelTreeUtils;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateModelTree;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateNeuroMLModelTreeUtils;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateNodesModelTreeUtils;
+import org.geppetto.model.types.Type;
+import org.geppetto.model.values.Point;
+import org.geppetto.model.values.Pointer;
 import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
@@ -130,6 +125,25 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private ModelWrapper model;
 
+	
+	/* (non-Javadoc)
+	 * @see org.geppetto.core.model.IModelInterpreter#importType(java.net.URL, java.lang.String, org.geppetto.core.library.LibraryManager)
+	 */
+	@Override
+	public Collection<Type> importType(URL url, String typeName, LibraryManager libraryManager)
+	{
+		GeppettoLibrary library = libraryManager.getLibrary(this.getName());
+		Collection<Type> types=library.getTypeByURL(url.getPath());
+		// read URL
+		if(types==null)
+		{
+			//nothing cached let's read it
+			//create Types
+			//add to the library
+		}
+	
+		return types;	
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -620,7 +634,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	}
 
 	@Override
-	public File downloadModel(AspectNode aspectNode, ModelFormat format, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
+	public File downloadModel(Pointer pointer, ModelFormat format, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
 	{
 		if(format.equals(ServicesRegistry.getModelFormat("LEMS")) || format.equals(ServicesRegistry.getModelFormat("NEUROML")))
 		{
@@ -682,7 +696,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	}
 
 	@Override
-	public List<ModelFormat> getSupportedOutputs(AspectNode aspectNode) throws ModelInterpreterException
+	public List<ModelFormat> getSupportedOutputs(Pointer pointer) throws ModelInterpreterException
 	{
 		List<ModelFormat> supportedOutputs = super.getSupportedOutputs(aspectNode);
 		supportedOutputs.add(ServicesRegistry.getModelFormat("LEMS"));
