@@ -54,6 +54,7 @@ import org.neuroml.export.info.InfoTreeCreator;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
+import org.neuroml.export.info.model.PlotNode;
 import org.neuroml.model.Population;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLException;
@@ -241,7 +242,7 @@ public class PopulateSummaryNodesModelTreeUtils
 					subSummaryElementNode.addChildren(createInfoNode((InfoNode) valueProperties));
 					summaryElementList.add(subSummaryElementNode);
 				}
-				else
+				else if(!(valueProperties instanceof PlotNode))
 				{
 					throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());
 				}
