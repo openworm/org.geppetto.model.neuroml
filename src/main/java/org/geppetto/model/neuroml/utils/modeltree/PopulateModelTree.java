@@ -57,8 +57,6 @@ import org.geppetto.model.neuroml.visitors.TrackParameterSpecsNodesVisitors;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.ParamValue;
-import org.neuroml.export.info.InfoTreeCreator;
-import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
@@ -89,31 +87,17 @@ import org.neuroml.model.util.NeuroMLException;
 public class PopulateModelTree {
 
 	private boolean _populated = false;
-	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils();
+	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils;
 	
 	private static Log _logger = LogFactory.getLog(PopulateModelTree.class);
 
-	private Map<String, ParameterSpecificationNode> _parameterNodes = 
-			new HashMap<String, ParameterSpecificationNode>();
-	private Map<ParameterSpecificationNode, Object> _parametersToMethodsMap=
-		new HashMap<ParameterSpecificationNode,Object>();
-	private Map<ParameterSpecificationNode, Object> _parametersToObjectssMap=
-			new HashMap<ParameterSpecificationNode,Object>();
+	private Map<String, ParameterSpecificationNode> _parameterNodes = new HashMap<String, ParameterSpecificationNode>();
+	private Map<ParameterSpecificationNode, Object> _parametersToMethodsMap = new HashMap<ParameterSpecificationNode,Object>();
+	private Map<ParameterSpecificationNode, Object> _parametersToObjectssMap = new HashMap<ParameterSpecificationNode,Object>();
 	
 	public PopulateModelTree() {		
 	}
 	
-	public Map<String, ParameterSpecificationNode> getParametersNode(){
-		return _parameterNodes ;
-	}
-	
-	public Map<ParameterSpecificationNode,Object> getParametersNodeToMethodsMap(){
-		return _parametersToMethodsMap ;
-	}
-	
-	public Map<ParameterSpecificationNode,Object> getParametersNodeToObjectsMap(){
-		return _parametersToObjectssMap ;
-	}
 	/**
 	 * Method that is contacted to start populating the model tree
 	 * 
@@ -126,6 +110,8 @@ public class PopulateModelTree {
 	{		
 		long start = System.currentTimeMillis();
 		
+		populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils((ModelWrapper) model);
+		
 		NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
 
 		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
@@ -134,8 +120,6 @@ public class PopulateModelTree {
 		List<String> _discoveredNestedComponentsId = ((ArrayList<String>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID));
 		Map<String, Base> _discoveredComponents = ((HashMap<String, Base>)((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
 		Map<String, ANode> _discoveredNodesInNeuroML =  new HashMap<String, ANode>();
-		
-		populateNeuroMLModelTreeUtils.setModel((ModelWrapper) model);
 		
 		/*
 		 * According to the Geppetto NeuroML model, we can have any (NeuroML)
@@ -182,15 +166,15 @@ public class PopulateModelTree {
 				
 				//Iterate through all standalone elements
 		        Map<String,Standalone> standalones = NeuroMLConverter.getAllStandaloneElements(neuroml);
-		        InfoNode infoNode = new InfoNode();
+		        
 		        for (Standalone element: standalones.values())
 		        {
 		        	
 		        	//Add element to component cache
 		        	_discoveredComponents.put(element.getId(), element);
 		        	
-		        	//Populate sumary node
-					infoNode.putAll(InfoTreeCreator.createPropertiesFromStandaloneComponent(element));
+		        	//Add node to sumary node
+		        	populateNeuroMLModelTreeUtils.addInfoNode(element);
 					
 					// Points to CellTypes group and PynnCellTypes
 					if(element instanceof BaseCell)
@@ -231,6 +215,9 @@ public class PopulateModelTree {
 							//TODO: We are not adding the network as it is implicitly in the entities/subentities (unless there is only one cell) structure but we can be losing some info
 							_discoveredNodesInNeuroML.put(element.getId(), populateNeuroMLModelTreeUtils.createNetworkNode((Network)element));
 						}
+						else{
+							populateNeuroMLModelTreeUtils.createNetworkNode((Network)element);
+						}
 					}
 					else{
 						
@@ -255,17 +242,17 @@ public class PopulateModelTree {
 		        }
 		 		
 		        //Add Summary Node
-		        CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
-				summaryNode.addChildren(populateNeuroMLModelTreeUtils.createInfoNode(infoNode));
-				_discoveredNodesInNeuroML.put(Resources.SUMMARY.getId(), summaryNode);
-		        
+				_discoveredNodesInNeuroML.put(Resources.SUMMARY.getId(), populateNeuroMLModelTreeUtils.getSummaryNode());
+				
 				//Add only nodes which are not pointed by any other node
 		 		for (Map.Entry<String, ANode> entry : _discoveredNodesInNeuroML.entrySet()) {
 		 		   if (!_discoveredNestedComponentsId.contains(entry.getKey())){
 		 			   modelTree.addChild(entry.getValue());
 		 		   }
 		 		}
-		 		
+
+				//Add Description Node
+		 		//modelTree.addChild(populateNeuroMLModelTreeUtils.getDescriptionNode());
 			}
 			else{
 				//Populate model tree for a subentity
@@ -273,11 +260,8 @@ public class PopulateModelTree {
 				modelTree.addChildren(populateNeuroMLModelTreeUtils.createCellNode(baseCell).getChildren());
 				
 				//Add Sumary Node
-				InfoNode infoNode = new InfoNode();
-				infoNode.putAll(InfoTreeCreator.createPropertiesFromStandaloneComponent(baseCell));
-		        CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
-				summaryNode.addChildren(populateNeuroMLModelTreeUtils.createInfoNode(infoNode));
-				modelTree.addChild(summaryNode);
+				populateNeuroMLModelTreeUtils.addInfoNode(baseCell);
+				modelTree.addChild(populateNeuroMLModelTreeUtils.getSummaryNode());
 				
 				//Add population properties
 				boolean found=false;
@@ -328,6 +312,18 @@ public class PopulateModelTree {
 		_logger.info("Populate model tree completed, took " + (System.currentTimeMillis() - start) + "ms");
 		
  		return _populated;
+	}
+	
+	public Map<String, ParameterSpecificationNode> getParametersNode(){
+		return _parameterNodes ;
+	}
+	
+	public Map<ParameterSpecificationNode,Object> getParametersNodeToMethodsMap(){
+		return _parametersToMethodsMap ;
+	}
+	
+	public Map<ParameterSpecificationNode,Object> getParametersNodeToObjectsMap(){
+		return _parametersToObjectssMap ;
 	}
 	
 }

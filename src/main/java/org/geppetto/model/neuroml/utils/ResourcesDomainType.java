@@ -45,6 +45,8 @@ public enum ResourcesDomainType
 	PREFRACTIONALONG("PreFractionAlong"),
 	POSTFRACTIONALONG("PostFractionAlong"),
 	IONCHANNEL("IonChannel"),
+	PULSEGENERATOR("PulseGenerator"),
+	POPULATION("Population"),
 	NETWORK("Network"),
 	CELL("Cell");
 	
