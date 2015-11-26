@@ -35,71 +35,41 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.BigInteger;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.emf.ecore.EClass;
 import org.geppetto.core.beans.ModelInterpreterConfig;
-import org.geppetto.core.beans.PathConfiguration;
-import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
-import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.AModelInterpreter;
-import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.runtime.VisualObjectReferenceNode;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
-import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.model.GeppettoLibrary;
-import org.geppetto.model.LibraryManager;
-import org.geppetto.model.aspect.Aspect;
-import org.geppetto.model.aspect.AspectFactory;
-import org.geppetto.model.aspect.impl.AspectFactoryImpl;
-import org.geppetto.model.neuroml.features.LEMSParametersFeature;
-import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
-import org.geppetto.model.neuroml.features.NeuroMLVisualTreeFeature;
-import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
-import org.geppetto.model.neuroml.utils.Resources;
-import org.geppetto.model.neuroml.utils.ResourcesDomainType;
-import org.geppetto.model.neuroml.utils.modeltree.PopulateGeneralModelTreeUtils;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateModelTree;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateNeuroMLModelTreeUtils;
-import org.geppetto.model.neuroml.utils.modeltree.PopulateNodesModelTreeUtils;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.ParameterType;
-import org.geppetto.model.types.QuantityType;
+import org.geppetto.model.types.StateVariableType;
 import org.geppetto.model.types.TextType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.impl.TypesFactoryImpl;
-import org.geppetto.model.values.Composite;
-import org.geppetto.model.values.Point;
+import org.geppetto.model.values.PhysicalQuantity;
 import org.geppetto.model.values.Pointer;
-import org.geppetto.model.values.PointerElement;
-import org.geppetto.model.values.Quantity;
 import org.geppetto.model.values.Text;
+import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
-import org.geppetto.model.values.ValuesPackage;
 import org.geppetto.model.values.impl.ValuesFactoryImpl;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
@@ -113,25 +83,12 @@ import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.ParamValue;
-import org.lemsml.jlems.io.xmlio.XMLSerializer;
 import org.neuroml.export.utils.Utils;
-import org.neuroml.model.Base;
-import org.neuroml.model.BaseCell;
-import org.neuroml.model.BaseConductanceBasedSynapse;
-import org.neuroml.model.Cell;
-import org.neuroml.model.Instance;
-import org.neuroml.model.Location;
-import org.neuroml.model.Network;
 import org.neuroml.model.NeuroMLDocument;
-import org.neuroml.model.Population;
-import org.neuroml.model.PopulationTypes;
-import org.neuroml.model.Projection;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * @author matteocantarelli
@@ -152,6 +109,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
 
 	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils;
+
+	private Map<String, Type> types;
 	
 	// AQP: Do we need the model wrapper??
 	// private ModelWrapper model;
@@ -162,8 +121,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 * @see org.geppetto.core.model.IModelInterpreter#importType(java.net.URL, java.lang.String, org.geppetto.core.library.LibraryManager)
 	 */
 	@Override
-	public Collection<Type> importType(URL url, String typeName, LibraryManager libraryManager)
+	public Type importType(URL url, String typeName, GeppettoLibrary library) throws ModelInterpreterException
 	{
+
 		// AQP: Commented out for the moment
 		// GeppettoLibrary library = libraryManager.getLibrary(this.getName());
 		// Collection<Type> types=library.getTypeByURL(url.getPath());
@@ -174,6 +134,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		// create Types
 		// add to the library
 		// }
+
+		types = new HashMap<String, Type>();
 
 		dependentModels.clear();
 		// model = new ModelWrapper(instancePath);
@@ -200,8 +162,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 			_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
 
-			
-			
 			/*
 			 * CREATE MODEL WRAPPER
 			 */
@@ -237,7 +197,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 			for(Component component : lems.getComponents())
 			{
-				extractInfoFromComponent(component);
+				types.put(component.getID(), extractInfoFromComponent(component));
 			}
 
 			// add visual tree feature to the model service
@@ -246,7 +206,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			// this.addFeature(visualTreeFeature);
 
 			// AQP: This may remain.
-			//this.addFeature(new LEMSParametersFeature(this.populateModelTree, model));
+			// this.addFeature(new LEMSParametersFeature(this.populateModelTree, model));
 
 			// AQP: This is not needed anymore. We will include the simulation tree in the geppetto tree
 			// this.addFeature(new LEMSSimulationTreeFeature());
@@ -264,10 +224,19 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			throw new ModelInterpreterException(e);
 		}
 
-		return types;
+		library.getTypes().addAll(types.values());
+		
+		if (typeName != null){
+			return types.get(typeName);
+		}
+		//FIXME: Add the logic about network, cell and the rest of the stuff
+//		else if (condition) {
+//			
+//		}
+		return null;
 	}
 
-	private void extractInfoFromComponent(Component component) throws Exception
+	private CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, ContentError, NeuroMLException
 	{
 
 		if(!component.getDeclaredType().equals("morphology"))
@@ -275,20 +244,14 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			System.out.println("New Component Type");
 			System.out.println("Name " + component.getDeclaredType());
 			if(component.getID() != null) System.out.println("Id " + component.getID());
-			
+
 			TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
 			ValuesFactory valuesFactory = ValuesFactoryImpl.eINSTANCE;
 			VariablesFactory variablesFactory = VariablesFactoryImpl.eINSTANCE;
-			AspectFactory aspectFactory = AspectFactoryImpl.eINSTANCE;
-			
-			//AQP: Should we create the aspect from the osgi information?
-			Aspect aspect = aspectFactory.createAspect();
-			aspect.setName("electrical");
-			
+
 			CompositeType compositeType = typeFactory.createCompositeType();
 			compositeType.setName(component.getDeclaredType());
 
-			
 			for(ParamValue pv : component.getParamValues())
 			{
 				if(component.hasAttribute(pv.getName()))
@@ -296,21 +259,24 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					String orig = component.getStringValue(pv.getName());
 					System.out.println("Parameter Specification Node");
 					System.out.println(pv.getName() + ":" + orig);
-					
+
 					// AQP: Extracted from PopulateNodesModelTreeUtils
 					String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
 					Pattern pattern = Pattern.compile(regExp);
 					Matcher matcher = pattern.matcher(orig);
-					
-					Quantity quantity = valuesFactory.createQuantity();
-					//quantity.setScalingFactor(value);
-					quantity.setValue(Float.parseFloat(matcher.group(1)));
-					
+
+					PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
+					// physicalQuantity.setScalingFactor(value);
+					physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
+
+					Unit unit = valuesFactory.createUnit();
+					unit.setUnit(matcher.group(2));
+					physicalQuantity.setUnit(unit);
+
 					ParameterType parameterType = typeFactory.createParameterType();
-					parameterType.setDefaultValue(quantity);
+					parameterType.setDefaultValue(physicalQuantity);
 					parameterType.setName(pv.getName());
-					
-					// If this the way to add a child inside a compositenode?
+
 					Variable variable = variablesFactory.createVariable();
 					variable.getTypes().add(parameterType);
 					compositeType.getVariables().add(variable);
@@ -321,28 +287,33 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 				System.out.println("TextMetadata Node");
 				System.out.println(entry.getKey() + ":" + entry.getValue());
-				
+
 				Text text = valuesFactory.createText();
 				text.setText(entry.getValue());
-				
+
 				TextType textType = typeFactory.createTextType();
 				textType.setName(entry.getKey());
 				textType.setDefaultValue(text);
+
+				Variable variable = variablesFactory.createVariable();
+				variable.getTypes().add(textType);
+				compositeType.getVariables().add(variable);
 			}
 
 			for(Entry<String, Component> entry : component.getRefComponents().entrySet())
 			{
 				System.out.println("Component Node");
 				System.out.println(entry.getKey() + ":" + entry.getValue());
+
+				Variable variable = variablesFactory.createVariable();
 				
-//				PointerElement pointerElement = valuesFactory.createPointerElement();
-//				pointerElement.setAspect(value);
-//				pointerElement.setVariable(value);
-//				
-//				Pointer pointer = valuesFactory.createPointer();
-//				pointer.getElements().add(e);
-				
-				
+				if (!types.containsKey(entry.getKey())){
+					CompositeType refCompositeType = extractInfoFromComponent(entry.getValue());
+					
+					variable.getTypes().add(refCompositeType);
+					compositeType.getVariables().add(variable);
+					types.put(entry.getValue().getID(), refCompositeType);
+				}
 			}
 
 			// Simulation Tree (Variable Node)
@@ -350,19 +321,37 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 				System.out.println("Exposure");
 				System.out.println(exposure.getName());
-				String unit = Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol();
-				System.out.println("Units " + unit);
-				if(unit.equals("none"))
-				{
-					unit = "";
-				}
+
+				String unitSymbol = Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol();
+				if(unitSymbol.equals("none")) unitSymbol = "";
+
+				PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
+				// physicalQuantity.setScalingFactor(value);
+				Unit unit = valuesFactory.createUnit();
+				unit.setUnit(unitSymbol);
+				physicalQuantity.setUnit(unit);
+
+				StateVariableType stateVariableType = typeFactory.createStateVariableType();
+				stateVariableType.setName(exposure.getName());
+				stateVariableType.setDefaultValue(physicalQuantity);
+
+				Variable variable = variablesFactory.createVariable();
+				variable.getTypes().add(stateVariableType);
+				compositeType.getVariables().add(variable);
 			}
 
 			for(Component componentChild : component.getAllChildren())
 			{
-				extractInfoFromComponent(componentChild);
+				// FIXME: CHANGE TO ANONYMOUS TYPE
+				Variable variable = variablesFactory.createVariable();
+				variable.getAnonymousTypes().add(extractInfoFromComponent(componentChild));
+				compositeType.getVariables().add(variable);
 			}
+
+			return compositeType;
 		}
+
+		return null;
 	}
 
 	/*
@@ -370,53 +359,53 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 * 
 	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto .core.model.runtime.AspectNode)
 	 */
-//	@Override
-//	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException
-//	{
-//
-//		boolean modified = false;
-//
-//		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-//		modelTree.setId(AspectTreeType.MODEL_TREE.toString());
-//
-//		IModel model = aspectNode.getModel();
-//		try
-//		{
-//			NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
-//			if(neuroml != null)
-//			{
-//				modified = populateModelTree.populateModelTree(modelTree, ((ModelWrapper) model));
-//				modelTree.setModified(modified);
-//			}
-//
-//		}
-//		catch(Exception e)
-//		{
-//			throw new ModelInterpreterException(e);
-//		}
-//		return modified;
-//	}
+	// @Override
+	// public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException
+	// {
+	//
+	// boolean modified = false;
+	//
+	// AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+	// modelTree.setId(AspectTreeType.MODEL_TREE.toString());
+	//
+	// IModel model = aspectNode.getModel();
+	// try
+	// {
+	// NeuroMLDocument neuroml = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
+	// if(neuroml != null)
+	// {
+	// modified = populateModelTree.populateModelTree(modelTree, ((ModelWrapper) model));
+	// modelTree.setModified(modified);
+	// }
+	//
+	// }
+	// catch(Exception e)
+	// {
+	// throw new ModelInterpreterException(e);
+	// }
+	// return modified;
+	// }
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.geppetto.core.model.IModelInterpreter#populateRuntimeTree(org.geppetto .core.model.runtime.AspectNode)
 	 */
-//	@Override
-//	public boolean populateRuntimeTree(AspectNode aspectNode) throws ModelInterpreterException
-//	{
-//		populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils(model);
-//
-//		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-//		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
-//		AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
-//
-//		modelTree.setId(AspectTreeType.MODEL_TREE.toString());
-//		visualizationTree.setId(AspectTreeType.VISUALIZATION_TREE.toString());
-//		simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
-//		populateSubEntities(aspectNode);
-//		return true;
-//	}
+	// @Override
+	// public boolean populateRuntimeTree(AspectNode aspectNode) throws ModelInterpreterException
+	// {
+	// populateNeuroMLModelTreeUtils = new PopulateNeuroMLModelTreeUtils(model);
+	//
+	// AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+	// AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
+	// AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
+	//
+	// modelTree.setId(AspectTreeType.MODEL_TREE.toString());
+	// visualizationTree.setId(AspectTreeType.VISUALIZATION_TREE.toString());
+	// simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
+	// populateSubEntities(aspectNode);
+	// return true;
+	// }
 
 	/**
 	 * @param aspectNode
@@ -429,199 +418,199 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 * @param aspectNode
 	 * @throws ModelInterpreterException
 	 */
-//	private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
-//	{
-//		long start = System.currentTimeMillis();
-//		NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("NEUROML"));
-//		if(nmlDoc != null)
-//		{
-//			// Pure LEMS document don't have a neuroml document
-//			extractSubEntities(aspectNode, nmlDoc);
-//			_logger.info("Extracted subEntities, took " + (System.currentTimeMillis() - start) + "ms");
-//		}
-//	}
-//
-//	private void extractSubEntities(AspectNode aspectNode, NeuroMLDocument neuroml) throws ModelInterpreterException
-//	{
-//		URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID);
-//
-//		List<Network> networks = neuroml.getNetwork();
-//		if(networks == null || networks.size() == 0)
-//		{
-//			// no network, if there is just a single cell we will add it to cell mapping
-//			List<Cell> cells = neuroml.getCell();
-//			if(cells != null && cells.size() == 1)
-//			{
-//				Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
-//				cellMapping.put(aspectNode.getParentEntity().getId(), cells.get(0));
-//			}
-//		}
-//		else if(networks.size() == 1)
-//		{
-//			// there's only one network, we consider the entity for it our
-//			// network entity
-//			EntityNode networkEntity = aspectNode.getParentEntity();
-//			networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
-//			addNetworkSubEntities(networks.get(0), networkEntity, aspectNode, (ModelWrapper) aspectNode.getModel());
-//			createConnections(networks.get(0), aspectNode);
-//		}
-//		else if(networks.size() > 1)
-//		{
-//			// there's more than one network, each network will become an entity
-//			for(Network n : networks)
-//			{
-//				EntityNode networkEntity = new EntityNode(n.getId());
-//				networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
-//				addNetworkSubEntities(n, networkEntity, aspectNode, (ModelWrapper) aspectNode.getModel());
-//				createConnections(n, aspectNode);
-//				aspectNode.getChildren().add(networkEntity);
-//			}
-//		}
-//	}
-//
-//	private void createConnections(Network network, AspectNode aspectNode) throws ModelInterpreterException
-//	{
-//		long start = System.currentTimeMillis();
-//		ModelWrapper model = ((ModelWrapper) aspectNode.getModel());
-//		String aspectNodeName = aspectNode.getName();
-//		Map<String, EntityNode> mapping = (Map<String, EntityNode>) model.getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
-//
-//		for(Projection projection : network.getProjection())
-//		{
-//
-//			for(org.neuroml.model.Connection connection : projection.getConnection())
-//			{
-//				// Theoretically cellid and postif cannot be null but...
-//				if(connection.getPreCellId() != null && connection.getPostCellId() != null)
-//				{
-//					ConnectionNode connectionNodeFrom = new ConnectionNode(projection.getId() + connection.getId(), aspectNode);
-//					ConnectionNode connectionNodeTo = new ConnectionNode(projection.getId() + connection.getId(), aspectNode);
-//
-//					// Get connections entities
-//					String preCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPreCellId());
-//					String postCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPostCellId());
-//					EntityNode entityNodeFrom = mapping.get(VariablePathSerializer.getArrayName(projection.getPresynapticPopulation(), preCellId));
-//					EntityNode entityNodeTo = mapping.get(VariablePathSerializer.getArrayName(projection.getPostsynapticPopulation(), postCellId));
-//
-//					connectionNodeFrom.setName(Resources.CONNECTIONTO.get() + " " + entityNodeTo.getId() + " (" + projection.getId() + "_" + connection.getId() + ")");
-//					connectionNodeTo.setName(Resources.CONNECTIONFROM.get() + " " + entityNodeFrom.getId() + " (" + projection.getId() + "_" + connection.getId() + ")");
-//
-//					// Extract the aspect from the origin and destinity
-//					AspectNode aspectNodeFrom = null;
-//					AspectNode aspectNodeTo = null;
-//					for(AspectNode aspectNodeItem : entityNodeFrom.getAspects())
-//					{
-//						if(aspectNodeItem.getId().equals(aspectNodeName))
-//						{
-//							aspectNodeFrom = aspectNodeItem;
-//							break;
-//						}
-//					}
-//					for(AspectNode aspectNodeItem : entityNodeTo.getAspects())
-//					{
-//						if(aspectNodeItem.getId().equals(aspectNodeName))
-//						{
-//							aspectNodeTo = aspectNodeItem;
-//							break;
-//						}
-//					}
-//
-//					// Store Projection Id
-//					TextMetadataNode c1 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId()
-//							.toString()));
-//					connectionNodeFrom.getCustomNodes().add(c1);
-//					TextMetadataNode c2 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId()
-//							.toString()));
-//					connectionNodeTo.getCustomNodes().add(c2);
-//
-//					c1.setParent(aspectNodeFrom);
-//					c2.setParent(connectionNodeTo);
-//
-//					// Store Connection Id
-//					TextMetadataNode p1 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId()
-//							.toString()));
-//					connectionNodeFrom.getCustomNodes().add(p1);
-//					TextMetadataNode p2 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId()
-//							.toString()));
-//					connectionNodeTo.getCustomNodes().add(p2);
-//
-//					p1.setParent(connectionNodeFrom);
-//					p2.setParent(connectionNodeTo);
-//
-//					// Store PreSegment and PostSegment as VisualReferenceNode
-//					if(connection.getPreSegmentId() != null)
-//					{
-//						VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPreSegmentId());
-//						visualObjectReferenceNode.setName(Resources.PRESEGMENT.get());
-//						String[] path = connection.getPreCellId().split("/");
-//						String cellName = path[path.length - 1];
-//						visualObjectReferenceNode.setVisualObjectId(cellName + "." + connection.getPreSegmentId().toString());
-//						visualObjectReferenceNode.setAspectInstancePath(aspectNodeFrom.getInstancePath());
-//						connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
-//						connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
-//					}
-//					if(connection.getPostSegmentId() != null)
-//					{
-//						VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPostSegmentId());
-//						visualObjectReferenceNode.setName(Resources.POSTSEGMENT.get());
-//						String[] path = connection.getPostCellId().split("/");
-//						String cellName = path[path.length - 1];
-//						visualObjectReferenceNode.setVisualObjectId(cellName + "." + connection.getPostSegmentId().toString());
-//						visualObjectReferenceNode.setAspectInstancePath(aspectNodeTo.getInstancePath());
-//						connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
-//						connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
-//					}
-//
-//					// Store PreFraction and PostFraction as CustomNodes
-//					if(connection.getPreFractionAlong() != null)
-//					{
-//						TextMetadataNode prefractionalongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(),
-//								new StringValue(String.valueOf(connection.getPreFractionAlong())));
-//						prefractionalongNode.setDomainType(ResourcesDomainType.PREFRACTIONALONG.get());
-//						connectionNodeFrom.getCustomNodes().add(prefractionalongNode);
-//						connectionNodeTo.getCustomNodes().add(prefractionalongNode);
-//					}
-//					if(connection.getPostFractionAlong() != null)
-//					{
-//						TextMetadataNode postFractionAlongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POSTFRACTIONALONG.get(), Resources.POSTFRACTIONALONG.getId(),
-//								new StringValue(String.valueOf(connection.getPostFractionAlong())));
-//						postFractionAlongNode.setDomainType(ResourcesDomainType.POSTFRACTIONALONG.get());
-//						connectionNodeFrom.getCustomNodes().add(postFractionAlongNode);
-//						connectionNodeTo.getCustomNodes().add(postFractionAlongNode);
-//					}
-//
-//					// Store Synapses as CustomNodes
-//					CompositeNode synapsesNode;
-//					try
-//					{
-//						synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse) neuroMLAccessUtility.getComponent(projection.getSynapse(), model,
-//								Resources.SYNAPSE));
-//					}
-//					catch(ContentError | ModelInterpreterException e)
-//					{
-//						throw new ModelInterpreterException(e);
-//					}
-//					connectionNodeFrom.getCustomNodes().add(synapsesNode);
-//					connectionNodeTo.getCustomNodes().add(synapsesNode);
-//					synapsesNode.setParent(connectionNodeFrom);
-//
-//					connectionNodeFrom.setType(ConnectionType.FROM);
-//					connectionNodeTo.setType(ConnectionType.TO);
-//
-//					// Store Path to entity connection points to and set the
-//					// parent
-//					connectionNodeFrom.setEntityInstancePath(entityNodeTo.getInstancePath());
-//					connectionNodeFrom.setParent(entityNodeFrom);
-//					connectionNodeTo.setEntityInstancePath(entityNodeFrom.getInstancePath());
-//					connectionNodeTo.setParent(entityNodeTo);
-//
-//					entityNodeFrom.getConnections().add(connectionNodeFrom);
-//					entityNodeTo.getConnections().add(connectionNodeTo);
-//				}
-//			}
-//		}
-//		_logger.info("Extracted connections, took " + (System.currentTimeMillis() - start) + "ms");
-//	}
+	// private void populateSubEntities(AspectNode aspectNode) throws ModelInterpreterException
+	// {
+	// long start = System.currentTimeMillis();
+	// NeuroMLDocument nmlDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("NEUROML"));
+	// if(nmlDoc != null)
+	// {
+	// // Pure LEMS document don't have a neuroml document
+	// extractSubEntities(aspectNode, nmlDoc);
+	// _logger.info("Extracted subEntities, took " + (System.currentTimeMillis() - start) + "ms");
+	// }
+	// }
+	//
+	// private void extractSubEntities(AspectNode aspectNode, NeuroMLDocument neuroml) throws ModelInterpreterException
+	// {
+	// URL url = (URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID);
+	//
+	// List<Network> networks = neuroml.getNetwork();
+	// if(networks == null || networks.size() == 0)
+	// {
+	// // no network, if there is just a single cell we will add it to cell mapping
+	// List<Cell> cells = neuroml.getCell();
+	// if(cells != null && cells.size() == 1)
+	// {
+	// Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
+	// cellMapping.put(aspectNode.getParentEntity().getId(), cells.get(0));
+	// }
+	// }
+	// else if(networks.size() == 1)
+	// {
+	// // there's only one network, we consider the entity for it our
+	// // network entity
+	// EntityNode networkEntity = aspectNode.getParentEntity();
+	// networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
+	// addNetworkSubEntities(networks.get(0), networkEntity, aspectNode, (ModelWrapper) aspectNode.getModel());
+	// createConnections(networks.get(0), aspectNode);
+	// }
+	// else if(networks.size() > 1)
+	// {
+	// // there's more than one network, each network will become an entity
+	// for(Network n : networks)
+	// {
+	// EntityNode networkEntity = new EntityNode(n.getId());
+	// networkEntity.setDomainType(ResourcesDomainType.NETWORK.get());
+	// addNetworkSubEntities(n, networkEntity, aspectNode, (ModelWrapper) aspectNode.getModel());
+	// createConnections(n, aspectNode);
+	// aspectNode.getChildren().add(networkEntity);
+	// }
+	// }
+	// }
+	//
+	// private void createConnections(Network network, AspectNode aspectNode) throws ModelInterpreterException
+	// {
+	// long start = System.currentTimeMillis();
+	// ModelWrapper model = ((ModelWrapper) aspectNode.getModel());
+	// String aspectNodeName = aspectNode.getName();
+	// Map<String, EntityNode> mapping = (Map<String, EntityNode>) model.getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
+	//
+	// for(Projection projection : network.getProjection())
+	// {
+	//
+	// for(org.neuroml.model.Connection connection : projection.getConnection())
+	// {
+	// // Theoretically cellid and postif cannot be null but...
+	// if(connection.getPreCellId() != null && connection.getPostCellId() != null)
+	// {
+	// ConnectionNode connectionNodeFrom = new ConnectionNode(projection.getId() + connection.getId(), aspectNode);
+	// ConnectionNode connectionNodeTo = new ConnectionNode(projection.getId() + connection.getId(), aspectNode);
+	//
+	// // Get connections entities
+	// String preCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPreCellId());
+	// String postCellId = PopulateGeneralModelTreeUtils.parseCellRefStringForCellNum(connection.getPostCellId());
+	// EntityNode entityNodeFrom = mapping.get(VariablePathSerializer.getArrayName(projection.getPresynapticPopulation(), preCellId));
+	// EntityNode entityNodeTo = mapping.get(VariablePathSerializer.getArrayName(projection.getPostsynapticPopulation(), postCellId));
+	//
+	// connectionNodeFrom.setName(Resources.CONNECTIONTO.get() + " " + entityNodeTo.getId() + " (" + projection.getId() + "_" + connection.getId() + ")");
+	// connectionNodeTo.setName(Resources.CONNECTIONFROM.get() + " " + entityNodeFrom.getId() + " (" + projection.getId() + "_" + connection.getId() + ")");
+	//
+	// // Extract the aspect from the origin and destinity
+	// AspectNode aspectNodeFrom = null;
+	// AspectNode aspectNodeTo = null;
+	// for(AspectNode aspectNodeItem : entityNodeFrom.getAspects())
+	// {
+	// if(aspectNodeItem.getId().equals(aspectNodeName))
+	// {
+	// aspectNodeFrom = aspectNodeItem;
+	// break;
+	// }
+	// }
+	// for(AspectNode aspectNodeItem : entityNodeTo.getAspects())
+	// {
+	// if(aspectNodeItem.getId().equals(aspectNodeName))
+	// {
+	// aspectNodeTo = aspectNodeItem;
+	// break;
+	// }
+	// }
+	//
+	// // Store Projection Id
+	// TextMetadataNode c1 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId()
+	// .toString()));
+	// connectionNodeFrom.getCustomNodes().add(c1);
+	// TextMetadataNode c2 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PROJECTION_ID.getId(), Resources.PROJECTION_ID.get(), new StringValue(projection.getId()
+	// .toString()));
+	// connectionNodeTo.getCustomNodes().add(c2);
+	//
+	// c1.setParent(aspectNodeFrom);
+	// c2.setParent(connectionNodeTo);
+	//
+	// // Store Connection Id
+	// TextMetadataNode p1 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId()
+	// .toString()));
+	// connectionNodeFrom.getCustomNodes().add(p1);
+	// TextMetadataNode p2 = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.CONNECTION_ID.getId(), Resources.CONNECTION_ID.get(), new StringValue(connection.getId()
+	// .toString()));
+	// connectionNodeTo.getCustomNodes().add(p2);
+	//
+	// p1.setParent(connectionNodeFrom);
+	// p2.setParent(connectionNodeTo);
+	//
+	// // Store PreSegment and PostSegment as VisualReferenceNode
+	// if(connection.getPreSegmentId() != null)
+	// {
+	// VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPreSegmentId());
+	// visualObjectReferenceNode.setName(Resources.PRESEGMENT.get());
+	// String[] path = connection.getPreCellId().split("/");
+	// String cellName = path[path.length - 1];
+	// visualObjectReferenceNode.setVisualObjectId(cellName + "." + connection.getPreSegmentId().toString());
+	// visualObjectReferenceNode.setAspectInstancePath(aspectNodeFrom.getInstancePath());
+	// connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
+	// connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
+	// }
+	// if(connection.getPostSegmentId() != null)
+	// {
+	// VisualObjectReferenceNode visualObjectReferenceNode = new VisualObjectReferenceNode(projection.getId() + connection.getId() + connection.getPostSegmentId());
+	// visualObjectReferenceNode.setName(Resources.POSTSEGMENT.get());
+	// String[] path = connection.getPostCellId().split("/");
+	// String cellName = path[path.length - 1];
+	// visualObjectReferenceNode.setVisualObjectId(cellName + "." + connection.getPostSegmentId().toString());
+	// visualObjectReferenceNode.setAspectInstancePath(aspectNodeTo.getInstancePath());
+	// connectionNodeFrom.getVisualReferences().add(visualObjectReferenceNode);
+	// connectionNodeTo.getVisualReferences().add(visualObjectReferenceNode);
+	// }
+	//
+	// // Store PreFraction and PostFraction as CustomNodes
+	// if(connection.getPreFractionAlong() != null)
+	// {
+	// TextMetadataNode prefractionalongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.PREFRACTIONALONG.get(), Resources.PREFRACTIONALONG.getId(),
+	// new StringValue(String.valueOf(connection.getPreFractionAlong())));
+	// prefractionalongNode.setDomainType(ResourcesDomainType.PREFRACTIONALONG.get());
+	// connectionNodeFrom.getCustomNodes().add(prefractionalongNode);
+	// connectionNodeTo.getCustomNodes().add(prefractionalongNode);
+	// }
+	// if(connection.getPostFractionAlong() != null)
+	// {
+	// TextMetadataNode postFractionAlongNode = PopulateNodesModelTreeUtils.createTextMetadataNode(Resources.POSTFRACTIONALONG.get(), Resources.POSTFRACTIONALONG.getId(),
+	// new StringValue(String.valueOf(connection.getPostFractionAlong())));
+	// postFractionAlongNode.setDomainType(ResourcesDomainType.POSTFRACTIONALONG.get());
+	// connectionNodeFrom.getCustomNodes().add(postFractionAlongNode);
+	// connectionNodeTo.getCustomNodes().add(postFractionAlongNode);
+	// }
+	//
+	// // Store Synapses as CustomNodes
+	// CompositeNode synapsesNode;
+	// try
+	// {
+	// synapsesNode = populateNeuroMLModelTreeUtils.createSynapseNode((BaseConductanceBasedSynapse) neuroMLAccessUtility.getComponent(projection.getSynapse(), model,
+	// Resources.SYNAPSE));
+	// }
+	// catch(ContentError | ModelInterpreterException e)
+	// {
+	// throw new ModelInterpreterException(e);
+	// }
+	// connectionNodeFrom.getCustomNodes().add(synapsesNode);
+	// connectionNodeTo.getCustomNodes().add(synapsesNode);
+	// synapsesNode.setParent(connectionNodeFrom);
+	//
+	// connectionNodeFrom.setType(ConnectionType.FROM);
+	// connectionNodeTo.setType(ConnectionType.TO);
+	//
+	// // Store Path to entity connection points to and set the
+	// // parent
+	// connectionNodeFrom.setEntityInstancePath(entityNodeTo.getInstancePath());
+	// connectionNodeFrom.setParent(entityNodeFrom);
+	// connectionNodeTo.setEntityInstancePath(entityNodeFrom.getInstancePath());
+	// connectionNodeTo.setParent(entityNodeTo);
+	//
+	// entityNodeFrom.getConnections().add(connectionNodeFrom);
+	// entityNodeTo.getConnections().add(connectionNodeTo);
+	// }
+	// }
+	// }
+	// _logger.info("Extracted connections, took " + (System.currentTimeMillis() - start) + "ms");
+	// }
 
 	/**
 	 * @param n
@@ -634,60 +623,60 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 * @throws ModelInterpreterException
 	 * @throws ContentError
 	 */
-//	private void addNetworkSubEntities(Network n, EntityNode parentEntity, AspectNode aspect, ModelWrapper model) throws ModelInterpreterException
-//	{
-//		if(n.getPopulation().size() == 1 && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
-//		{
-//			// there's only one cell whose name is the same as the geppetto
-//			// entity, don't create any subentities
-//			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(n.getPopulation().get(0).getComponent(), model, Resources.CELL);
-//			parentEntity.setDomainType(ResourcesDomainType.CELL.get());
-//			mapCellIdToEntity(parentEntity.getId(), parentEntity, aspect, cell);
-//			return;
-//		}
-//		for(Population p : n.getPopulation())
-//		{
-//			// BaseCell cell = getCell(p, url, model);
-//			BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
-//			if(p.getType() != null && p.getType().equals(PopulationTypes.POPULATION_LIST))
-//			{
-//				int i = 0;
-//				for(Instance instance : p.getInstance())
-//				{
-//
-//					String id = VariablePathSerializer.getArrayName(p.getId(), i);
-//					EntityNode e = getEntityNodefromCell(cell, id, aspect);
-//					e.setDomainType(ResourcesDomainType.CELL.get());
-//
-//					if(instance.getLocation() != null)
-//					{
-//						e.setPosition(getPoint(instance.getLocation()));
-//					}
-//					e.setId(id);
-//					parentEntity.addChild(e);
-//					i++;
-//				}
-//
-//			}
-//			else
-//			{
-//				int size = p.getSize().intValue();
-//
-//				for(int i = 0; i < size; i++)
-//				{
-//					// FIXME the position of the population within the network
-//					// needs to be specified in neuroml
-//					String id = VariablePathSerializer.getArrayName(p.getId(), i);
-//					// TODO why do we need the cell?
-//					EntityNode e = getEntityNodefromCell(cell, id, aspect);
-//					e.setDomainType(ResourcesDomainType.CELL.get());
-//					e.setId(id);
-//					parentEntity.addChild(e);
-//				}
-//			}
-//		}
-//
-//	}
+	// private void addNetworkSubEntities(Network n, EntityNode parentEntity, AspectNode aspect, ModelWrapper model) throws ModelInterpreterException
+	// {
+	// if(n.getPopulation().size() == 1 && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
+	// {
+	// // there's only one cell whose name is the same as the geppetto
+	// // entity, don't create any subentities
+	// BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(n.getPopulation().get(0).getComponent(), model, Resources.CELL);
+	// parentEntity.setDomainType(ResourcesDomainType.CELL.get());
+	// mapCellIdToEntity(parentEntity.getId(), parentEntity, aspect, cell);
+	// return;
+	// }
+	// for(Population p : n.getPopulation())
+	// {
+	// // BaseCell cell = getCell(p, url, model);
+	// BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
+	// if(p.getType() != null && p.getType().equals(PopulationTypes.POPULATION_LIST))
+	// {
+	// int i = 0;
+	// for(Instance instance : p.getInstance())
+	// {
+	//
+	// String id = VariablePathSerializer.getArrayName(p.getId(), i);
+	// EntityNode e = getEntityNodefromCell(cell, id, aspect);
+	// e.setDomainType(ResourcesDomainType.CELL.get());
+	//
+	// if(instance.getLocation() != null)
+	// {
+	// e.setPosition(getPoint(instance.getLocation()));
+	// }
+	// e.setId(id);
+	// parentEntity.addChild(e);
+	// i++;
+	// }
+	//
+	// }
+	// else
+	// {
+	// int size = p.getSize().intValue();
+	//
+	// for(int i = 0; i < size; i++)
+	// {
+	// // FIXME the position of the population within the network
+	// // needs to be specified in neuroml
+	// String id = VariablePathSerializer.getArrayName(p.getId(), i);
+	// // TODO why do we need the cell?
+	// EntityNode e = getEntityNodefromCell(cell, id, aspect);
+	// e.setDomainType(ResourcesDomainType.CELL.get());
+	// e.setId(id);
+	// parentEntity.addChild(e);
+	// }
+	// }
+	// }
+	//
+	// }
 
 	/**
 	 * @param c
@@ -695,37 +684,37 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 * @param parentAspectNode
 	 * @return
 	 */
-//	private EntityNode getEntityNodefromCell(BaseCell c, String id, AspectNode parentAspectNode)
-//	{
-//		EntityNode entity = new EntityNode(id);
-//		AspectNode aspectNode = new AspectNode(parentAspectNode.getId());
-//		aspectNode.setParent(entity);
-//		aspectNode.setId(parentAspectNode.getId());
-//		aspectNode.setModelInterpreter(parentAspectNode.getModelInterpreter());
-//		aspectNode.setModel(parentAspectNode.getModel());
-//		entity.getAspects().add(aspectNode);
-//		AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
-//		AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
-//		AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
-//		modelTree.setId(AspectTreeType.MODEL_TREE.toString());
-//		visualizationTree.setId(AspectTreeType.VISUALIZATION_TREE.toString());
-//		simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
-//		mapCellIdToEntity(id, entity, parentAspectNode, c);
-//		return entity;
-//	}
+	// private EntityNode getEntityNodefromCell(BaseCell c, String id, AspectNode parentAspectNode)
+	// {
+	// EntityNode entity = new EntityNode(id);
+	// AspectNode aspectNode = new AspectNode(parentAspectNode.getId());
+	// aspectNode.setParent(entity);
+	// aspectNode.setId(parentAspectNode.getId());
+	// aspectNode.setModelInterpreter(parentAspectNode.getModelInterpreter());
+	// aspectNode.setModel(parentAspectNode.getModel());
+	// entity.getAspects().add(aspectNode);
+	// AspectSubTreeNode modelTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.MODEL_TREE);
+	// AspectSubTreeNode visualizationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.VISUALIZATION_TREE);
+	// AspectSubTreeNode simulationTree = (AspectSubTreeNode) aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE);
+	// modelTree.setId(AspectTreeType.MODEL_TREE.toString());
+	// visualizationTree.setId(AspectTreeType.VISUALIZATION_TREE.toString());
+	// simulationTree.setId(AspectTreeType.SIMULATION_TREE.toString());
+	// mapCellIdToEntity(id, entity, parentAspectNode, c);
+	// return entity;
+	// }
 
 	/**
 	 * @param cell
 	 * @param entity
 	 */
-//	private void mapCellIdToEntity(String id, EntityNode entity, AspectNode parentEntityAspect, BaseCell c)
-//	{
-//		Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) parentEntityAspect.getModel()).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
-//		mapping.put(id, entity);
-//		// TODO: This can be useful when the model is requested for a subentity
-//		Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) parentEntityAspect.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
-//		cellMapping.put(id, c);
-//	}
+	// private void mapCellIdToEntity(String id, EntityNode entity, AspectNode parentEntityAspect, BaseCell c)
+	// {
+	// Map<String, EntityNode> mapping = (Map<String, EntityNode>) ((ModelWrapper) parentEntityAspect.getModel()).getModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID);
+	// mapping.put(id, entity);
+	// // TODO: This can be useful when the model is requested for a subentity
+	// Map<String, BaseCell> cellMapping = (Map<String, BaseCell>) ((ModelWrapper) parentEntityAspect.getModel()).getModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID);
+	// cellMapping.put(id, c);
+	// }
 
 	/**
 	 * @param cell
@@ -762,14 +751,14 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 * @param location
 	 * @return
 	 */
-//	private Point getPoint(Location location)
-//	{
-//		Point point = new Point();
-//		point.setX(location.getX().doubleValue());
-//		point.setY(location.getY().doubleValue());
-//		point.setZ(location.getZ().doubleValue());
-//		return point;
-//	}
+	// private Point getPoint(Location location)
+	// {
+	// Point point = new Point();
+	// point.setX(location.getX().doubleValue());
+	// point.setY(location.getY().doubleValue());
+	// point.setZ(location.getZ().doubleValue());
+	// return point;
+	// }
 
 	@Override
 	public void registerGeppettoService()
@@ -781,81 +770,84 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Override
 	public File downloadModel(Pointer pointer, ModelFormat format, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
 	{
-//		if(format.equals(ServicesRegistry.getModelFormat("LEMS")) || format.equals(ServicesRegistry.getModelFormat("NEUROML")))
-//		{
-//			try
-//			{
-//				// Create file and folder
-//				File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId,
-//						PathConfiguration.getName(format.getModelFormat() + PathConfiguration.downloadModelFolderName, true));
-//				String outputFile = ((URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID)).getPath();
-//
-//				// Serialise objects
-//				String serialisedModel = "";
-//				if(format.equals(ServicesRegistry.getModelFormat("LEMS")))
-//				{
-//					// Serialise LEMS object
-//					Lems lems = (Lems) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("LEMS"));
-//					serialisedModel = XMLSerializer.serialize(lems);
-//				}
-//				else
-//				{
-//					// Serialise NEUROML object
-//					NeuroMLDocument neuroMLDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("NEUROML"));
-//					NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
-//					serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
-//					// Change extension to nml
-//					outputFile = outputFile.substring(0, outputFile.lastIndexOf(".") + 1) + "nml";
-//				}
-//
-//				// Write to disc
-//				PrintWriter writer = new PrintWriter(outputFolder + outputFile.substring(outputFile.lastIndexOf(File.separator)));
-//				writer.print(serialisedModel);
-//				writer.close();
-//				return outputFolder;
-//
-//			}
-//			catch(ContentError | IOException | NeuroMLException e)
-//			{
-//				throw new ModelInterpreterException(e);
-//			}
-//
-//		}
-//		else
-//		{
-//			// Call conversion service
-//			LEMSConversionService lemsConversionService = new LEMSConversionService();
-//			lemsConversionService.setProjectId(projectId);
-//			lemsConversionService.setScope(Scope.CONNECTION);
-//			ModelWrapper outputModel = null;
-//			try
-//			{
-//				outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format, aspectConfiguration);
-//			}
-//			catch(ConversionException e)
-//			{
-//				throw new ModelInterpreterException(e);
-//			}
-//			String outputFile = (String) outputModel.getModel(format);
-//			return new File(outputFile.substring(0, outputFile.lastIndexOf(File.separator)));
-//		}
+		// if(format.equals(ServicesRegistry.getModelFormat("LEMS")) || format.equals(ServicesRegistry.getModelFormat("NEUROML")))
+		// {
+		// try
+		// {
+		// // Create file and folder
+		// File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId,
+		// PathConfiguration.getName(format.getModelFormat() + PathConfiguration.downloadModelFolderName, true));
+		// String outputFile = ((URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID)).getPath();
+		//
+		// // Serialise objects
+		// String serialisedModel = "";
+		// if(format.equals(ServicesRegistry.getModelFormat("LEMS")))
+		// {
+		// // Serialise LEMS object
+		// Lems lems = (Lems) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("LEMS"));
+		// serialisedModel = XMLSerializer.serialize(lems);
+		// }
+		// else
+		// {
+		// // Serialise NEUROML object
+		// NeuroMLDocument neuroMLDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("NEUROML"));
+		// NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
+		// serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
+		// // Change extension to nml
+		// outputFile = outputFile.substring(0, outputFile.lastIndexOf(".") + 1) + "nml";
+		// }
+		//
+		// // Write to disc
+		// PrintWriter writer = new PrintWriter(outputFolder + outputFile.substring(outputFile.lastIndexOf(File.separator)));
+		// writer.print(serialisedModel);
+		// writer.close();
+		// return outputFolder;
+		//
+		// }
+		// catch(ContentError | IOException | NeuroMLException e)
+		// {
+		// throw new ModelInterpreterException(e);
+		// }
+		//
+		// }
+		// else
+		// {
+		// // Call conversion service
+		// LEMSConversionService lemsConversionService = new LEMSConversionService();
+		// lemsConversionService.setProjectId(projectId);
+		// lemsConversionService.setScope(Scope.CONNECTION);
+		// ModelWrapper outputModel = null;
+		// try
+		// {
+		// outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format, aspectConfiguration);
+		// }
+		// catch(ConversionException e)
+		// {
+		// throw new ModelInterpreterException(e);
+		// }
+		// String outputFile = (String) outputModel.getModel(format);
+		// return new File(outputFile.substring(0, outputFile.lastIndexOf(File.separator)));
+		// }
+		return null;
+
 	}
 
 	@Override
 	public List<ModelFormat> getSupportedOutputs(Pointer pointer) throws ModelInterpreterException
 	{
-//		List<ModelFormat> supportedOutputs = super.getSupportedOutputs(aspectNode);
-//		supportedOutputs.add(ServicesRegistry.getModelFormat("LEMS"));
-//		try
-//		{
-//			LEMSConversionService lemsConversionService = new LEMSConversionService();
-//			supportedOutputs.addAll(lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS")));
-//		}
-//		catch(ConversionException e)
-//		{
-//			throw new ModelInterpreterException(e);
-//		}
-//		return supportedOutputs;
+		// List<ModelFormat> supportedOutputs = super.getSupportedOutputs(aspectNode);
+		// supportedOutputs.add(ServicesRegistry.getModelFormat("LEMS"));
+		// try
+		// {
+		// LEMSConversionService lemsConversionService = new LEMSConversionService();
+		// supportedOutputs.addAll(lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS")));
+		// }
+		// catch(ConversionException e)
+		// {
+		// throw new ModelInterpreterException(e);
+		// }
+		// return supportedOutputs;
+		return null;
 	}
 
 	public PopulateModelTree getPopulateModelTree()
@@ -863,19 +855,19 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return this.populateModelTree;
 	}
 
-//	public ModelWrapper getModel()
-//	{
-//		return this.model;
-//	}
-//
-//	public Map<ParameterSpecificationNode, Object> getMethodsMap()
-//	{
-//		return this.populateModelTree.getParametersNodeToMethodsMap();
-//	}
-//
-//	public Map<ParameterSpecificationNode, Object> getObjectsMap()
-//	{
-//		return this.populateModelTree.getParametersNodeToObjectsMap();
-//	}
+	// public ModelWrapper getModel()
+	// {
+	// return this.model;
+	// }
+	//
+	// public Map<ParameterSpecificationNode, Object> getMethodsMap()
+	// {
+	// return this.populateModelTree.getParametersNodeToMethodsMap();
+	// }
+	//
+	// public Map<ParameterSpecificationNode, Object> getObjectsMap()
+	// {
+	// return this.populateModelTree.getParametersNodeToObjectsMap();
+	// }
 
 }
