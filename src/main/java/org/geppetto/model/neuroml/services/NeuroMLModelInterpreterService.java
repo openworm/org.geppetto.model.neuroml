@@ -54,10 +54,7 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.GeppettoLibrary;
-import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
-import org.geppetto.model.neuroml.utils.modeltree.PopulateModelTree;
-import org.geppetto.model.neuroml.utils.modeltree.PopulateNeuroMLModelTreeUtils;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.ParameterType;
 import org.geppetto.model.types.StateVariableType;
@@ -98,17 +95,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class NeuroMLModelInterpreterService extends AModelInterpreter
 {
-	private NeuroMLAccessUtility neuroMLAccessUtility = new NeuroMLAccessUtility();
-
 	private static Log _logger = LogFactory.getLog(NeuroMLModelInterpreterService.class);
 
-	// helper class to populate model tree
-	private PopulateModelTree populateModelTree = new PopulateModelTree();
 
 	@Autowired
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
-
-	private PopulateNeuroMLModelTreeUtils populateNeuroMLModelTreeUtils;
 
 	private Map<String, Type> types;
 	
@@ -197,7 +188,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 			for(Component component : lems.getComponents())
 			{
-				types.put(component.getID(), extractInfoFromComponent(component));
+				if (!types.containsKey(component.getID()))
+					types.put(component.getID(), extractInfoFromComponent(component));
 			}
 
 			// add visual tree feature to the model service
@@ -241,10 +233,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		if(!component.getDeclaredType().equals("morphology"))
 		{
-			System.out.println("New Component Type");
-			System.out.println("Name " + component.getDeclaredType());
-			if(component.getID() != null) System.out.println("Id " + component.getID());
-
 			TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
 			ValuesFactory valuesFactory = ValuesFactoryImpl.eINSTANCE;
 			VariablesFactory variablesFactory = VariablesFactoryImpl.eINSTANCE;
@@ -257,37 +245,35 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				if(component.hasAttribute(pv.getName()))
 				{
 					String orig = component.getStringValue(pv.getName());
-					System.out.println("Parameter Specification Node");
-					System.out.println(pv.getName() + ":" + orig);
 
 					// AQP: Extracted from PopulateNodesModelTreeUtils
 					String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
 					Pattern pattern = Pattern.compile(regExp);
 					Matcher matcher = pattern.matcher(orig);
 
-					PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
-					// physicalQuantity.setScalingFactor(value);
-					physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
-
-					Unit unit = valuesFactory.createUnit();
-					unit.setUnit(matcher.group(2));
-					physicalQuantity.setUnit(unit);
-
-					ParameterType parameterType = typeFactory.createParameterType();
-					parameterType.setDefaultValue(physicalQuantity);
-					parameterType.setName(pv.getName());
-
-					Variable variable = variablesFactory.createVariable();
-					variable.getTypes().add(parameterType);
-					compositeType.getVariables().add(variable);
+					if (matcher.find()) {
+						PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
+						// physicalQuantity.setScalingFactor(value);
+						physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
+	
+						Unit unit = valuesFactory.createUnit();
+						unit.setUnit(matcher.group(2));
+						physicalQuantity.setUnit(unit);
+						physicalQuantity.setScalingFactor(1);
+	
+						ParameterType parameterType = typeFactory.createParameterType();
+						parameterType.setDefaultValue(physicalQuantity);
+						parameterType.setName(pv.getName());
+	
+						Variable variable = variablesFactory.createVariable();
+						variable.getTypes().add(parameterType);
+						compositeType.getVariables().add(variable);
+					}
 				}
 			}
 
 			for(Entry<String, String> entry : component.getTextParamMap().entrySet())
 			{
-				System.out.println("TextMetadata Node");
-				System.out.println(entry.getKey() + ":" + entry.getValue());
-
 				Text text = valuesFactory.createText();
 				text.setText(entry.getValue());
 
@@ -302,9 +288,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 			for(Entry<String, Component> entry : component.getRefComponents().entrySet())
 			{
-				System.out.println("Component Node");
-				System.out.println(entry.getKey() + ":" + entry.getValue());
-
 				Variable variable = variablesFactory.createVariable();
 				
 				if (!types.containsKey(entry.getKey())){
@@ -319,9 +302,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			// Simulation Tree (Variable Node)
 			for(Exposure exposure : component.getComponentType().getExposures())
 			{
-				System.out.println("Exposure");
-				System.out.println(exposure.getName());
-
 				String unitSymbol = Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol();
 				if(unitSymbol.equals("none")) unitSymbol = "";
 
@@ -330,6 +310,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				Unit unit = valuesFactory.createUnit();
 				unit.setUnit(unitSymbol);
 				physicalQuantity.setUnit(unit);
+				physicalQuantity.setValue(0.0);
+				physicalQuantity.setScalingFactor(1);
 
 				StateVariableType stateVariableType = typeFactory.createStateVariableType();
 				stateVariableType.setName(exposure.getName());
@@ -342,10 +324,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 			for(Component componentChild : component.getAllChildren())
 			{
-				// FIXME: CHANGE TO ANONYMOUS TYPE
-				Variable variable = variablesFactory.createVariable();
-				variable.getAnonymousTypes().add(extractInfoFromComponent(componentChild));
-				compositeType.getVariables().add(variable);
+				CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
+				if (anonymousCompositeType != null){
+					Variable variable = variablesFactory.createVariable();
+					variable.getAnonymousTypes().add(anonymousCompositeType);
+					compositeType.getVariables().add(variable);
+				}
 			}
 
 			return compositeType;
@@ -850,10 +834,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return null;
 	}
 
-	public PopulateModelTree getPopulateModelTree()
-	{
-		return this.populateModelTree;
-	}
+//	public PopulateModelTree getPopulateModelTree()
+//	{
+//		return this.populateModelTree;
+//	}
 
 	// public ModelWrapper getModel()
 	// {
