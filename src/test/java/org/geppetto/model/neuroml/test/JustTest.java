@@ -35,9 +35,7 @@ package org.geppetto.model.neuroml.test;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -47,22 +45,12 @@ import org.emfjson.jackson.resource.JsonResourceFactory;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
-import org.geppetto.model.GeppettoModel;
 import org.geppetto.model.GeppettoPackage;
 import org.geppetto.model.impl.GeppettoFactoryImpl;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
-import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.types.Type;
 import org.junit.Test;
-import org.lemsml.jlems.api.LEMSDocumentReader;
-import org.lemsml.jlems.api.interfaces.ILEMSDocument;
-import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.Exposure;
-import org.lemsml.jlems.core.type.Lems;
-import org.lemsml.jlems.core.type.ParamValue;
-import org.neuroml.export.utils.Utils;
 import org.neuroml.model.util.NeuroMLException;
 
 /**
@@ -71,36 +59,39 @@ import org.neuroml.model.util.NeuroMLException;
  */
 public class JustTest
 {
-	@Test
-	public void test2() throws Exception
+
+	public void serialiseAsJSON(String modelPath, String outputPath, String typeName, boolean allTypes) throws Exception
 	{
 		GeppettoFactory geppettoFactory = GeppettoFactoryImpl.eINSTANCE;
 		GeppettoLibrary gl = geppettoFactory.createGeppettoLibrary();
-		
+
 		NeuroMLModelInterpreterService modelInterpreter = new NeuroMLModelInterpreterService();
-		URL url = this.getClass().getResource("/acnet2/bask.cell.nml");
-		Type type = modelInterpreter.importType(url, "bask", gl);
-		System.out.println("Final Node");
-		System.out.println(type);
-		
-		
+		URL url = this.getClass().getResource(modelPath);
+		Type type = modelInterpreter.importType(url, typeName, gl);
+
 		// Initialize the factory and the resource set
 		GeppettoPackage.eINSTANCE.eClass();
 		Resource.Factory.Registry reg = Resource.Factory.Registry.INSTANCE;
 		Map<String, Object> m = reg.getExtensionToFactoryMap();
 		m.put("json", new JsonResourceFactory()); // sets the factory for the JSON type
 		ResourceSet resSet = new ResourceSetImpl();
-		
-//		GeppettoFactory gp = GeppettoFactoryImpl.eINSTANCE;
-//		GeppettoModel geppettoModel = gp.createGeppettoModel();
-//		geppettoModel.getLibraries().add(gl);
-		
+
 		// How to save to JSON
-		Resource jsonResource = resSet.createResource(URI.createURI("./src/test/resources/test.json"));
-		jsonResource.getContents().add(type);
+		Resource jsonResource = resSet.createResource(URI.createURI(outputPath));
+		if (allTypes)
+			jsonResource.getContents().add(gl);
+		else
+			jsonResource.getContents().add(type);
 		jsonResource.save(null);
 	}
-	
+
+	@Test
+	public void test2() throws Exception
+	{
+		serialiseAsJSON("/acnet2/MediumNet.net.nml", "./src/test/resources/test2AllTypes.json", "network_ACnet2", true);
+		serialiseAsJSON("/acnet2/MediumNet.net.nml", "./src/test/resources/test2SingleType.json", "network_ACnet2", false);
+		serialiseAsJSON("/acnet2/MediumNet.net.nml", "./src/test/resources/test2SingleTypeWithoutTypeName.json", null, false);
+	}
 
 	/**
 	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
@@ -113,77 +104,11 @@ public class JustTest
 	@Test
 	public void test1() throws Exception
 	{
-		System.out.println("taka");
-		URL url = this.getClass().getResource("/acnet2/bask.cell.nml");
-
-		OptimizedLEMSReader reader = new OptimizedLEMSReader(new ArrayList<URL>());
-		int index = url.toString().lastIndexOf('/');
-		String urlBase = url.toString().substring(0, index + 1);
-		reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.NEUROML); // expand it to have all the inclusions
-
-		/*
-		 * LEMS
-		 */
-		ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-		ILEMSDocument lemsDocument = lemsReader.readModel(reader.getLEMSString());
-
-		Lems lems = ((Lems) lemsDocument);
-		lems.setResolveModeLoose();
-		lems.deduplicate();
-		lems.resolve();
-		lems.evaluateStatic();
-
-		for(Component component : lems.getComponents())
-		{
-			extractInfoFromComponent(component);
-		}
-	}
-	
-	private void extractInfoFromComponent(Component component) throws Exception{
-		
-		if (!component.getDeclaredType().equals("morphology")){
-			System.out.println("New Component Type");
-			System.out.println("Name " + component.getDeclaredType());
-			
-			
-			if (component.getID() != null)
-				System.out.println("Id " + component.getID());
-			for(ParamValue pv : component.getParamValues())
-			{
-				if(component.hasAttribute(pv.getName()))
-				{
-					String orig = component.getStringValue(pv.getName());
-					System.out.println("Parameter Specification Node");
-					System.out.println(pv.getName() + ":" + orig);
-				}
-			}
-			
-			for (Entry<String, String> entry : component.getTextParamMap().entrySet()){
-				System.out.println("TextMetadata Node");
-				System.out.println(entry.getKey() + ":" + entry.getValue());
-			}
-			
-			for (Entry<String, Component> entry : component.getRefComponents().entrySet()){
-				System.out.println("Component Node");
-				System.out.println(entry.getKey() + ":" + entry.getValue());
-			}
-			
-			//Simulation Tree (Variable Node)
-			for (Exposure exposure : component.getComponentType().getExposures()){
-				System.out.println("Exposure");
-				System.out.println(exposure.getName());
-				String unit = Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol();
-				System.out.println("Units " + unit);
-				if(unit.equals("none"))
-				{
-					unit = "";
-				}
-			}
-			
-			for (Component componentChild : component.getAllChildren()){
-				extractInfoFromComponent(componentChild);
-			}
-		}
+		serialiseAsJSON("/acnet2/bask.cell.nml", "./src/test/resources/testAllTypes.json", "bask", true);
+		serialiseAsJSON("/acnet2/bask.cell.nml", "./src/test/resources/testSingleType.json", "bask", false);
+		// AQP Commented until we decide what to return when if it is not a network 
+		//serialiseAsJSON("/acnet2/bask.cell.nml", "./src/test/resources/test.json", null, false);
 	}
 
 }
+

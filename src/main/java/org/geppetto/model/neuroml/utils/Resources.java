@@ -204,4 +204,12 @@ public enum Resources
 	{
 		return _id;
 	}
+	
+	public static String getValueById(String id){
+		for(Resources e : Resources.values()){
+            if(id == e._id) return e._value;
+        }
+		//If we can't find a value, return the id
+        return id;
+	}
 }
