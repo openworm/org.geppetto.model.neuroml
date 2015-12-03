@@ -75,7 +75,7 @@ import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.types.VisualType;
 import org.geppetto.model.types.impl.TypesFactoryImpl;
-import org.geppetto.model.util.GeppettoModelException;
+import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.PhysicalQuantity;
 import org.geppetto.model.values.Pointer;
 import org.geppetto.model.values.Text;
@@ -198,7 +198,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			// this.addFeature(new LEMSParametersFeature(this.populateModelTree, model));
 
 		}
-		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoModelException e)
+		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
 		{
 			throw new ModelInterpreterException(e);
 		}
@@ -245,7 +245,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		node.setId(attributesName);
 	}
 
-	private CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoModelException
+	private CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException
 	{
 		TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
 		ValuesFactory valuesFactory = ValuesFactoryImpl.eINSTANCE;
