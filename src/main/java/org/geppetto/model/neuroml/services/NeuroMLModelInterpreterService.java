@@ -55,29 +55,33 @@ import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.model.AModelInterpreter;
+import org.geppetto.core.model.GeppettoCommonLibraryAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.Node;
-import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
-import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.visitors.ExtractVisualType;
+import org.geppetto.model.neuroml.visitors.PopulateChannelDensityVisualGroups;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.ParameterType;
 import org.geppetto.model.types.StateVariableType;
 import org.geppetto.model.types.TextType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
+import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.types.VisualType;
 import org.geppetto.model.types.impl.TypesFactoryImpl;
+import org.geppetto.model.util.GeppettoModelException;
 import org.geppetto.model.values.PhysicalQuantity;
 import org.geppetto.model.values.Pointer;
 import org.geppetto.model.values.Text;
 import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
+import org.geppetto.model.values.VisualComposite;
 import org.geppetto.model.values.impl.ValuesFactoryImpl;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
@@ -88,13 +92,14 @@ import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
+import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.ParamValue;
 import org.neuroml.export.utils.Utils;
-import org.neuroml.model.Base;
-import org.neuroml.model.Morphology;
+import org.neuroml.model.Cell;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.PopulationTypes;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
@@ -119,14 +124,18 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	// AQP: Do we need the model wrapper??
 	private ModelWrapper model;
 
+	private GeppettoCommonLibraryAccess access;
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.geppetto.core.model.IModelInterpreter#importType(java.net.URL, java.lang.String, org.geppetto.core.library.LibraryManager)
 	 */
 	@Override
-	public Type importType(URL url, String typeName, GeppettoLibrary library) throws ModelInterpreterException
+	public Type importType(URL url, String typeName, GeppettoLibrary library, GeppettoCommonLibraryAccess access) throws ModelInterpreterException
 	{
+
+		this.access = access;
 
 		// AQP: Shall we verify if types != null?
 
@@ -161,21 +170,21 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			 * CREATE MODEL WRAPPER
 			 */
 			model = new ModelWrapper(UUID.randomUUID().toString());
-			//model.setInstancePath(instancePath);
+			// model.setInstancePath(instancePath);
 
 			Lems lems = ((Lems) lemsDocument);
 			lems.setResolveModeLoose();
 			lems.deduplicate();
 			lems.resolve();
 			lems.evaluateStatic();
-			
-//			model.wrapModel(ServicesRegistry.getModelFormat("LEMS"), lemsDocument);
-//			model.wrapModel(ServicesRegistry.getModelFormat("NEUROML"), neuroml);
-//			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
-//
-//			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
-//			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
-//			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
+
+			// model.wrapModel(ServicesRegistry.getModelFormat("LEMS"), lemsDocument);
+			// model.wrapModel(ServicesRegistry.getModelFormat("NEUROML"), neuroml);
+			// model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
+			//
+			// model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
+			// model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
+			// model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
 
 			// AQP: and this?
 			// addRecordings(recordings, instancePath, model);
@@ -189,7 +198,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			// this.addFeature(new LEMSParametersFeature(this.populateModelTree, model));
 
 		}
-		catch(IOException | NumberFormatException | NeuroMLException | LEMSException e)
+		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoModelException e)
 		{
 			throw new ModelInterpreterException(e);
 		}
@@ -203,23 +212,27 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		// Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which
 		// "most likely" are just included types in NeuroML and are instantiated as part of the network
 		// populations
-		else {
-			for (Entry<String, Type> entryType : types.entrySet()){
-				if (((Component)entryType.getValue().getDomainModel()).getDeclaredType().equals("network")){
+		else
+		{
+			for(Entry<String, Type> entryType : types.entrySet())
+			{
+				if(((Component) entryType.getValue().getDomainModel()).getDeclaredType().equals("network"))
+				{
 					return entryType.getValue();
 				}
 			}
-			
-			//FIXME
-			//return types.values();
+
+			// FIXME
+			// return types.values();
 		}
-		
+
 		return null;
 	}
 
 	private void initialiseNodeFromComponent(Node node, Component component)
 	{
-		if (node instanceof Type){
+		if(node instanceof Type)
+		{
 			((Type) node).setDomainModel(component);
 		}
 		node.setName(Resources.getValueById(component.getDeclaredType()) + ((component.getID() != null) ? " - " + component.getID() : ""));
@@ -232,148 +245,191 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		node.setId(attributesName);
 	}
 
-	private CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException
+	private CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoModelException
 	{
 		TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
 		ValuesFactory valuesFactory = ValuesFactoryImpl.eINSTANCE;
 		VariablesFactory variablesFactory = VariablesFactoryImpl.eINSTANCE;
 
-		if(component.getDeclaredType().equals("morphology"))
+		CompositeType compositeType = typeFactory.createCompositeType();
+		initialiseNodeFromComponent(compositeType, component);
+
+		if(component.getDeclaredType().equals("population"))
 		{
-			VisualType visualType = typeFactory.createVisualType();
-			initialiseNodeFromComponent(visualType, component);
+			String populationType = component.getTypeName();
+			if(populationType != null && populationType.equals("populationList"))
+			{
+				component.getStringValue("size");
+				
+				if (component.getRefComponents().get("component").getDeclaredType().equals("cell")){
+					
+				}
+				else{
+					
+				}
+				for(Component componentChild : component.getAllChildren())
+				{
+					if (componentChild.getDeclaredType().equals("instance")){
+						
+					}
+				}
+				
+			}
+			else
+			{
 
-			// Convert lems component to NeuroML
-			LinkedHashMap<String, Standalone> morphologyMap = Utils.convertLemsComponentToNeuroML(component);
-			Morphology morphology = (Morphology) morphologyMap.get(component.getID());
-
-			// AQP: I would like to join processMorphologyFromGroup and processMorphology into just one single method/approach
-			// create nodes for visual objects, segments of cell
-			// ExtractVisualType extractVisualType = new ExtractVisualType();
-			//
-			//
-			// visualType.getReferencedVariables().addAll(extractVisualType.createCellPartsVisualGroups(morphology.getSegmentGroup()));
-			//
-			//
-			// visualizationNodes.addAll(createNodesFromMorphologyBySegmentGroup(segmentsMap, c));
-			//
-			// // create density groups for each cell, if it has some
-			// PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(c);
-			// CompositeNode densities = populateChannelDensityVisualGroups.createChannelDensities();
-			// // add density groups to visualization tree
-			// if(densities != null)
-			// {
-			// visualizationNodes.add(densities);
-			// }
+			}
 
 		}
 		else
 		{
 
-			CompositeType compositeType = typeFactory.createCompositeType();
-			initialiseNodeFromComponent(compositeType, component);
-
-			for(ParamValue pv : component.getParamValues())
+			if(component.hasChildrenAL("morphology"))
 			{
-				if(component.hasAttribute(pv.getName()))
+				Component morphologyComponent = component.getChild("morphology");
+				LinkedHashMap<String, Standalone> cellMap = Utils.convertLemsComponentToNeuroML(component);
+				Cell cell = (Cell) cellMap.get(component.getID());
+
+				// Convert lems component to NeuroML
+				// LinkedHashMap<String, Standalone> morphologyMap = Utils.convertLemsComponentToNeuroML(morphologyComponent);
+				// Morphology morphology = (Morphology) morphologyMap.get(morphologyComponent.getID());
+
+				// AQP: I would like to join processMorphologyFromGroup and processMorphology into just one single method/approach
+				// create nodes for visual objects, segments of cell
+
+				// We assume when we find a morphology it belongs to a cell
+				ExtractVisualType extractVisualType = new ExtractVisualType(cell);
+
+				VisualType visualType = typeFactory.createVisualType();
+				initialiseNodeFromComponent(visualType, morphologyComponent);
+				// visualType.getReferencedVariables().addAll(extractVisualType.createCellPartsVisualGroups(morphology.getSegmentGroup()));
+
+				VisualComposite visualComposite = valuesFactory.createVisualComposite();
+				visualComposite.getVisualGroups().add(extractVisualType.createCellPartsVisualGroups());
+
+				// List<VisualValue> visualizationNodes = new ArrayList<VisualValue>();
+
+				if(cell.getMorphology().getSegmentGroup().isEmpty())
 				{
-					String orig = component.getStringValue(pv.getName());
+					visualComposite.getValue().addAll(extractVisualType.getVisualObjectsFromListOfSegments(cell.getMorphology()));
+				}
+				else
+				{
+					visualComposite.getValue().addAll(extractVisualType.createNodesFromMorphologyBySegmentGroup());
 
-					// AQP: Extracted from PopulateNodesModelTreeUtils
-					String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
-					Pattern pattern = Pattern.compile(regExp);
-					Matcher matcher = pattern.matcher(orig);
+					// create density groups for each cell, if it has some
+					PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(cell, this.access);
+					visualComposite.getVisualGroups().addAll(populateChannelDensityVisualGroups.createChannelDensities());
+				}
+				// add density groups to visualization tree
+				// if(densities != null)
+				// {
+				// visualizationNodes.add(densities);
+				// }
+			}
 
-					if(matcher.find())
+			if(!component.getDeclaredType().equals("morphology"))
+			{
+				for(ParamValue pv : component.getParamValues())
+				{
+					if(component.hasAttribute(pv.getName()))
 					{
-						PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
-						// physicalQuantity.setScalingFactor(value);
-						physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
+						String orig = component.getStringValue(pv.getName());
 
-						Unit unit = valuesFactory.createUnit();
-						unit.setUnit(matcher.group(2));
-						physicalQuantity.setUnit(unit);
-						physicalQuantity.setScalingFactor(1);
+						// AQP: Extracted from PopulateNodesModelTreeUtils
+						String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
+						Pattern pattern = Pattern.compile(regExp);
+						Matcher matcher = pattern.matcher(orig);
 
-						ParameterType parameterType = typeFactory.createParameterType();
-						initialiseNodeFromString(parameterType, pv.getName());
-						parameterType.setDefaultValue(physicalQuantity);
+						if(matcher.find())
+						{
+							PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
+							physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
+
+							Unit unit = valuesFactory.createUnit();
+							unit.setUnit(matcher.group(2));
+							physicalQuantity.setUnit(unit);
+							physicalQuantity.setScalingFactor(1);
+
+							ParameterType parameterType = (ParameterType)this.access.getType(TypesPackage.Literals.PARAMETER_TYPE);
+							initialiseNodeFromString(parameterType, pv.getName());
+
+							Variable variable = variablesFactory.createVariable();
+							variable.setInitialValues(physicalQuantity);
+							initialiseNodeFromString(variable, pv.getName());
+							variable.getTypes().add(parameterType);
+							compositeType.getVariables().add(variable);
+						}
+					}
+				}
+
+				for(Entry<String, String> entry : component.getTextParamMap().entrySet())
+				{
+					Text text = valuesFactory.createText();
+					text.setText(entry.getValue());
+
+					TextType textType = (TextType)this.access.getType(TypesPackage.Literals.TEXT_TYPE);
+					initialiseNodeFromString(textType, entry.getKey());
+
+					Variable variable = variablesFactory.createVariable();
+					variable.setInitialValues(text);
+					initialiseNodeFromString(textType, entry.getKey());
+					variable.getTypes().add(textType);
+					compositeType.getVariables().add(variable);
+
+				}
+
+				for(Entry<String, Component> entry : component.getRefComponents().entrySet())
+				{
+					if(!types.containsKey(entry.getKey()))
+					{
+						CompositeType refCompositeType = extractInfoFromComponent(entry.getValue());
 
 						Variable variable = variablesFactory.createVariable();
-						initialiseNodeFromString(variable, pv.getName());
-						variable.getAnonymousTypes().add(parameterType);
+						initialiseNodeFromComponent(variable, entry.getValue());
+						variable.getTypes().add(refCompositeType);
+						compositeType.getVariables().add(variable);
+						types.put(entry.getValue().getID(), refCompositeType);
+					}
+				}
+
+				// Simulation Tree (Variable Node)
+				for(Exposure exposure : component.getComponentType().getExposures())
+				{
+					String unitSymbol = Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol();
+					if(unitSymbol.equals("none")) unitSymbol = "";
+
+					PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
+					Unit unit = valuesFactory.createUnit();
+					unit.setUnit(unitSymbol);
+					physicalQuantity.setUnit(unit);
+
+					StateVariableType stateVariableType = (StateVariableType)this.access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE);
+					initialiseNodeFromString(stateVariableType, exposure.getName());
+
+					Variable variable = variablesFactory.createVariable();
+					variable.setInitialValues(physicalQuantity);
+					initialiseNodeFromString(variable, exposure.getName());
+					variable.getTypes().add(stateVariableType);
+					compositeType.getVariables().add(variable);
+				}
+
+				for(Component componentChild : component.getAllChildren())
+				{
+					CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
+					if(anonymousCompositeType != null)
+					{
+						Variable variable = variablesFactory.createVariable();
+						initialiseNodeFromComponent(variable, componentChild);
+						variable.getAnonymousTypes().add(anonymousCompositeType);
 						compositeType.getVariables().add(variable);
 					}
 				}
 			}
-
-			for(Entry<String, String> entry : component.getTextParamMap().entrySet())
-			{
-				Text text = valuesFactory.createText();
-				text.setText(entry.getValue());
-
-				TextType textType = typeFactory.createTextType();
-				initialiseNodeFromString(textType, entry.getKey());
-				textType.setDefaultValue(text);
-
-				Variable variable = variablesFactory.createVariable();
-				initialiseNodeFromString(textType, entry.getKey());
-				variable.getAnonymousTypes().add(textType);
-				compositeType.getVariables().add(variable);
-			}
-
-			for(Entry<String, Component> entry : component.getRefComponents().entrySet())
-			{
-				if(!types.containsKey(entry.getKey()))
-				{
-					CompositeType refCompositeType = extractInfoFromComponent(entry.getValue());
-
-					Variable variable = variablesFactory.createVariable();
-					initialiseNodeFromComponent(variable, entry.getValue());
-					variable.getTypes().add(refCompositeType);
-					compositeType.getVariables().add(variable);
-					types.put(entry.getValue().getID(), refCompositeType);
-				}
-			}
-
-			// Simulation Tree (Variable Node)
-			for(Exposure exposure : component.getComponentType().getExposures())
-			{
-				String unitSymbol = Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol();
-				if(unitSymbol.equals("none")) unitSymbol = "";
-
-				PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
-				// physicalQuantity.setScalingFactor(value);
-				Unit unit = valuesFactory.createUnit();
-				unit.setUnit(unitSymbol);
-				physicalQuantity.setUnit(unit);
-
-				StateVariableType stateVariableType = typeFactory.createStateVariableType();
-				initialiseNodeFromString(stateVariableType, exposure.getName());
-				stateVariableType.setDefaultValue(physicalQuantity);
-
-				Variable variable = variablesFactory.createVariable();
-				initialiseNodeFromString(variable, exposure.getName());
-				variable.getAnonymousTypes().add(stateVariableType);
-				compositeType.getVariables().add(variable);
-			}
-
-			for(Component componentChild : component.getAllChildren())
-			{
-				CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
-				if(anonymousCompositeType != null)
-				{
-					Variable variable = variablesFactory.createVariable();
-					initialiseNodeFromComponent(variable, componentChild);
-					variable.getAnonymousTypes().add(anonymousCompositeType);
-					compositeType.getVariables().add(variable);
-				}
-			}
-
-			return compositeType;
 		}
 
-		return null;
+		return compositeType;
+
 	}
 
 	//
@@ -683,36 +739,36 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	}
 
-//	@Override
-//	public List<ModelFormat> getSupportedOutputs(Pointer pointer) throws ModelInterpreterException
-//	{
-//		List<ModelFormat> supportedOutputs = super.getSupportedOutputs(pointer);
-//		supportedOutputs.add(ServicesRegistry.getModelFormat("LEMS"));
-//		try
-//		{
-//			LEMSConversionService lemsConversionService = new LEMSConversionService();
-//			supportedOutputs.addAll(lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS")));
-//		}
-//		catch(ConversionException e)
-//		{
-//			throw new ModelInterpreterException(e);
-//		}
-//		return supportedOutputs;
-//	}
+	// @Override
+	// public List<ModelFormat> getSupportedOutputs(Pointer pointer) throws ModelInterpreterException
+	// {
+	// List<ModelFormat> supportedOutputs = super.getSupportedOutputs(pointer);
+	// supportedOutputs.add(ServicesRegistry.getModelFormat("LEMS"));
+	// try
+	// {
+	// LEMSConversionService lemsConversionService = new LEMSConversionService();
+	// supportedOutputs.addAll(lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS")));
+	// }
+	// catch(ConversionException e)
+	// {
+	// throw new ModelInterpreterException(e);
+	// }
+	// return supportedOutputs;
+	// }
 
 	public ModelWrapper getModel()
 	{
 		return this.model;
 	}
 
-//	public Map<ParameterSpecificationNode, Object> getMethodsMap()
-//	{
-//		return this.populateModelTree.getParametersNodeToMethodsMap();
-//	}
-//
-//	public Map<ParameterSpecificationNode, Object> getObjectsMap()
-//	{
-//		return this.populateModelTree.getParametersNodeToObjectsMap();
-//	}
+	// public Map<ParameterSpecificationNode, Object> getMethodsMap()
+	// {
+	// return this.populateModelTree.getParametersNodeToMethodsMap();
+	// }
+	//
+	// public Map<ParameterSpecificationNode, Object> getObjectsMap()
+	// {
+	// return this.populateModelTree.getParametersNodeToObjectsMap();
+	// }
 
 }

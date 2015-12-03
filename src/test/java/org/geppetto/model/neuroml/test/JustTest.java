@@ -41,10 +41,15 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.emfjson.jackson.resource.JsonResourceFactory;
+import org.geppetto.core.manager.SharedLibraryManager;
+import org.geppetto.core.model.GeppettoCommonLibraryAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
+import org.geppetto.model.GeppettoModel;
 import org.geppetto.model.GeppettoPackage;
 import org.geppetto.model.impl.GeppettoFactoryImpl;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
@@ -60,37 +65,44 @@ import org.neuroml.model.util.NeuroMLException;
 public class JustTest
 {
 
-	public void serialiseAsJSON(String modelPath, String outputPath, String typeName, boolean allTypes) throws Exception
+	public void serialise(String modelPath, String outputPath, String typeName, boolean allTypes) throws Exception
 	{
 		GeppettoFactory geppettoFactory = GeppettoFactoryImpl.eINSTANCE;
 		GeppettoLibrary gl = geppettoFactory.createGeppettoLibrary();
-
+		GeppettoModel gm = geppettoFactory.createGeppettoModel();
+		gm.getLibraries().add(gl);
+		
 		NeuroMLModelInterpreterService modelInterpreter = new NeuroMLModelInterpreterService();
 		URL url = this.getClass().getResource(modelPath);
-		Type type = modelInterpreter.importType(url, typeName, gl);
+		
+		gm.getLibraries().add(EcoreUtil.copy(SharedLibraryManager.getSharedCommonLibrary()));
+		GeppettoCommonLibraryAccess commonLibraryAccess = new GeppettoCommonLibraryAccess(gm);
+		
+		Type type = modelInterpreter.importType(url, typeName, gl, commonLibraryAccess);
 
 		// Initialize the factory and the resource set
 		GeppettoPackage.eINSTANCE.eClass();
 		Resource.Factory.Registry reg = Resource.Factory.Registry.INSTANCE;
 		Map<String, Object> m = reg.getExtensionToFactoryMap();
 		m.put("json", new JsonResourceFactory()); // sets the factory for the JSON type
+		m.put("xmi", new XMIResourceFactoryImpl()); // sets the factory for the XMI typ
 		ResourceSet resSet = new ResourceSetImpl();
 
 		// How to save to JSON
-		Resource jsonResource = resSet.createResource(URI.createURI(outputPath));
+		Resource resource = resSet.createResource(URI.createURI(outputPath));
 		if (allTypes)
-			jsonResource.getContents().add(gl);
+			resource.getContents().add(gm);
 		else
-			jsonResource.getContents().add(type);
-		jsonResource.save(null);
+			resource.getContents().add(type);
+		resource.save(null);
 	}
 
 	@Test
 	public void test2() throws Exception
 	{
-		serialiseAsJSON("/acnet2/MediumNet.net.nml", "./src/test/resources/test2AllTypes.json", "network_ACnet2", true);
-		serialiseAsJSON("/acnet2/MediumNet.net.nml", "./src/test/resources/test2SingleType.json", "network_ACnet2", false);
-		serialiseAsJSON("/acnet2/MediumNet.net.nml", "./src/test/resources/test2SingleTypeWithoutTypeName.json", null, false);
+		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/test2AllTypes.xmi", "network_ACnet2", true);
+		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/test2SingleType.json", "network_ACnet2", false);
+		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/test2SingleTypeWithoutTypeName.json", null, false);
 	}
 
 	/**
@@ -104,8 +116,8 @@ public class JustTest
 	@Test
 	public void test1() throws Exception
 	{
-		serialiseAsJSON("/acnet2/bask.cell.nml", "./src/test/resources/testAllTypes.json", "bask", true);
-		serialiseAsJSON("/acnet2/bask.cell.nml", "./src/test/resources/testSingleType.json", "bask", false);
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/testAllTypes.json", "bask", true);
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/testSingleType.json", "bask", false);
 		// AQP Commented until we decide what to return when if it is not a network 
 		//serialiseAsJSON("/acnet2/bask.cell.nml", "./src/test/resources/test.json", null, false);
 	}

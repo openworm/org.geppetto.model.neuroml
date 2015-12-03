@@ -40,12 +40,20 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geppetto.core.model.quantities.PhysicalQuantity;
-import org.geppetto.core.model.quantities.Unit;
-import org.geppetto.core.model.runtime.CompositeNode;
-import org.geppetto.core.model.runtime.VisualGroupElementNode;
-import org.geppetto.core.model.runtime.VisualGroupNode;
-import org.geppetto.core.model.values.FloatValue;
+import org.geppetto.core.model.GeppettoCommonLibraryAccess;
+import org.geppetto.model.types.ParameterType;
+import org.geppetto.model.types.TypesFactory;
+import org.geppetto.model.types.TypesPackage;
+import org.geppetto.model.types.impl.TypesFactoryImpl;
+import org.geppetto.model.values.PhysicalQuantity;
+import org.geppetto.model.values.Unit;
+import org.geppetto.model.values.ValuesFactory;
+import org.geppetto.model.values.VisualGroup;
+import org.geppetto.model.values.VisualGroupElement;
+import org.geppetto.model.values.impl.ValuesFactoryImpl;
+import org.geppetto.model.variables.Variable;
+import org.geppetto.model.variables.VariablesFactory;
+import org.geppetto.model.variables.impl.VariablesFactoryImpl;
 import org.lemsml.jlems.core.eval.DoubleEvaluator;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.expression.ParseTree;
@@ -78,12 +86,20 @@ public class PopulateChannelDensityVisualGroups
 	private static Log _logger = LogFactory.getLog(PopulateChannelDensityVisualGroups.class);
 
 	private CellUtils cellUtils;
+	private GeppettoCommonLibraryAccess access;
 	private Cell cell;
-	
-	public PopulateChannelDensityVisualGroups(Cell cell)
+	TypesFactory typeFactory;
+	ValuesFactory valuesFactory;
+	VariablesFactory variablesFactory;
+
+	public PopulateChannelDensityVisualGroups(Cell cell, GeppettoCommonLibraryAccess access)
 	{
 		super();
 		this.cell = cell;
+		this.access = access;
+		typeFactory = TypesFactoryImpl.eINSTANCE;
+		valuesFactory = ValuesFactoryImpl.eINSTANCE;
+		variablesFactory = VariablesFactoryImpl.eINSTANCE;
 	}
 
 	/**
@@ -93,11 +109,11 @@ public class PopulateChannelDensityVisualGroups
 	 *            - Densities visual groups for this cell
 	 * @return
 	 */
-	public CompositeNode createChannelDensities()
+	public List<VisualGroup> createChannelDensities()
 	{
-		Map<String, VisualGroupNode> groupsMap = new HashMap<String, VisualGroupNode>();
+		Map<String, VisualGroup> groupsMap = new HashMap<String, VisualGroup>();
 
-		CompositeNode densities = null;
+		// CompositeNode densities = null;
 
 		BiophysicalProperties biophysicalProperties = cell.getBiophysicalProperties();
 		if(biophysicalProperties != null
@@ -108,50 +124,55 @@ public class PopulateChannelDensityVisualGroups
 			densities = new CompositeNode("ChannelDensities");
 			densities.setName("Channel Densities");
 
-			if (biophysicalProperties.getMembraneProperties().getChannelDensity() != null && biophysicalProperties.getMembraneProperties().getChannelDensity().size() > 0){
+			if(biophysicalProperties.getMembraneProperties().getChannelDensity() != null && biophysicalProperties.getMembraneProperties().getChannelDensity().size() > 0)
+			{
 				CompositeNode densityNode = new CompositeNode("Density");
 				densityNode.setName("Density");
 				densityNode.setParent(densities);
 				densities.addChild(densityNode);
-				
+
 				for(ChannelDensity density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
 				{
 					createVisualGroupFromCondDensity(groupsMap, densityNode, density, density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
 				}
 			}
-			
-			if (biophysicalProperties.getMembraneProperties().getChannelDensityNernst() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNernst().size() > 0){
+
+			if(biophysicalProperties.getMembraneProperties().getChannelDensityNernst() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNernst().size() > 0)
+			{
 				CompositeNode densityNode = new CompositeNode("Density_Nernst");
 				densityNode.setName("Density Nernst");
 				densityNode.setParent(densities);
 				densities.addChild(densityNode);
-				
+
 				for(ChannelDensityNernst density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
 				{
 					createVisualGroupFromCondDensity(groupsMap, densityNode, density, density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
 				}
 			}
 
-			if (biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform().size() > 0){
+			if(biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform().size() > 0)
+			{
 				CompositeNode densityNode = new CompositeNode("Density_Non_Uniform");
 				densityNode.setName("Density Non Uniform");
 				densityNode.setParent(densities);
 				densities.addChild(densityNode);
-				
+
 				cellUtils = new CellUtils(cell);
-				
+
 				for(ChannelDensityNonUniform density : biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform())
 				{
 					createVisualGroupElement(groupsMap, densityNode, density.getId(), density.getIonChannel(), density.getVariableParameter());
 				}
 			}
-			
-			if (biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst().size() > 0){
+
+			if(biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst() != null
+					&& biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst().size() > 0)
+			{
 				CompositeNode densityNode = new CompositeNode("Density_Non_Uniform_Nernst");
 				densityNode.setName("Density Non Uniform Nernst");
 				densityNode.setParent(densities);
 				densities.addChild(densityNode);
-				
+
 				cellUtils = new CellUtils(cell);
 				for(ChannelDensityNonUniformNernst density : biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst())
 				{
@@ -160,7 +181,7 @@ public class PopulateChannelDensityVisualGroups
 			}
 
 		}
-		
+
 		return densities;
 	}
 
@@ -205,7 +226,7 @@ public class PopulateChannelDensityVisualGroups
 				{
 					String ionChannelLabel = ionChannel + "_" + segmentGroup.getId();
 					VisualGroupNode vis = createVisualGroup(groupsMap, densities, ionChannelLabel);
-					
+
 					// Get expression evaluator for inhomogeneous expresion
 					DoubleEvaluator doubleEvaluator = getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
 
@@ -216,16 +237,15 @@ public class PopulateChannelDensityVisualGroups
 						{
 							try
 							{
-								//Get all segments for the subgroup
+								// Get all segments for the subgroup
 								List<Segment> segmentsPerSubgroup = cellUtils.getSegmentsInGroup(cell, segmentGroup.getId());
 								for(Segment sg : segmentsPerSubgroup)
 								{
 									double distanceAllSegments = cellUtils.calculateDistanceInGroup(0.0, sg);
-									if (inhomogeneousParameter.getProximal() != null)
-										distanceAllSegments = distanceAllSegments - inhomogeneousParameter.getProximal().getTranslationStart();
-									
-									//double distanceAllSegments = distanceInGroup - inhomogeneousParameter.getProximal().getTranslationStart();
-									
+									if(inhomogeneousParameter.getProximal() != null) distanceAllSegments = distanceAllSegments - inhomogeneousParameter.getProximal().getTranslationStart();
+
+									// double distanceAllSegments = distanceInGroup - inhomogeneousParameter.getProximal().getTranslationStart();
+
 									// Calculate conductance density
 									HashMap<String, Double> valHM = new HashMap<String, Double>();
 									valHM.put(inhomogeneousParameter.getVariable(), distanceAllSegments);
@@ -254,31 +274,31 @@ public class PopulateChannelDensityVisualGroups
 		}
 	}
 
-	private void createVisualGroupFromCondDensity(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, Base density, String ionChannel, String segmentGroup, String condDensity)
+	private void createVisualGroupFromCondDensity(Map<String, VisualGroup> groupsMap, CompositeNode densities, Base density, String ionChannel, String segmentGroup, String condDensity)
 	{
 		if(!groupsMap.containsKey(ionChannel))
 		{
 			if(!density.getId().endsWith("_all"))
 			{
-				VisualGroupNode vis = createVisualGroup(groupsMap, densities, ionChannel);
+				VisualGroup vis = createVisualGroup(groupsMap, densities, ionChannel);
 				createVisualGroupElementFromSegmentGroup(density, segmentGroup, condDensity, vis);
 			}
 		}
 		else
 		{
-			VisualGroupNode vis = groupsMap.get(ionChannel);
+			VisualGroup vis = groupsMap.get(ionChannel);
 			if(!density.getId().endsWith("_all")) createVisualGroupElementFromSegmentGroup(density, segmentGroup, condDensity, vis);
 			densities.addChild(vis);
 			groupsMap.put(ionChannel, vis);
 		}
 	}
 
-	private void createVisualGroupElementFromSegmentGroup(Base density, String segmentGroup, String condDensity, VisualGroupNode vis)
+	private void createVisualGroupElementFromSegmentGroup(Base density, String segmentGroup, String condDensity, VisualGroup vis)
 	{
-		VisualGroupElementNode element = new VisualGroupElementNode(segmentGroup);
-		element.setName(density.getId());
+		// VisualGroupElementNode element = new VisualGroupElementNode(segmentGroup);
+		VisualGroupElement element = valuesFactory.createVisualGroupElement();
+		// element.setName(density.getId());
 		element.setParameter(getParameterFromCondDensity(condDensity));
-		element.setParent(vis);
 		element.setDefaultColor(defaultColor);
 		vis.getVisualGroupElements().add(element);
 	}
@@ -289,12 +309,30 @@ public class PopulateChannelDensityVisualGroups
 		Pattern pattern = Pattern.compile(regExp);
 		Matcher matcher = pattern.matcher(condDensity);
 
-		PhysicalQuantity physicalQuantity = null;
 		if(matcher.find())
 		{
-			physicalQuantity = new PhysicalQuantity(new FloatValue(Float.parseFloat(matcher.group(1))), new Unit(matcher.group(2)));
+			PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
+			// physicalQuantity.setScalingFactor(value);
+			physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
+
+			Unit unit = valuesFactory.createUnit();
+			unit.setUnit(matcher.group(2));
+			physicalQuantity.setUnit(unit);
+			physicalQuantity.setScalingFactor(1);
+
+			
+			ParameterType parameterType = (ParameterType)this.access.getType(TypesPackage.Literals.PARAMETER_TYPE);
+			initialiseNodeFromString(parameterType, condDensity);
+			parameterType.setDefaultValue(physicalQuantity);
+
+			Variable variable = variablesFactory.createVariable();
+			initialiseNodeFromString(variable, condDensity);
+			variable.getTypes().add(parameterType);
+			variable.setInitialValues(physicalQuantity);
+			compositeType.getVariables().add(variable);
+			return physicalQuantity;
 		}
-		return physicalQuantity;
+		return null;
 	}
 
 }

@@ -34,26 +34,24 @@ package org.geppetto.model.neuroml.visitors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geppetto.core.model.GeppettoCommonLibraryAccess;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.runtime.ACompositeNode;
-import org.geppetto.core.model.runtime.ANode;
-import org.geppetto.core.model.runtime.AVisualObjectNode;
-import org.geppetto.core.model.runtime.AspectNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
-import org.geppetto.core.model.runtime.CompositeNode;
-import org.geppetto.core.model.runtime.CylinderNode;
-import org.geppetto.core.model.runtime.EntityNode;
-import org.geppetto.core.model.runtime.SphereNode;
-import org.geppetto.core.model.runtime.VisualGroupElementNode;
-import org.geppetto.core.model.runtime.VisualGroupNode;
 import org.geppetto.core.utilities.VariablePathSerializer;
-import org.geppetto.core.visualisation.model.Point;
-import org.geppetto.model.variables.Variable;
+import org.geppetto.model.types.TypesFactory;
+import org.geppetto.model.types.impl.TypesFactoryImpl;
+import org.geppetto.model.values.Cylinder;
+import org.geppetto.model.values.Point;
+import org.geppetto.model.values.Sphere;
+import org.geppetto.model.values.ValuesFactory;
+import org.geppetto.model.values.VisualGroup;
+import org.geppetto.model.values.VisualGroupElement;
+import org.geppetto.model.values.VisualValue;
+import org.geppetto.model.values.impl.ValuesFactoryImpl;
+import org.geppetto.model.variables.VariablesFactory;
+import org.geppetto.model.variables.impl.VariablesFactoryImpl;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
 import org.neuroml.model.Cell;
@@ -69,7 +67,6 @@ import org.neuroml.model.Population;
 import org.neuroml.model.PopulationTypes;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
-import org.neuroml.model.util.CellUtils;
 
 /**
  * Helper class to populate visualization tree for neuroml models
@@ -85,6 +82,24 @@ public class ExtractVisualType
 	private String AXONS = "axon_group";
 	private String DENDRITES = "dendrite_group";
 
+	Cell cell;
+	TypesFactory typeFactory;
+	ValuesFactory valuesFactory;
+	VariablesFactory variablesFactory;
+	
+	Map<String, List<String>> segmentsMap;
+
+	public ExtractVisualType(Cell cell)
+	{
+		super();
+		this.cell = cell;
+		typeFactory = TypesFactoryImpl.eINSTANCE;
+		valuesFactory = ValuesFactoryImpl.eINSTANCE;
+		variablesFactory = VariablesFactoryImpl.eINSTANCE;
+		
+		segmentsMap = new HashMap<String, List<String>>();
+	}
+
 	/**
 	 * @param allSegments
 	 * @param list
@@ -92,11 +107,12 @@ public class ExtractVisualType
 	 * @param id
 	 * @return
 	 */
-	private CompositeNode getVisualObjectsFromListOfSegments(List<Segment> segments, Map<String, List<String>> segmentsMap, String id)
+	public List<VisualValue> getVisualObjectsFromListOfSegments(Morphology morphology)
 	{
-		CompositeNode groupNode = new CompositeNode(id);
+		List<VisualValue> visualObject = new ArrayList<VisualValue>();
+
 		Map<String, Point3DWithDiam> distalPoints = new HashMap<String, Point3DWithDiam>();
-		for(Segment s : segments)
+		for(Segment s : morphology.getSegment())
 		{
 			String idSegmentParent = null;
 			Point3DWithDiam parentDistal = null;
@@ -108,8 +124,8 @@ public class ExtractVisualType
 			{
 				parentDistal = distalPoints.get(idSegmentParent);
 			}
-			groupNode.setName(idSegmentParent);
-			AVisualObjectNode cyl = getCylinderFromSegment(s, parentDistal);
+			// groupNode.setName(idSegmentParent);
+			VisualValue cyl = getCylinderFromSegment(s, parentDistal);
 
 			if(segmentsMap.containsKey(cyl.getId()))
 			{
@@ -117,11 +133,11 @@ public class ExtractVisualType
 				cyl.setGroupElementsMap(segmentsMap.get(cyl.getId()));
 			}
 
-			groupNode.addChild(cyl);
+			// groupNode.addChild(cyl);
 			distalPoints.put(s.getId().toString(), s.getDistal());
 		}
 
-		return groupNode;
+		return visualObject;
 	}
 
 	/**
@@ -131,94 +147,94 @@ public class ExtractVisualType
 	 * @param targetComponents
 	 * @return
 	 */
-	public void createNodesFromNeuroMLDocument(AspectSubTreeNode visualizationTree, NeuroMLDocument neuroml, List<String> targetCells, Map<String, List<ANode>> visualizationNodes)
-	{
-		// Commented until we have a proper model library
-		// Find morphologies inside neuroml document
-		// List<Morphology> morphologies = neuroml.getMorphology();
-		// if(morphologies != null)
-		// {
-		// for(Morphology m : morphologies)
-		// {
-		// if (targetMorphologies == null || targetMorphologies.contains(m.getId())){
-		// processMorphology(m, visualizationTree);
-		// }
-		// }
-		// }
-
-		// find networks inside neuroml document
-		List<Network> networks = neuroml.getNetwork();
-		for(Network n : networks)
-		{
-			addNetworkTo(n, visualizationTree, (AspectNode) visualizationTree.getParent(), targetCells);
-		}
-
-		// Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which
-		// "most likely" are just included types in NeuroML and are instantiated as part of the network
-		// populations
-		if(networks.size() == 0)
-		{
-			// find cells inside neuroml document
-			List<Cell> cells = neuroml.getCell();
-			if(cells != null)
-			{
-				for(Cell c : cells)
-				{
-					if(targetCells == null || targetCells.contains(c.getId()))
-					{
-						List<ANode> visualizationNodesItem = new ArrayList<ANode>();
-						if(!c.getMorphology().getSegmentGroup().isEmpty())
-						{
-							visualizationNodesItem.addAll(processMorphologyFromGroup(c, visualizationTree));
-						}
-						else
-						{
-							visualizationNodesItem.add(processMorphology(c.getMorphology(), visualizationTree));
-						}
-						visualizationNodes.put(c.getId(), visualizationNodesItem);
-					}
-				}
-			}
-		}
-
-	}
+//	public void createNodesFromNeuroMLDocument(AspectSubTreeNode visualizationTree, NeuroMLDocument neuroml, List<String> targetCells, Map<String, List<ANode>> visualizationNodes)
+//	{
+//		// Commented until we have a proper model library
+//		// Find morphologies inside neuroml document
+//		// List<Morphology> morphologies = neuroml.getMorphology();
+//		// if(morphologies != null)
+//		// {
+//		// for(Morphology m : morphologies)
+//		// {
+//		// if (targetMorphologies == null || targetMorphologies.contains(m.getId())){
+//		// processMorphology(m, visualizationTree);
+//		// }
+//		// }
+//		// }
+//
+//		// find networks inside neuroml document
+//		List<Network> networks = neuroml.getNetwork();
+//		for(Network n : networks)
+//		{
+//			addNetworkTo(n, visualizationTree, (AspectNode) visualizationTree.getParent(), targetCells);
+//		}
+//
+//		// Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which
+//		// "most likely" are just included types in NeuroML and are instantiated as part of the network
+//		// populations
+//		if(networks.size() == 0)
+//		{
+//			// find cells inside neuroml document
+//			List<Cell> cells = neuroml.getCell();
+//			if(cells != null)
+//			{
+//				for(Cell c : cells)
+//				{
+//					if(targetCells == null || targetCells.contains(c.getId()))
+//					{
+//						List<ANode> visualizationNodesItem = new ArrayList<ANode>();
+//						if(!c.getMorphology().getSegmentGroup().isEmpty())
+//						{
+//							visualizationNodesItem.addAll(processMorphologyFromGroup(c, visualizationTree));
+//						}
+//						else
+//						{
+//							visualizationNodesItem.add(processMorphology(c.getMorphology(), visualizationTree));
+//						}
+//						visualizationNodes.put(c.getId(), visualizationNodesItem);
+//					}
+//				}
+//			}
+//		}
+//
+//	}
 
 	/**
 	 * @param m
 	 * @param visualizationTree
 	 */
-	private ANode processMorphology(Morphology m, AspectSubTreeNode visualizationTree)
-	{
-		// create visual groups for regions, and creates a map with
-		// objects pointing to groups they are part of
-		Map<String, List<String>> segmentsMap = this.createCellPartsVisualGroups(m.getSegmentGroup(), visualizationTree);
-		ANode node = getVisualObjectsFromListOfSegments(m.getSegment(), segmentsMap, m.getId());
-		return node;
-	}
+//	private ANode processMorphology(Morphology m, AspectSubTreeNode visualizationTree)
+//	{
+//		// create visual groups for regions, and creates a map with
+//		// objects pointing to groups they are part of
+//		Map<String, List<String>> segmentsMap = this.createCellPartsVisualGroups(m.getSegmentGroup(), visualizationTree);
+//		ANode node = getVisualObjectsFromListOfSegments(m.getSegment(), segmentsMap, m.getId());
+//		return node;
+//	}
 
 	/**
 	 * @param c
 	 * @param visualizationTree
 	 */
-	public List<ANode> processMorphologyFromGroup(Cell c, AspectSubTreeNode visualizationTree)
-	{
-		List<ANode> visualizationNodes = new ArrayList<ANode>();
-
-		// create nodes for visual objects, segments of cell
-		Map<String, List<String>> segmentsMap = this.createCellPartsVisualGroups(c.getMorphology().getSegmentGroup(), visualizationTree);
-		visualizationNodes.addAll(createNodesFromMorphologyBySegmentGroup(segmentsMap, c));
-
-		// create density groups for each cell, if it has some
-		PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(c);
-		CompositeNode densities = populateChannelDensityVisualGroups.createChannelDensities();
-		// add density groups to visualization tree
-		if(densities != null)
-		{
-			visualizationNodes.add(densities);
-		}
-
-		return visualizationNodes;
-	}
+//	public List<ANode> processMorphologyFromGroup(Cell c, AspectSubTreeNode visualizationTree)
+//	{
+//		List<ANode> visualizationNodes = new ArrayList<ANode>();
+//
+//		// create nodes for visual objects, segments of cell
+//		Map<String, List<String>> segmentsMap = this.createCellPartsVisualGroups(c.getMorphology().getSegmentGroup(), visualizationTree);
+//		visualizationNodes.addAll(createNodesFromMorphologyBySegmentGroup(segmentsMap, c));
+//
+//		// create density groups for each cell, if it has some
+//		PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(c);
+//		CompositeNode densities = populateChannelDensityVisualGroups.createChannelDensities();
+//		// add density groups to visualization tree
+//		if(densities != null)
+//		{
+//			visualizationNodes.add(densities);
+//		}
+//
+//		return visualizationNodes;
+//	}
 
 	/**
 	 * @param c
@@ -352,64 +368,64 @@ public class ExtractVisualType
 	 * @param aspect
 	 * @param model
 	 */
-	public void addVisualObjectToVizTree(String id, List<ANode> visualObjects, ACompositeNode composite, AspectNode aspect, ModelWrapper model)
-	{
-
-		Map<String, EntityNode> entitiesMapping = (Map<String, EntityNode>) model.getModel("entitiesMapping");
-		if(entitiesMapping.containsKey(id))
-		{
-			EntityNode e = entitiesMapping.get(id);
-			for(AspectNode a : e.getAspects())
-			{
-				if(a.getId().equals(aspect.getId()))
-				{
-					// we are in the same aspect of the subentity, now we can fetch the visualization tree
-					AspectSubTreeNode subEntityVizTree = a.getSubTree(AspectTreeType.VISUALIZATION_TREE);
-					if(composite instanceof AspectSubTreeNode)
-					{
-						for(ANode visualObject : visualObjects)
-						{
-							subEntityVizTree.addChild(visualObject);
-						}
-					}
-					else if(composite instanceof CompositeNode)
-					{
-						for(ANode visualObject : visualObjects)
-						{
-							getCompositeNode(subEntityVizTree, composite.getId()).addChild(visualObject);
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-			for(ANode visualObject : visualObjects)
-			{
-				composite.addChild(visualObject);
-			}
-		}
-
-	}
+//	public void addVisualObjectToVizTree(String id, List<ANode> visualObjects, ACompositeNode composite, AspectNode aspect, ModelWrapper model)
+//	{
+//
+//		Map<String, EntityNode> entitiesMapping = (Map<String, EntityNode>) model.getModel("entitiesMapping");
+//		if(entitiesMapping.containsKey(id))
+//		{
+//			EntityNode e = entitiesMapping.get(id);
+//			for(AspectNode a : e.getAspects())
+//			{
+//				if(a.getId().equals(aspect.getId()))
+//				{
+//					// we are in the same aspect of the subentity, now we can fetch the visualization tree
+//					AspectSubTreeNode subEntityVizTree = a.getSubTree(AspectTreeType.VISUALIZATION_TREE);
+//					if(composite instanceof AspectSubTreeNode)
+//					{
+//						for(ANode visualObject : visualObjects)
+//						{
+//							subEntityVizTree.addChild(visualObject);
+//						}
+//					}
+//					else if(composite instanceof CompositeNode)
+//					{
+//						for(ANode visualObject : visualObjects)
+//						{
+//							getCompositeNode(subEntityVizTree, composite.getId()).addChild(visualObject);
+//						}
+//					}
+//				}
+//			}
+//		}
+//		else
+//		{
+//			for(ANode visualObject : visualObjects)
+//			{
+//				composite.addChild(visualObject);
+//			}
+//		}
+//
+//	}
 
 	/**
 	 * @param subEntityVizTree
 	 * @param compositeId
 	 * @return
 	 */
-	private CompositeNode getCompositeNode(AspectSubTreeNode subEntityVizTree, String compositeId)
-	{
-		for(ANode child : subEntityVizTree.getChildren())
-		{
-			if(child.getId().equals(compositeId) && child instanceof CompositeNode)
-			{
-				return (CompositeNode) child;
-			}
-		}
-		CompositeNode composite = new CompositeNode(compositeId, compositeId);
-		subEntityVizTree.addChild(composite);
-		return composite;
-	}
+//	private CompositeNode getCompositeNode(AspectSubTreeNode subEntityVizTree, String compositeId)
+//	{
+//		for(ANode child : subEntityVizTree.getChildren())
+//		{
+//			if(child.getId().equals(compositeId) && child instanceof CompositeNode)
+//			{
+//				return (CompositeNode) child;
+//			}
+//		}
+//		CompositeNode composite = new CompositeNode(compositeId, compositeId);
+//		subEntityVizTree.addChild(composite);
+//		return composite;
+//	}
 
 	/**
 	 * @param location
@@ -417,19 +433,19 @@ public class ExtractVisualType
 	 * @param list
 	 * @return
 	 */
-	private List<AVisualObjectNode> createNodesFromMorphologyBySegmentGroup(Map<String, List<String>> segmentsMap, Cell cell)
+	public List<VisualValue> createNodesFromMorphologyBySegmentGroup()
 	{
-		List<AVisualObjectNode> visualCellNodes = new ArrayList<AVisualObjectNode>();
+		List<VisualValue> visualCellNodes = new ArrayList<VisualValue>();
 
-		Morphology cellmorphology = cell.getMorphology();
-		CompositeNode allSegments = getVisualObjectsFromListOfSegments(cellmorphology.getSegment(), segmentsMap, cellmorphology.getId());
+		Morphology morphology = cell.getMorphology();
+		List<VisualValue> allSegments = getVisualObjectsFromListOfSegments(morphology);
 
-		Map<String, List<AVisualObjectNode>> segmentGeometries = new HashMap<String, List<AVisualObjectNode>>();
+		Map<String, List<VisualValue>> segmentGeometries = new HashMap<String, List<VisualValue>>();
 
-		if(!cellmorphology.getSegmentGroup().isEmpty())
+		if(!morphology.getSegmentGroup().isEmpty())
 		{
 			Map<String, List<String>> subgroupsMap = new HashMap<String, List<String>>();
-			for(SegmentGroup sg : cellmorphology.getSegmentGroup())
+			for(SegmentGroup sg : morphology.getSegmentGroup())
 			{
 				for(Include include : sg.getInclude())
 				{
@@ -466,77 +482,68 @@ public class ExtractVisualType
 	 * @param visualizationTree
 	 * @return
 	 */
-	public List<Variable> createCellPartsVisualGroups(List<SegmentGroup> segmentsGroup)
+	public VisualGroup createCellPartsVisualGroups()
 	{
-		
-		
-
-		VisualGroupNode cellParts = new VisualGroupNode("CellRegions");
-		cellParts.setName("Cell Regions");
+		VisualGroup cellParts = valuesFactory.createVisualGroup();
+		// cellParts.setName("Cell Regions");
 
 		// Create map with segment ids, keeping track of groups they correspond to
-		Map<String, List<String>> segmentsMap = new HashMap<String, List<String>>();
 		Map<String, List<String>> segmentsGroupsMap = new HashMap<String, List<String>>();
 
 		// Get all the segment groups from morphology
-		for(SegmentGroup g : segmentsGroup)
+		for(SegmentGroup segmentGroup : this.cell.getMorphology().getSegmentGroup())
 		{
 
 			// segment found
-			String segmentGroupID = g.getId();
+			String segmentGroupID = segmentGroup.getId();
 
-			VisualGroupElementNode vis = null;
-
+			VisualGroupElement visualGroupElement = valuesFactory.createVisualGroupElement();
 			// create visual groups for cell regions
-			if(segmentGroupID.equals(SOMA))
+			if(segmentGroupID.equals(SOMA) || segmentGroupID.equals(DENDRITES) || segmentGroupID.equals(AXONS))
 			{
-				vis = new VisualGroupElementNode(segmentGroupID);
-				vis.setName("Soma");
-				vis.setDefaultColor(somaColor);
-			}
-			else if(segmentGroupID.equals(DENDRITES))
-			{
-				vis = new VisualGroupElementNode(segmentGroupID);
-				vis.setName("Dendrites");
-				vis.setDefaultColor(dendritesColor);
-			}
-			else if(segmentGroupID.equals(AXONS))
-			{
-				vis = new VisualGroupElementNode(segmentGroupID);
-				vis.setName("Axons");
-				vis.setDefaultColor(axonsColor);
+				if(segmentGroupID.equals(SOMA))
+				{
+					// vis = new VisualGroupElementNode(segmentGroupID);
+					// vis.setName("Soma");
+					visualGroupElement.setDefaultColor(somaColor);
+					// vis.setDefaultColor(somaColor);
+				}
+				else if(segmentGroupID.equals(DENDRITES))
+				{
+					// vis = new VisualGroupElementNode(segmentGroupID);
+					// vis.setName("Dendrites");
+					visualGroupElement.setDefaultColor(dendritesColor);
+				}
+				else if(segmentGroupID.equals(AXONS))
+				{
+					// vis = new VisualGroupElementNode(segmentGroupID);
+					// vis.setName("Axons");
+					visualGroupElement.setDefaultColor(axonsColor);
+				}
+				cellParts.getVisualGroupElements().add(visualGroupElement);
 			}
 
-			if(vis != null)
-			{
-				vis.setParent(cellParts);
-				cellParts.getVisualGroupElements().add(vis);
-			}
-
+			// AQP: Deleting this for the moment, let's see if we can get all this information from the cellutils
 			// segment not in map, add with new list for groups
-			if(!segmentsGroupsMap.containsKey(segmentGroupID))
-			{
-				List<String> includeGroups = new ArrayList<String>();
-				segmentsGroupsMap.put(segmentGroupID, includeGroups);
-			}
+			if(!segmentsGroupsMap.containsKey(segmentGroupID)) segmentsGroupsMap.put(segmentGroupID, new ArrayList<String>());
 
 			// traverse through group segments finding segments inside
-			for(Member i : g.getMember())
+			for(Member member : segmentGroup.getMember())
 			{
 				// segment found
-				String segmentID = getVisualObjectIdentifier(i.getSegment().toString());
+				String segmentID = getVisualObjectIdentifier(member.getSegment().toString());
 				// segment not in map, add with new list for groups
 				if(!segmentsMap.containsKey(segmentID))
 				{
 					List<String> groups = new ArrayList<String>();
-					groups.add(g.getId());
+					groups.add(segmentGroup.getId());
 					segmentsMap.put(segmentID, groups);
 				}
-				// segment in mpa, get list and put with updated one for groups
+				// segment in map, get list and put with updated one for groups
 				else
 				{
 					List<String> groups = segmentsMap.get(segmentID);
-					groups.add(g.getId());
+					groups.add(segmentGroup.getId());
 					segmentsMap.put(segmentID, groups);
 				}
 
@@ -545,7 +552,7 @@ public class ExtractVisualType
 				segmentsGroupsMap.put(segmentGroupID, groups);
 			}
 			// traverse through group segments finding segments inside
-			for(Include i : g.getInclude())
+			for(Include i : segmentGroup.getInclude())
 			{
 				// segment found
 				String sg = i.getSegmentGroup();
@@ -563,8 +570,8 @@ public class ExtractVisualType
 			}
 		}
 
-		visualizationTree.addChild(cellParts);
-		return segmentsMap;
+		// visualizationTree.addChild(cellParts);
+		return cellParts;
 	}
 
 	/**
@@ -572,18 +579,16 @@ public class ExtractVisualType
 	 * @param allSegments
 	 * @return
 	 */
-	private List<AVisualObjectNode> getVisualObjectsForGroup(SegmentGroup sg, CompositeNode allSegments)
+	private List<VisualValue> getVisualObjectsForGroup(SegmentGroup sg, List<VisualValue> allSegments)
 	{
-		List<AVisualObjectNode> geometries = new ArrayList<AVisualObjectNode>();
+		List<VisualValue> geometries = new ArrayList<VisualValue>();
 		for(Member m : sg.getMember())
 		{
-			List<ANode> segments = allSegments.getChildren();
-
-			for(ANode g : segments)
+			for(VisualValue g : allSegments)
 			{
-				if(((AVisualObjectNode) g).getId().equals(getVisualObjectIdentifier(m.getSegment().toString())))
+				if(g.getId().equals(getVisualObjectIdentifier(m.getSegment().toString())))
 				{
-					geometries.add((AVisualObjectNode) g);
+					geometries.add(g);
 				}
 			}
 		}
@@ -606,7 +611,7 @@ public class ExtractVisualType
 	 * @param visualGroupNode
 	 * @return
 	 */
-	private AVisualObjectNode getCylinderFromSegment(Segment s, Point3DWithDiam parentDistal)
+	private VisualValue getCylinderFromSegment(Segment s, Point3DWithDiam parentDistal)
 	{
 		Point3DWithDiam proximal = (s.getProximal() == null) ? parentDistal : s.getProximal();
 		Point3DWithDiam distal = s.getDistal();
@@ -614,28 +619,30 @@ public class ExtractVisualType
 		if(samePoint(proximal, distal)) // ideally an equals but the objects
 										// are generated. hassle postponed.
 		{
-			SphereNode sphere = new SphereNode(s.getName());
+			// SphereNode sphere = new SphereNode(s.getName());
+			Sphere sphere = valuesFactory.createSphere();
 			sphere.setRadius(proximal.getDiameter() / 2);
-			sphere.setPosition(getPoint(proximal));
-			sphere.setId(getVisualObjectIdentifier(s.getId().toString()));
+			// sphere.setPosition(getPoint(proximal));
+			// sphere.setId(getVisualObjectIdentifier(s.getId().toString()));
 			return sphere;
 		}
 		else
 		{
-			CylinderNode cyl = new CylinderNode(s.getName());
-			cyl.setId(getVisualObjectIdentifier(s.getId().toString()));
+			// CylinderNode cyl = new CylinderNode(s.getName());
+			Cylinder cylinder = valuesFactory.createCylinder();
+			// cylinder.setId(getVisualObjectIdentifier(s.getId().toString()));
 			if(proximal != null)
 			{
-				cyl.setPosition(getPoint(proximal));
-				cyl.setRadiusBottom(proximal.getDiameter() / 2);
+				cylinder.setPosition(getPoint(proximal));
+				cylinder.setBottomRadius(proximal.getDiameter() / 2);
 			}
 			if(distal != null)
 			{
-				cyl.setRadiusTop(s.getDistal().getDiameter() / 2);
-				cyl.setDistal(getPoint(distal));
-				cyl.setHeight(0d);
+				cylinder.setTopRadius(s.getDistal().getDiameter() / 2);
+				cylinder.setDistal(getPoint(distal));
+				cylinder.setHeight(0d);
 			}
-			return cyl;
+			return cylinder;
 		}
 	}
 
@@ -645,7 +652,7 @@ public class ExtractVisualType
 	 */
 	private Point getPoint(Point3DWithDiam distal)
 	{
-		Point point = new Point();
+		Point point = valuesFactory.createPoint();
 		point.setX(distal.getX());
 		point.setY(distal.getY());
 		point.setZ(distal.getZ());
@@ -658,7 +665,7 @@ public class ExtractVisualType
 	 */
 	private Point getPoint(Location location)
 	{
-		Point point = new Point();
+		Point point = valuesFactory.createPoint();
 		point.setX(location.getX().doubleValue());
 		point.setY(location.getY().doubleValue());
 		point.setZ(location.getZ().doubleValue());
