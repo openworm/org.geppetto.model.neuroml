@@ -60,7 +60,7 @@ import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.AModelInterpreter;
-import org.geppetto.core.model.GeppettoCommonLibraryAccess;
+import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
@@ -135,7 +135,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	// AQP: Do we need the model wrapper??
 	private ModelWrapper model;
 
-	private GeppettoCommonLibraryAccess access;
+	private GeppettoModelAccess access;
 
 	/*
 	 * (non-Javadoc)
@@ -143,7 +143,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 * @see org.geppetto.core.model.IModelInterpreter#importType(java.net.URL, java.lang.String, org.geppetto.core.library.LibraryManager)
 	 */
 	@Override
-	public Type importType(URL url, String typeName, GeppettoLibrary library, GeppettoCommonLibraryAccess access) throws ModelInterpreterException
+	public Type importType(URL url, String typeName, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
 	{
 		VariablesFactory variablesFactory = VariablesFactoryImpl.eINSTANCE;
 		TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;

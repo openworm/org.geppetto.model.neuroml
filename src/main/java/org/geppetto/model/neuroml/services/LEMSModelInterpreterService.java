@@ -48,7 +48,7 @@ import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.AModelInterpreter;
-import org.geppetto.core.model.GeppettoCommonLibraryAccess;
+import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
@@ -83,7 +83,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
 
 	@Override
-	public Type importType(URL url, String typeName, GeppettoLibrary library, GeppettoCommonLibraryAccess access) throws ModelInterpreterException
+	public Type importType(URL url, String typeName, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
 	{
 		return _neuroMLModelInterpreter.importType(url, typeName, library, access);
 	}

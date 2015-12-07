@@ -45,7 +45,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.emfjson.jackson.resource.JsonResourceFactory;
 import org.geppetto.core.manager.SharedLibraryManager;
-import org.geppetto.core.model.GeppettoCommonLibraryAccess;
+import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
@@ -92,7 +92,7 @@ public class JustTest
 		URL url = this.getClass().getResource(modelPath);
 		
 		gm.getLibraries().add(EcoreUtil.copy(SharedLibraryManager.getSharedCommonLibrary()));
-		GeppettoCommonLibraryAccess commonLibraryAccess = new GeppettoCommonLibraryAccess(gm);
+		GeppettoModelAccess commonLibraryAccess = new GeppettoModelAccess(gm);
 		
 		Type type = modelInterpreter.importType(url, typeName, gl, commonLibraryAccess);
 

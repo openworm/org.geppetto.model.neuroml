@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.geppetto.core.model.GeppettoCommonLibraryAccess;
+import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.utilities.VariablePathSerializer;
 import org.geppetto.model.Node;
@@ -97,9 +97,9 @@ public class ExtractVisualType
 
 	Map<String, List<VisualGroupElement>> segmentsMap;
 
-	GeppettoCommonLibraryAccess access;
+	GeppettoModelAccess access;
 
-	public ExtractVisualType(Cell cell, GeppettoCommonLibraryAccess access)
+	public ExtractVisualType(Cell cell, GeppettoModelAccess access)
 	{
 		super();
 		this.cell = cell;
