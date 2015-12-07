@@ -37,7 +37,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,10 +45,11 @@ import org.geppetto.core.conversion.AConversion;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.IInstancePath;
-import org.geppetto.core.model.IModel;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.DomainModel;
+import org.geppetto.model.ExternalDomainModel;
+import org.geppetto.model.GeppettoFactory;
+import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.lemsml.export.base.IBaseWriter;
 import org.lemsml.jlems.core.expression.ParseError;
@@ -124,12 +124,12 @@ public class LEMSConversionService extends AConversion
 	}
 
 	@Override
-	public List<ModelFormat> getSupportedOutputs(IModel model, ModelFormat input) throws ConversionException
+	public List<ModelFormat> getSupportedOutputs(DomainModel model) throws ConversionException
 	{
-		_logger.info("Getting supported outputs for a specific model and input format " + input);
+		_logger.info("Getting supported outputs for a specific model and input format " + model.getFormat());
 		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
 
-		Lems lems = (Lems) ((ModelWrapper) model).getModel(input);
+		Lems lems = (Lems) model.getDomainModel();
 		processLems(lems);
 		try
 		{
@@ -149,16 +149,16 @@ public class LEMSConversionService extends AConversion
 	}
 
 	@Override
-	public IModel convert(IModel model, ModelFormat input, ModelFormat output, IAspectConfiguration aspectConfig) throws ConversionException
+	public DomainModel convert(DomainModel model, ModelFormat output, IAspectConfiguration aspectConfig) throws ConversionException
 	{
-		_logger.info("Converting model from " + input.getModelFormat() + " to " + output.getModelFormat());
+		_logger.info("Converting model from " + model.getFormat() + " to " + output.getModelFormat());
 		// checkSupportedFormat(input);
 
 		// Read lems
-		Lems lems = (Lems) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("LEMS"));
+		Lems lems = (Lems) model.getDomainModel();
 		processLems(lems);
 
-		ModelWrapper outputModel = new ModelWrapper(UUID.randomUUID().toString());
+		ExternalDomainModel outputModel = GeppettoFactory.eINSTANCE.createExternalDomainModel();
 		try
 		{
 			// Create Folder
@@ -255,7 +255,8 @@ public class LEMSConversionService extends AConversion
 			}
 
 			// Create model from converted model, if we are not converting we send the outputFolder
-			outputModel.wrapModel(output, outputFolder + File.separator + outputFileName);
+			outputModel.setDomainModel(outputFolder + File.separator + outputFileName);
+			outputModel.setFormat(output);
 		}
 		catch(Exception e)
 		{

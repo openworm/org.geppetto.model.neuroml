@@ -1,34 +1,18 @@
 package org.geppetto.model.neuroml.features;
 
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.GeppettoFeature;
-import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.DomainModel;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.VariableValue;
-import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateModelTree;
 import org.geppetto.model.neuroml.visitors.TrackParameterSpecsNodesVisitors;
 import org.geppetto.model.util.GeppettoModelTraversal;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.PhysicalQuantity;
-import org.lemsml.jlems.core.expression.ParseError;
-import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.DimensionalQuantity;
-import org.lemsml.jlems.core.type.Lems;
-import org.lemsml.jlems.core.type.ParamValue;
-import org.lemsml.jlems.core.type.QuantityReader;
-import org.neuroml.model.Base;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 
@@ -44,13 +28,13 @@ public class LEMSParametersFeature implements ISetParameterFeature{
 	
 	private PopulateModelTree populateModelTree = new PopulateModelTree();
 	
-	private ModelWrapper model;
+	private DomainModel model;
 
 	private GeppettoFeature type = GeppettoFeature.SET_PARAMETERS_FEATURE;
 	
 	private GeppettoLibrary library;
 
-	public LEMSParametersFeature(PopulateModelTree populateModelTree, ModelWrapper model){
+	public LEMSParametersFeature(PopulateModelTree populateModelTree, DomainModel model){
 		this.populateModelTree = populateModelTree;
 		this.model = model;
 	}

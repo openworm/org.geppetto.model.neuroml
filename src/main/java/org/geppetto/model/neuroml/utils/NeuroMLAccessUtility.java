@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.DomainModel;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.AdExIaFCell;
 import org.neuroml.model.AlphaCondSynapse;
@@ -65,7 +65,7 @@ public class NeuroMLAccessUtility
 	 * @throws ModelInterpreterException
 	 * @throws ContentError
 	 */
-	public Object getComponent(String componentId, ModelWrapper model, Resources componentType) throws ModelInterpreterException
+	public Object getComponent(String componentId, DomainModel model, Resources componentType) throws ModelInterpreterException
 	{
 		Object component;
 		// Check if we have already discovered this component
@@ -103,7 +103,7 @@ public class NeuroMLAccessUtility
 		return component;
 	}
 
-	public Base getComponentFromCache(String componentId, ModelWrapper model)
+	public Base getComponentFromCache(String componentId, DomainModel model)
 	{
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
 
@@ -118,7 +118,7 @@ public class NeuroMLAccessUtility
 		return null;
 	}
 
-	private Object getComponentById(String componentId, ModelWrapper model, Resources componentType) throws ContentError
+	private Object getComponentById(String componentId, DomainModel model, Resources componentType) throws ContentError
 	{
 		HashMap<String, Base> _discoveredComponents = ((HashMap<String, Base>) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS));
 		NeuroMLDocument doc = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));

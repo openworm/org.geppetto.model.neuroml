@@ -32,25 +32,12 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.test;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import junit.framework.Assert;
 
 import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.conversion.ConversionException;
-import org.geppetto.core.data.model.local.LocalAspectConfiguration;
-import org.geppetto.core.data.model.local.LocalSimulatorConfiguration;
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.services.ModelFormat;
-import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.services.LEMSConversionService;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;

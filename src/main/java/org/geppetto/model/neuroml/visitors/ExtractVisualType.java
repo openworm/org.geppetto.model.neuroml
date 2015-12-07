@@ -38,11 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.geppetto.core.model.GeppettoModelAccess;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.utilities.VariablePathSerializer;
-import org.geppetto.model.Node;
-import org.geppetto.model.neuroml.utils.Resources;
-import org.geppetto.model.types.Type;
+import org.geppetto.model.DomainModel;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.types.impl.TypesFactoryImpl;
@@ -58,21 +54,14 @@ import org.geppetto.model.values.impl.ValuesFactoryImpl;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
 import org.geppetto.model.variables.impl.VariablesFactoryImpl;
-import org.lemsml.jlems.core.type.Component;
 import org.neuroml.model.Base;
 import org.neuroml.model.BaseCell;
-import org.neuroml.model.BaseWithoutId;
 import org.neuroml.model.Cell;
 import org.neuroml.model.Include;
-import org.neuroml.model.Instance;
 import org.neuroml.model.Location;
 import org.neuroml.model.Member;
 import org.neuroml.model.Morphology;
-import org.neuroml.model.Network;
-import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Point3DWithDiam;
-import org.neuroml.model.Population;
-import org.neuroml.model.PopulationTypes;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
 
@@ -322,7 +311,7 @@ public class ExtractVisualType
 	 * @param model
 	 * @return
 	 */
-	private BaseCell getNeuroMLComponent(String componentId, ModelWrapper model)
+	private BaseCell getNeuroMLComponent(String componentId, DomainModel model)
 	{
 		Map<String, Base> discoveredComponents = (Map<String, Base>) model.getModel("discoveredComponents");
 		if(discoveredComponents.containsKey(componentId))

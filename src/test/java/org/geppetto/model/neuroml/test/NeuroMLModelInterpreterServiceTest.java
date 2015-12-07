@@ -33,29 +33,11 @@
 
 package org.geppetto.model.neuroml.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.services.GeppettoFeature;
-import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
-import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.Lems;
-import org.lemsml.jlems.core.type.ParamValue;
-import org.neuroml.model.ChannelDensity;
 
 /**
  * @author matteocantarelli

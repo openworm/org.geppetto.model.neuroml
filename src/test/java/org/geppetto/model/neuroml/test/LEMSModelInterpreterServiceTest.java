@@ -33,27 +33,14 @@
 
 package org.geppetto.model.neuroml.test;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.lemsml.jlems.api.LEMSBuildConfiguration;
 import org.lemsml.jlems.api.LEMSBuildException;
-import org.lemsml.jlems.api.LEMSBuildOptions;
-import org.lemsml.jlems.api.LEMSBuildOptionsEnum;
-import org.lemsml.jlems.api.LEMSBuilder;
-import org.lemsml.jlems.api.interfaces.ILEMSBuildConfiguration;
-import org.lemsml.jlems.api.interfaces.ILEMSBuildOptions;
-import org.lemsml.jlems.api.interfaces.ILEMSBuilder;
-import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 
 /**
  * @author matteocantarelli

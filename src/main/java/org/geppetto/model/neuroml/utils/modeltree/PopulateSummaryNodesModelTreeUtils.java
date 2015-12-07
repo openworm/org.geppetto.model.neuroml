@@ -33,31 +33,6 @@
 
 package org.geppetto.model.neuroml.utils.modeltree;
 
-import java.math.BigInteger;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
-import org.geppetto.model.neuroml.utils.Resources;
-import org.geppetto.model.neuroml.utils.ResourcesDomainType;
-import org.geppetto.model.types.CompositeType;
-import org.geppetto.model.types.CompositeVisualType;
-import org.geppetto.model.types.TypesFactory;
-import org.geppetto.model.types.impl.TypesFactoryImpl;
-import org.lemsml.jlems.core.expression.FunctionNode;
-import org.neuroml.export.info.InfoTreeCreator;
-import org.neuroml.export.info.model.ExpressionNode;
-import org.neuroml.export.info.model.InfoNode;
-import org.neuroml.export.info.model.PlotMetadataNode;
-import org.neuroml.export.info.model.PlotNode;
-import org.neuroml.model.Population;
-import org.neuroml.model.Standalone;
-import org.neuroml.model.util.NeuroMLException;
 
 /**
  * Populates the Model Tree of Aspect

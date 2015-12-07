@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.DomainModel;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Lems;
@@ -34,7 +34,7 @@ public class LEMSAccessUtility
 	 * @throws ModelInterpreterException
 	 * @throws ContentError
 	 */
-	public Object getComponent(String componentId, ModelWrapper model) throws ModelInterpreterException
+	public Object getComponent(String componentId, DomainModel model) throws ModelInterpreterException
 	{
 		// Check if we have already discovered this component
 		Object component = this.getComponentFromCache(componentId, model);
@@ -62,7 +62,7 @@ public class LEMSAccessUtility
 		return component;
 	}
 
-	public Object getComponentFromCache(String componentId, ModelWrapper model)
+	public Object getComponentFromCache(String componentId, DomainModel model)
 	{
 		HashMap<String, Object> _discoveredLEMSComponents = ((HashMap<String, Object>) ((ModelWrapper) model).getModel(DISCOVERED_LEMS_COMPONENTS));
 
@@ -75,7 +75,7 @@ public class LEMSAccessUtility
 		return null;
 	}
 
-	public Object getComponentById(String componentId, ModelWrapper model) throws ContentError
+	public Object getComponentById(String componentId, DomainModel model) throws ContentError
 	{
 		// Look for the model in the document
 		Lems lems = (Lems) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("LEMS"));
