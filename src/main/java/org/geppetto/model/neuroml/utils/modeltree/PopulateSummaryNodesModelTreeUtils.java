@@ -45,6 +45,10 @@ import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
+import org.geppetto.model.types.CompositeType;
+import org.geppetto.model.types.CompositeVisualType;
+import org.geppetto.model.types.TypesFactory;
+import org.geppetto.model.types.impl.TypesFactoryImpl;
 import org.lemsml.jlems.core.expression.FunctionNode;
 import org.neuroml.export.info.InfoTreeCreator;
 import org.neuroml.export.info.model.ExpressionNode;
@@ -65,6 +69,8 @@ import org.neuroml.model.util.NeuroMLException;
 public class PopulateSummaryNodesModelTreeUtils
 {
 
+//	TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
+//	
 //	public PopulateSummaryNodesModelTreeUtils(ModelWrapper model) {	
 //		this.model = model;
 //		initialiseModelDescription();
@@ -75,12 +81,12 @@ public class PopulateSummaryNodesModelTreeUtils
 //	// Create Map of NeuroMlComponent and Nodes for description node
 //	private Map<ResourcesDomainType, Map<Standalone, ANode>> modelDescriptionComponents;
 //	
-//	private InfoNode infoNode = new InfoNode();
-//	
-//	
-//	public void addInfoNode(Standalone element) throws NeuroMLException{
-//		infoNode.putAll(InfoTreeCreator.createPropertiesFromStandaloneComponent(element));
-//	}
+////	private InfoNode infoNode = new InfoNode();
+////	
+////	
+////	public void addInfoNode(Standalone element) throws NeuroMLException{
+////		infoNode.putAll(InfoTreeCreator.createPropertiesFromStandaloneComponent(element));
+////	}
 //	
 //	public void initialiseModelDescription(){
 //		modelDescriptionComponents = new HashMap<ResourcesDomainType, Map<Standalone, ANode>>();
@@ -176,16 +182,19 @@ public class PopulateSummaryNodesModelTreeUtils
 //		return new HTMLMetadataNode(Resources.MODEL_DESCRIPTION.getId(), Resources.MODEL_DESCRIPTION.get(), new StringValue(modelDescription.toString()));
 //	}
 //	
-//	public CompositeNode createSummaryNode() throws ModelInterpreterException
-//	{
-//		CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
-//		summaryNode.addChildren(createInfoNode(infoNode));
-//		return summaryNode;
-//	}
+////	public CompositeNode createSummaryNode() throws ModelInterpreterException
+////	{
+////		CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
+////		summaryNode.addChildren(createInfoNode(infoNode));
+////		return summaryNode;
+////	}
 //	
-//	public List<ANode> createInfoNode(InfoNode node) throws ModelInterpreterException
+//	public CompositeType createInfoNode(InfoNode node) throws ModelInterpreterException
 //	{
-//		List<ANode> summaryElementList = new ArrayList<ANode>();
+//		CompositeType summaryCompositeType = typeFactory.createCompositeType();
+//		summaryCompositeType.setId(Resources.SUMMARY.getId());
+//		summaryCompositeType.setName(Resources.SUMMARY.get());
+//		
 //		for(Map.Entry<String, Object> properties : node.getProperties().entrySet())
 //		{
 //			String keyProperties = properties.getKey();
@@ -195,6 +204,7 @@ public class PopulateSummaryNodesModelTreeUtils
 //
 //				if(valueProperties == null)
 //				{
+//					summaryCompositeType.getVariables().add(e);
 //					summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties, new StringValue("")));
 //				}
 //				else if(valueProperties instanceof String)
@@ -244,7 +254,7 @@ public class PopulateSummaryNodesModelTreeUtils
 //				}
 //			}
 //		}
-//		return summaryElementList;
+//		return summaryCompositeType;
 //	}
 
 

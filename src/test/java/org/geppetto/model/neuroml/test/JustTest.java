@@ -52,8 +52,11 @@ import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.GeppettoModel;
 import org.geppetto.model.GeppettoPackage;
 import org.geppetto.model.impl.GeppettoFactoryImpl;
+import org.geppetto.model.neuroml.services.LEMSConversionService;
+import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.geppetto.model.types.Type;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.util.NeuroMLException;
@@ -65,6 +68,19 @@ import org.neuroml.model.util.NeuroMLException;
 public class JustTest
 {
 
+	@BeforeClass
+	public static void initializeServiceRegistry() throws Exception
+	{
+		LEMSConversionService lemsConversionService = new LEMSConversionService();
+		lemsConversionService.registerGeppettoService();
+		
+		LEMSModelInterpreterService lemsModelInterpreter = new LEMSModelInterpreterService();
+		lemsModelInterpreter.registerGeppettoService();
+		
+		NeuroMLModelInterpreterService neuromlModelInterpreter = new NeuroMLModelInterpreterService();
+		neuromlModelInterpreter.registerGeppettoService();
+	}
+	
 	public void serialise(String modelPath, String outputPath, String typeName, boolean allTypes) throws Exception
 	{
 		GeppettoFactory geppettoFactory = GeppettoFactoryImpl.eINSTANCE;

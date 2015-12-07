@@ -72,6 +72,7 @@ import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.utils.modeltree.PopulateSummaryNodesModelTreeUtils;
 import org.geppetto.model.neuroml.visitors.ExtractVisualType;
 import org.geppetto.model.neuroml.visitors.PopulateChannelDensityVisualGroups;
 import org.geppetto.model.types.CompositeType;
@@ -103,6 +104,7 @@ import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.ParamValue;
 import org.lemsml.jlems.io.xmlio.XMLSerializer;
+import org.neuroml.export.info.InfoTreeCreator;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Cell;
 import org.neuroml.model.NeuroMLDocument;
@@ -125,9 +127,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Autowired
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
 
-//	private Map<ParameterSpecificationNode, Object> _parametersToMethodsMap = new HashMap<ParameterSpecificationNode,Object>();
-//	private Map<ParameterSpecificationNode, Object> _parametersToObjectssMap = new HashMap<ParameterSpecificationNode,Object>();
-//	
+	// private Map<ParameterSpecificationNode, Object> _parametersToMethodsMap = new HashMap<ParameterSpecificationNode,Object>();
+	// private Map<ParameterSpecificationNode, Object> _parametersToObjectssMap = new HashMap<ParameterSpecificationNode,Object>();
+	//
 	private Map<String, Type> types;
 
 	// AQP: Do we need the model wrapper??
@@ -143,12 +145,16 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Override
 	public Type importType(URL url, String typeName, GeppettoLibrary library, GeppettoCommonLibraryAccess access) throws ModelInterpreterException
 	{
+		VariablesFactory variablesFactory = VariablesFactoryImpl.eINSTANCE;
+		TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
 
 		this.access = access;
 
 		// AQP: Shall we verify if types != null?
 
 		types = new HashMap<String, Type>();
+
+		Type type = null;
 
 		dependentModels.clear();
 		// model = new ModelWrapper(instancePath);
@@ -203,6 +209,40 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				if(!types.containsKey(component.getID())) types.put(component.getID(), extractInfoFromComponent(component));
 			}
 
+			
+			library.getTypes().addAll(types.values());
+
+			// Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which
+			// "most likely" are just included types in NeuroML and are instantiated as part of the network
+			// populations
+			if(typeName != null)
+			{
+				type = types.get(typeName);
+			}
+			else
+			{
+				for(Entry<String, Type> entryType : types.entrySet())
+				{
+					if(((Component) entryType.getValue().getDomainModel()).getDeclaredType().equals("network"))
+					{
+						type = entryType.getValue();
+					}
+				}
+
+				// FIXME
+				// return types.values();
+			}
+			
+			//Summary
+			Variable summaryVariable = variablesFactory.createVariable();
+			summaryVariable.setId(Resources.SUMMARY.getId());
+			summaryVariable.setName(Resources.SUMMARY.get());
+			
+			((CompositeType)type).getVariables().add(summaryVariable);
+			
+//			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(model);
+//			summaryVariable.getTypes().add(populateSummaryNodesModelTreeUtils.createInfoNode(InfoTreeCreator.createInfoTree(neuroml)));
+
 			// AQP: This may remain.
 			this.addFeature(new LEMSParametersFeature(library));
 
@@ -212,30 +252,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			throw new ModelInterpreterException(e);
 		}
 
-		library.getTypes().addAll(types.values());
+		
 
-		if(typeName != null)
-		{
-			return types.get(typeName);
-		}
-		// Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which
-		// "most likely" are just included types in NeuroML and are instantiated as part of the network
-		// populations
-		else
-		{
-			for(Entry<String, Type> entryType : types.entrySet())
-			{
-				if(((Component) entryType.getValue().getDomainModel()).getDeclaredType().equals("network"))
-				{
-					return entryType.getValue();
-				}
-			}
-
-			// FIXME
-			// return types.values();
-		}
-
-		return null;
+		return type;
 	}
 
 	private void initialiseNodeFromComponent(Node node, Component component)
@@ -291,14 +310,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		else
 		{
 			visualCompositeType.getVariables().addAll(extractVisualType.createNodesFromMorphologyBySegmentGroup());
-			
 
 			// create density groups for each cell, if it has some
 			PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(cell);
 			visualCompositeType.getVisualGroups().addAll(populateChannelDensityVisualGroups.createChannelDensities());
-			
-			//AQP: We have to add this to the library
-			//populateChannelDensityVisualGroups.getChannelDensityTag();
+
+			// AQP: We have to add this to the library
+			// populateChannelDensityVisualGroups.getChannelDensityTag();
 		}
 		// add density groups to visualization tree
 		// if(densities != null)
@@ -308,7 +326,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		Variable variable = variablesFactory.createVariable();
 		initialiseNodeFromComponent(variable, morphologyComponent);
-		variable.getTypes().add(visualCompositeType);
+		variable.getAnonymousTypes().add(visualCompositeType);
 
 		return variable;
 	}
@@ -331,7 +349,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 				if(component.getRefComponents().get("component").getDeclaredType().equals("cell"))
 				{
-					compositeType.getVariables().add(createVariableFromCellMorphology(component));
+					compositeType.getVariables().add(createVariableFromCellMorphology(component.getRefComponents().get("component")));
 				}
 				else
 				{
@@ -816,52 +834,52 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 * @param node
 	 * @throws ModelInterpreterException
 	 */
-//	private void addToMaps(Object instance, String methodName, ParameterSpecificationNode node) throws ModelInterpreterException
-//	{
-//		try
-//		{
-//			Method setter = null;
-//			Class<?> current = instance.getClass();
-//			while(current != null)
-//			{
-//				for(Method m : current.getDeclaredMethods())
-//				{
-//					if(m.getName().equals(methodName))
-//					{
-//						setter = m;
-//						break;
-//					}
-//				}
-//				if(setter == null)
-//				{
-//					current = current.getSuperclass();
-//				}
-//				else
-//				{
-//					break;
-//				}
-//			}
-//			if(setter != null)
-//			{
-//				this._parameterNodesToMethodsMap.put(node, setter);
-//				this._parameterNodesToObjectMap.put(node, instance);
-//			}
-//			else
-//			{
-//				throw new ModelInterpreterException("Cannot find the method " + methodName + "in the NeuroML object " + instance.toString());
-//			}
-//		}
-//		catch(Exception e)
-//		{
-//			throw new ModelInterpreterException(e);
-//		}
-//	}
-//	
-//	public Map<ParameterSpecificationNode,Object> getParametersNodeToMethodsMap(){
-//		return _parametersToMethodsMap ;
-//	}
-//	
-//	public Map<ParameterSpecificationNode,Object> getParametersNodeToObjectsMap(){
-//		return _parametersToObjectssMap ;
-//	}
+	// private void addToMaps(Object instance, String methodName, ParameterSpecificationNode node) throws ModelInterpreterException
+	// {
+	// try
+	// {
+	// Method setter = null;
+	// Class<?> current = instance.getClass();
+	// while(current != null)
+	// {
+	// for(Method m : current.getDeclaredMethods())
+	// {
+	// if(m.getName().equals(methodName))
+	// {
+	// setter = m;
+	// break;
+	// }
+	// }
+	// if(setter == null)
+	// {
+	// current = current.getSuperclass();
+	// }
+	// else
+	// {
+	// break;
+	// }
+	// }
+	// if(setter != null)
+	// {
+	// this._parameterNodesToMethodsMap.put(node, setter);
+	// this._parameterNodesToObjectMap.put(node, instance);
+	// }
+	// else
+	// {
+	// throw new ModelInterpreterException("Cannot find the method " + methodName + "in the NeuroML object " + instance.toString());
+	// }
+	// }
+	// catch(Exception e)
+	// {
+	// throw new ModelInterpreterException(e);
+	// }
+	// }
+	//
+	// public Map<ParameterSpecificationNode,Object> getParametersNodeToMethodsMap(){
+	// return _parametersToMethodsMap ;
+	// }
+	//
+	// public Map<ParameterSpecificationNode,Object> getParametersNodeToObjectsMap(){
+	// return _parametersToObjectssMap ;
+	// }
 }

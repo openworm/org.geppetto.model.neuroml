@@ -190,7 +190,7 @@ public class PopulateChannelDensityVisualGroups
 
 		}
 
-		return (List<VisualGroup>) groupsMap.values();
+		return new ArrayList<VisualGroup>(groupsMap.values());
 	}
 
 	private VisualGroup createVisualGroup(Map<String, VisualGroup> groupsMap, String ionChannel)
@@ -232,8 +232,8 @@ public class PopulateChannelDensityVisualGroups
 				if(variableParameter.getParameter().equals("condDensity") && segmentGroup.getId().equals(variableParameter.getSegmentGroup()))
 				{
 					String ionChannelLabel = ionChannel + "_" + segmentGroup.getId();
-					VisualGroup vis = createVisualGroup(groupsMap, ionChannelLabel);
-					vis.getTags().add(tag);
+					VisualGroup visualGroup = createVisualGroup(groupsMap, ionChannelLabel);
+					visualGroup.getTags().add(tag);
 
 					// Get expression evaluator for inhomogeneous expresion
 					DoubleEvaluator doubleEvaluator = getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
@@ -276,7 +276,7 @@ public class PopulateChannelDensityVisualGroups
 
 									element.setParameter(physicalQuantity);
 									element.setDefaultColor(defaultColor);
-									vis.getVisualGroupElements().add(element);
+									visualGroup.getVisualGroupElements().add(element);
 								}
 							}
 							catch(NeuroMLException e1)
