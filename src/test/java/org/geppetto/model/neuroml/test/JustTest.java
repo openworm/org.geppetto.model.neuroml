@@ -116,6 +116,7 @@ public class JustTest
 	@Test
 	public void test1() throws Exception
 	{
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/testAllTypes.xmi", "bask", true);
 		serialise("/acnet2/bask.cell.nml", "./src/test/resources/testAllTypes.json", "bask", true);
 		serialise("/acnet2/bask.cell.nml", "./src/test/resources/testSingleType.json", "bask", false);
 		// AQP Commented until we decide what to return when if it is not a network 

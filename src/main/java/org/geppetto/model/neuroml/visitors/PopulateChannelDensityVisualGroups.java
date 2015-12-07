@@ -32,6 +32,7 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.visitors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,18 +41,18 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geppetto.core.model.GeppettoCommonLibraryAccess;
-import org.geppetto.model.types.ParameterType;
+import org.geppetto.model.GeppettoFactory;
+import org.geppetto.model.Tag;
+import org.geppetto.model.impl.GeppettoFactoryImpl;
 import org.geppetto.model.types.TypesFactory;
-import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.types.impl.TypesFactoryImpl;
+import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.PhysicalQuantity;
 import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.values.VisualGroup;
 import org.geppetto.model.values.VisualGroupElement;
 import org.geppetto.model.values.impl.ValuesFactoryImpl;
-import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
 import org.geppetto.model.variables.impl.VariablesFactoryImpl;
 import org.lemsml.jlems.core.eval.DoubleEvaluator;
@@ -86,21 +87,32 @@ public class PopulateChannelDensityVisualGroups
 	private static Log _logger = LogFactory.getLog(PopulateChannelDensityVisualGroups.class);
 
 	private CellUtils cellUtils;
-	private GeppettoCommonLibraryAccess access;
 	private Cell cell;
 	TypesFactory typeFactory;
 	ValuesFactory valuesFactory;
 	VariablesFactory variablesFactory;
+	GeppettoFactory geppettoFactory;
+	
+	private Tag channelDensityTag;
 
-	public PopulateChannelDensityVisualGroups(Cell cell, GeppettoCommonLibraryAccess access)
+	public PopulateChannelDensityVisualGroups(Cell cell)
 	{
 		super();
 		this.cell = cell;
-		this.access = access;
 		typeFactory = TypesFactoryImpl.eINSTANCE;
 		valuesFactory = ValuesFactoryImpl.eINSTANCE;
 		variablesFactory = VariablesFactoryImpl.eINSTANCE;
+		geppettoFactory = GeppettoFactoryImpl.eINSTANCE;
 	}
+	
+
+
+	public Tag getChannelDensityTag()
+	{
+		return channelDensityTag;
+	}
+
+
 
 	/**
 	 * Create Channel densities visual groups for a cell
@@ -108,8 +120,9 @@ public class PopulateChannelDensityVisualGroups
 	 * @param cell
 	 *            - Densities visual groups for this cell
 	 * @return
+	 * @throws GeppettoVisitingException
 	 */
-	public List<VisualGroup> createChannelDensities()
+	public List<VisualGroup> createChannelDensities() throws GeppettoVisitingException
 	{
 		Map<String, VisualGroup> groupsMap = new HashMap<String, VisualGroup>();
 
@@ -121,79 +134,73 @@ public class PopulateChannelDensityVisualGroups
 				&& (biophysicalProperties.getMembraneProperties().getChannelDensity() != null || biophysicalProperties.getMembraneProperties().getChannelDensityNernst() != null || biophysicalProperties
 						.getMembraneProperties().getChannelDensityNonUniform() != null))
 		{
-			densities = new CompositeNode("ChannelDensities");
-			densities.setName("Channel Densities");
+			channelDensityTag = geppettoFactory.createTag();
+			channelDensityTag.setName("Channel Densities");
 
 			if(biophysicalProperties.getMembraneProperties().getChannelDensity() != null && biophysicalProperties.getMembraneProperties().getChannelDensity().size() > 0)
 			{
-				CompositeNode densityNode = new CompositeNode("Density");
-				densityNode.setName("Density");
-				densityNode.setParent(densities);
-				densities.addChild(densityNode);
+				Tag channelDensityTypeTag = geppettoFactory.createTag();
+				channelDensityTypeTag.setName("Density");
+				channelDensityTag.getTags().add(channelDensityTypeTag);
 
 				for(ChannelDensity density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
 				{
-					createVisualGroupFromCondDensity(groupsMap, densityNode, density, density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
+					createVisualGroupFromCondDensity(groupsMap, channelDensityTypeTag, density, density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
 				}
 			}
 
 			if(biophysicalProperties.getMembraneProperties().getChannelDensityNernst() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNernst().size() > 0)
 			{
-				CompositeNode densityNode = new CompositeNode("Density_Nernst");
-				densityNode.setName("Density Nernst");
-				densityNode.setParent(densities);
-				densities.addChild(densityNode);
+				Tag channelDensityTypeTag = geppettoFactory.createTag();
+				channelDensityTypeTag.setName("Density Nernst");
+				channelDensityTag.getTags().add(channelDensityTypeTag);
 
 				for(ChannelDensityNernst density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
 				{
-					createVisualGroupFromCondDensity(groupsMap, densityNode, density, density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
+					createVisualGroupFromCondDensity(groupsMap, channelDensityTypeTag, density, density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
 				}
 			}
 
 			if(biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform().size() > 0)
 			{
-				CompositeNode densityNode = new CompositeNode("Density_Non_Uniform");
-				densityNode.setName("Density Non Uniform");
-				densityNode.setParent(densities);
-				densities.addChild(densityNode);
+				Tag channelDensityTypeTag = geppettoFactory.createTag();
+				channelDensityTypeTag.setName("Density Non Uniform");
+				channelDensityTag.getTags().add(channelDensityTypeTag);
 
 				cellUtils = new CellUtils(cell);
-
 				for(ChannelDensityNonUniform density : biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform())
 				{
-					createVisualGroupElement(groupsMap, densityNode, density.getId(), density.getIonChannel(), density.getVariableParameter());
+					createVisualGroupElement(groupsMap, channelDensityTypeTag, density.getId(), density.getIonChannel(), density.getVariableParameter());
 				}
 			}
 
 			if(biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst() != null
 					&& biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst().size() > 0)
 			{
-				CompositeNode densityNode = new CompositeNode("Density_Non_Uniform_Nernst");
-				densityNode.setName("Density Non Uniform Nernst");
-				densityNode.setParent(densities);
-				densities.addChild(densityNode);
+				Tag channelDensityTypeTag = geppettoFactory.createTag();
+				channelDensityTypeTag.setName("Density Non Uniform Nernst");
+				channelDensityTag.getTags().add(channelDensityTypeTag);
 
 				cellUtils = new CellUtils(cell);
 				for(ChannelDensityNonUniformNernst density : biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst())
 				{
-					createVisualGroupElement(groupsMap, densityNode, density.getId(), density.getIonChannel(), density.getVariableParameter());
+					createVisualGroupElement(groupsMap, channelDensityTypeTag, density.getId(), density.getIonChannel(), density.getVariableParameter());
 				}
 			}
 
 		}
 
-		return densities;
+		return (List<VisualGroup>) groupsMap.values();
 	}
 
-	private VisualGroupNode createVisualGroup(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, String ionChannel)
+	private VisualGroup createVisualGroup(Map<String, VisualGroup> groupsMap, String ionChannel)
 	{
-		VisualGroupNode vis = new VisualGroupNode(ionChannel);
+		VisualGroup vis = valuesFactory.createVisualGroup();
+		vis.setId(ionChannel);
 		vis.setName(ionChannel);
 		vis.setType(type);
 		vis.setHighSpectrumColor(highSpectrum);
 		vis.setLowSpectrumColor(lowSpectrum);
-		vis.setParent(densities);
-		densities.addChild(vis);
 		groupsMap.put(ionChannel, vis);
 		return vis;
 	}
@@ -215,7 +222,7 @@ public class PopulateChannelDensityVisualGroups
 		return doubleEvaluator;
 	}
 
-	private void createVisualGroupElement(Map<String, VisualGroupNode> groupsMap, CompositeNode densities, String densityId, String ionChannel, List<VariableParameter> variableParameters)
+	private void createVisualGroupElement(Map<String, VisualGroup> groupsMap, Tag tag, String densityId, String ionChannel, List<VariableParameter> variableParameters)
 	{
 		// Iterate through the segment groups looking for the right segment group with a variable parameter equals to condDensity
 		for(SegmentGroup segmentGroup : cell.getMorphology().getSegmentGroup())
@@ -225,7 +232,8 @@ public class PopulateChannelDensityVisualGroups
 				if(variableParameter.getParameter().equals("condDensity") && segmentGroup.getId().equals(variableParameter.getSegmentGroup()))
 				{
 					String ionChannelLabel = ionChannel + "_" + segmentGroup.getId();
-					VisualGroupNode vis = createVisualGroup(groupsMap, densities, ionChannelLabel);
+					VisualGroup vis = createVisualGroup(groupsMap, ionChannelLabel);
+					vis.getTags().add(tag);
 
 					// Get expression evaluator for inhomogeneous expresion
 					DoubleEvaluator doubleEvaluator = getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
@@ -251,14 +259,22 @@ public class PopulateChannelDensityVisualGroups
 									valHM.put(inhomogeneousParameter.getVariable(), distanceAllSegments);
 
 									// Create visual group element
-									VisualGroupElementNode element = new VisualGroupElementNode("vo" + sg.getId().toString());
+									VisualGroupElement element = valuesFactory.createVisualGroupElement();
+									element.setId("vo" + sg.getId().toString());
 									element.setName(sg.getName());
 
 									// Add calculated value as a physical quantity
 									// FIXME We are hardcoding the units as NeuroML2 does not have it for inhomogeneous channels
-									PhysicalQuantity physicalQuantity = new PhysicalQuantity(new FloatValue((float) doubleEvaluator.evalD(valHM)), new Unit("S_per_cm2"));
+									PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
+									// physicalQuantity.setScalingFactor(value);
+									physicalQuantity.setValue((float) doubleEvaluator.evalD(valHM));
+
+									Unit unit = valuesFactory.createUnit();
+									unit.setUnit("S_per_cm2");
+									physicalQuantity.setUnit(unit);
+									physicalQuantity.setScalingFactor(1);
+
 									element.setParameter(physicalQuantity);
-									element.setParent(vis);
 									element.setDefaultColor(defaultColor);
 									vis.getVisualGroupElements().add(element);
 								}
@@ -274,13 +290,15 @@ public class PopulateChannelDensityVisualGroups
 		}
 	}
 
-	private void createVisualGroupFromCondDensity(Map<String, VisualGroup> groupsMap, CompositeNode densities, Base density, String ionChannel, String segmentGroup, String condDensity)
+	private void createVisualGroupFromCondDensity(Map<String, VisualGroup> groupsMap, Tag tag, Base density, String ionChannel, String segmentGroup, String condDensity)
+			throws GeppettoVisitingException
 	{
 		if(!groupsMap.containsKey(ionChannel))
 		{
 			if(!density.getId().endsWith("_all"))
 			{
-				VisualGroup vis = createVisualGroup(groupsMap, densities, ionChannel);
+				VisualGroup vis = createVisualGroup(groupsMap, ionChannel);
+				vis.getTags().add(tag);
 				createVisualGroupElementFromSegmentGroup(density, segmentGroup, condDensity, vis);
 			}
 		}
@@ -288,12 +306,12 @@ public class PopulateChannelDensityVisualGroups
 		{
 			VisualGroup vis = groupsMap.get(ionChannel);
 			if(!density.getId().endsWith("_all")) createVisualGroupElementFromSegmentGroup(density, segmentGroup, condDensity, vis);
-			densities.addChild(vis);
+			// densities.addChild(vis);
 			groupsMap.put(ionChannel, vis);
 		}
 	}
 
-	private void createVisualGroupElementFromSegmentGroup(Base density, String segmentGroup, String condDensity, VisualGroup vis)
+	private void createVisualGroupElementFromSegmentGroup(Base density, String segmentGroup, String condDensity, VisualGroup vis) throws GeppettoVisitingException
 	{
 		// VisualGroupElementNode element = new VisualGroupElementNode(segmentGroup);
 		VisualGroupElement element = valuesFactory.createVisualGroupElement();
@@ -303,7 +321,7 @@ public class PopulateChannelDensityVisualGroups
 		vis.getVisualGroupElements().add(element);
 	}
 
-	private PhysicalQuantity getParameterFromCondDensity(String condDensity)
+	private PhysicalQuantity getParameterFromCondDensity(String condDensity) throws GeppettoVisitingException
 	{
 		String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
 		Pattern pattern = Pattern.compile(regExp);
@@ -320,16 +338,10 @@ public class PopulateChannelDensityVisualGroups
 			physicalQuantity.setUnit(unit);
 			physicalQuantity.setScalingFactor(1);
 
-			
-			ParameterType parameterType = (ParameterType)this.access.getType(TypesPackage.Literals.PARAMETER_TYPE);
-			initialiseNodeFromString(parameterType, condDensity);
-			parameterType.setDefaultValue(physicalQuantity);
-
-			Variable variable = variablesFactory.createVariable();
-			initialiseNodeFromString(variable, condDensity);
-			variable.getTypes().add(parameterType);
-			variable.setInitialValues(physicalQuantity);
-			compositeType.getVariables().add(variable);
+			// Variable variable = variablesFactory.createVariable();
+			// initialiseNodeFromString(variable, condDensity);
+			// variable.getTypes().add(this.access.getType(TypesPackage.Literals.PARAMETER_TYPE));
+			// variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
 			return physicalQuantity;
 		}
 		return null;

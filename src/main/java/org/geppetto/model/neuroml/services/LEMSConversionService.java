@@ -196,7 +196,9 @@ public class LEMSConversionService extends AConversion
 				{
 					for(IInstancePath watchedVariable : aspectConfig.getWatchedVariables())
 					{
-						String localInstancePath = watchedVariable.getLocalInstancePath();
+						//AQP: We need to check how to convert from geppetto path to neuroml path
+						//String localInstancePath = watchedVariable.getLocalInstancePath();
+						String localInstancePath = watchedVariable.getInstancePath();
 						String subEntityPath = "";
 						
 						// Create output column component
@@ -204,7 +206,9 @@ public class LEMSConversionService extends AConversion
 						
 						// Create LEMS variable Path 
 						String quantity = "";
-						String[] splittedEntityInstancePath = watchedVariable.getEntityInstancePath().split("\\.");
+						//AQP: We need to check how to convert from geppetto path to neuroml path
+						//String[] splittedEntityInstancePath = watchedVariable.getEntityInstancePath().split("\\.");
+						String[] splittedEntityInstancePath = watchedVariable.getInstancePath().split("\\.");
 						if (splittedEntityInstancePath.length >1){
 							String entityPath = splittedEntityInstancePath[1];
 							

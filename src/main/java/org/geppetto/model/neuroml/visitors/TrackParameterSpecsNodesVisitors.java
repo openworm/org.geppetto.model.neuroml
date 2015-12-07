@@ -32,42 +32,83 @@
  *******************************************************************************/
 package org.geppetto.model.neuroml.visitors;
 
-
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geppetto.core.model.runtime.ParameterSpecificationNode;
-import org.geppetto.core.model.state.visitors.RuntimeTreeVisitor;
+import org.geppetto.model.VariableValue;
+import org.geppetto.model.types.Type;
+import org.geppetto.model.values.PointerElement;
+import org.geppetto.model.values.Value;
+import org.geppetto.model.variables.Variable;
+import org.geppetto.model.variables.util.VariablesSwitch;
+import org.lemsml.jlems.core.type.Component;
 
 /**
  * Visitor used tracking parameter specification nodes inside model tree.
  * 
- * @author  Jesus R. Martinez (jesus@metacell.us)
+ * @author Jesus R. Martinez (jesus@metacell.us)
+ * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  *
  */
-public class TrackParameterSpecsNodesVisitors extends RuntimeTreeVisitor{
+public class TrackParameterSpecsNodesVisitors extends VariablesSwitch<Object>
+{
 
 	private static Log _logger = LogFactory.getLog(TrackParameterSpecsNodesVisitors.class);
 
-	private Map<String, ParameterSpecificationNode> _parameters = new HashMap<String,ParameterSpecificationNode>();
+	// private Map<String, ParameterSpecificationNode> _parameters = new HashMap<String,ParameterSpecificationNode>();
 
-	public TrackParameterSpecsNodesVisitors()
+	private Component component;
+
+	private VariableValue variableValue;
+
+	public TrackParameterSpecsNodesVisitors(VariableValue variableValue)
 	{
+		this.variableValue = variableValue;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.geppetto.core.model.state.visitors.DefaultStateVisitor#inCompositeStateNode(org.geppetto.core.model.state.CompositeStateNode)
 	 */
+	// @Override
+	// public boolean visitParameterSpecificationNode(ParameterSpecificationNode node)
+	// {
+	// this._parameters.put(node.getInstancePath(),node);
+	// return true;
+	// }
+	//
+	// public Map<String, ParameterSpecificationNode> getParametersMap() {
+	// return this._parameters;
+	// }
+
 	@Override
-	public boolean visitParameterSpecificationNode(ParameterSpecificationNode node)
+	public Object caseVariable(Variable object)
 	{
-		this._parameters.put(node.getInstancePath(),node);
-		return true;
+		for(Map.Entry<Type, Value> entry : object.getInitialValues().entrySet())
+		{
+			if(entry.getValue().equals(variableValue))
+			{
+				PointerElement pointerElementParent = variableValue.getPointer().getElements().get(variableValue.getPointer().getElements().size() - 2);
+
+				for(Type pointerElementType : pointerElementParent.getVariable().getTypes())
+				{
+					if(pointerElementType.getId().equals(entry.getKey().getId()))
+					{
+						component = (Component) pointerElementType.getDomainModel();
+					}
+				}
+			}
+		}
+
+		// TODO Auto-generated method stub
+		return super.caseVariable(object);
 	}
 
-	public Map<String, ParameterSpecificationNode> getParametersMap() {
-		return this._parameters;
+	public Component getComponent()
+	{
+		return component;
 	}
+
 }

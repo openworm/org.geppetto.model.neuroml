@@ -35,6 +35,8 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -53,23 +55,27 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
+import org.geppetto.core.beans.PathConfiguration;
+import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
+import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.GeppettoCommonLibraryAccess;
+import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.Node;
+import org.geppetto.model.neuroml.features.LEMSParametersFeature;
+import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.visitors.ExtractVisualType;
 import org.geppetto.model.neuroml.visitors.PopulateChannelDensityVisualGroups;
 import org.geppetto.model.types.CompositeType;
-import org.geppetto.model.types.ParameterType;
-import org.geppetto.model.types.StateVariableType;
-import org.geppetto.model.types.TextType;
+import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
@@ -77,11 +83,12 @@ import org.geppetto.model.types.VisualType;
 import org.geppetto.model.types.impl.TypesFactoryImpl;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.PhysicalQuantity;
+import org.geppetto.model.values.Point;
 import org.geppetto.model.values.Pointer;
+import org.geppetto.model.values.Sphere;
 import org.geppetto.model.values.Text;
 import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
-import org.geppetto.model.values.VisualComposite;
 import org.geppetto.model.values.impl.ValuesFactoryImpl;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
@@ -92,14 +99,13 @@ import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.ParamValue;
+import org.lemsml.jlems.io.xmlio.XMLSerializer;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Cell;
 import org.neuroml.model.NeuroMLDocument;
-import org.neuroml.model.PopulationTypes;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
@@ -119,6 +125,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Autowired
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
 
+//	private Map<ParameterSpecificationNode, Object> _parametersToMethodsMap = new HashMap<ParameterSpecificationNode,Object>();
+//	private Map<ParameterSpecificationNode, Object> _parametersToObjectssMap = new HashMap<ParameterSpecificationNode,Object>();
+//	
 	private Map<String, Type> types;
 
 	// AQP: Do we need the model wrapper??
@@ -178,9 +187,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			lems.resolve();
 			lems.evaluateStatic();
 
-			// model.wrapModel(ServicesRegistry.getModelFormat("LEMS"), lemsDocument);
-			// model.wrapModel(ServicesRegistry.getModelFormat("NEUROML"), neuroml);
-			// model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
+			model.wrapModel(ServicesRegistry.getModelFormat("LEMS"), lemsDocument);
+			model.wrapModel(ServicesRegistry.getModelFormat("NEUROML"), neuroml);
+			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 			//
 			// model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			// model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
@@ -195,7 +204,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			}
 
 			// AQP: This may remain.
-			// this.addFeature(new LEMSParametersFeature(this.populateModelTree, model));
+			this.addFeature(new LEMSParametersFeature(library));
 
 		}
 		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
@@ -245,6 +254,65 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		node.setId(attributesName);
 	}
 
+	private Variable createVariableFromCellMorphology(Component component) throws GeppettoVisitingException, LEMSException, NeuroMLException
+	{
+		TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
+		ValuesFactory valuesFactory = ValuesFactoryImpl.eINSTANCE;
+		VariablesFactory variablesFactory = VariablesFactoryImpl.eINSTANCE;
+
+		Component morphologyComponent = component.getChild("morphology");
+
+		LinkedHashMap<String, Standalone> cellMap = Utils.convertLemsComponentToNeuroML(component);
+		Cell cell = (Cell) cellMap.get(component.getID());
+
+		// Convert lems component to NeuroML
+		// LinkedHashMap<String, Standalone> morphologyMap = Utils.convertLemsComponentToNeuroML(morphologyComponent);
+		// Morphology morphology = (Morphology) morphologyMap.get(morphologyComponent.getID());
+
+		// AQP: I would like to join processMorphologyFromGroup and processMorphology into just one single method/approach
+		// create nodes for visual objects, segments of cell
+
+		// We assume when we find a morphology it belongs to a cell
+		ExtractVisualType extractVisualType = new ExtractVisualType(cell, this.access);
+
+		VisualType visualType = typeFactory.createVisualType();
+		initialiseNodeFromComponent(visualType, morphologyComponent);
+		// visualType.getReferencedVariables().addAll(extractVisualType.createCellPartsVisualGroups(morphology.getSegmentGroup()));
+
+		CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
+		visualCompositeType.getVisualGroups().add(extractVisualType.createCellPartsVisualGroups());
+
+		// List<VisualValue> visualizationNodes = new ArrayList<VisualValue>();
+
+		if(cell.getMorphology().getSegmentGroup().isEmpty())
+		{
+			visualCompositeType.getVariables().addAll(extractVisualType.getVisualObjectsFromListOfSegments(cell.getMorphology()));
+		}
+		else
+		{
+			visualCompositeType.getVariables().addAll(extractVisualType.createNodesFromMorphologyBySegmentGroup());
+			
+
+			// create density groups for each cell, if it has some
+			PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(cell);
+			visualCompositeType.getVisualGroups().addAll(populateChannelDensityVisualGroups.createChannelDensities());
+			
+			//AQP: We have to add this to the library
+			//populateChannelDensityVisualGroups.getChannelDensityTag();
+		}
+		// add density groups to visualization tree
+		// if(densities != null)
+		// {
+		// visualizationNodes.add(densities);
+		// }
+
+		Variable variable = variablesFactory.createVariable();
+		initialiseNodeFromComponent(variable, morphologyComponent);
+		variable.getTypes().add(visualCompositeType);
+
+		return variable;
+	}
+
 	private CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException
 	{
 		TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
@@ -257,23 +325,40 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		if(component.getDeclaredType().equals("population"))
 		{
 			String populationType = component.getTypeName();
+			component.getStringValue("size");
 			if(populationType != null && populationType.equals("populationList"))
 			{
-				component.getStringValue("size");
-				
-				if (component.getRefComponents().get("component").getDeclaredType().equals("cell")){
-					
+
+				if(component.getRefComponents().get("component").getDeclaredType().equals("cell"))
+				{
+					compositeType.getVariables().add(createVariableFromCellMorphology(component));
 				}
-				else{
-					
+				else
+				{
+					Sphere sphere = valuesFactory.createSphere();
+					// SphereNode sphereNode = new SphereNode(id);
+					sphere.setRadius(1.2d);
 				}
+
 				for(Component componentChild : component.getAllChildren())
 				{
-					if (componentChild.getDeclaredType().equals("instance")){
-						
+					if(componentChild.getDeclaredType().equals("instance"))
+					{
+						Point point = null;
+						for(Component instanceChild : componentChild.getAllChildren())
+						{
+							if(instanceChild.getDeclaredType().equals("location"))
+							{
+								point = valuesFactory.createPoint();
+								point.setX(Double.parseDouble(instanceChild.getStringValue("x")));
+								point.setY(Double.parseDouble(instanceChild.getStringValue("y")));
+								point.setZ(Double.parseDouble(instanceChild.getStringValue("z")));
+							}
+						}
+
 					}
 				}
-				
+
 			}
 			else
 			{
@@ -286,46 +371,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 			if(component.hasChildrenAL("morphology"))
 			{
-				Component morphologyComponent = component.getChild("morphology");
-				LinkedHashMap<String, Standalone> cellMap = Utils.convertLemsComponentToNeuroML(component);
-				Cell cell = (Cell) cellMap.get(component.getID());
-
-				// Convert lems component to NeuroML
-				// LinkedHashMap<String, Standalone> morphologyMap = Utils.convertLemsComponentToNeuroML(morphologyComponent);
-				// Morphology morphology = (Morphology) morphologyMap.get(morphologyComponent.getID());
-
-				// AQP: I would like to join processMorphologyFromGroup and processMorphology into just one single method/approach
-				// create nodes for visual objects, segments of cell
-
-				// We assume when we find a morphology it belongs to a cell
-				ExtractVisualType extractVisualType = new ExtractVisualType(cell);
-
-				VisualType visualType = typeFactory.createVisualType();
-				initialiseNodeFromComponent(visualType, morphologyComponent);
-				// visualType.getReferencedVariables().addAll(extractVisualType.createCellPartsVisualGroups(morphology.getSegmentGroup()));
-
-				VisualComposite visualComposite = valuesFactory.createVisualComposite();
-				visualComposite.getVisualGroups().add(extractVisualType.createCellPartsVisualGroups());
-
-				// List<VisualValue> visualizationNodes = new ArrayList<VisualValue>();
-
-				if(cell.getMorphology().getSegmentGroup().isEmpty())
-				{
-					visualComposite.getValue().addAll(extractVisualType.getVisualObjectsFromListOfSegments(cell.getMorphology()));
-				}
-				else
-				{
-					visualComposite.getValue().addAll(extractVisualType.createNodesFromMorphologyBySegmentGroup());
-
-					// create density groups for each cell, if it has some
-					PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(cell, this.access);
-					visualComposite.getVisualGroups().addAll(populateChannelDensityVisualGroups.createChannelDensities());
-				}
-				// add density groups to visualization tree
-				// if(densities != null)
-				// {
-				// visualizationNodes.add(densities);
-				// }
+				compositeType.getVariables().add(createVariableFromCellMorphology(component));
 			}
 
 			if(!component.getDeclaredType().equals("morphology"))
@@ -349,15 +395,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 							Unit unit = valuesFactory.createUnit();
 							unit.setUnit(matcher.group(2));
 							physicalQuantity.setUnit(unit);
-							physicalQuantity.setScalingFactor(1);
-
-							ParameterType parameterType = (ParameterType)this.access.getType(TypesPackage.Literals.PARAMETER_TYPE);
-							initialiseNodeFromString(parameterType, pv.getName());
 
 							Variable variable = variablesFactory.createVariable();
-							variable.setInitialValues(physicalQuantity);
+							variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
 							initialiseNodeFromString(variable, pv.getName());
-							variable.getTypes().add(parameterType);
+							variable.getTypes().add(this.access.getType(TypesPackage.Literals.PARAMETER_TYPE));
 							compositeType.getVariables().add(variable);
 						}
 					}
@@ -368,13 +410,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					Text text = valuesFactory.createText();
 					text.setText(entry.getValue());
 
-					TextType textType = (TextType)this.access.getType(TypesPackage.Literals.TEXT_TYPE);
-					initialiseNodeFromString(textType, entry.getKey());
-
 					Variable variable = variablesFactory.createVariable();
-					variable.setInitialValues(text);
-					initialiseNodeFromString(textType, entry.getKey());
-					variable.getTypes().add(textType);
+					variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+					variable.getTypes().add(this.access.getType(TypesPackage.Literals.TEXT_TYPE));
 					compositeType.getVariables().add(variable);
 
 				}
@@ -404,13 +442,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					unit.setUnit(unitSymbol);
 					physicalQuantity.setUnit(unit);
 
-					StateVariableType stateVariableType = (StateVariableType)this.access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE);
-					initialiseNodeFromString(stateVariableType, exposure.getName());
-
 					Variable variable = variablesFactory.createVariable();
-					variable.setInitialValues(physicalQuantity);
+					variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE), physicalQuantity);
 					initialiseNodeFromString(variable, exposure.getName());
-					variable.getTypes().add(stateVariableType);
+					variable.getTypes().add(this.access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE));
 					compositeType.getVariables().add(variable);
 				}
 
@@ -677,84 +712,89 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Override
 	public File downloadModel(Pointer pointer, ModelFormat format, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
 	{
-		// if(format.equals(ServicesRegistry.getModelFormat("LEMS")) || format.equals(ServicesRegistry.getModelFormat("NEUROML")))
-		// {
-		// try
-		// {
-		// // Create file and folder
-		// File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId,
-		// PathConfiguration.getName(format.getModelFormat() + PathConfiguration.downloadModelFolderName, true));
-		// String outputFile = ((URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID)).getPath();
-		//
-		// // Serialise objects
-		// String serialisedModel = "";
-		// if(format.equals(ServicesRegistry.getModelFormat("LEMS")))
-		// {
-		// // Serialise LEMS object
-		// Lems lems = (Lems) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("LEMS"));
-		// serialisedModel = XMLSerializer.serialize(lems);
-		// }
-		// else
-		// {
-		// // Serialise NEUROML object
-		// NeuroMLDocument neuroMLDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("NEUROML"));
-		// NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
-		// serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
-		// // Change extension to nml
-		// outputFile = outputFile.substring(0, outputFile.lastIndexOf(".") + 1) + "nml";
-		// }
-		//
-		// // Write to disc
-		// PrintWriter writer = new PrintWriter(outputFolder + outputFile.substring(outputFile.lastIndexOf(File.separator)));
-		// writer.print(serialisedModel);
-		// writer.close();
-		// return outputFolder;
-		//
-		// }
-		// catch(ContentError | IOException | NeuroMLException e)
-		// {
-		// throw new ModelInterpreterException(e);
-		// }
-		//
-		// }
-		// else
-		// {
-		// // Call conversion service
-		// LEMSConversionService lemsConversionService = new LEMSConversionService();
-		// lemsConversionService.setProjectId(projectId);
-		// lemsConversionService.setScope(Scope.CONNECTION);
-		// ModelWrapper outputModel = null;
-		// try
-		// {
-		// outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format, aspectConfiguration);
-		// }
-		// catch(ConversionException e)
-		// {
-		// throw new ModelInterpreterException(e);
-		// }
-		// String outputFile = (String) outputModel.getModel(format);
-		// return new File(outputFile.substring(0, outputFile.lastIndexOf(File.separator)));
-		// }
-		return null;
+		// We are taking the domain model for the last element of the pointer
+		IModel model = (IModel) pointer.getElements().get(pointer.getElements().size() - 1).getType().getDomainModel();
+
+		if(format.equals(ServicesRegistry.getModelFormat("LEMS")) || format.equals(ServicesRegistry.getModelFormat("NEUROML")))
+		{
+			try
+			{
+				// Create file and folder
+				File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId,
+						PathConfiguration.getName(format.getModelFormat() + PathConfiguration.downloadModelFolderName, true));
+				String outputFile = ((URL) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.URL_ID)).getPath();
+
+				// Serialise objects
+				String serialisedModel = "";
+				if(format.equals(ServicesRegistry.getModelFormat("LEMS")))
+				{
+					// Serialise LEMS object
+					Lems lems = (Lems) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("LEMS"));
+					serialisedModel = XMLSerializer.serialize(lems);
+				}
+				else
+				{
+					// Serialise NEUROML object
+					NeuroMLDocument neuroMLDoc = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
+					NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
+					serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
+					// Change extension to nml
+					outputFile = outputFile.substring(0, outputFile.lastIndexOf(".") + 1) + "nml";
+				}
+
+				// Write to disc
+				PrintWriter writer = new PrintWriter(outputFolder + outputFile.substring(outputFile.lastIndexOf(File.separator)));
+				writer.print(serialisedModel);
+				writer.close();
+				return outputFolder;
+
+			}
+			catch(ContentError | IOException | NeuroMLException e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+
+		}
+		else
+		{
+			// Call conversion service
+			LEMSConversionService lemsConversionService = new LEMSConversionService();
+			lemsConversionService.setProjectId(projectId);
+			lemsConversionService.setScope(Scope.CONNECTION);
+			ModelWrapper outputModel = null;
+			try
+			{
+				outputModel = (ModelWrapper) lemsConversionService.convert(model, ServicesRegistry.getModelFormat("LEMS"), format, aspectConfiguration);
+			}
+			catch(ConversionException e)
+			{
+				throw new ModelInterpreterException(e);
+			}
+			String outputFile = (String) outputModel.getModel(format);
+			return new File(outputFile.substring(0, outputFile.lastIndexOf(File.separator)));
+		}
 
 	}
 
-	// @Override
-	// public List<ModelFormat> getSupportedOutputs(Pointer pointer) throws ModelInterpreterException
-	// {
-	// List<ModelFormat> supportedOutputs = super.getSupportedOutputs(pointer);
-	// supportedOutputs.add(ServicesRegistry.getModelFormat("LEMS"));
-	// try
-	// {
-	// LEMSConversionService lemsConversionService = new LEMSConversionService();
-	// supportedOutputs.addAll(lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS")));
-	// }
-	// catch(ConversionException e)
-	// {
-	// throw new ModelInterpreterException(e);
-	// }
-	// return supportedOutputs;
-	// }
+	@Override
+	public List<ModelFormat> getSupportedOutputs(Pointer pointer) throws ModelInterpreterException
+	{
+		List<ModelFormat> supportedOutputs = super.getSupportedOutputs(pointer);
+		supportedOutputs.add(ServicesRegistry.getModelFormat("LEMS"));
+		try
+		{
+			// We are taking the domain model for the last element of the pointer
+			IModel model = (IModel) pointer.getElements().get(pointer.getElements().size() - 1).getType().getDomainModel();
+
+			LEMSConversionService lemsConversionService = new LEMSConversionService();
+			supportedOutputs.addAll(lemsConversionService.getSupportedOutputs(model, ServicesRegistry.getModelFormat("LEMS")));
+		}
+		catch(ConversionException e)
+		{
+			throw new ModelInterpreterException(e);
+		}
+		return supportedOutputs;
+	}
 
 	public ModelWrapper getModel()
 	{
@@ -770,5 +810,58 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	// {
 	// return this.populateModelTree.getParametersNodeToObjectsMap();
 	// }
-
+	/**
+	 * @param instance
+	 * @param methodName
+	 * @param node
+	 * @throws ModelInterpreterException
+	 */
+//	private void addToMaps(Object instance, String methodName, ParameterSpecificationNode node) throws ModelInterpreterException
+//	{
+//		try
+//		{
+//			Method setter = null;
+//			Class<?> current = instance.getClass();
+//			while(current != null)
+//			{
+//				for(Method m : current.getDeclaredMethods())
+//				{
+//					if(m.getName().equals(methodName))
+//					{
+//						setter = m;
+//						break;
+//					}
+//				}
+//				if(setter == null)
+//				{
+//					current = current.getSuperclass();
+//				}
+//				else
+//				{
+//					break;
+//				}
+//			}
+//			if(setter != null)
+//			{
+//				this._parameterNodesToMethodsMap.put(node, setter);
+//				this._parameterNodesToObjectMap.put(node, instance);
+//			}
+//			else
+//			{
+//				throw new ModelInterpreterException("Cannot find the method " + methodName + "in the NeuroML object " + instance.toString());
+//			}
+//		}
+//		catch(Exception e)
+//		{
+//			throw new ModelInterpreterException(e);
+//		}
+//	}
+//	
+//	public Map<ParameterSpecificationNode,Object> getParametersNodeToMethodsMap(){
+//		return _parametersToMethodsMap ;
+//	}
+//	
+//	public Map<ParameterSpecificationNode,Object> getParametersNodeToObjectsMap(){
+//		return _parametersToObjectssMap ;
+//	}
 }
