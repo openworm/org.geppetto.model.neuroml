@@ -45,7 +45,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,10 +69,8 @@ import org.geppetto.model.ModelFormat;
 import org.geppetto.model.Node;
 import org.geppetto.model.impl.GeppettoFactoryImpl;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
-import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
-import org.geppetto.model.neuroml.utils.modeltree.PopulateSummaryNodesModelTreeUtils;
 import org.geppetto.model.neuroml.visitors.ExtractVisualType;
 import org.geppetto.model.neuroml.visitors.PopulateChannelDensityVisualGroups;
 import org.geppetto.model.types.ArrayType;
@@ -106,7 +103,6 @@ import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.ParamValue;
 import org.lemsml.jlems.io.xmlio.XMLSerializer;
-import org.neuroml.export.info.InfoTreeCreator;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Cell;
 import org.neuroml.model.NeuroMLDocument;
@@ -354,7 +350,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			
 			
 			String populationType = component.getTypeName();
-			;
 			if(populationType != null && populationType.equals("populationList"))
 			{
 
