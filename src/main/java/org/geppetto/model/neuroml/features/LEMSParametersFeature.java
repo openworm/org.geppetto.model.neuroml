@@ -12,6 +12,7 @@ import org.geppetto.model.neuroml.utils.modeltree.PopulateModelTree;
 import org.geppetto.model.neuroml.visitors.TrackParameterSpecsNodesVisitors;
 import org.geppetto.model.util.GeppettoModelTraversal;
 import org.geppetto.model.util.GeppettoVisitingException;
+import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.PhysicalQuantity;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -53,20 +54,9 @@ public class LEMSParametersFeature implements ISetParameterFeature{
 	public void setParameter(VariableValue variableValue) throws ModelInterpreterException
 	{
 		
-		TrackParameterSpecsNodesVisitors trackParameterSpecsNodesVisitors = new TrackParameterSpecsNodesVisitors(variableValue);
-		try
-		{
-			GeppettoModelTraversal.apply(library, trackParameterSpecsNodesVisitors);
-		}
-		catch(GeppettoVisitingException e)
-		{
-			throw new ModelInterpreterException(e);
-		}
-		
-		
 		String propertyName = variableValue.getPointer().getElements().get(variableValue.getPointer().getElements().size()-1).getVariable().getId();
 		
-		PropertyAccessor myAccessor = PropertyAccessorFactory.forDirectFieldAccess(trackParameterSpecsNodesVisitors.getComponent());
+		PropertyAccessor myAccessor = PropertyAccessorFactory.forDirectFieldAccess(PointerUtility.getType(variableValue.getPointer()).getDomainModel());
 		myAccessor.setPropertyValue(propertyName, ((PhysicalQuantity)variableValue.getValue()).getValue());
 		
 //		Map<String, ParameterSpecificationNode> modelParameters = this.populateModelTree.getParametersNode();

@@ -311,15 +311,15 @@ public class ExtractVisualType
 	 * @param model
 	 * @return
 	 */
-	private BaseCell getNeuroMLComponent(String componentId, DomainModel model)
-	{
-		Map<String, Base> discoveredComponents = (Map<String, Base>) model.getModel("discoveredComponents");
-		if(discoveredComponents.containsKey(componentId))
-		{
-			return (BaseCell) discoveredComponents.get(componentId);
-		}
-		return null;
-	}
+//	private BaseCell getNeuroMLComponent(String componentId, DomainModel model)
+//	{
+//		Map<String, Base> discoveredComponents = (Map<String, Base>) model.getModel("discoveredComponents");
+//		if(discoveredComponents.containsKey(componentId))
+//		{
+//			return (BaseCell) discoveredComponents.get(componentId);
+//		}
+//		return null;
+//	}
 
 	/**
 	 * @param id

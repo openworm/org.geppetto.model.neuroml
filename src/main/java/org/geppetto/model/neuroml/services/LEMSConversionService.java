@@ -220,10 +220,11 @@ public class LEMSConversionService extends AConversion
 						
 						quantity += subEntityPath + localInstancePath;
 						quantity = quantity.replace(".", "/");
-						Component comp = LEMSAccessUtility.findLEMSComponent(lems.getComponents().getContents(), aspectConfig.getSimulatorConfiguration().getParameters().get("target"));
-						if (LEMSAccessUtility.getSimulationTreePathType(comp).equals("populationList")){
-							quantity = quantity.replace("[", "/").replace("]","");
-						}
+						//AQP
+//						Component comp = LEMSAccessUtility.findLEMSComponent(lems.getComponents().getContents(), aspectConfig.getSimulatorConfiguration().getParameters().get("target"));
+//						if (LEMSAccessUtility.getSimulationTreePathType(comp).equals("populationList")){
+//							quantity = quantity.replace("[", "/").replace("]","");
+//						}
 						outputColumn.addAttribute(new XMLAttribute("quantity", quantity));
 
 						//Add output column component to file
