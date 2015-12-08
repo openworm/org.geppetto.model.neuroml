@@ -64,9 +64,11 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
+import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.Node;
+import org.geppetto.model.impl.GeppettoFactoryImpl;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -126,16 +128,15 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Autowired
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
 
-	// private Map<ParameterSpecificationNode, Object> _parametersToMethodsMap = new HashMap<ParameterSpecificationNode,Object>();
-	// private Map<ParameterSpecificationNode, Object> _parametersToObjectssMap = new HashMap<ParameterSpecificationNode,Object>();
-	//
 	private Map<String, Type> types;
-
-	// AQP: Do we need the model wrapper??
-	//private ModelWrapper model;
 
 	private GeppettoModelAccess access;
 
+	private GeppettoFactory geppettoFactory = GeppettoFactoryImpl.eINSTANCE;
+	private TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
+	private ValuesFactory valuesFactory = ValuesFactoryImpl.eINSTANCE;
+	private VariablesFactory variablesFactory = VariablesFactoryImpl.eINSTANCE;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -144,8 +145,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Override
 	public Type importType(URL url, String typeName, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
 	{
-		VariablesFactory variablesFactory = VariablesFactoryImpl.eINSTANCE;
-		TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
 
 		this.access = access;
 
@@ -260,8 +259,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		if(node instanceof Type)
 		{
-			
-			//((Type) node).setDomainModel(component);
+			DomainModel domainModel = geppettoFactory.createDomainModel();
+			domainModel.setDomainModel(component);
+			domainModel.setFormat(ServicesRegistry.registerModelFormat("LEMS"));
+			((Type) node).setDomainModel(domainModel);
 		}
 		node.setName(Resources.getValueById(component.getDeclaredType()) + ((component.getID() != null) ? " - " + component.getID() : ""));
 		node.setId((component.getID() != null) ? component.getID() : component.getDeclaredType());
@@ -275,10 +276,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private Variable createVariableFromCellMorphology(Component component) throws GeppettoVisitingException, LEMSException, NeuroMLException
 	{
-		TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
-		ValuesFactory valuesFactory = ValuesFactoryImpl.eINSTANCE;
-		VariablesFactory variablesFactory = VariablesFactoryImpl.eINSTANCE;
-
 		Component morphologyComponent = component.getChild("morphology");
 
 		LinkedHashMap<String, Standalone> cellMap = Utils.convertLemsComponentToNeuroML(component);
@@ -292,7 +289,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		// create nodes for visual objects, segments of cell
 
 		// We assume when we find a morphology it belongs to a cell
-		ExtractVisualType extractVisualType = new ExtractVisualType(cell, this.access);
+		ExtractVisualType extractVisualType = new ExtractVisualType(cell, access);
 
 		VisualType visualType = typeFactory.createVisualType();
 		initialiseNodeFromComponent(visualType, morphologyComponent);
@@ -316,7 +313,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			visualCompositeType.getVisualGroups().addAll(populateChannelDensityVisualGroups.createChannelDensities());
 
 			// AQP: We have to add this to the library
-			// populateChannelDensityVisualGroups.getChannelDensityTag();
+			access.addTag(populateChannelDensityVisualGroups.getChannelDensityTag());
 		}
 		// add density groups to visualization tree
 		// if(densities != null)
@@ -333,15 +330,16 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException
 	{
-		TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
-		ValuesFactory valuesFactory = ValuesFactoryImpl.eINSTANCE;
-		VariablesFactory variablesFactory = VariablesFactoryImpl.eINSTANCE;
-
 		CompositeType compositeType = typeFactory.createCompositeType();
 		initialiseNodeFromComponent(compositeType, component);
 
 		if(component.getDeclaredType().equals("population"))
 		{
+//			Variable variable = variablesFactory.createVariable();
+//			initialiseNodeFromComponent(variable, morphologyComponent);
+//			variable.getAnonymousTypes().add(visualCompositeType);
+//			
+//			compositeType.getVariables().add();
 			String populationType = component.getTypeName();
 			component.getStringValue("size");
 			if(populationType != null && populationType.equals("populationList"))
