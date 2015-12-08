@@ -426,7 +426,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				for(Entry<String, String> entry : component.getTextParamMap().entrySet())
 				{
 					
-					//compositeType.getVariables().add(PopulateNeuroMLUtils.createTextTypeVariable(entry.getKey(), entry.getValue(), this.access));
+					compositeType.getVariables().add(PopulateNeuroMLUtils.createTextTypeVariable(entry.getKey(), entry.getValue(), this.access));
 
 				}
 
