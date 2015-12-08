@@ -76,6 +76,7 @@ import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateSummaryNodesModelTreeUtils;
 import org.geppetto.model.neuroml.visitors.ExtractVisualType;
 import org.geppetto.model.neuroml.visitors.PopulateChannelDensityVisualGroups;
+import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.Type;
@@ -221,7 +222,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 				for(Entry<String, Type> entryType : types.entrySet())
 				{
-					if(((Component) entryType.getValue().getDomainModel()).getDeclaredType().equals("network"))
+					if(((Component) entryType.getValue().getDomainModel().getDomainModel()).getDeclaredType().equals("network"))
 					{
 						type = entryType.getValue();
 					}
@@ -335,13 +336,25 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		if(component.getDeclaredType().equals("population"))
 		{
-//			Variable variable = variablesFactory.createVariable();
-//			initialiseNodeFromComponent(variable, morphologyComponent);
-//			variable.getAnonymousTypes().add(visualCompositeType);
-//			
-//			compositeType.getVariables().add();
+			if(!types.containsKey(component.getRefComponents().get("component").getID()))
+			{
+				CompositeType refCompositeType = extractInfoFromComponent(component.getRefComponents().get("component"));
+
+				Variable variable = variablesFactory.createVariable();
+				initialiseNodeFromComponent(variable, component.getRefComponents().get("component"));
+				variable.getTypes().add(refCompositeType);
+				compositeType.getVariables().add(variable);
+				types.put(component.getRefComponents().get("component").getID(), refCompositeType);
+			}
+			
+			ArrayType arrayType = typeFactory.createArrayType();
+			initialiseNodeFromComponent(arrayType, component);
+			arrayType.setSize(Integer.parseInt(component.getStringValue("size")));
+			arrayType.setArrayType(types.get(component.getRefComponents().get("component").getID()));
+			
+			
 			String populationType = component.getTypeName();
-			component.getStringValue("size");
+			;
 			if(populationType != null && populationType.equals("populationList"))
 			{
 
@@ -380,6 +393,14 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 
 			}
+			
+			
+			Variable variable = variablesFactory.createVariable();
+			initialiseNodeFromComponent(variable, component);
+			//variable.getInitialValues().put(key, value);
+			
+			variable.getAnonymousTypes().add(arrayType);
+			compositeType.getVariables().add(variable);
 
 		}
 		else
