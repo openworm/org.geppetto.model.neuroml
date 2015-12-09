@@ -126,15 +126,12 @@ public class JustTest
 	public void testNetwork() throws Exception
 	{
 		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2AllTypes.xmi", "network_ACnet2", true);
-//		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2SingleType.xmi", "network_ACnet2", false);
-//		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2SingleTypeWithoutTypeName.xmi", null, false);
 	}
 	
 	@Test
 	public void testPurk() throws Exception
 	{
 		serialise("/purk.nml", "./src/test/resources/purk.xmi", "purk2", true);
-//		serialise("/purk.nml", "./src/test/resources/purk.xmi", "purk2", false);
 		serialise("/purk.nml", "./src/test/resources/purk.xmi", null, true);
 	}
 
@@ -150,8 +147,6 @@ public class JustTest
 	public void testCell() throws Exception
 	{
 		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.xmi", "bask", true);
-		// AQP Commented until we decide what to return when if it is not a network 
-		//serialiseAsJSON("/acnet2/bask.cell.nml", "./src/test/resources/test.json", null, false);
 	}
 
 }

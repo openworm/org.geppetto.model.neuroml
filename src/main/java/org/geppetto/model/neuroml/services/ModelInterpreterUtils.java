@@ -1,19 +1,28 @@
 package org.geppetto.model.neuroml.services;
 
 import org.geppetto.core.model.GeppettoModelAccess;
+import org.geppetto.core.services.registry.ServicesRegistry;
+import org.geppetto.model.DomainModel;
+import org.geppetto.model.GeppettoFactory;
+import org.geppetto.model.Node;
+import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateGeneralModelTreeUtils;
+import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.Text;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
+import org.lemsml.jlems.core.type.Component;
 import org.neuroml.model.Base;
 
 
-public class PopulateNeuroMLUtils {
+public class ModelInterpreterUtils {
 	
 	static String forbiddenCharacters = "[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]";
+	
+	static GeppettoFactory geppettoFactory = GeppettoFactory.eINSTANCE;
 	
 	public static String getUniqueName(String label, Object base){
 		String id = "";
@@ -58,5 +67,24 @@ public class PopulateNeuroMLUtils {
 		variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
 		variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
 		return variable;
+	}
+	
+	public static void initialiseNodeFromComponent(Node node, Component component)
+	{
+		if(node instanceof Type)
+		{
+			DomainModel domainModel = geppettoFactory.createDomainModel();
+			domainModel.setDomainModel(component);
+			domainModel.setFormat(ServicesRegistry.getModelFormat("LEMS"));
+			((Type) node).setDomainModel(domainModel);
+		}
+		node.setName(Resources.getValueById(component.getDeclaredType()) + ((component.getID() != null) ? " - " + component.getID() : ""));
+		node.setId((component.getID() != null) ? component.getID() : component.getDeclaredType());
+	}
+
+	public static void initialiseNodeFromString(Node node, String attributesName)
+	{
+		node.setName(Resources.getValueById(attributesName));
+		node.setId(attributesName);
 	}
 }
