@@ -251,7 +251,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		}
 
 		long endTime = System.currentTimeMillis();
-		_logger.info("Import Type took " + (endTime - startTime) + " milliseconds for url " + url + " and typename " + typeName);
+		_logger.info("Import Type took " + (endTime - startTime) + " milliseconds for url " + url + " and typename " + typeId);
 		return type;
 	}
 
