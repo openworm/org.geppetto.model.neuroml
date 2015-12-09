@@ -38,10 +38,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.geppetto.core.model.GeppettoModelAccess;
-import org.geppetto.model.DomainModel;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
-import org.geppetto.model.types.impl.TypesFactoryImpl;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.Cylinder;
 import org.geppetto.model.values.Point;
@@ -50,12 +48,8 @@ import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.values.VisualGroup;
 import org.geppetto.model.values.VisualGroupElement;
 import org.geppetto.model.values.VisualValue;
-import org.geppetto.model.values.impl.ValuesFactoryImpl;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
-import org.geppetto.model.variables.impl.VariablesFactoryImpl;
-import org.neuroml.model.Base;
-import org.neuroml.model.BaseCell;
 import org.neuroml.model.Cell;
 import org.neuroml.model.Include;
 import org.neuroml.model.Location;
@@ -93,9 +87,9 @@ public class ExtractVisualType
 		super();
 		this.cell = cell;
 		this.access = access;
-		typeFactory = TypesFactoryImpl.eINSTANCE;
-		valuesFactory = ValuesFactoryImpl.eINSTANCE;
-		variablesFactory = VariablesFactoryImpl.eINSTANCE;
+		typeFactory = TypesFactory.eINSTANCE;
+		valuesFactory = ValuesFactory.eINSTANCE;
+		variablesFactory = VariablesFactory.eINSTANCE;
 
 		segmentsMap = new HashMap<String, List<VisualGroupElement>>();
 	}

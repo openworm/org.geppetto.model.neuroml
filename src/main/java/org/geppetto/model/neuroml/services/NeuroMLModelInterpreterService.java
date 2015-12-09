@@ -67,7 +67,6 @@ import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.Node;
-import org.geppetto.model.impl.GeppettoFactoryImpl;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
@@ -80,7 +79,6 @@ import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.types.VisualType;
-import org.geppetto.model.types.impl.TypesFactoryImpl;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.PhysicalQuantity;
@@ -89,10 +87,8 @@ import org.geppetto.model.values.Pointer;
 import org.geppetto.model.values.Sphere;
 import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
-import org.geppetto.model.values.impl.ValuesFactoryImpl;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
-import org.geppetto.model.variables.impl.VariablesFactoryImpl;
 import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
@@ -129,10 +125,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private GeppettoModelAccess access;
 
-	private GeppettoFactory geppettoFactory = GeppettoFactoryImpl.eINSTANCE;
-	private TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
-	private ValuesFactory valuesFactory = ValuesFactoryImpl.eINSTANCE;
-	private VariablesFactory variablesFactory = VariablesFactoryImpl.eINSTANCE;
+	private GeppettoFactory geppettoFactory = GeppettoFactory.eINSTANCE;
+	private TypesFactory typeFactory = TypesFactory.eINSTANCE;
+	private ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
+	private VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
 	
 	/*
 	 * (non-Javadoc)

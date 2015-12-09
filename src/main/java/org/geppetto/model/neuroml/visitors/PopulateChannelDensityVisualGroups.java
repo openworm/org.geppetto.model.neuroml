@@ -43,18 +43,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.Tag;
-import org.geppetto.model.impl.GeppettoFactoryImpl;
 import org.geppetto.model.types.TypesFactory;
-import org.geppetto.model.types.impl.TypesFactoryImpl;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.PhysicalQuantity;
 import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.values.VisualGroup;
 import org.geppetto.model.values.VisualGroupElement;
-import org.geppetto.model.values.impl.ValuesFactoryImpl;
 import org.geppetto.model.variables.VariablesFactory;
-import org.geppetto.model.variables.impl.VariablesFactoryImpl;
 import org.lemsml.jlems.core.eval.DoubleEvaluator;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.expression.ParseTree;
@@ -99,10 +95,10 @@ public class PopulateChannelDensityVisualGroups
 	{
 		super();
 		this.cell = cell;
-		typeFactory = TypesFactoryImpl.eINSTANCE;
-		valuesFactory = ValuesFactoryImpl.eINSTANCE;
-		variablesFactory = VariablesFactoryImpl.eINSTANCE;
-		geppettoFactory = GeppettoFactoryImpl.eINSTANCE;
+		typeFactory = TypesFactory.eINSTANCE;
+		valuesFactory = ValuesFactory.eINSTANCE;
+		variablesFactory = VariablesFactory.eINSTANCE;
+		geppettoFactory = GeppettoFactory.eINSTANCE;
 	}
 	
 

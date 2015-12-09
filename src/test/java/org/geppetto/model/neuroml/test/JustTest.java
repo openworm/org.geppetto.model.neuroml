@@ -51,7 +51,6 @@ import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.GeppettoModel;
 import org.geppetto.model.GeppettoPackage;
-import org.geppetto.model.impl.GeppettoFactoryImpl;
 import org.geppetto.model.neuroml.services.LEMSConversionService;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
@@ -83,7 +82,7 @@ public class JustTest
 	
 	public void serialise(String modelPath, String outputPath, String typeName, boolean allTypes) throws Exception
 	{
-		GeppettoFactory geppettoFactory = GeppettoFactoryImpl.eINSTANCE;
+		GeppettoFactory geppettoFactory = GeppettoFactory.eINSTANCE;
 		GeppettoLibrary gl = geppettoFactory.createGeppettoLibrary();
 		GeppettoModel gm = geppettoFactory.createGeppettoModel();
 		gm.getLibraries().add(gl);

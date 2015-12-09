@@ -5,9 +5,9 @@ import org.geppetto.model.neuroml.utils.modeltree.PopulateGeneralModelTreeUtils;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.Text;
-import org.geppetto.model.values.impl.ValuesFactoryImpl;
+import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
-import org.geppetto.model.variables.impl.VariablesFactoryImpl;
+import org.geppetto.model.variables.VariablesFactory;
 import org.neuroml.model.Base;
 
 
@@ -49,10 +49,10 @@ public class PopulateNeuroMLUtils {
 	}
 	
 	public static Variable createTextTypeVariable(String id, String value, GeppettoModelAccess access) throws GeppettoVisitingException{
-		Text text = ValuesFactoryImpl.eINSTANCE.createText();
+		Text text = ValuesFactory.eINSTANCE.createText();
 		text.setText(value);
 
-		Variable variable = VariablesFactoryImpl.eINSTANCE.createVariable();
+		Variable variable = VariablesFactory.eINSTANCE.createVariable();
 		variable.setId(PopulateGeneralModelTreeUtils.parseId(id));
 		variable.setName(id);
 		variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
