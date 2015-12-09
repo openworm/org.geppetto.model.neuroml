@@ -126,6 +126,7 @@ public class JustTest
 	public void testAcnet() throws Exception
 	{
 		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2AllTypes.xmi", "network_ACnet2", true);
+		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2AllTypes.xmi", null, true);
 	}
 	
 	@Test
@@ -147,6 +148,7 @@ public class JustTest
 	public void testBask() throws Exception
 	{
 		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.xmi", "bask", true);
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.xmi", null, true);
 		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.json", "bask", true);
 	}
 

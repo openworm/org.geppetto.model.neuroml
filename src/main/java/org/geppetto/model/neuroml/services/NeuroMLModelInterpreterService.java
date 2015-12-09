@@ -41,12 +41,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBException;
 
@@ -63,29 +60,22 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
-import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
-import org.geppetto.model.Node;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.utils.modeltree.PopulateSummaryNodesModelTreeUtils;
 import org.geppetto.model.neuroml.visitors.ExtractVisualType;
-import org.geppetto.model.neuroml.visitors.PopulateChannelDensityVisualGroups;
 import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
-import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
-import org.geppetto.model.types.TypesPackage;
-import org.geppetto.model.types.VisualType;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
-import org.geppetto.model.values.PhysicalQuantity;
 import org.geppetto.model.values.Point;
 import org.geppetto.model.values.Pointer;
 import org.geppetto.model.values.Sphere;
-import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
@@ -99,10 +89,9 @@ import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.ParamValue;
 import org.lemsml.jlems.io.xmlio.XMLSerializer;
+import org.neuroml.export.info.InfoTreeCreator;
 import org.neuroml.export.utils.Utils;
-import org.neuroml.model.Cell;
 import org.neuroml.model.NeuroMLDocument;
-import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,7 +110,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Autowired
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
 
-	private Map<String, Type> types;
+	private Map<String, Type> types = new HashMap<String, Type>();
+	private Type type = null;
 
 	private GeppettoModelAccess access;
 
@@ -138,18 +128,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	public Type importType(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
 	{
 
+		// AQP: Shall we verify if types != null?
 		long startTime = System.currentTimeMillis();
 
 		this.access = access;
 
-		// AQP: Shall we verify if types != null?
-
-		types = new HashMap<String, Type>();
-
-		Type type = null;
-
 		dependentModels.clear();
-		// model = new ModelWrapper(instancePath);
+
 		try
 		{
 			OptimizedLEMSReader reader = new OptimizedLEMSReader(this.dependentModels);
@@ -173,12 +158,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 			_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
 
-			/*
-			 * CREATE MODEL WRAPPER
-			 */
-			// model = new ModelWrapper(UUID.randomUUID().toString());
-			// model.setInstancePath(instancePath);
-
 			Lems lems = ((Lems) lemsDocument);
 			try
 			{
@@ -192,57 +171,69 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				_logger.warn("Error resolving lems file");
 			}
 
-			// model.wrapModel(ServicesRegistry.getModelFormat("LEMS"), lemsDocument);
-			// model.wrapModel(ServicesRegistry.getModelFormat("NEUROML"), neuroml);
-			// model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
-
-			// model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
-			// model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
-			// model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
-
-			// AQP: and this?
-			// addRecordings(recordings, instancePath, model);
-
+			boolean multipleTypes = false;
 			for(Component component : lems.getComponents())
 			{
 				if(!types.containsKey(component.getID())) types.put(component.getID(), extractInfoFromComponent(component));
+
+				// Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which
+				// "most likely" are just included types in NeuroML and are instantiated as part of the network
+				// populations
+				if(typeId == null || typeId.isEmpty())
+				{
+					Type currentType = types.get(component.getID());
+					if(type == null)
+					{
+						type = currentType;
+					}
+					else
+					{
+
+						String declaredType = ((Component) type.getDomainModel().getDomainModel()).getDeclaredType();
+						String currentDeclaredType = ((Component) currentType.getDomainModel().getDomainModel()).getDeclaredType();
+						if(!declaredType.equals("network") && (currentDeclaredType.equals("network") || (!declaredType.equals("cell") && currentDeclaredType.equals("cell"))))
+						{
+							multipleTypes = false;
+							type = currentType;
+						}
+						else if((!declaredType.equals("cell") && !declaredType.equals("network")) || (declaredType.equals("cell") && currentDeclaredType.equals("cell"))
+								|| (declaredType.equals("network") && currentDeclaredType.equals("network")))
+						{
+							multipleTypes = true;
+						}
+					}
+				}
+				else if(typeId.equals(component.getID()))
+				{
+					type = types.get(component.getID());
+				}
 			}
+
+			if(multipleTypes) throw new ModelInterpreterException("Multiple types found and no type id specified");
 
 			library.getTypes().addAll(types.values());
 
-			// Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which
-			// "most likely" are just included types in NeuroML and are instantiated as part of the network
-			// populations
-			if(typeId != null && !typeId.isEmpty())
-			{
-				type = types.get(typeId);
-			}
-			else
-			{
-				for(Entry<String, Type> entryType : types.entrySet())
-				{
-					if(((Component) entryType.getValue().getDomainModel().getDomainModel()).getDeclaredType().equals("network"))
-					{
-						type = entryType.getValue();
-						break;
-					}
-				}
-
-				// FIXME
-				// return types.values();
-			}
+			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(access);
+			
+			// Summary2
+//			Variable descriptionVariable = variablesFactory.createVariable();
+//			descriptionVariable.setId(Resources.MODEL_DESCRIPTION.getId());
+//			descriptionVariable.setName(Resources.MODEL_DESCRIPTION.get());
+//
+//			descriptionVariable.getAnonymousTypes().add(populateSummaryNodesModelTreeUtils.createDescriptionNode((CompositeType) type));
+//
+//			((CompositeType) type).getVariables().add(descriptionVariable);
 
 			// Summary
-			// Variable summaryVariable = variablesFactory.createVariable();
-			// summaryVariable.setId(Resources.SUMMARY.getId());
-			// summaryVariable.setName(Resources.SUMMARY.get());
-			//
-			// ((CompositeType)type).getVariables().add(summaryVariable);
-			//
-			// PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(model);
-			// summaryVariable.getTypes().add(populateSummaryNodesModelTreeUtils.createInfoNode(InfoTreeCreator.createInfoTree(neuroml)));
+			Variable summaryVariable = variablesFactory.createVariable();
+			summaryVariable.setId(Resources.SUMMARY.getId());
+			summaryVariable.setName(Resources.SUMMARY.get());
 
-			// AQP: This may remain.
+			summaryVariable.getAnonymousTypes().add(populateSummaryNodesModelTreeUtils.createInfoNode(InfoTreeCreator.createInfoTree(neuroml)));
+
+			((CompositeType) type).getVariables().add(summaryVariable);
+
+			// Add LEMS Parameter Feature
 			this.addFeature(new LEMSParametersFeature(library));
 
 		}
@@ -271,7 +262,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				ModelInterpreterUtils.initialiseNodeFromComponent(variable, component.getRefComponents().get("component"));
 				variable.getTypes().add(refCompositeType);
 				compositeType.getVariables().add(variable);
-				types.put(component.getRefComponents().get("component").getID(), refCompositeType);
+				types.put(((Component) refCompositeType.getDomainModel().getDomainModel()).getID(), refCompositeType);
 			}
 
 			ArrayType arrayType = typeFactory.createArrayType();
@@ -344,36 +335,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				{
 					if(component.hasAttribute(pv.getName()))
 					{
-						String orig = component.getStringValue(pv.getName());
-
-						// AQP: Extracted from PopulateNodesModelTreeUtils
-						String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
-						Pattern pattern = Pattern.compile(regExp);
-						Matcher matcher = pattern.matcher(orig);
-
-						if(matcher.find())
-						{
-							PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
-							physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
-
-							Unit unit = valuesFactory.createUnit();
-							unit.setUnit(matcher.group(2));
-							physicalQuantity.setUnit(unit);
-
-							Variable variable = variablesFactory.createVariable();
-							//variable.getInitialValues().put(access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
-							ModelInterpreterUtils.initialiseNodeFromString(variable, pv.getName());
-							variable.getTypes().add(access.getType(TypesPackage.Literals.PARAMETER_TYPE));
-							compositeType.getVariables().add(variable);
-						}
+						compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(pv.getName(), component.getStringValue(pv.getName()), this.access));
 					}
 				}
 
 				for(Entry<String, String> entry : component.getTextParamMap().entrySet())
 				{
-
 					compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(entry.getKey(), entry.getValue(), this.access));
-
 				}
 
 				for(Entry<String, Component> entry : component.getRefComponents().entrySet())
@@ -393,19 +361,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				// Simulation Tree (Variable Node)
 				for(Exposure exposure : component.getComponentType().getExposures())
 				{
-					String unitSymbol = Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol();
-					if(unitSymbol.equals("none")) unitSymbol = "";
-
-					PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
-					Unit unit = valuesFactory.createUnit();
-					unit.setUnit(unitSymbol);
-					physicalQuantity.setUnit(unit);
-
-					Variable variable = variablesFactory.createVariable();
-					//variable.getInitialValues().put(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE), physicalQuantity);
-					ModelInterpreterUtils.initialiseNodeFromString(variable, exposure.getName());
-					variable.getTypes().add(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE));
-					compositeType.getVariables().add(variable);
+					compositeType.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
 				}
 
 				for(Component componentChild : component.getAllChildren())

@@ -33,6 +33,38 @@
 
 package org.geppetto.model.neuroml.utils.modeltree;
 
+import java.math.BigInteger;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.geppetto.core.model.GeppettoModelAccess;
+import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.model.neuroml.services.ModelInterpreterUtils;
+import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
+import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.utils.ResourcesDomainType;
+import org.geppetto.model.types.CompositeType;
+import org.geppetto.model.types.HTMLType;
+import org.geppetto.model.types.TypesFactory;
+import org.geppetto.model.types.TypesPackage;
+import org.geppetto.model.types.impl.TypesFactoryImpl;
+import org.geppetto.model.util.GeppettoVisitingException;
+import org.geppetto.model.values.Argument;
+import org.geppetto.model.values.Dynamics;
+import org.geppetto.model.values.Expression;
+import org.geppetto.model.values.Function;
+import org.geppetto.model.values.ValuesFactory;
+import org.geppetto.model.variables.Variable;
+import org.geppetto.model.variables.VariablesFactory;
+import org.lemsml.jlems.core.expression.FunctionNode;
+import org.lemsml.jlems.core.type.Component;
+import org.neuroml.export.info.model.ExpressionNode;
+import org.neuroml.export.info.model.InfoNode;
+import org.neuroml.export.info.model.PlotMetadataNode;
+import org.neuroml.export.info.model.PlotNode;
+import org.neuroml.model.Population;
+import org.neuroml.model.Standalone;
 
 /**
  * Populates the Model Tree of Aspect
@@ -44,26 +76,23 @@ package org.geppetto.model.neuroml.utils.modeltree;
 public class PopulateSummaryNodesModelTreeUtils
 {
 
-//	TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
-//	
-//	public PopulateSummaryNodesModelTreeUtils(ModelWrapper model) {	
-//		this.model = model;
-//		initialiseModelDescription();
-//	}
-//	
-//	private ModelWrapper model;
-//	
-//	// Create Map of NeuroMlComponent and Nodes for description node
-//	private Map<ResourcesDomainType, Map<Standalone, ANode>> modelDescriptionComponents;
-//	
-////	private InfoNode infoNode = new InfoNode();
-////	
-////	
-////	public void addInfoNode(Standalone element) throws NeuroMLException{
-////		infoNode.putAll(InfoTreeCreator.createPropertiesFromStandaloneComponent(element));
-////	}
-//	
-//	public void initialiseModelDescription(){
+	TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
+	VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
+	ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
+
+	GeppettoModelAccess access;
+
+	public PopulateSummaryNodesModelTreeUtils(GeppettoModelAccess access)
+	{
+		//initialiseModelDescription();
+		this.access = access;
+	}
+
+	// Create Map of NeuroMlComponent and Nodes for description node
+	//private Map<ResourcesDomainType, Map<Standalone, ANode>> modelDescriptionComponents;
+
+//	public void initialiseModelDescription()
+//	{
 //		modelDescriptionComponents = new HashMap<ResourcesDomainType, Map<Standalone, ANode>>();
 //		modelDescriptionComponents.put(ResourcesDomainType.NETWORK, new HashMap<Standalone, ANode>());
 //		modelDescriptionComponents.put(ResourcesDomainType.POPULATION, new HashMap<Standalone, ANode>());
@@ -72,165 +101,190 @@ public class PopulateSummaryNodesModelTreeUtils
 //		modelDescriptionComponents.put(ResourcesDomainType.PULSEGENERATOR, new HashMap<Standalone, ANode>());
 //		modelDescriptionComponents.put(ResourcesDomainType.IONCHANNEL, new HashMap<Standalone, ANode>());
 //	}
-//	
-//	public void addNodeToModelDescription(ResourcesDomainType domainType, Standalone standalone, ANode node){
+//
+//	public void addNodeToModelDescription(ResourcesDomainType domainType, Standalone standalone, ANode node)
+//	{
 //		Map<Standalone, ANode> modelDescriptionComponentsItem = modelDescriptionComponents.get(domainType);
-//		if (!modelDescriptionComponentsItem.containsKey(standalone)){
+//		if(!modelDescriptionComponentsItem.containsKey(standalone))
+//		{
 //			modelDescriptionComponentsItem.put(standalone, node);
 //		}
 //	}
-//
-//	public HTMLMetadataNode createDescriptionNode() throws ModelInterpreterException
-//	{
-//		//Design doodle: https://docs.google.com/drawings/d/1NDwzCU6LfG9Wq162_S9huNNuAekxPKn8VT8Q0PoC-aw/edit
-//		URL modelUrl = (URL) model.getModel(NeuroMLAccessUtility.URL_ID);
-//		
+
+	public HTMLType createDescriptionNode(CompositeType type) throws ModelInterpreterException
+	{
+		
+		Component component = (Component)type.getDomainModel().getDomainModel();
+
 //		Map<Standalone, ANode> networkComponents = modelDescriptionComponents.get(ResourcesDomainType.NETWORK);
 //		Map<Standalone, ANode> populationComponents = modelDescriptionComponents.get(ResourcesDomainType.POPULATION);
 //		Map<Standalone, ANode> cellComponents = modelDescriptionComponents.get(ResourcesDomainType.CELL);
 //		Map<Standalone, ANode> ionChannelComponents = modelDescriptionComponents.get(ResourcesDomainType.IONCHANNEL);
 //		Map<Standalone, ANode> synapseComponents = modelDescriptionComponents.get(ResourcesDomainType.SYNAPSE);
 //		Map<Standalone, ANode> pulseGeneratorComponents = modelDescriptionComponents.get(ResourcesDomainType.PULSEGENERATOR);
-//		
-//		StringBuilder modelDescription = new StringBuilder(); 
+//
+//		StringBuilder modelDescription = new StringBuilder();
 //		modelDescription.append("<b>Model Summary</b><br/>");
 //
-//		//FIXME: We need to extract the main component (target component) and extract the description from it in order to do this feature generic. This will wait until the instance/type refactor
-//		//FIXME: We need to add something about how beautiful the network is and so on
-//		if (networkComponents.size() > 0){
+//		// FIXME: We need to extract the main component (target component) and extract the description from it in order to do this feature generic. This will wait until the instance/type refactor
+//		// FIXME: We need to add something about how beautiful the network is and so on
+//		if(networkComponents.size() > 0)
+//		{
 //			modelDescription.append("Description: ");
-//			for (ANode node : networkComponents.values()){
+//			for(ANode node : networkComponents.values())
+//			{
 //				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
 //			}
 //		}
 //		modelDescription.append("<br/><a target=\"_blank\" href=\"" + modelUrl.toString() + "\">NeuroML Source File</a><br/>");
-//		
-//		//FIXME: We should improve this once the instance/type refactor is done as we need the cell type
-//		if (populationComponents.size() > 0){
-//			modelDescription.append("<b>Populations</b><br/>");
-//			for (Map.Entry<Standalone, ANode> node : populationComponents.entrySet()){
-//				modelDescription.append("Population " + node.getValue().getName() + ": ");
-//				Population population = ((Population)node.getKey());
-//				
-//				for (Map.Entry<Standalone, ANode> cellNode : cellComponents.entrySet()){
-//					if (cellNode.getKey().getId().equals(population.getComponent())){
-//						modelDescription.append("<a href=\"#\" instancePath=\"$" + cellNode.getValue().getInstancePath() + "$\">" + population.getInstance().size() + " " + cellNode.getValue().getName()  + "</a><br/>");
-//					}
-//				}
-//			}
-//			modelDescription.append("<br/>");
-//		}
-//			
-//		if (cellComponents.size() > 0){
-//			modelDescription.append("<b>Cells</b><br/>");
-//			for (ANode node : cellComponents.values()){
-//				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
-//			}
-//			modelDescription.append("<br/>");
-//		}
-//		
-//		if (ionChannelComponents.size() > 0){
-//			modelDescription.append("<b>Channels</b><br/>");
-//			for (ANode node : ionChannelComponents.values()){
-//				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
-//			}
-//			modelDescription.append("<br/>");
-//		}
-//		
-//		if (synapseComponents.size() > 0){
-//			modelDescription.append("<b>Synapses</b><br/>");
-//			for (ANode node : synapseComponents.values()){
-//				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
-//			}
-//			modelDescription.append("<br/>");
-//		}
-//		
-//		if (pulseGeneratorComponents.size() > 0){
-//			//FIXME: Pulse generator? InputList? ExplicitList?
-//			modelDescription.append("<b>Inputs</b><br/>");
-//			for (ANode node : pulseGeneratorComponents.values()){
-//				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
-//			}
-//			modelDescription.append("<br/>");
-//		}
-//		
-//		return new HTMLMetadataNode(Resources.MODEL_DESCRIPTION.getId(), Resources.MODEL_DESCRIPTION.get(), new StringValue(modelDescription.toString()));
-//	}
-//	
-////	public CompositeNode createSummaryNode() throws ModelInterpreterException
-////	{
-////		CompositeNode summaryNode = new CompositeNode(Resources.SUMMARY.getId(), Resources.SUMMARY.get());
-////		summaryNode.addChildren(createInfoNode(infoNode));
-////		return summaryNode;
-////	}
-//	
-//	public CompositeType createInfoNode(InfoNode node) throws ModelInterpreterException
-//	{
-//		CompositeType summaryCompositeType = typeFactory.createCompositeType();
-//		summaryCompositeType.setId(Resources.SUMMARY.getId());
-//		summaryCompositeType.setName(Resources.SUMMARY.get());
-//		
-//		for(Map.Entry<String, Object> properties : node.getProperties().entrySet())
+//
+//		// FIXME: We should improve this once the instance/type refactor is done as we need the cell type
+//		if(populationComponents.size() > 0)
 //		{
-//			String keyProperties = properties.getKey();
-//			Object valueProperties = properties.getValue();
-//			if(!keyProperties.equals("ID"))
+//			modelDescription.append("<b>Populations</b><br/>");
+//			for(Map.Entry<Standalone, ANode> node : populationComponents.entrySet())
 //			{
+//				modelDescription.append("Population " + node.getValue().getName() + ": ");
+//				Population population = ((Population) node.getKey());
 //
-//				if(valueProperties == null)
+//				for(Map.Entry<Standalone, ANode> cellNode : cellComponents.entrySet())
 //				{
-//					summaryCompositeType.getVariables().add(e);
-//					summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties, new StringValue("")));
-//				}
-//				else if(valueProperties instanceof String)
-//				{
-//					summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties, new StringValue(
-//							(String) valueProperties)));
-//				}
-//				else if(valueProperties instanceof BigInteger)
-//				{
-//					summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties, new StringValue(
-//							((BigInteger) valueProperties).toString())));
-//				}
-//				else if(valueProperties instanceof Integer)
-//				{
-//					summaryElementList.add(PopulateNodesModelTreeUtils.createTextMetadataNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties,
-//							new StringValue(Integer.toString((Integer) valueProperties))));
-//				}
-//				else if(valueProperties instanceof ExpressionNode)
-//				{
-//					ExpressionNode expressionNode = ((ExpressionNode) valueProperties);
-//
-//					FunctionNode functionNode = new FunctionNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties);
-//					functionNode.setExpression(expressionNode.getExpression());
-//					functionNode.getArgument().add("v");
-//
-//					PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
-//					if(plotMetadataNode != null)
+//					if(cellNode.getKey().getId().equals(population.getComponent()))
 //					{
-//						functionNode.getPlotMetadata().put("PlotTitle", plotMetadataNode.getPlotTitle());
-//						functionNode.getPlotMetadata().put("XAxisLabel", plotMetadataNode.getXAxisLabel());
-//						functionNode.getPlotMetadata().put("YAxisLabel", plotMetadataNode.getYAxisLabel());
-//						functionNode.getPlotMetadata().put("InitialValue", Double.toString(plotMetadataNode.getInitialValue()));
-//						functionNode.getPlotMetadata().put("FinalValue", Double.toString(plotMetadataNode.getFinalValue()));
-//						functionNode.getPlotMetadata().put("StepValue", Double.toString(plotMetadataNode.getStepValue()));
+//						modelDescription.append("<a href=\"#\" instancePath=\"$" + cellNode.getValue().getInstancePath() + "$\">" + population.getInstance().size() + " "
+//								+ cellNode.getValue().getName() + "</a><br/>");
 //					}
-//					summaryElementList.add(functionNode);
-//				}
-//				else if(valueProperties instanceof InfoNode)
-//				{
-//					CompositeNode subSummaryElementNode = new CompositeNode(PopulateGeneralModelTreeUtils.parseId(keyProperties), keyProperties);
-//					subSummaryElementNode.addChildren(createInfoNode((InfoNode) valueProperties));
-//					summaryElementList.add(subSummaryElementNode);
-//				}
-//				else if(!(valueProperties instanceof PlotNode))
-//				{
-//					throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());
 //				}
 //			}
+//			modelDescription.append("<br/>");
 //		}
-//		return summaryCompositeType;
-//	}
+//
+//		if(cellComponents.size() > 0)
+//		{
+//			modelDescription.append("<b>Cells</b><br/>");
+//			for(ANode node : cellComponents.values())
+//			{
+//				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
+//			}
+//			modelDescription.append("<br/>");
+//		}
+//
+//		if(ionChannelComponents.size() > 0)
+//		{
+//			modelDescription.append("<b>Channels</b><br/>");
+//			for(ANode node : ionChannelComponents.values())
+//			{
+//				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
+//			}
+//			modelDescription.append("<br/>");
+//		}
+//
+//		if(synapseComponents.size() > 0)
+//		{
+//			modelDescription.append("<b>Synapses</b><br/>");
+//			for(ANode node : synapseComponents.values())
+//			{
+//				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
+//			}
+//			modelDescription.append("<br/>");
+//		}
+//
+//		if(pulseGeneratorComponents.size() > 0)
+//		{
+//			// FIXME: Pulse generator? InputList? ExplicitList?
+//			modelDescription.append("<b>Inputs</b><br/>");
+//			for(ANode node : pulseGeneratorComponents.values())
+//			{
+//				modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
+//			}
+//			modelDescription.append("<br/>");
+//		}
 
+//		return new HTMLMetadataNode(Resources.MODEL_DESCRIPTION.getId(), Resources.MODEL_DESCRIPTION.get(), new StringValue(modelDescription.toString()));
+		return null;
+	}
+
+	public CompositeType createInfoNode(InfoNode node) throws ModelInterpreterException, GeppettoVisitingException
+	{
+		CompositeType summaryCompositeType = typeFactory.createCompositeType();
+		summaryCompositeType.setId(Resources.SUMMARY.getId());
+		summaryCompositeType.setName(Resources.SUMMARY.get());
+
+		for(Map.Entry<String, Object> properties : node.getProperties().entrySet())
+		{
+			String keyProperties = properties.getKey();
+			Object valueProperties = properties.getValue();
+			if(!keyProperties.equals("ID"))
+			{
+
+				if(valueProperties == null)
+				{
+					summaryCompositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(keyProperties, "", access));
+				}
+				else if(valueProperties instanceof String)
+				{
+					summaryCompositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(keyProperties, (String) valueProperties, access));
+				}
+				else if(valueProperties instanceof BigInteger)
+				{
+					summaryCompositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(keyProperties, ((BigInteger) valueProperties).toString(), access));
+				}
+				else if(valueProperties instanceof Integer)
+				{
+					summaryCompositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(keyProperties, Integer.toString((Integer) valueProperties), access));
+				}
+				else if(valueProperties instanceof ExpressionNode)
+				{
+					ExpressionNode expressionNode = ((ExpressionNode) valueProperties);
+
+					Argument argument = valuesFactory.createArgument();
+					argument.setArgument("v");
+
+					Expression expression = valuesFactory.createExpression();
+					expression.setExpression(expressionNode.getExpression());
+
+					Function function = valuesFactory.createFunction();
+					function.setExpression(expression);
+					function.getArguments().add(argument);
+
+					Dynamics dynamics = valuesFactory.createDynamics();
+					dynamics.setDynamics(function);
+
+					Variable variable = variablesFactory.createVariable();
+					variable.setId(PopulateGeneralModelTreeUtils.parseId(keyProperties));
+					variable.setName(keyProperties);
+					//variable.getInitialValues().put(access.getType(TypesPackage.Literals.DYNAMICS_TYPE), dynamics);
+					variable.getTypes().add(access.getType(TypesPackage.Literals.DYNAMICS_TYPE));
+
+					// AQP: How to model this?
+					// PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
+					// if(plotMetadataNode != null)
+					// {
+					// functionNode.getPlotMetadata().put("PlotTitle", plotMetadataNode.getPlotTitle());
+					// functionNode.getPlotMetadata().put("XAxisLabel", plotMetadataNode.getXAxisLabel());
+					// functionNode.getPlotMetadata().put("YAxisLabel", plotMetadataNode.getYAxisLabel());
+					// functionNode.getPlotMetadata().put("InitialValue", Double.toString(plotMetadataNode.getInitialValue()));
+					// functionNode.getPlotMetadata().put("FinalValue", Double.toString(plotMetadataNode.getFinalValue()));
+					// functionNode.getPlotMetadata().put("StepValue", Double.toString(plotMetadataNode.getStepValue()));
+					// }
+
+					summaryCompositeType.getVariables().add(variable);
+				}
+				else if(valueProperties instanceof InfoNode)
+				{
+					Variable variable = variablesFactory.createVariable();
+					variable.setId(PopulateGeneralModelTreeUtils.parseId(keyProperties));
+					variable.setName(keyProperties);
+					variable.getAnonymousTypes().add(createInfoNode((InfoNode) valueProperties));
+					summaryCompositeType.getVariables().add(variable);
+				}
+				else if(!(valueProperties instanceof PlotNode))
+				{
+					throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());
+				}
+			}
+		}
+		return summaryCompositeType;
+	}
 
 }
