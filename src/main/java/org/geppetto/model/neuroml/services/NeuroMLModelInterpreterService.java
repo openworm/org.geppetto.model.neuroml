@@ -129,7 +129,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private TypesFactory typeFactory = TypesFactory.eINSTANCE;
 	private ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 	private VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -138,6 +138,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Override
 	public Type importType(URL url, String typeName, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
 	{
+
+		long startTime = System.currentTimeMillis();
 
 		this.access = access;
 
@@ -175,18 +177,25 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			/*
 			 * CREATE MODEL WRAPPER
 			 */
-			//model = new ModelWrapper(UUID.randomUUID().toString());
+			// model = new ModelWrapper(UUID.randomUUID().toString());
 			// model.setInstancePath(instancePath);
 
 			Lems lems = ((Lems) lemsDocument);
-			lems.setResolveModeLoose();
-			lems.deduplicate();
-			lems.resolve();
-			lems.evaluateStatic();
+			try
+			{
+				lems.setResolveModeLoose();
+				lems.deduplicate();
+				lems.resolve();
+				lems.evaluateStatic();
+			}
+			catch(NumberFormatException | LEMSException e)
+			{
+				_logger.warn("Error resolving lems file");
+			}
 
-			//model.wrapModel(ServicesRegistry.getModelFormat("LEMS"), lemsDocument);
-			//model.wrapModel(ServicesRegistry.getModelFormat("NEUROML"), neuroml);
-			//model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
+			// model.wrapModel(ServicesRegistry.getModelFormat("LEMS"), lemsDocument);
+			// model.wrapModel(ServicesRegistry.getModelFormat("NEUROML"), neuroml);
+			// model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
 
 			// model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
 			// model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
@@ -200,7 +209,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				if(!types.containsKey(component.getID())) types.put(component.getID(), extractInfoFromComponent(component));
 			}
 
-			
 			library.getTypes().addAll(types.values());
 
 			// Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which
@@ -223,16 +231,16 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				// FIXME
 				// return types.values();
 			}
-			
-			//Summary
-//			Variable summaryVariable = variablesFactory.createVariable();
-//			summaryVariable.setId(Resources.SUMMARY.getId());
-//			summaryVariable.setName(Resources.SUMMARY.get());
-//			
-//			((CompositeType)type).getVariables().add(summaryVariable);
-//			
-//			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(model);
-//			summaryVariable.getTypes().add(populateSummaryNodesModelTreeUtils.createInfoNode(InfoTreeCreator.createInfoTree(neuroml)));
+
+			// Summary
+			// Variable summaryVariable = variablesFactory.createVariable();
+			// summaryVariable.setId(Resources.SUMMARY.getId());
+			// summaryVariable.setName(Resources.SUMMARY.get());
+			//
+			// ((CompositeType)type).getVariables().add(summaryVariable);
+			//
+			// PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(model);
+			// summaryVariable.getTypes().add(populateSummaryNodesModelTreeUtils.createInfoNode(InfoTreeCreator.createInfoTree(neuroml)));
 
 			// AQP: This may remain.
 			this.addFeature(new LEMSParametersFeature(library));
@@ -243,8 +251,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			throw new ModelInterpreterException(e);
 		}
 
-		
-
+		long endTime = System.currentTimeMillis();
+		_logger.info("Import Type took " + (endTime - startTime) + " milliseconds for url " + url + " and typename " + typeName);
 		return type;
 	}
 
@@ -338,13 +346,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				compositeType.getVariables().add(variable);
 				types.put(component.getRefComponents().get("component").getID(), refCompositeType);
 			}
-			
+
 			ArrayType arrayType = typeFactory.createArrayType();
 			initialiseNodeFromComponent(arrayType, component);
 			arrayType.setSize(Integer.parseInt(component.getStringValue("size")));
 			arrayType.setArrayType(types.get(component.getRefComponents().get("component").getID()));
-			
-			
+
 			String populationType = component.getTypeName();
 			if(populationType != null && populationType.equals("populationList"))
 			{
@@ -384,12 +391,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 
 			}
-			
-			
+
 			Variable variable = variablesFactory.createVariable();
 			initialiseNodeFromComponent(variable, component);
-			//variable.getInitialValues().put(key, value);
-			
+			// variable.getInitialValues().put(key, value);
+
 			variable.getAnonymousTypes().add(arrayType);
 			compositeType.getVariables().add(variable);
 
@@ -425,9 +431,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 							physicalQuantity.setUnit(unit);
 
 							Variable variable = variablesFactory.createVariable();
-							variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
+							variable.getInitialValues().put(access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
 							initialiseNodeFromString(variable, pv.getName());
-							variable.getTypes().add(this.access.getType(TypesPackage.Literals.PARAMETER_TYPE));
+							variable.getTypes().add(access.getType(TypesPackage.Literals.PARAMETER_TYPE));
 							compositeType.getVariables().add(variable);
 						}
 					}
@@ -435,7 +441,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 				for(Entry<String, String> entry : component.getTextParamMap().entrySet())
 				{
-					
+
 					compositeType.getVariables().add(PopulateNeuroMLUtils.createTextTypeVariable(entry.getKey(), entry.getValue(), this.access));
 
 				}
@@ -466,9 +472,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					physicalQuantity.setUnit(unit);
 
 					Variable variable = variablesFactory.createVariable();
-					variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE), physicalQuantity);
+					variable.getInitialValues().put(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE), physicalQuantity);
 					initialiseNodeFromString(variable, exposure.getName());
-					variable.getTypes().add(this.access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE));
+					variable.getTypes().add(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE));
 					compositeType.getVariables().add(variable);
 				}
 
@@ -736,7 +742,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	public File downloadModel(Pointer pointer, ModelFormat format, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
 	{
 		DomainModel domainModel = PointerUtility.getType(pointer).getDomainModel();
-		
+
 		if(format.equals(ServicesRegistry.getModelFormat("LEMS")) || format.equals(ServicesRegistry.getModelFormat("NEUROML")))
 		{
 			try
@@ -744,9 +750,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				// Create file and folder
 				File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId,
 						PathConfiguration.getName(format.getModelFormat() + PathConfiguration.downloadModelFolderName, true));
-				
-				
-				
+
 				String outputFile = PointerUtility.getType(pointer).getId();
 
 				// Serialise objects
@@ -754,23 +758,21 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				if(format.equals(ServicesRegistry.getModelFormat("LEMS")))
 				{
 					// Serialise LEMS object
-					serialisedModel = XMLSerializer.serialize((Component)domainModel.getDomainModel());
+					serialisedModel = XMLSerializer.serialize((Component) domainModel.getDomainModel());
 					outputFile += "xml";
 				}
 				else
 				{
-					
-					
-//					LinkedHashMap<String, Standalone> neuroMLComponent = Utils.convertLemsComponentToNeuroML((Component)domainModel.getDomainModel());
-//					NeuroMLDocument neuroMLDoc = new NeuroMLDocument();
-					
-					
+
+					// LinkedHashMap<String, Standalone> neuroMLComponent = Utils.convertLemsComponentToNeuroML((Component)domainModel.getDomainModel());
+					// NeuroMLDocument neuroMLDoc = new NeuroMLDocument();
+
 					// Serialise NEUROML object
-//					NeuroMLDocument neuroMLDoc = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
-//					NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
-//					serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
-//					// Change extension to nml
-//					outputFile += "nml";
+					// NeuroMLDocument neuroMLDoc = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
+					// NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
+					// serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
+					// // Change extension to nml
+					// outputFile += "nml";
 				}
 
 				// Write to disc
@@ -795,13 +797,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			ExternalDomainModel outputDomainModel = null;
 			try
 			{
-				outputDomainModel = (ExternalDomainModel)lemsConversionService.convert(domainModel, format, aspectConfiguration);
+				outputDomainModel = (ExternalDomainModel) lemsConversionService.convert(domainModel, format, aspectConfiguration);
 			}
 			catch(ConversionException e)
 			{
 				throw new ModelInterpreterException(e);
 			}
-			return (File)outputDomainModel.getDomainModel();
+			return (File) outputDomainModel.getDomainModel();
 		}
 
 	}

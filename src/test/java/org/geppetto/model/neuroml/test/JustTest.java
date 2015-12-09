@@ -37,6 +37,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -61,11 +63,13 @@ import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.util.NeuroMLException;
 
 /**
- * @author matteocantarelli
+ * @author matteocantarelli & friends
  * 
  */
 public class JustTest
 {
+	
+	private static Log _logger = LogFactory.getLog(JustTest.class);
 
 	@BeforeClass
 	public static void initializeServiceRegistry() throws Exception
@@ -95,6 +99,8 @@ public class JustTest
 		
 		Type type = modelInterpreter.importType(url, typeName, gl, commonLibraryAccess);
 
+		long startTime = System.currentTimeMillis();
+		
 		// Initialize the factory and the resource set
 		GeppettoPackage.eINSTANCE.eClass();
 		Resource.Factory.Registry reg = Resource.Factory.Registry.INSTANCE;
@@ -109,15 +115,27 @@ public class JustTest
 			resource.getContents().add(gm);
 		else
 			resource.getContents().add(type);
+		
 		resource.save(null);
+		
+		long endTime = System.currentTimeMillis();
+		_logger.info("Serialising " + (endTime - startTime) + " milliseconds for url " + url + " and  typename " + typeName);
 	}
 
 	@Test
 	public void testNetwork() throws Exception
 	{
-		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/test2AllTypes.xmi", "network_ACnet2", true);
-		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/test2SingleType.json", "network_ACnet2", false);
-		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/test2SingleTypeWithoutTypeName.json", null, false);
+		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2AllTypes.xmi", "network_ACnet2", true);
+//		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2SingleType.xmi", "network_ACnet2", false);
+//		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2SingleTypeWithoutTypeName.xmi", null, false);
+	}
+	
+	@Test
+	public void testPurk() throws Exception
+	{
+		serialise("/purk.nml", "./src/test/resources/purk.xmi", "purk2", true);
+//		serialise("/purk.nml", "./src/test/resources/purk.xmi", "purk2", false);
+		serialise("/purk.nml", "./src/test/resources/purk.xmi", null, true);
 	}
 
 	/**
@@ -131,9 +149,7 @@ public class JustTest
 	@Test
 	public void testCell() throws Exception
 	{
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/testAllTypes.xmi", "bask", true);
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/testAllTypes.json", "bask", true);
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/testSingleType.json", "bask", false);
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.xmi", "bask", true);
 		// AQP Commented until we decide what to return when if it is not a network 
 		//serialiseAsJSON("/acnet2/bask.cell.nml", "./src/test/resources/test.json", null, false);
 	}
