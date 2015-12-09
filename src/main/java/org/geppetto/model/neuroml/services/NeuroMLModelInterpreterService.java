@@ -224,6 +224,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					if(((Component) entryType.getValue().getDomainModel().getDomainModel()).getDeclaredType().equals("network"))
 					{
 						type = entryType.getValue();
+						break;
 					}
 				}
 
@@ -255,60 +256,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return type;
 	}
 
-	private Variable createVariableFromCellMorphology(Component component) throws GeppettoVisitingException, LEMSException, NeuroMLException
-	{
-		Component morphologyComponent = component.getChild("morphology");
-
-		LinkedHashMap<String, Standalone> cellMap = Utils.convertLemsComponentToNeuroML(component);
-		Cell cell = (Cell) cellMap.get(component.getID());
-
-		// Convert lems component to NeuroML
-		// LinkedHashMap<String, Standalone> morphologyMap = Utils.convertLemsComponentToNeuroML(morphologyComponent);
-		// Morphology morphology = (Morphology) morphologyMap.get(morphologyComponent.getID());
-
-		// AQP: I would like to join processMorphologyFromGroup and processMorphology into just one single method/approach
-		// create nodes for visual objects, segments of cell
-
-		// We assume when we find a morphology it belongs to a cell
-		ExtractVisualType extractVisualType = new ExtractVisualType(cell, access);
-
-		VisualType visualType = typeFactory.createVisualType();
-		ModelInterpreterUtils.initialiseNodeFromComponent(visualType, morphologyComponent);
-		// visualType.getReferencedVariables().addAll(extractVisualType.createCellPartsVisualGroups(morphology.getSegmentGroup()));
-
-		CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
-		visualCompositeType.getVisualGroups().add(extractVisualType.createCellPartsVisualGroups());
-
-		// List<VisualValue> visualizationNodes = new ArrayList<VisualValue>();
-
-		if(cell.getMorphology().getSegmentGroup().isEmpty())
-		{
-			visualCompositeType.getVariables().addAll(extractVisualType.getVisualObjectsFromListOfSegments(cell.getMorphology()));
-		}
-		else
-		{
-			visualCompositeType.getVariables().addAll(extractVisualType.createNodesFromMorphologyBySegmentGroup());
-
-			// create density groups for each cell, if it has some
-			PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(cell);
-			visualCompositeType.getVisualGroups().addAll(populateChannelDensityVisualGroups.createChannelDensities());
-
-			// AQP: We have to add this to the library
-			access.addTag(populateChannelDensityVisualGroups.getChannelDensityTag());
-		}
-		// add density groups to visualization tree
-		// if(densities != null)
-		// {
-		// visualizationNodes.add(densities);
-		// }
-
-		Variable variable = variablesFactory.createVariable();
-		ModelInterpreterUtils.initialiseNodeFromComponent(variable, morphologyComponent);
-		variable.getAnonymousTypes().add(visualCompositeType);
-
-		return variable;
-	}
-
 	private CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException
 	{
 		CompositeType compositeType = typeFactory.createCompositeType();
@@ -338,7 +285,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 				if(component.getRefComponents().get("component").getDeclaredType().equals("cell"))
 				{
-					compositeType.getVariables().add(createVariableFromCellMorphology(component.getRefComponents().get("component")));
+					ExtractVisualType extractVisualType = new ExtractVisualType(component.getRefComponents().get("component"), access);
+					compositeType.getVariables().add(extractVisualType.createVariableFromCellMorphology());
 				}
 				else
 				{
@@ -385,7 +333,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 			if(component.hasChildrenAL("morphology"))
 			{
-				compositeType.getVariables().add(createVariableFromCellMorphology(component));
+				// We assume when we find a morphology it belongs to a cell
+				ExtractVisualType extractVisualType = new ExtractVisualType(component, access);
+				compositeType.getVariables().add(extractVisualType.createVariableFromCellMorphology());
 			}
 
 			if(!component.getDeclaredType().equals("morphology"))
@@ -411,7 +361,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 							physicalQuantity.setUnit(unit);
 
 							Variable variable = variablesFactory.createVariable();
-							variable.getInitialValues().put(access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
+							//variable.getInitialValues().put(access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
 							ModelInterpreterUtils.initialiseNodeFromString(variable, pv.getName());
 							variable.getTypes().add(access.getType(TypesPackage.Literals.PARAMETER_TYPE));
 							compositeType.getVariables().add(variable);
@@ -452,7 +402,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					physicalQuantity.setUnit(unit);
 
 					Variable variable = variablesFactory.createVariable();
-					variable.getInitialValues().put(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE), physicalQuantity);
+					//variable.getInitialValues().put(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE), physicalQuantity);
 					ModelInterpreterUtils.initialiseNodeFromString(variable, exposure.getName());
 					variable.getTypes().add(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE));
 					compositeType.getVariables().add(variable);

@@ -64,7 +64,7 @@ public class ModelInterpreterUtils {
 		Variable variable = VariablesFactory.eINSTANCE.createVariable();
 		variable.setId(PopulateGeneralModelTreeUtils.parseId(id));
 		variable.setName(id);
-		variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+		//variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
 		variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
 		return variable;
 	}

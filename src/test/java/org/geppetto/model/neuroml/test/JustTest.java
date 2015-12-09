@@ -123,7 +123,7 @@ public class JustTest
 	}
 
 	@Test
-	public void testNetwork() throws Exception
+	public void testAcnet() throws Exception
 	{
 		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2AllTypes.xmi", "network_ACnet2", true);
 	}
@@ -144,9 +144,10 @@ public class JustTest
 	 * @throws NeuroMLException
 	 */
 	@Test
-	public void testCell() throws Exception
+	public void testBask() throws Exception
 	{
 		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.xmi", "bask", true);
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.json", "bask", true);
 	}
 
 }

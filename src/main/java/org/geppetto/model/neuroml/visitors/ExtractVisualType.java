@@ -34,12 +34,16 @@ package org.geppetto.model.neuroml.visitors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.geppetto.core.model.GeppettoModelAccess;
+import org.geppetto.model.neuroml.services.ModelInterpreterUtils;
+import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
+import org.geppetto.model.types.VisualType;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.Cylinder;
 import org.geppetto.model.values.Point;
@@ -50,6 +54,9 @@ import org.geppetto.model.values.VisualGroupElement;
 import org.geppetto.model.values.VisualValue;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
+import org.lemsml.jlems.core.sim.LEMSException;
+import org.lemsml.jlems.core.type.Component;
+import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Cell;
 import org.neuroml.model.Include;
 import org.neuroml.model.Location;
@@ -58,6 +65,8 @@ import org.neuroml.model.Morphology;
 import org.neuroml.model.Point3DWithDiam;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
+import org.neuroml.model.Standalone;
+import org.neuroml.model.util.NeuroMLException;
 
 /**
  * Helper class to populate visualization tree for neuroml models
@@ -73,23 +82,25 @@ public class ExtractVisualType
 	private String AXONS = "axon_group";
 	private String DENDRITES = "dendrite_group";
 
+	Component cellComponent;
 	Cell cell;
-	TypesFactory typeFactory;
-	ValuesFactory valuesFactory;
-	VariablesFactory variablesFactory;
+	TypesFactory typeFactory = TypesFactory.eINSTANCE;
+	ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
+	VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
 
 	Map<String, List<VisualGroupElement>> segmentsMap;
 
 	GeppettoModelAccess access;
 
-	public ExtractVisualType(Cell cell, GeppettoModelAccess access)
+	public ExtractVisualType(Component cellComponent, GeppettoModelAccess access) throws LEMSException, NeuroMLException
 	{
 		super();
-		this.cell = cell;
+
+		this.cellComponent = cellComponent;
+		LinkedHashMap<String, Standalone> cellMap = Utils.convertLemsComponentToNeuroML(cellComponent);
+		this.cell = (Cell) cellMap.get(cellComponent.getID());
+
 		this.access = access;
-		typeFactory = TypesFactory.eINSTANCE;
-		valuesFactory = ValuesFactory.eINSTANCE;
-		variablesFactory = VariablesFactory.eINSTANCE;
 
 		segmentsMap = new HashMap<String, List<VisualGroupElement>>();
 	}
@@ -305,15 +316,15 @@ public class ExtractVisualType
 	 * @param model
 	 * @return
 	 */
-//	private BaseCell getNeuroMLComponent(String componentId, DomainModel model)
-//	{
-//		Map<String, Base> discoveredComponents = (Map<String, Base>) model.getModel("discoveredComponents");
-//		if(discoveredComponents.containsKey(componentId))
-//		{
-//			return (BaseCell) discoveredComponents.get(componentId);
-//		}
-//		return null;
-//	}
+	// private BaseCell getNeuroMLComponent(String componentId, DomainModel model)
+	// {
+	// Map<String, Base> discoveredComponents = (Map<String, Base>) model.getModel("discoveredComponents");
+	// if(discoveredComponents.containsKey(componentId))
+	// {
+	// return (BaseCell) discoveredComponents.get(componentId);
+	// }
+	// return null;
+	// }
 
 	/**
 	 * @param id
@@ -380,6 +391,52 @@ public class ExtractVisualType
 	// subEntityVizTree.addChild(composite);
 	// return composite;
 	// }
+
+	public Variable createVariableFromCellMorphology() throws GeppettoVisitingException, LEMSException, NeuroMLException
+	{
+		// Convert lems component to NeuroML
+		// LinkedHashMap<String, Standalone> morphologyMap = Utils.convertLemsComponentToNeuroML(morphologyComponent);
+		// Morphology morphology = (Morphology) morphologyMap.get(morphologyComponent.getID());
+
+		// AQP: I would like to join processMorphologyFromGroup and processMorphology into just one single method/approach
+		// create nodes for visual objects, segments of cell
+
+		VisualType visualType = typeFactory.createVisualType();
+		ModelInterpreterUtils.initialiseNodeFromComponent(visualType, cellComponent);
+		// visualType.getReferencedVariables().addAll(extractVisualType.createCellPartsVisualGroups(morphology.getSegmentGroup()));
+
+		CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
+		visualCompositeType.getVisualGroups().add(createCellPartsVisualGroups());
+
+		// List<VisualValue> visualizationNodes = new ArrayList<VisualValue>();
+
+		if(cell.getMorphology().getSegmentGroup().isEmpty())
+		{
+			visualCompositeType.getVariables().addAll(getVisualObjectsFromListOfSegments(cell.getMorphology()));
+		}
+		else
+		{
+			visualCompositeType.getVariables().addAll(createNodesFromMorphologyBySegmentGroup());
+
+			// create density groups for each cell, if it has some
+			PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(cell);
+			visualCompositeType.getVisualGroups().addAll(populateChannelDensityVisualGroups.createChannelDensities());
+
+			// AQP: We have to add this to the library
+			access.addTag(populateChannelDensityVisualGroups.getChannelDensityTag());
+		}
+		// add density groups to visualization tree
+		// if(densities != null)
+		// {
+		// visualizationNodes.add(densities);
+		// }
+
+		Variable variable = variablesFactory.createVariable();
+		ModelInterpreterUtils.initialiseNodeFromComponent(variable, cellComponent);
+		variable.getAnonymousTypes().add(visualCompositeType);
+
+		return variable;
+	}
 
 	/**
 	 * @param allSegments
