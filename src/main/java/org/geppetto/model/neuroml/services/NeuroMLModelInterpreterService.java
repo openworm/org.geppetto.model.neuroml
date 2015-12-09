@@ -136,7 +136,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	 * @see org.geppetto.core.model.IModelInterpreter#importType(java.net.URL, java.lang.String, org.geppetto.core.library.LibraryManager)
 	 */
 	@Override
-	public Type importType(URL url, String typeName, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
+	public Type importType(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
 	{
 
 		this.access = access;
@@ -206,9 +206,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			// Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which
 			// "most likely" are just included types in NeuroML and are instantiated as part of the network
 			// populations
-			if(typeName != null)
+			if(typeId != null && !typeId.isEmpty())
 			{
-				type = types.get(typeName);
+				type = types.get(typeId);
 			}
 			else
 			{
