@@ -148,7 +148,7 @@ public class JustTest
 	public void testBask() throws Exception
 	{
 		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.xmi", "bask", true);
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.xmi", null, true);
+		//serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.xmi", null, true);
 		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.json", "bask", true);
 	}
 

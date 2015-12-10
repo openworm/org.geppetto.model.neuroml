@@ -69,10 +69,15 @@ import org.geppetto.model.neuroml.utils.modeltree.PopulateSummaryNodesModelTreeU
 import org.geppetto.model.neuroml.visitors.ExtractVisualType;
 import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
+import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
+import org.geppetto.model.types.TypesPackage;
+import org.geppetto.model.types.VisualType;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
+import org.geppetto.model.values.ArrayElement;
+import org.geppetto.model.values.ArrayValue;
 import org.geppetto.model.values.Point;
 import org.geppetto.model.values.Pointer;
 import org.geppetto.model.values.Sphere;
@@ -214,15 +219,15 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			library.getTypes().addAll(types.values());
 
 			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(access);
-			
+
 			// Summary2
-//			Variable descriptionVariable = variablesFactory.createVariable();
-//			descriptionVariable.setId(Resources.MODEL_DESCRIPTION.getId());
-//			descriptionVariable.setName(Resources.MODEL_DESCRIPTION.get());
-//
-//			descriptionVariable.getAnonymousTypes().add(populateSummaryNodesModelTreeUtils.createDescriptionNode((CompositeType) type));
-//
-//			((CompositeType) type).getVariables().add(descriptionVariable);
+			// Variable descriptionVariable = variablesFactory.createVariable();
+			// descriptionVariable.setId(Resources.MODEL_DESCRIPTION.getId());
+			// descriptionVariable.setName(Resources.MODEL_DESCRIPTION.get());
+			//
+			// descriptionVariable.getAnonymousTypes().add(populateSummaryNodesModelTreeUtils.createDescriptionNode((CompositeType) type));
+			//
+			// ((CompositeType) type).getVariables().add(descriptionVariable);
 
 			// Summary
 			Variable summaryVariable = variablesFactory.createVariable();
@@ -249,14 +254,22 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException
 	{
+
 		CompositeType compositeType = typeFactory.createCompositeType();
 		ModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
 
 		if(component.getDeclaredType().equals("population"))
 		{
+
+			ArrayType arrayType = typeFactory.createArrayType();
+			ModelInterpreterUtils.initialiseNodeFromComponent(arrayType, component);
+			arrayType.setSize(Integer.parseInt(component.getStringValue("size")));
+			arrayType.setArrayType(types.get(component.getRefComponents().get("component").getID()));
+
+			CompositeType refCompositeType;
 			if(!types.containsKey(component.getRefComponents().get("component").getID()))
 			{
-				CompositeType refCompositeType = extractInfoFromComponent(component.getRefComponents().get("component"));
+				refCompositeType = extractInfoFromComponent(component.getRefComponents().get("component"));
 
 				Variable variable = variablesFactory.createVariable();
 				ModelInterpreterUtils.initialiseNodeFromComponent(variable, component.getRefComponents().get("component"));
@@ -264,34 +277,66 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				compositeType.getVariables().add(variable);
 				types.put(((Component) refCompositeType.getDomainModel().getDomainModel()).getID(), refCompositeType);
 			}
+			else
+			{
+				refCompositeType = (CompositeType) types.get(component.getRefComponents().get("component").getID());
+			}
 
-			ArrayType arrayType = typeFactory.createArrayType();
-			ModelInterpreterUtils.initialiseNodeFromComponent(arrayType, component);
-			arrayType.setSize(Integer.parseInt(component.getStringValue("size")));
-			arrayType.setArrayType(types.get(component.getRefComponents().get("component").getID()));
+			if(!component.getRefComponents().get("component").getDeclaredType().equals("cell"))
+			{
+				if(!types.containsKey("morphology" + component.getID()))
+				{
+					VisualType visualType = typeFactory.createVisualType();
+					// AQP Have a look at the id
+					ModelInterpreterUtils.initialiseNodeFromString(visualType, "morphology" + component.getID());
+					CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
+
+					Sphere sphere = valuesFactory.createSphere();
+					// SphereNode sphereNode = new SphereNode(id);
+					sphere.setRadius(1.2d);
+
+					Variable variable = variablesFactory.createVariable();
+					variable.setId(component.getRefComponents().get("component").getID());
+					variable.setName(component.getRefComponents().get("component").getID());
+					variable.getTypes().add(this.access.getType(TypesPackage.Literals.VISUAL_TYPE));
+					variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), sphere);
+
+					visualCompositeType.getVariables().add(variable);
+
+					types.put("morphology" + component.getID(), visualCompositeType);
+				}
+
+				refCompositeType.setVisualType((VisualType) types.get("morphology" + component.getID()));
+
+			}
+			arrayType.setArrayType(refCompositeType);
+
+			ArrayValue arrayValue = valuesFactory.createArrayValue();
 
 			String populationType = component.getTypeName();
 			if(populationType != null && populationType.equals("populationList"))
 			{
 
-				if(component.getRefComponents().get("component").getDeclaredType().equals("cell"))
-				{
-					ExtractVisualType extractVisualType = new ExtractVisualType(component.getRefComponents().get("component"), access);
-					compositeType.getVariables().add(extractVisualType.createVariableFromCellMorphology());
-				}
-				else
-				{
-					Sphere sphere = valuesFactory.createSphere();
-					// SphereNode sphereNode = new SphereNode(id);
-					sphere.setRadius(1.2d);
-				}
+				// if(component.getRefComponents().get("component").getDeclaredType().equals("cell"))
+				// {
+				//
+				//
+				// ExtractVisualType extractVisualType = new ExtractVisualType(component.getRefComponents().get("component"), access);
+				// compositeType.getVariables().add(extractVisualType.createVariableFromCellMorphology());
+				// }
+				// else
+				// {
+				// Sphere sphere = valuesFactory.createSphere();
+				// // SphereNode sphereNode = new SphereNode(id);
+				// sphere.setRadius(1.2d);
+				// }
 
-				for(Component componentChild : component.getAllChildren())
+				for(Component populationChild : component.getAllChildren())
 				{
-					if(componentChild.getDeclaredType().equals("instance"))
+					if(populationChild.getDeclaredType().equals("instance"))
 					{
 						Point point = null;
-						for(Component instanceChild : componentChild.getAllChildren())
+						for(Component instanceChild : populationChild.getAllChildren())
 						{
 							if(instanceChild.getDeclaredType().equals("location"))
 							{
@@ -302,6 +347,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 							}
 						}
 
+						ArrayElement arrayElement = valuesFactory.createArrayElement();
+						arrayElement.setIndex(Integer.parseInt(populationChild.getID()));
+						arrayElement.setPosition(point);
+						arrayValue.getElements().add(arrayElement);
+
 					}
 				}
 
@@ -310,6 +360,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 
 			}
+			arrayType.setDefaultValue(arrayValue);
 
 			Variable variable = variablesFactory.createVariable();
 			ModelInterpreterUtils.initialiseNodeFromComponent(variable, component);
@@ -321,51 +372,56 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		}
 		else
 		{
-
-			if(component.hasChildrenAL("morphology"))
+			for(ParamValue pv : component.getParamValues())
 			{
-				// We assume when we find a morphology it belongs to a cell
-				ExtractVisualType extractVisualType = new ExtractVisualType(component, access);
-				compositeType.getVariables().add(extractVisualType.createVariableFromCellMorphology());
+				if(component.hasAttribute(pv.getName()))
+				{
+					compositeType.getVariables().add(ModelInterpreterUtils.createParameterTypeVariable(pv.getName(), component.getStringValue(pv.getName()), this.access));
+				}
 			}
 
-			if(!component.getDeclaredType().equals("morphology"))
+			for(Entry<String, String> entry : component.getTextParamMap().entrySet())
 			{
-				for(ParamValue pv : component.getParamValues())
+				compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(entry.getKey(), entry.getValue(), this.access));
+			}
+
+			for(Entry<String, Component> entry : component.getRefComponents().entrySet())
+			{
+				if(!types.containsKey(entry.getKey()))
 				{
-					if(component.hasAttribute(pv.getName()))
+					CompositeType refCompositeType = extractInfoFromComponent(entry.getValue());
+
+					Variable variable = variablesFactory.createVariable();
+					ModelInterpreterUtils.initialiseNodeFromComponent(variable, entry.getValue());
+					variable.getTypes().add(refCompositeType);
+					compositeType.getVariables().add(variable);
+					types.put(entry.getValue().getID(), refCompositeType);
+				}
+			}
+
+			// Simulation Tree (Variable Node)
+			for(Exposure exposure : component.getComponentType().getExposures())
+			{
+				compositeType.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
+			}
+
+			for(Component componentChild : component.getAllChildren())
+			{
+				if(componentChild.getDeclaredType().equals("morphology"))
+				{
+					if(!types.containsKey(componentChild.getID()))
 					{
-						compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(pv.getName(), component.getStringValue(pv.getName()), this.access));
+						// We assume when we find a morphology it belongs to a cell
+						ExtractVisualType extractVisualType = new ExtractVisualType(component, access);
+						Type morphologyType = extractVisualType.createTypeFromCellMorphology();
+						types.put(componentChild.getID(), morphologyType);
 					}
+
+					compositeType.setVisualType((VisualType) types.get(componentChild.getID()));
 				}
-
-				for(Entry<String, String> entry : component.getTextParamMap().entrySet())
+				else
 				{
-					compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(entry.getKey(), entry.getValue(), this.access));
-				}
 
-				for(Entry<String, Component> entry : component.getRefComponents().entrySet())
-				{
-					if(!types.containsKey(entry.getKey()))
-					{
-						CompositeType refCompositeType = extractInfoFromComponent(entry.getValue());
-
-						Variable variable = variablesFactory.createVariable();
-						ModelInterpreterUtils.initialiseNodeFromComponent(variable, entry.getValue());
-						variable.getTypes().add(refCompositeType);
-						compositeType.getVariables().add(variable);
-						types.put(entry.getValue().getID(), refCompositeType);
-					}
-				}
-
-				// Simulation Tree (Variable Node)
-				for(Exposure exposure : component.getComponentType().getExposures())
-				{
-					compositeType.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
-				}
-
-				for(Component componentChild : component.getAllChildren())
-				{
 					CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
 					if(anonymousCompositeType != null)
 					{
@@ -527,72 +583,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	// _logger.info("Extracted connections, took " + (System.currentTimeMillis() - start) + "ms");
 	// }
 
-	/**
-	 * @param n
-	 * @param parentEntity
-	 * @param url
-	 * @param aspect
-	 * @param neuroml
-	 * @throws MalformedURLException
-	 * @throws JAXBException
-	 * @throws ModelInterpreterException
-	 * @throws ContentError
-	 */
-	// private void addNetworkSubEntities(Network n, EntityNode parentEntity, AspectNode aspect, ModelWrapper model) throws ModelInterpreterException
-	// {
-	// if(n.getPopulation().size() == 1 && n.getPopulation().get(0).getSize().equals(BigInteger.ONE))
-	// {
-	// // there's only one cell whose name is the same as the geppetto
-	// // entity, don't create any subentities
-	// BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(n.getPopulation().get(0).getComponent(), model, Resources.CELL);
-	// parentEntity.setDomainType(ResourcesDomainType.CELL.get());
-	// mapCellIdToEntity(parentEntity.getId(), parentEntity, aspect, cell);
-	// return;
-	// }
-	// for(Population p : n.getPopulation())
-	// {
-	// // BaseCell cell = getCell(p, url, model);
-	// BaseCell cell = (BaseCell) neuroMLAccessUtility.getComponent(p.getComponent(), model, Resources.CELL);
-	// if(p.getType() != null && p.getType().equals(PopulationTypes.POPULATION_LIST))
-	// {
-	// int i = 0;
-	// for(Instance instance : p.getInstance())
-	// {
-	//
-	// String id = VariablePathSerializer.getArrayName(p.getId(), i);
-	// EntityNode e = getEntityNodefromCell(cell, id, aspect);
-	// e.setDomainType(ResourcesDomainType.CELL.get());
-	//
-	// if(instance.getLocation() != null)
-	// {
-	// e.setPosition(getPoint(instance.getLocation()));
-	// }
-	// e.setId(id);
-	// parentEntity.addChild(e);
-	// i++;
-	// }
-	//
-	// }
-	// else
-	// {
-	// int size = p.getSize().intValue();
-	//
-	// for(int i = 0; i < size; i++)
-	// {
-	// // FIXME the position of the population within the network
-	// // needs to be specified in neuroml
-	// String id = VariablePathSerializer.getArrayName(p.getId(), i);
-	// // TODO why do we need the cell?
-	// EntityNode e = getEntityNodefromCell(cell, id, aspect);
-	// e.setDomainType(ResourcesDomainType.CELL.get());
-	// e.setId(id);
-	// parentEntity.addChild(e);
-	// }
-	// }
-	// }
-	//
-	// }
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -603,19 +593,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		return this.neuroMLModelInterpreterConfig.getModelInterpreterName();
 	}
-
-	/**
-	 * @param location
-	 * @return
-	 */
-	// private Point getPoint(Location location)
-	// {
-	// Point point = new Point();
-	// point.setX(location.getX().doubleValue());
-	// point.setY(location.getY().doubleValue());
-	// point.setZ(location.getZ().doubleValue());
-	// return point;
-	// }
 
 	@Override
 	public void registerGeppettoService()

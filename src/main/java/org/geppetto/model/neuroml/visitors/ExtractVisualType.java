@@ -392,7 +392,7 @@ public class ExtractVisualType
 	// return composite;
 	// }
 
-	public Variable createVariableFromCellMorphology() throws GeppettoVisitingException, LEMSException, NeuroMLException
+	public VisualType createTypeFromCellMorphology() throws GeppettoVisitingException, LEMSException, NeuroMLException
 	{
 		// Convert lems component to NeuroML
 		// LinkedHashMap<String, Standalone> morphologyMap = Utils.convertLemsComponentToNeuroML(morphologyComponent);
@@ -401,11 +401,12 @@ public class ExtractVisualType
 		// AQP: I would like to join processMorphologyFromGroup and processMorphology into just one single method/approach
 		// create nodes for visual objects, segments of cell
 
-		VisualType visualType = typeFactory.createVisualType();
-		ModelInterpreterUtils.initialiseNodeFromComponent(visualType, cellComponent);
+		//VisualType visualType = typeFactory.createVisualType();
+		//ModelInterpreterUtils.initialiseNodeFromComponent(visualType, cellComponent);
 		// visualType.getReferencedVariables().addAll(extractVisualType.createCellPartsVisualGroups(morphology.getSegmentGroup()));
 
 		CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
+		ModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, cell.getMorphology().getId());
 		visualCompositeType.getVisualGroups().add(createCellPartsVisualGroups());
 
 		// List<VisualValue> visualizationNodes = new ArrayList<VisualValue>();
@@ -422,8 +423,8 @@ public class ExtractVisualType
 			PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(cell);
 			visualCompositeType.getVisualGroups().addAll(populateChannelDensityVisualGroups.createChannelDensities());
 
-			// AQP: We have to add this to the library
-			access.addTag(populateChannelDensityVisualGroups.getChannelDensityTag());
+			if (populateChannelDensityVisualGroups.getChannelDensityTag()!=null)
+				access.addTag(populateChannelDensityVisualGroups.getChannelDensityTag());
 		}
 		// add density groups to visualization tree
 		// if(densities != null)
@@ -431,11 +432,12 @@ public class ExtractVisualType
 		// visualizationNodes.add(densities);
 		// }
 
-		Variable variable = variablesFactory.createVariable();
-		ModelInterpreterUtils.initialiseNodeFromComponent(variable, cellComponent);
-		variable.getAnonymousTypes().add(visualCompositeType);
-
-		return variable;
+//		Variable variable = variablesFactory.createVariable();
+//		ModelInterpreterUtils.initialiseNodeFromComponent(variable, cellComponent);
+//		variable.getAnonymousTypes().add(visualCompositeType);
+//
+//		return variable;
+		return visualCompositeType;
 	}
 
 	/**
