@@ -34,21 +34,16 @@
 package org.geppetto.model.neuroml.utils.modeltree;
 
 import java.math.BigInteger;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.neuroml.services.ModelInterpreterUtils;
-import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.neuroml.utils.Resources;
-import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.HTMLType;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
-import org.geppetto.model.types.impl.TypesFactoryImpl;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.Argument;
 import org.geppetto.model.values.Dynamics;
@@ -57,14 +52,10 @@ import org.geppetto.model.values.Function;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
-import org.lemsml.jlems.core.expression.FunctionNode;
 import org.lemsml.jlems.core.type.Component;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
-import org.neuroml.export.info.model.PlotMetadataNode;
 import org.neuroml.export.info.model.PlotNode;
-import org.neuroml.model.Population;
-import org.neuroml.model.Standalone;
 
 /**
  * Populates the Model Tree of Aspect
@@ -76,7 +67,7 @@ import org.neuroml.model.Standalone;
 public class PopulateSummaryNodesModelTreeUtils
 {
 
-	TypesFactory typeFactory = TypesFactoryImpl.eINSTANCE;
+	TypesFactory typeFactory = TypesFactory.eINSTANCE;
 	VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
 	ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 
