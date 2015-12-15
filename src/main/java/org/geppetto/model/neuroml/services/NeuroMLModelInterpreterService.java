@@ -36,7 +36,6 @@ package org.geppetto.model.neuroml.services;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,8 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -66,6 +63,7 @@ import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateSummaryNodesModelTreeUtils;
 import org.geppetto.model.neuroml.visitors.ExtractVisualType;
 import org.geppetto.model.types.ArrayType;
@@ -84,7 +82,6 @@ import org.geppetto.model.values.Connection;
 import org.geppetto.model.values.Connectivity;
 import org.geppetto.model.values.Point;
 import org.geppetto.model.values.Pointer;
-import org.geppetto.model.values.PointerElement;
 import org.geppetto.model.values.Sphere;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
@@ -100,7 +97,6 @@ import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.core.type.ParamValue;
 import org.lemsml.jlems.io.xmlio.XMLSerializer;
-import org.neuroml.export.info.InfoTreeCreator;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
@@ -238,7 +234,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			library.getTypes().addAll(types.values());
 
 			// Extract Summary and Description nodes from type
-			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(neuroml, access);
+			//AQP we need to implement a map resoucesdomaintype-list<types> and a method for setting the domain type. Once than remove empty hashmap parameter
+			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(neuroml, new HashMap<ResourcesDomainType, List<Type>>(), url, access);
 			((CompositeType) type).getVariables().addAll(populateSummaryNodesModelTreeUtils.getSummaryVariables());
 
 			// Add LEMS Parameter Feature
@@ -438,7 +435,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			types.put(populationComponent.getRefComponents().get("component").getID(), extractInfoFromComponent(populationComponent.getRefComponents().get("component")));
 		}
 		CompositeType refCompositeType = (CompositeType) types.get(populationComponent.getRefComponents().get("component").getID());
-
+		
 		ArrayType arrayType = typeFactory.createArrayType();
 		ModelInterpreterUtils.initialiseNodeFromComponent(arrayType, populationComponent);
 		arrayType.setSize(Integer.parseInt(populationComponent.getStringValue("size")));

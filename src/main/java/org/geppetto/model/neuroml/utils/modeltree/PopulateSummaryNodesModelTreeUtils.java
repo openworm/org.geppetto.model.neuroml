@@ -34,6 +34,7 @@
 package org.geppetto.model.neuroml.utils.modeltree;
 
 import java.math.BigInteger;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +43,10 @@ import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.neuroml.services.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
+import org.geppetto.model.neuroml.utils.ResourcesDomainType;
+import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
-import org.geppetto.model.types.HTMLType;
+import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;
@@ -51,13 +54,15 @@ import org.geppetto.model.values.Argument;
 import org.geppetto.model.values.Dynamics;
 import org.geppetto.model.values.Expression;
 import org.geppetto.model.values.Function;
+import org.geppetto.model.values.FunctionPlot;
+import org.geppetto.model.values.HTML;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
-import org.lemsml.jlems.core.type.Component;
 import org.neuroml.export.info.InfoTreeCreator;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
+import org.neuroml.export.info.model.PlotMetadataNode;
 import org.neuroml.export.info.model.PlotNode;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLException;
@@ -78,25 +83,22 @@ public class PopulateSummaryNodesModelTreeUtils
 
 	GeppettoModelAccess access;
 	NeuroMLDocument neuroml;
+	Map<ResourcesDomainType, List<Type>> typesMap;
+	URL url;
 
-	public PopulateSummaryNodesModelTreeUtils(NeuroMLDocument neuroml, GeppettoModelAccess access)
+	public PopulateSummaryNodesModelTreeUtils(NeuroMLDocument neuroml, Map<ResourcesDomainType, List<Type>> typesMap, URL url, GeppettoModelAccess access)
 	{
-		// initialiseModelDescription();
 		this.neuroml = neuroml;
 		this.access = access;
+		this.typesMap = typesMap;
+		this.url = url;
 	}
 
 	public List<Variable> getSummaryVariables() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException
 	{
 		List<Variable> summaryVariables = new ArrayList<Variable>();
 		// Summary2
-		// Variable descriptionVariable = variablesFactory.createVariable();
-		// descriptionVariable.setId(Resources.MODEL_DESCRIPTION.getId());
-		// descriptionVariable.setName(Resources.MODEL_DESCRIPTION.get());
-		//
-		// descriptionVariable.getAnonymousTypes().add(populateSummaryNodesModelTreeUtils.createDescriptionNode((CompositeType) type));
-		//
-		// ((CompositeType) type).getVariables().add(descriptionVariable);
+		summaryVariables.add(createDescriptionNode());
 
 		// Summary
 		Variable summaryVariable = variablesFactory.createVariable();
@@ -104,124 +106,99 @@ public class PopulateSummaryNodesModelTreeUtils
 		summaryVariable.setName(Resources.SUMMARY.get());
 		summaryVariable.getAnonymousTypes().add(createInfoNode(InfoTreeCreator.createInfoTree(neuroml)));
 		summaryVariables.add(summaryVariable);
-		
+
 		return summaryVariables;
 	}
 
-	// Create Map of NeuroMlComponent and Nodes for description node
-	// private Map<ResourcesDomainType, Map<Standalone, ANode>> modelDescriptionComponents;
-
-	// public void initialiseModelDescription()
-	// {
-	// modelDescriptionComponents = new HashMap<ResourcesDomainType, Map<Standalone, ANode>>();
-	// modelDescriptionComponents.put(ResourcesDomainType.NETWORK, new HashMap<Standalone, ANode>());
-	// modelDescriptionComponents.put(ResourcesDomainType.POPULATION, new HashMap<Standalone, ANode>());
-	// modelDescriptionComponents.put(ResourcesDomainType.SYNAPSE, new HashMap<Standalone, ANode>());
-	// modelDescriptionComponents.put(ResourcesDomainType.CELL, new HashMap<Standalone, ANode>());
-	// modelDescriptionComponents.put(ResourcesDomainType.PULSEGENERATOR, new HashMap<Standalone, ANode>());
-	// modelDescriptionComponents.put(ResourcesDomainType.IONCHANNEL, new HashMap<Standalone, ANode>());
-	// }
-	//
-	// public void addNodeToModelDescription(ResourcesDomainType domainType, Standalone standalone, ANode node)
-	// {
-	// Map<Standalone, ANode> modelDescriptionComponentsItem = modelDescriptionComponents.get(domainType);
-	// if(!modelDescriptionComponentsItem.containsKey(standalone))
-	// {
-	// modelDescriptionComponentsItem.put(standalone, node);
-	// }
-	// }
-
-	public HTMLType createDescriptionNode(CompositeType type) throws ModelInterpreterException
+	public Variable createDescriptionNode() throws ModelInterpreterException, GeppettoVisitingException
 	{
 
-		Component component = (Component) type.getDomainModel().getDomainModel();
+		List<Type> networkComponents = typesMap.containsKey(ResourcesDomainType.NETWORK)?typesMap.get(ResourcesDomainType.NETWORK):null;
+		List<Type> populationComponents = typesMap.containsKey(ResourcesDomainType.POPULATION)?typesMap.get(ResourcesDomainType.POPULATION):null;
+		List<Type> cellComponents = typesMap.containsKey(ResourcesDomainType.CELL)?typesMap.get(ResourcesDomainType.CELL):null;
+		List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL)?typesMap.get(ResourcesDomainType.IONCHANNEL):null;
+		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE)?typesMap.get(ResourcesDomainType.SYNAPSE):null;
+		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR)?typesMap.get(ResourcesDomainType.PULSEGENERATOR):null;
 
-		// Map<Standalone, ANode> networkComponents = modelDescriptionComponents.get(ResourcesDomainType.NETWORK);
-		// Map<Standalone, ANode> populationComponents = modelDescriptionComponents.get(ResourcesDomainType.POPULATION);
-		// Map<Standalone, ANode> cellComponents = modelDescriptionComponents.get(ResourcesDomainType.CELL);
-		// Map<Standalone, ANode> ionChannelComponents = modelDescriptionComponents.get(ResourcesDomainType.IONCHANNEL);
-		// Map<Standalone, ANode> synapseComponents = modelDescriptionComponents.get(ResourcesDomainType.SYNAPSE);
-		// Map<Standalone, ANode> pulseGeneratorComponents = modelDescriptionComponents.get(ResourcesDomainType.PULSEGENERATOR);
-		//
-		// StringBuilder modelDescription = new StringBuilder();
-		// modelDescription.append("<b>Model Summary</b><br/>");
-		//
+		StringBuilder modelDescription = new StringBuilder();
+		modelDescription.append("<b>Model Summary</b><br/>");
+
 		// // FIXME: We need to extract the main component (target component) and extract the description from it in order to do this feature generic. This will wait until the instance/type refactor
 		// // FIXME: We need to add something about how beautiful the network is and so on
-		// if(networkComponents.size() > 0)
-		// {
-		// modelDescription.append("Description: ");
-		// for(ANode node : networkComponents.values())
-		// {
-		// modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
-		// }
-		// }
-		// modelDescription.append("<br/><a target=\"_blank\" href=\"" + modelUrl.toString() + "\">NeuroML Source File</a><br/>");
-		//
-		// // FIXME: We should improve this once the instance/type refactor is done as we need the cell type
-		// if(populationComponents.size() > 0)
-		// {
-		// modelDescription.append("<b>Populations</b><br/>");
-		// for(Map.Entry<Standalone, ANode> node : populationComponents.entrySet())
-		// {
-		// modelDescription.append("Population " + node.getValue().getName() + ": ");
-		// Population population = ((Population) node.getKey());
-		//
-		// for(Map.Entry<Standalone, ANode> cellNode : cellComponents.entrySet())
-		// {
-		// if(cellNode.getKey().getId().equals(population.getComponent()))
-		// {
-		// modelDescription.append("<a href=\"#\" instancePath=\"$" + cellNode.getValue().getInstancePath() + "$\">" + population.getInstance().size() + " "
-		// + cellNode.getValue().getName() + "</a><br/>");
-		// }
-		// }
-		// }
-		// modelDescription.append("<br/>");
-		// }
-		//
-		// if(cellComponents.size() > 0)
-		// {
-		// modelDescription.append("<b>Cells</b><br/>");
-		// for(ANode node : cellComponents.values())
-		// {
-		// modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
-		// }
-		// modelDescription.append("<br/>");
-		// }
-		//
-		// if(ionChannelComponents.size() > 0)
-		// {
-		// modelDescription.append("<b>Channels</b><br/>");
-		// for(ANode node : ionChannelComponents.values())
-		// {
-		// modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
-		// }
-		// modelDescription.append("<br/>");
-		// }
-		//
-		// if(synapseComponents.size() > 0)
-		// {
-		// modelDescription.append("<b>Synapses</b><br/>");
-		// for(ANode node : synapseComponents.values())
-		// {
-		// modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
-		// }
-		// modelDescription.append("<br/>");
-		// }
-		//
-		// if(pulseGeneratorComponents.size() > 0)
-		// {
-		// // FIXME: Pulse generator? InputList? ExplicitList?
-		// modelDescription.append("<b>Inputs</b><br/>");
-		// for(ANode node : pulseGeneratorComponents.values())
-		// {
-		// modelDescription.append("<a href=\"#\" instancePath=\"$" + node.getInstancePath() + "$\">" + node.getName() + "</a> ");
-		// }
-		// modelDescription.append("<br/>");
-		// }
+		if(networkComponents != null && networkComponents.size() > 0)
+		{
+			modelDescription.append("Description: ");
+			for(Type network : networkComponents)
+			{
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + network.getPath() + "$\">" + network.getName() + "</a> ");
+			}
+		}
+		modelDescription.append("<br/><a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/>");
 
-		// return new HTMLMetadataNode(Resources.MODEL_DESCRIPTION.getId(), Resources.MODEL_DESCRIPTION.get(), new StringValue(modelDescription.toString()));
-		return null;
+		// FIXME: We should improve this once the instance/type refactor is done as we need the cell type
+		if(populationComponents != null && populationComponents.size() > 0)
+		{
+			modelDescription.append("<b>Populations</b><br/>");
+			for(Type population : populationComponents)
+			{
+				modelDescription.append("Population " + population.getId() + ": ");
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + ((ArrayType) population).getArrayType().getPath() + "$\">" + ((ArrayType) population).getSize() + " "
+						+ ((ArrayType) population).getArrayType().getId() + "</a><br/>");
+			}
+			modelDescription.append("<br/>");
+		}
+
+		if(cellComponents != null && cellComponents.size() > 0)
+		{
+			modelDescription.append("<b>Cells</b><br/>");
+			for(Type cell : cellComponents)
+			{
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + cell.getPath() + "$\">" + cell.getName() + "</a> ");
+			}
+			modelDescription.append("<br/>");
+		}
+
+		if(ionChannelComponents != null && ionChannelComponents.size() > 0)
+		{
+			modelDescription.append("<b>Channels</b><br/>");
+			for(Type ionChannel : ionChannelComponents)
+			{
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + ionChannel.getPath() + "$\">" + ionChannel.getName() + "</a> ");
+			}
+			modelDescription.append("<br/>");
+		}
+
+		if(synapseComponents != null && synapseComponents.size() > 0)
+		{
+			modelDescription.append("<b>Synapses</b><br/>");
+			for(Type synapse : synapseComponents)
+			{
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + synapse.getPath() + "$\">" + synapse.getName() + "</a> ");
+			}
+			modelDescription.append("<br/>");
+		}
+
+		if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
+		{
+			// FIXME: Pulse generator? InputList? ExplicitList?
+			modelDescription.append("<b>Inputs</b><br/>");
+			for(Type pulseGenerator : pulseGeneratorComponents)
+			{
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + pulseGenerator.getPath() + "$\">" + pulseGenerator.getName() + "</a> ");
+			}
+			modelDescription.append("<br/>");
+		}
+
+		HTML html = valuesFactory.createHTML();
+		html.setHtml(modelDescription.toString());
+
+		Variable descriptionVariable = variablesFactory.createVariable();
+		descriptionVariable.setId(Resources.MODEL_DESCRIPTION.getId());
+		descriptionVariable.setName(Resources.MODEL_DESCRIPTION.get());
+		descriptionVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+		descriptionVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+
+		return descriptionVariable;
 	}
 
 	public CompositeType createInfoNode(InfoNode node) throws ModelInterpreterException, GeppettoVisitingException
@@ -266,6 +243,18 @@ public class PopulateSummaryNodesModelTreeUtils
 					Function function = valuesFactory.createFunction();
 					function.setExpression(expression);
 					function.getArguments().add(argument);
+					PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
+					if(plotMetadataNode != null)
+					{
+						FunctionPlot functionPlot = valuesFactory.createFunctionPlot();
+						functionPlot.setTitle(plotMetadataNode.getPlotTitle());
+						functionPlot.setXAxisLabel(plotMetadataNode.getXAxisLabel());
+						functionPlot.setYAxisLabel(plotMetadataNode.getYAxisLabel());
+						functionPlot.setInitialValue(plotMetadataNode.getInitialValue());
+						functionPlot.setFinalValue(plotMetadataNode.getFinalValue());
+						functionPlot.setStepValue(plotMetadataNode.getStepValue());
+						function.setFunctionPlot(functionPlot);
+					}
 
 					Dynamics dynamics = valuesFactory.createDynamics();
 					dynamics.setDynamics(function);
@@ -275,18 +264,6 @@ public class PopulateSummaryNodesModelTreeUtils
 					variable.setName(keyProperties);
 					// variable.getInitialValues().put(access.getType(TypesPackage.Literals.DYNAMICS_TYPE), dynamics);
 					variable.getTypes().add(access.getType(TypesPackage.Literals.DYNAMICS_TYPE));
-
-					// AQP: How to model this?
-					// PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
-					// if(plotMetadataNode != null)
-					// {
-					// functionNode.getPlotMetadata().put("PlotTitle", plotMetadataNode.getPlotTitle());
-					// functionNode.getPlotMetadata().put("XAxisLabel", plotMetadataNode.getXAxisLabel());
-					// functionNode.getPlotMetadata().put("YAxisLabel", plotMetadataNode.getYAxisLabel());
-					// functionNode.getPlotMetadata().put("InitialValue", Double.toString(plotMetadataNode.getInitialValue()));
-					// functionNode.getPlotMetadata().put("FinalValue", Double.toString(plotMetadataNode.getFinalValue()));
-					// functionNode.getPlotMetadata().put("StepValue", Double.toString(plotMetadataNode.getStepValue()));
-					// }
 
 					summaryCompositeType.getVariables().add(variable);
 				}

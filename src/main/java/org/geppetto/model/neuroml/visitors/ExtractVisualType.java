@@ -371,15 +371,12 @@ public class ExtractVisualType
 			{
 				parentDistal = distalPoints.get(idSegmentParent);
 			}
-			// groupNode.setName(idSegmentParent);
 			VisualValue visualObject = getVisualObjectFromSegment(segment, parentDistal);
-
 			if(segmentsMap.containsKey(variable.getId()))
 			{
 				// get groups list for segment and put it in visual objects
 				visualObject.getGroupElements().addAll(segmentsMap.get(variable.getId()));
 			}
-
 			//variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), visualObject);
 
 			distalPoints.put(segment.getId().toString(), segment.getDistal());
