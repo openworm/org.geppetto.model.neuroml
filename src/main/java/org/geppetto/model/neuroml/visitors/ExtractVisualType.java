@@ -59,7 +59,6 @@ import org.lemsml.jlems.core.type.Component;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Cell;
 import org.neuroml.model.Include;
-import org.neuroml.model.Location;
 import org.neuroml.model.Member;
 import org.neuroml.model.Morphology;
 import org.neuroml.model.Point3DWithDiam;
@@ -316,81 +315,8 @@ public class ExtractVisualType
 	// }
 	// }
 
-	/**
-	 * @param componentId
-	 * @param model
-	 * @return
-	 */
-	// private BaseCell getNeuroMLComponent(String componentId, DomainModel model)
-	// {
-	// Map<String, Base> discoveredComponents = (Map<String, Base>) model.getModel("discoveredComponents");
-	// if(discoveredComponents.containsKey(componentId))
-	// {
-	// return (BaseCell) discoveredComponents.get(componentId);
-	// }
-	// return null;
-	// }
-
-	/**
-	 * @param id
-	 * @param visualObject
-	 * @param composite
-	 * @param aspect
-	 * @param model
-	 */
-	// public void addVisualObjectToVizTree(String id, List<ANode> visualObjects, ACompositeNode composite, AspectNode aspect, ModelWrapper model)
-	// {
-	//
-	// Map<String, EntityNode> entitiesMapping = (Map<String, EntityNode>) model.getModel("entitiesMapping");
-	// if(entitiesMapping.containsKey(id))
-	// {
-	// EntityNode e = entitiesMapping.get(id);
-	// for(AspectNode a : e.getAspects())
-	// {
-	// if(a.getId().equals(aspect.getId()))
-	// {
-	// // we are in the same aspect of the subentity, now we can fetch the visualization tree
-	// AspectSubTreeNode subEntityVizTree = a.getSubTree(AspectTreeType.VISUALIZATION_TREE);
-	// if(composite instanceof AspectSubTreeNode)
-	// {
-	// for(ANode visualObject : visualObjects)
-	// {
-	// subEntityVizTree.addChild(visualObject);
-	// }
-	// }
-	// else if(composite instanceof CompositeNode)
-	// {
-	// for(ANode visualObject : visualObjects)
-	// {
-	// getCompositeNode(subEntityVizTree, composite.getId()).addChild(visualObject);
-	// }
-	// }
-	// }
-	// }
-	// }
-	// else
-	// {
-	// for(ANode visualObject : visualObjects)
-	// {
-	// composite.addChild(visualObject);
-	// }
-	// }
-	//
-	// }
-
 	public VisualType createTypeFromCellMorphology() throws GeppettoVisitingException, LEMSException, NeuroMLException
 	{
-		// Convert lems component to NeuroML
-		// LinkedHashMap<String, Standalone> morphologyMap = Utils.convertLemsComponentToNeuroML(morphologyComponent);
-		// Morphology morphology = (Morphology) morphologyMap.get(morphologyComponent.getID());
-
-		// AQP: I would like to join processMorphologyFromGroup and processMorphology into just one single method/approach
-		// create nodes for visual objects, segments of cell
-
-		// VisualType visualType = typeFactory.createVisualType();
-		// ModelInterpreterUtils.initialiseNodeFromComponent(visualType, cellComponent);
-		// visualType.getReferencedVariables().addAll(extractVisualType.createCellPartsVisualGroups(morphology.getSegmentGroup()));
-
 		CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
 		ModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, cell.getMorphology().getId());
 		visualCompositeType.getVisualGroups().add(createCellPartsVisualGroups());
@@ -411,17 +337,7 @@ public class ExtractVisualType
 
 			if(populateChannelDensityVisualGroups.getChannelDensityTag() != null) access.addTag(populateChannelDensityVisualGroups.getChannelDensityTag());
 		}
-		// add density groups to visualization tree
-		// if(densities != null)
-		// {
-		// visualizationNodes.add(densities);
-		// }
 
-		// Variable variable = variablesFactory.createVariable();
-		// ModelInterpreterUtils.initialiseNodeFromComponent(variable, cellComponent);
-		// variable.getAnonymousTypes().add(visualCompositeType);
-		//
-		// return variable;
 		return visualCompositeType;
 	}
 
@@ -442,7 +358,7 @@ public class ExtractVisualType
 		{
 			Variable variable = variablesFactory.createVariable();
 			variable.setId("vo" + segment.getId().toString());
-			variable.setName(segment.getId().toString());
+			variable.setName("vo" + segment.getId().toString());
 			variable.getTypes().add(this.access.getType(TypesPackage.Literals.VISUAL_TYPE));
 
 			String idSegmentParent = null;
@@ -464,11 +380,9 @@ public class ExtractVisualType
 				visualObject.getGroupElements().addAll(segmentsMap.get(variable.getId()));
 			}
 
-			variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), visualObject);
+			//variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), visualObject);
 
-			// groupNode.addChild(cyl);
 			distalPoints.put(segment.getId().toString(), segment.getDistal());
-
 			visualObjectVariables.add(variable);
 		}
 
@@ -515,9 +429,7 @@ public class ExtractVisualType
 			for(String sgId : segmentGeometries.keySet())
 			{
 				visualObjectVariables.addAll(segmentGeometries.get(sgId));
-
 			}
-
 		}
 
 		return visualObjectVariables;
@@ -537,7 +449,7 @@ public class ExtractVisualType
 		cellParts.setName("Cell Regions");
 
 		// Create map with segment ids, keeping track of groups they correspond to
-		Map<String, List<String>> segmentsGroupsMap = new HashMap<String, List<String>>();
+		// Map<String, List<String>> segmentsGroupsMap = new HashMap<String, List<String>>();
 
 		// Get all the segment groups from morphology
 		for(SegmentGroup segmentGroup : this.cell.getMorphology().getSegmentGroup())
