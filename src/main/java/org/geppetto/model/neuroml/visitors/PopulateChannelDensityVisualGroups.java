@@ -242,7 +242,7 @@ public class PopulateChannelDensityVisualGroups
 							try
 							{
 								// Get all segments for the subgroup
-								List<Segment> segmentsPerSubgroup = cellUtils.getSegmentsInGroup(cell, segmentGroup.getId());
+								List<Segment> segmentsPerSubgroup = cellUtils.getSegmentsInGroup(segmentGroup.getId());
 								for(Segment sg : segmentsPerSubgroup)
 								{
 									double distanceAllSegments = cellUtils.calculateDistanceInGroup(0.0, sg);

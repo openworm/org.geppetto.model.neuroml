@@ -60,6 +60,7 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
+import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
@@ -187,7 +188,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			// Otherwise let's iterate through all the components
 			if(typeId != null && !typeId.isEmpty())
 			{
-				//type = extractInfoFromComponent(lems.getComponent(typeId));
+				// type = extractInfoFromComponent(lems.getComponent(typeId));
 				types.put(typeId, extractInfoFromComponent(lems.getComponent(typeId)));
 				type = types.get(typeId);
 			}
@@ -198,7 +199,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				{
 					if(!types.containsKey(component.getID()))
 					{
-						
+
 						types.put(component.getID(), extractInfoFromComponent(component));
 
 						// Business rule: 1) If there is a network in the NeuroML file we don't visualise spurious cells which
@@ -383,7 +384,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			if(projectionChild.getDeclaredType().equals("connection"))
 			{
 				ConnectionType connectionType = typeFactory.createConnectionType();
-				ModelInterpreterUtils.initialiseNodeFromComponent(connectionType, projectionChild);
+				connectionType.setName(Resources.PROJECTION_ID + " - " + projection.getID() + " / " + Resources.CONNECTION + " - " + projectionChild.getID());
+				connectionType.setId(Resources.CONNECTION.getId() + projection.getID() + projectionChild.getID());
+				DomainModel domainModel = GeppettoFactory.eINSTANCE.createDomainModel();
+				domainModel.setDomainModel(projectionChild);
+				domainModel.setFormat(ServicesRegistry.getModelFormat("LEMS"));
+				connectionType.setDomainModel(domainModel);
 
 				Variable synapseVariable = variablesFactory.createVariable();
 				ModelInterpreterUtils.initialiseNodeFromComponent(synapseVariable, projection.getRefComponents().get("synapse"));
@@ -415,7 +421,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 
 				Variable variable = variablesFactory.createVariable();
-				ModelInterpreterUtils.initialiseNodeFromComponent(variable, projectionChild);
+				variable.setName(Resources.PROJECTION_ID + " - " + projection.getID() + " / " + Resources.CONNECTION + " - " + projectionChild.getID());
+				variable.setId(Resources.CONNECTION.getId() + projection.getID() + projectionChild.getID());
 				// variable.getInitialValues().put(connectionType, connection);
 				variable.getAnonymousTypes().add(connectionType);
 				compositeType.getVariables().add(variable);
@@ -428,19 +435,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		if(!types.containsKey(populationComponent.getRefComponents().get("component").getID()))
 		{
-
-//			Variable variable = variablesFactory.createVariable();
-//			ModelInterpreterUtils.initialiseNodeFromComponent(variable, populationComponent.getRefComponents().get("component"));
-//			variable.getTypes().add(refCompositeType);
-			// compositeType.getVariables().add(variable);
 			types.put(populationComponent.getRefComponents().get("component").getID(), extractInfoFromComponent(populationComponent.getRefComponents().get("component")));
 		}
 		CompositeType refCompositeType = (CompositeType) types.get(populationComponent.getRefComponents().get("component").getID());
-		
+
 		ArrayType arrayType = typeFactory.createArrayType();
 		ModelInterpreterUtils.initialiseNodeFromComponent(arrayType, populationComponent);
 		arrayType.setSize(Integer.parseInt(populationComponent.getStringValue("size")));
-		arrayType.setArrayType(types.get(populationComponent.getRefComponents().get("component").getID()));
 
 		if(!populationComponent.getRefComponents().get("component").getDeclaredType().equals("cell"))
 		{

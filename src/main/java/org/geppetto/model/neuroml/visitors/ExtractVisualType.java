@@ -92,6 +92,9 @@ public class ExtractVisualType
 
 	GeppettoModelAccess access;
 
+	// AQP Maybe we can initialise cellutils here and pass this variable to the create density class
+	CellUtils cellUtils;
+
 	public ExtractVisualType(Component cellComponent, GeppettoModelAccess access) throws LEMSException, NeuroMLException
 	{
 		super();
@@ -103,6 +106,8 @@ public class ExtractVisualType
 		this.access = access;
 
 		segmentsMap = new HashMap<String, List<VisualGroupElement>>();
+
+		cellUtils = new CellUtils(cell);
 	}
 
 	/**
@@ -373,25 +378,6 @@ public class ExtractVisualType
 	//
 	// }
 
-	/**
-	 * @param subEntityVizTree
-	 * @param compositeId
-	 * @return
-	 */
-	// private CompositeNode getCompositeNode(AspectSubTreeNode subEntityVizTree, String compositeId)
-	// {
-	// for(ANode child : subEntityVizTree.getChildren())
-	// {
-	// if(child.getId().equals(compositeId) && child instanceof CompositeNode)
-	// {
-	// return (CompositeNode) child;
-	// }
-	// }
-	// CompositeNode composite = new CompositeNode(compositeId, compositeId);
-	// subEntityVizTree.addChild(composite);
-	// return composite;
-	// }
-
 	public VisualType createTypeFromCellMorphology() throws GeppettoVisitingException, LEMSException, NeuroMLException
 	{
 		// Convert lems component to NeuroML
@@ -401,8 +387,8 @@ public class ExtractVisualType
 		// AQP: I would like to join processMorphologyFromGroup and processMorphology into just one single method/approach
 		// create nodes for visual objects, segments of cell
 
-		//VisualType visualType = typeFactory.createVisualType();
-		//ModelInterpreterUtils.initialiseNodeFromComponent(visualType, cellComponent);
+		// VisualType visualType = typeFactory.createVisualType();
+		// ModelInterpreterUtils.initialiseNodeFromComponent(visualType, cellComponent);
 		// visualType.getReferencedVariables().addAll(extractVisualType.createCellPartsVisualGroups(morphology.getSegmentGroup()));
 
 		CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
@@ -423,8 +409,7 @@ public class ExtractVisualType
 			PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(cell);
 			visualCompositeType.getVisualGroups().addAll(populateChannelDensityVisualGroups.createChannelDensities());
 
-			if (populateChannelDensityVisualGroups.getChannelDensityTag()!=null)
-				access.addTag(populateChannelDensityVisualGroups.getChannelDensityTag());
+			if(populateChannelDensityVisualGroups.getChannelDensityTag() != null) access.addTag(populateChannelDensityVisualGroups.getChannelDensityTag());
 		}
 		// add density groups to visualization tree
 		// if(densities != null)
@@ -432,11 +417,11 @@ public class ExtractVisualType
 		// visualizationNodes.add(densities);
 		// }
 
-//		Variable variable = variablesFactory.createVariable();
-//		ModelInterpreterUtils.initialiseNodeFromComponent(variable, cellComponent);
-//		variable.getAnonymousTypes().add(visualCompositeType);
-//
-//		return variable;
+		// Variable variable = variablesFactory.createVariable();
+		// ModelInterpreterUtils.initialiseNodeFromComponent(variable, cellComponent);
+		// variable.getAnonymousTypes().add(visualCompositeType);
+		//
+		// return variable;
 		return visualCompositeType;
 	}
 
@@ -456,7 +441,7 @@ public class ExtractVisualType
 		for(Segment segment : morphology.getSegment())
 		{
 			Variable variable = variablesFactory.createVariable();
-			variable.setId(segment.getId().toString());
+			variable.setId("vo" + segment.getId().toString());
 			variable.setName(segment.getId().toString());
 			variable.getTypes().add(this.access.getType(TypesPackage.Literals.VISUAL_TYPE));
 
@@ -549,7 +534,7 @@ public class ExtractVisualType
 	public VisualGroup createCellPartsVisualGroups()
 	{
 		VisualGroup cellParts = valuesFactory.createVisualGroup();
-		// cellParts.setName("Cell Regions");
+		cellParts.setName("Cell Regions");
 
 		// Create map with segment ids, keeping track of groups they correspond to
 		Map<String, List<String>> segmentsGroupsMap = new HashMap<String, List<String>>();
@@ -557,15 +542,15 @@ public class ExtractVisualType
 		// Get all the segment groups from morphology
 		for(SegmentGroup segmentGroup : this.cell.getMorphology().getSegmentGroup())
 		{
-
 			// segment found
 			String segmentGroupID = segmentGroup.getId();
 
-			VisualGroupElement visualGroupElement = valuesFactory.createVisualGroupElement();
-			visualGroupElement.setId(segmentGroupID);
 			// create visual groups for cell regions
 			if(segmentGroupID.equals(SOMA) || segmentGroupID.equals(DENDRITES) || segmentGroupID.equals(AXONS))
 			{
+				VisualGroupElement visualGroupElement = valuesFactory.createVisualGroupElement();
+				visualGroupElement.setId(segmentGroupID);
+
 				if(segmentGroupID.equals(SOMA))
 				{
 					visualGroupElement.setName("Soma");
@@ -582,57 +567,85 @@ public class ExtractVisualType
 					visualGroupElement.setDefaultColor(axonsColor);
 				}
 				cellParts.getVisualGroupElements().add(visualGroupElement);
-			}
 
-			// AQP: Let's see if we can get all this information from the cellutils
-			// segment not in map, add with new list for groups
-			if(!segmentsGroupsMap.containsKey(segmentGroupID)) segmentsGroupsMap.put(segmentGroupID, new ArrayList<String>());
-
-			// traverse through group segments finding segments inside
-			for(Member member : segmentGroup.getMember())
-			{
-				// segment found
-				String segmentID = getVisualObjectIdentifier(member.getSegment().toString());
-				// segment not in map, add with new list for groups
-				if(!segmentsMap.containsKey(segmentID))
+				for(Integer segmentId : cellUtils.getSegmentIdsInGroup(segmentGroup))
 				{
-					List<VisualGroupElement> groups = new ArrayList<VisualGroupElement>();
-					groups.add(visualGroupElement);
-					segmentsMap.put(segmentID, groups);
-				}
-				// segment in map, get list and put with updated one for groups
-				else
-				{
-					List<VisualGroupElement> groups = segmentsMap.get(segmentID);
-					groups.add(visualGroupElement);
-					// AQP This line is not needed
-					segmentsMap.put(segmentID, groups);
-				}
-
-				List<String> groups = segmentsGroupsMap.get(segmentGroupID);
-				groups.add(segmentID);
-				segmentsGroupsMap.put(segmentGroupID, groups);
-			}
-			// traverse through group segments finding segments inside
-			for(Include i : segmentGroup.getInclude())
-			{
-				// segment found
-				String sg = i.getSegmentGroup();
-				// segment not in map, add with new list for groups
-				if(segmentsGroupsMap.containsKey(sg))
-				{
-					List<String> segmentsMembers = segmentsGroupsMap.get(sg);
-					for(String key : segmentsMembers)
+					String segmentID = getVisualObjectIdentifier(segmentId.toString());
+					List<VisualGroupElement> groups;
+					// segment not in map, add with new list for groups
+					if(!segmentsMap.containsKey(segmentID))
 					{
-						List<VisualGroupElement> groups = segmentsMap.get(key);
+						groups = new ArrayList<VisualGroupElement>();
 						groups.add(visualGroupElement);
-						segmentsMap.put(key, groups);
+						segmentsMap.put(segmentID, groups);
 					}
+					// segment in map, get list and put with updated one for groups
+					else
+					{
+						groups = segmentsMap.get(segmentID);
+						groups.add(visualGroupElement);
+						segmentsMap.put(segmentID, groups);
+					}
+					segmentsMap.put(segmentID, groups);
 				}
 			}
 		}
 
-		// visualizationTree.addChild(cellParts);
+		// // AQP: Let's see if we can get all this information from the cellutils
+		// // segment not in map, add with new list for groups
+		// if(!segmentsGroupsMap.containsKey(segmentGroupID)) segmentsGroupsMap.put(segmentGroupID, new ArrayList<String>());
+		//
+		// // traverse through group segments finding segments inside
+		// for(Member member : segmentGroup.getMember())
+		// {
+		// // segment found
+		// String segmentID = getVisualObjectIdentifier(member.getSegment().toString());
+		//
+		// if(visualGroupElement != null)
+		// {
+		// // segment not in map, add with new list for groups
+		// if(!segmentsMap.containsKey(segmentID))
+		// {
+		// List<VisualGroupElement> groups = new ArrayList<VisualGroupElement>();
+		// groups.add(visualGroupElement);
+		// segmentsMap.put(segmentID, groups);
+		// }
+		// // segment in map, get list and put with updated one for groups
+		// else
+		// {
+		// List<VisualGroupElement> groups = segmentsMap.get(segmentID);
+		// groups.add(visualGroupElement);
+		// segmentsMap.put(segmentID, groups);
+		// }
+		// }
+		//
+		// List<String> groups = segmentsGroupsMap.get(segmentGroupID);
+		// groups.add(segmentID);
+		// segmentsGroupsMap.put(segmentGroupID, groups);
+		// }
+		//
+		// if(visualGroupElement != null)
+		// {
+		// // traverse through group segments finding segments inside
+		// for(Include i : segmentGroup.getInclude())
+		// {
+		// // segment found
+		// String sg = i.getSegmentGroup();
+		// // segment not in map, add with new list for groups
+		// if(segmentsGroupsMap.containsKey(sg))
+		// {
+		// List<String> segmentsMembers = segmentsGroupsMap.get(sg);
+		// for(String key : segmentsMembers)
+		// {
+		// List<VisualGroupElement> groups = segmentsMap.get(key);
+		// groups.add(visualGroupElement);
+		// segmentsMap.put(key, groups);
+		// }
+		// }
+		// }
+		// }
+		// }
+
 		return cellParts;
 	}
 
@@ -718,19 +731,6 @@ public class ExtractVisualType
 		point.setX(distal.getX());
 		point.setY(distal.getY());
 		point.setZ(distal.getZ());
-		return point;
-	}
-
-	/**
-	 * @param location
-	 * @return
-	 */
-	private Point getPoint(Location location)
-	{
-		Point point = valuesFactory.createPoint();
-		point.setX(location.getX().doubleValue());
-		point.setY(location.getY().doubleValue());
-		point.setZ(location.getZ().doubleValue());
 		return point;
 	}
 
