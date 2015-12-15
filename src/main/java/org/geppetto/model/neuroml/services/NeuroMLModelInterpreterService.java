@@ -168,6 +168,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 			_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
 
+			// Resolve lems model
+			// If there is any problem resolving the lems model we will try to go on anyway as there are some models, as purkinje, which are not valid lems format
 			Lems lems = ((Lems) lemsDocument);
 			try
 			{
@@ -181,39 +183,49 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				_logger.warn("Error resolving lems file");
 			}
 
+			// If we have a typeId let's get the type for this component
+			// Otherwise let's iterate through all the components
 			if(typeId != null && !typeId.isEmpty())
 			{
-				type = extractInfoFromComponent(lems.getComponent(typeId));
+				//type = extractInfoFromComponent(lems.getComponent(typeId));
+				types.put(typeId, extractInfoFromComponent(lems.getComponent(typeId)));
+				type = types.get(typeId);
 			}
 			else
 			{
 				boolean multipleTypes = false;
 				for(Component component : lems.getComponents())
 				{
-					if(!types.containsKey(component.getID())) types.put(component.getID(), extractInfoFromComponent(component));
-
-					// Business rule: If there is a network in the NeuroML file we don't visualize spurious cells which
-					// "most likely" are just included types in NeuroML and are instantiated as part of the network
-					// populations
-
-					Type currentType = types.get(component.getID());
-					if(type == null)
+					if(!types.containsKey(component.getID()))
 					{
-						type = currentType;
-					}
-					else
-					{
-						String declaredType = ((Component) type.getDomainModel().getDomainModel()).getDeclaredType();
-						String currentDeclaredType = ((Component) currentType.getDomainModel().getDomainModel()).getDeclaredType();
-						if(!declaredType.equals("network") && (currentDeclaredType.equals("network") || (!declaredType.equals("cell") && currentDeclaredType.equals("cell"))))
+						
+						types.put(component.getID(), extractInfoFromComponent(component));
+
+						// Business rule: 1) If there is a network in the NeuroML file we don't visualise spurious cells which
+						// "most likely" are just included types in NeuroML and are instantiated as part of the network
+						// populations
+						// If there is not a network we visualise the cell (as far as there is just a single cell)
+						// If there is just a single component we return the single cell
+						// Otherwise we throw an exception
+						Type currentType = types.get(component.getID());
+						if(type == null)
 						{
-							multipleTypes = false;
 							type = currentType;
 						}
-						else if((!declaredType.equals("cell") && !declaredType.equals("network")) || (declaredType.equals("cell") && currentDeclaredType.equals("cell"))
-								|| (declaredType.equals("network") && currentDeclaredType.equals("network")))
+						else
 						{
-							multipleTypes = true;
+							String declaredType = ((Component) type.getDomainModel().getDomainModel()).getDeclaredType();
+							String currentDeclaredType = ((Component) currentType.getDomainModel().getDomainModel()).getDeclaredType();
+							if(!declaredType.equals("network") && (currentDeclaredType.equals("network") || (!declaredType.equals("cell") && currentDeclaredType.equals("cell"))))
+							{
+								multipleTypes = false;
+								type = currentType;
+							}
+							else if((!declaredType.equals("cell") && !declaredType.equals("network")) || (declaredType.equals("cell") && currentDeclaredType.equals("cell"))
+									|| (declaredType.equals("network") && currentDeclaredType.equals("network")))
+							{
+								multipleTypes = true;
+							}
 						}
 					}
 				}
@@ -221,31 +233,15 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				if(multipleTypes) throw new ModelInterpreterException("Multiple types found and no type id specified");
 			}
 
+			// Add all the types to the library
 			library.getTypes().addAll(types.values());
 
-			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(access);
-
-			// Summary2
-			// Variable descriptionVariable = variablesFactory.createVariable();
-			// descriptionVariable.setId(Resources.MODEL_DESCRIPTION.getId());
-			// descriptionVariable.setName(Resources.MODEL_DESCRIPTION.get());
-			//
-			// descriptionVariable.getAnonymousTypes().add(populateSummaryNodesModelTreeUtils.createDescriptionNode((CompositeType) type));
-			//
-			// ((CompositeType) type).getVariables().add(descriptionVariable);
-
-			// Summary
-			Variable summaryVariable = variablesFactory.createVariable();
-			summaryVariable.setId(Resources.SUMMARY.getId());
-			summaryVariable.setName(Resources.SUMMARY.get());
-
-			summaryVariable.getAnonymousTypes().add(populateSummaryNodesModelTreeUtils.createInfoNode(InfoTreeCreator.createInfoTree(neuroml)));
-
-			((CompositeType) type).getVariables().add(summaryVariable);
+			// Extract Summary and Description nodes from type
+			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(neuroml, access);
+			((CompositeType) type).getVariables().addAll(populateSummaryNodesModelTreeUtils.getSummaryVariables());
 
 			// Add LEMS Parameter Feature
 			this.addFeature(new LEMSParametersFeature(library));
-
 		}
 		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
 		{
@@ -263,6 +259,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		CompositeType compositeType = typeFactory.createCompositeType();
 		ModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
 
+		// Parameter types
 		for(ParamValue pv : component.getParamValues())
 		{
 			if(component.hasAttribute(pv.getName()))
@@ -271,14 +268,16 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			}
 		}
 
+		// Text types
 		for(Entry<String, String> entry : component.getTextParamMap().entrySet())
 		{
 			compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(entry.getKey(), entry.getValue(), this.access));
 		}
 
+		// Composite Type
 		for(Entry<String, Component> entry : component.getRefComponents().entrySet())
 		{
-			if(!types.containsKey(entry.getKey()))
+			if(!types.containsKey(entry.getValue().getID()))
 			{
 				types.put(entry.getValue().getID(), extractInfoFromComponent(entry.getValue()));
 			}
@@ -288,12 +287,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			compositeType.getVariables().add(variable);
 		}
 
-		// Simulation Tree (Variable Node)
+		// Exposures are the variables that can potentially being watch.
 		for(Exposure exposure : component.getComponentType().getExposures())
 		{
 			compositeType.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
 		}
 
+		// Extracting populations
 		for(Component population : component.getChildrenAL("populations"))
 		{
 			if(!types.containsKey(population.getID()))
@@ -309,9 +309,14 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		}
 
+		for(Component projection : component.getChildrenAL("projections"))
+		{
+			createConnectionTypeVariablesForProjection(projection, compositeType);
+		}
+
 		for(Component componentChild : component.getAllChildren())
 		{
-			if(!componentChild.getDeclaredType().equals("population"))
+			if(!componentChild.getDeclaredType().equals("population") && !componentChild.getDeclaredType().equals("projections"))
 			{
 				if(componentChild.getDeclaredType().equals("morphology"))
 				{
@@ -323,83 +328,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					}
 
 					compositeType.setVisualType((VisualType) types.get(componentChild.getID()));
-				}
-				else if(componentChild.getDeclaredType().equals("projection"))
-				{
-
-					if(!types.containsKey(componentChild.getRefComponents().get("synapse").getID()))
-					{
-						CompositeType refCompositeType = extractInfoFromComponent(componentChild.getRefComponents().get("synapse"));
-						types.put(componentChild.getRefComponents().get("synapse").getID(), refCompositeType);
-					}
-
-					// Pre and post synaptic population should be ref component but there are just attributes
-					ArrayType prePopulationType = (ArrayType) types.get(componentChild.getAttributeValue("presynapticPopulation"));
-					Variable prePopulationVariable = null;
-					for(Variable variable : compositeType.getVariables())
-					{
-						if(variable.getId().equals(prePopulationType.getId()))
-						{
-							prePopulationVariable = variable;
-							break;
-						}
-					}
-
-					ArrayType postPopulationType = (ArrayType) types.get(componentChild.getAttributeValue("postsynapticPopulation"));
-					Variable postPopulationVariable = null;
-					for(Variable variable : compositeType.getVariables())
-					{
-						if(variable.getId().equals(postPopulationType.getId()))
-						{
-							postPopulationVariable = variable;
-							break;
-						}
-					}
-
-					for(Component projectionChild : componentChild.getAllChildren())
-					{
-						if(projectionChild.getDeclaredType().equals("connection"))
-						{
-							ConnectionType connectionType = typeFactory.createConnectionType();
-							ModelInterpreterUtils.initialiseNodeFromComponent(connectionType, projectionChild);
-
-							Variable synapseVariable = variablesFactory.createVariable();
-							ModelInterpreterUtils.initialiseNodeFromComponent(synapseVariable, componentChild.getRefComponents().get("synapse"));
-							synapseVariable.getTypes().add(types.get(componentChild.getRefComponents().get("synapse").getID()));
-							connectionType.getVariables().add(synapseVariable);
-
-							Connection connection = valuesFactory.createConnection();
-							connection.setConnectivity(Connectivity.DIRECTIONAL);
-
-							for(Attribute attribute : projectionChild.getAttributes())
-							{
-								if(attribute.getName().equals("preCellId"))
-								{
-									String preCellId = ModelInterpreterUtils.parseCellRefStringForCellNum(attribute.getValue());
-									Pointer prePointer = PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCellId));
-									connection.getA().add(prePointer);
-								}
-								else if(attribute.getName().equals("postCellId"))
-								{
-									String postCellId = ModelInterpreterUtils.parseCellRefStringForCellNum(attribute.getValue());
-									Pointer postPointer = PointerUtility.getPointer(postPopulationVariable, postPopulationType, Integer.parseInt(postCellId));
-									connection.getB().add(postPointer);
-								}
-								else
-								{
-									// preSegmentId, preFractionAlong, postSegmentId, postFractionAlong
-									connectionType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(attribute.getName(), attribute.getValue(), access));
-								}
-							}
-
-							Variable variable = variablesFactory.createVariable();
-							ModelInterpreterUtils.initialiseNodeFromComponent(variable, projectionChild);
-							// variable.getInitialValues().put(connectionType, connection);
-							variable.getAnonymousTypes().add(connectionType);
-							compositeType.getVariables().add(variable);
-						}
-					}
-
 				}
 				else
 				{
@@ -420,29 +348,99 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	}
 
+	public void createConnectionTypeVariablesForProjection(Component projection, CompositeType compositeType) throws GeppettoVisitingException, LEMSException, NeuroMLException
+	{
+		if(!types.containsKey(projection.getRefComponents().get("synapse").getID()))
+		{
+			types.put(projection.getRefComponents().get("synapse").getID(), extractInfoFromComponent(projection.getRefComponents().get("synapse")));
+		}
+
+		// Pre and post synaptic population should be ref component but there are just attributes
+		ArrayType prePopulationType = (ArrayType) types.get(projection.getAttributeValue("presynapticPopulation"));
+		Variable prePopulationVariable = null;
+		for(Variable variable : compositeType.getVariables())
+		{
+			if(variable.getId().equals(prePopulationType.getId()))
+			{
+				prePopulationVariable = variable;
+				break;
+			}
+		}
+
+		ArrayType postPopulationType = (ArrayType) types.get(projection.getAttributeValue("postsynapticPopulation"));
+		Variable postPopulationVariable = null;
+		for(Variable variable : compositeType.getVariables())
+		{
+			if(variable.getId().equals(postPopulationType.getId()))
+			{
+				postPopulationVariable = variable;
+				break;
+			}
+		}
+
+		for(Component projectionChild : projection.getAllChildren())
+		{
+			if(projectionChild.getDeclaredType().equals("connection"))
+			{
+				ConnectionType connectionType = typeFactory.createConnectionType();
+				ModelInterpreterUtils.initialiseNodeFromComponent(connectionType, projectionChild);
+
+				Variable synapseVariable = variablesFactory.createVariable();
+				ModelInterpreterUtils.initialiseNodeFromComponent(synapseVariable, projection.getRefComponents().get("synapse"));
+				synapseVariable.getTypes().add(types.get(projection.getRefComponents().get("synapse").getID()));
+				connectionType.getVariables().add(synapseVariable);
+
+				Connection connection = valuesFactory.createConnection();
+				connection.setConnectivity(Connectivity.DIRECTIONAL);
+
+				for(Attribute attribute : projectionChild.getAttributes())
+				{
+					if(attribute.getName().equals("preCellId"))
+					{
+						String preCellId = ModelInterpreterUtils.parseCellRefStringForCellNum(attribute.getValue());
+						Pointer prePointer = PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCellId));
+						connection.getA().add(prePointer);
+					}
+					else if(attribute.getName().equals("postCellId"))
+					{
+						String postCellId = ModelInterpreterUtils.parseCellRefStringForCellNum(attribute.getValue());
+						Pointer postPointer = PointerUtility.getPointer(postPopulationVariable, postPopulationType, Integer.parseInt(postCellId));
+						connection.getB().add(postPointer);
+					}
+					else
+					{
+						// preSegmentId, preFractionAlong, postSegmentId, postFractionAlong
+						connectionType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(attribute.getName(), attribute.getValue(), access));
+					}
+				}
+
+				Variable variable = variablesFactory.createVariable();
+				ModelInterpreterUtils.initialiseNodeFromComponent(variable, projectionChild);
+				// variable.getInitialValues().put(connectionType, connection);
+				variable.getAnonymousTypes().add(connectionType);
+				compositeType.getVariables().add(variable);
+			}
+		}
+	}
+
 	public void createPopulationTypeVariable(Component populationComponent) throws GeppettoVisitingException, LEMSException, NeuroMLException
 	{
 
+		if(!types.containsKey(populationComponent.getRefComponents().get("component").getID()))
+		{
+
+//			Variable variable = variablesFactory.createVariable();
+//			ModelInterpreterUtils.initialiseNodeFromComponent(variable, populationComponent.getRefComponents().get("component"));
+//			variable.getTypes().add(refCompositeType);
+			// compositeType.getVariables().add(variable);
+			types.put(populationComponent.getRefComponents().get("component").getID(), extractInfoFromComponent(populationComponent.getRefComponents().get("component")));
+		}
+		CompositeType refCompositeType = (CompositeType) types.get(populationComponent.getRefComponents().get("component").getID());
+		
 		ArrayType arrayType = typeFactory.createArrayType();
 		ModelInterpreterUtils.initialiseNodeFromComponent(arrayType, populationComponent);
 		arrayType.setSize(Integer.parseInt(populationComponent.getStringValue("size")));
 		arrayType.setArrayType(types.get(populationComponent.getRefComponents().get("component").getID()));
-
-		CompositeType refCompositeType;
-		if(!types.containsKey(populationComponent.getRefComponents().get("component").getID()))
-		{
-			refCompositeType = extractInfoFromComponent(populationComponent.getRefComponents().get("component"));
-
-			Variable variable = variablesFactory.createVariable();
-			ModelInterpreterUtils.initialiseNodeFromComponent(variable, populationComponent.getRefComponents().get("component"));
-			variable.getTypes().add(refCompositeType);
-			// compositeType.getVariables().add(variable);
-			types.put(((Component) refCompositeType.getDomainModel().getDomainModel()).getID(), refCompositeType);
-		}
-		else
-		{
-			refCompositeType = (CompositeType) types.get(populationComponent.getRefComponents().get("component").getID());
-		}
 
 		if(!populationComponent.getRefComponents().get("component").getDeclaredType().equals("cell"))
 		{
