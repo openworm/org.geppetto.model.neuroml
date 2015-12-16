@@ -36,6 +36,7 @@ package org.geppetto.model.neuroml.utils;
 /**
  * Class to hold resources used in the visualiser. This elements will be displayed to the user.
  * @author matteocantarelli
+ * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  *
  */
 public enum Resources

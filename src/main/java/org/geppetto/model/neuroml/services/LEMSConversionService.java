@@ -50,7 +50,6 @@ import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.ModelFormat;
-import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
 import org.lemsml.export.base.IBaseWriter;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;

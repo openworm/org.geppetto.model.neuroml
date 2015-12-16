@@ -36,6 +36,7 @@ package org.geppetto.model.neuroml.utils;
 /**
  * Class to hold resources used in the visualiser. This elements will be displayed to the user.
  * @author matteocantarelli
+ * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  *
  */
 public enum ResourcesDomainType
@@ -61,6 +62,14 @@ public enum ResourcesDomainType
 	public String get()
 	{
 		return _value;
+	}
+	
+	public static ResourcesDomainType getValueByValue(String value){
+		for(ResourcesDomainType e : ResourcesDomainType.values()){
+            if(value == e._value) return e;
+        }
+		//If we can't find a value, return the id
+		return null;
 	}
 	
 }

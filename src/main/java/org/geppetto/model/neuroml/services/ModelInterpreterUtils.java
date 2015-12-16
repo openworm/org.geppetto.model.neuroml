@@ -10,6 +10,7 @@ import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.Node;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.modeltree.PopulateGeneralModelTreeUtils;
+import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;

@@ -33,8 +33,6 @@
 package org.geppetto.model.neuroml.services;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,25 +41,15 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
-import org.geppetto.core.beans.PathConfiguration;
-import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
-import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
-import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.values.Pointer;
-import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Lems;
-import org.lemsml.jlems.io.xmlio.XMLSerializer;
-import org.neuroml.model.NeuroMLDocument;
-import org.neuroml.model.util.NeuroMLConverter;
-import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

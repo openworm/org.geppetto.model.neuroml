@@ -130,7 +130,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			modelDescription.append("Description: ");
 			for(Type network : networkComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + network.getPath() + "$\">" + network.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + network.getId() + "$\">" + network.getName() + "</a> ");
 			}
 		}
 		modelDescription.append("<br/><a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/>");
@@ -142,7 +142,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			for(Type population : populationComponents)
 			{
 				modelDescription.append("Population " + population.getId() + ": ");
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + ((ArrayType) population).getArrayType().getPath() + "$\">" + ((ArrayType) population).getSize() + " "
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + ((ArrayType) population).getArrayType().getId() + "$\">" + ((ArrayType) population).getSize() + " "
 						+ ((ArrayType) population).getArrayType().getId() + "</a><br/>");
 			}
 			modelDescription.append("<br/>");
@@ -153,7 +153,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			modelDescription.append("<b>Cells</b><br/>");
 			for(Type cell : cellComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + cell.getPath() + "$\">" + cell.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + cell.getId() + "$\">" + cell.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
 		}
@@ -163,7 +163,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			modelDescription.append("<b>Channels</b><br/>");
 			for(Type ionChannel : ionChannelComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + ionChannel.getPath() + "$\">" + ionChannel.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + ionChannel.getId() + "$\">" + ionChannel.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
 		}
@@ -173,7 +173,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			modelDescription.append("<b>Synapses</b><br/>");
 			for(Type synapse : synapseComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + synapse.getPath() + "$\">" + synapse.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + synapse.getId() + "$\">" + synapse.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
 		}
@@ -184,7 +184,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			modelDescription.append("<b>Inputs</b><br/>");
 			for(Type pulseGenerator : pulseGeneratorComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + pulseGenerator.getPath() + "$\">" + pulseGenerator.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"$" + pulseGenerator.getId() + "$\">" + pulseGenerator.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
 		}

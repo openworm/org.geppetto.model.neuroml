@@ -40,6 +40,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -89,7 +90,6 @@ import org.geppetto.model.variables.VariablesFactory;
 import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
-import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Attribute;
 import org.lemsml.jlems.core.type.Component;
@@ -99,6 +99,7 @@ import org.lemsml.jlems.core.type.ParamValue;
 import org.lemsml.jlems.io.xmlio.XMLSerializer;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,6 +119,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
 
 	private Map<String, Type> types = new HashMap<String, Type>();
+	private Map<ResourcesDomainType, List<Type>> typesMap = new HashMap<ResourcesDomainType, List<Type>>();
 	private Type type = null;
 
 	private GeppettoModelAccess access;
@@ -234,8 +236,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			library.getTypes().addAll(types.values());
 
 			// Extract Summary and Description nodes from type
-			//AQP we need to implement a map resoucesdomaintype-list<types> and a method for setting the domain type. Once than remove empty hashmap parameter
-			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(neuroml, new HashMap<ResourcesDomainType, List<Type>>(), url, access);
+			// AQP we need to implement a map resoucesdomaintype-list<types> and a method for setting the domain type. Once than remove empty hashmap parameter
+			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(neuroml, typesMap, url, access);
 			((CompositeType) type).getVariables().addAll(populateSummaryNodesModelTreeUtils.getSummaryVariables());
 
 			// Add LEMS Parameter Feature
@@ -251,10 +253,77 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return type;
 	}
 
+	/*
+	 * Return a regular composite type if domainType is null. Otherwise return
+	 */
+	private Type getCompositeType(String domainName)
+	{
+		if(domainName == null)
+		{
+			return typeFactory.createCompositeType();
+		}
+		else if(!types.containsKey(domainName))
+		{
+			Type domainType;
+			typesMap.put(ResourcesDomainType.getValueByValue(domainName), new ArrayList<Type>());
+
+			domainType = typeFactory.createCompositeType();
+			domainType.setId(domainName);
+			domainType.setName(domainName);
+			types.put(domainName, domainType);
+		}
+
+		Type newType;
+		if(domainName.equals(ResourcesDomainType.POPULATION.get())) newType = typeFactory.createArrayType();
+		else newType = typeFactory.createCompositeType();
+		newType.setSuperType(types.get(domainName));
+
+		List<Type> typeList = typesMap.get(ResourcesDomainType.getValueByValue(domainName));
+		typeList.add(newType);
+
+		return newType;
+	}
+
 	private CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException
 	{
+		return extractInfoFromComponent(component, null);
+	}
 
-		CompositeType compositeType = typeFactory.createCompositeType();
+	private CompositeType extractInfoFromComponent(Component component, String domainType) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException
+	{
+		String declaredType = component.getDeclaredType();
+
+		// AQP: Try to centralise all the domain type in a single pace. Problem: cells inside population
+		CompositeType compositeType = null;
+		if(domainType != null)
+		{
+			compositeType = (CompositeType) getCompositeType(domainType);
+		}
+		else
+		{
+			if(declaredType.equals("network"))
+			{
+				compositeType = (CompositeType) getCompositeType(ResourcesDomainType.NETWORK.get());
+			}
+			else if(declaredType.startsWith("ionChannel"))
+			{
+				compositeType = (CompositeType) getCompositeType(ResourcesDomainType.IONCHANNEL.get());
+			}
+			// AQP: Review all the possible pulse generator
+			else if(declaredType.equals("pulseGenerator"))
+			{
+				compositeType = (CompositeType) getCompositeType(ResourcesDomainType.PULSEGENERATOR.get());
+			}
+			else if(declaredType.equals("synapse"))
+			{
+				compositeType = (CompositeType) getCompositeType(ResourcesDomainType.SYNAPSE.get());
+			}
+			else
+			{
+				compositeType = typeFactory.createCompositeType();
+			}
+		}
+
 		ModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
 
 		// Parameter types
@@ -432,11 +501,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		if(!types.containsKey(populationComponent.getRefComponents().get("component").getID()))
 		{
-			types.put(populationComponent.getRefComponents().get("component").getID(), extractInfoFromComponent(populationComponent.getRefComponents().get("component")));
+			types.put(populationComponent.getRefComponents().get("component").getID(),
+					extractInfoFromComponent(populationComponent.getRefComponents().get("component"), ResourcesDomainType.CELL.get()));
 		}
 		CompositeType refCompositeType = (CompositeType) types.get(populationComponent.getRefComponents().get("component").getID());
-		
-		ArrayType arrayType = typeFactory.createArrayType();
+
+		ArrayType arrayType = (ArrayType) getCompositeType(ResourcesDomainType.POPULATION.get());
 		ModelInterpreterUtils.initialiseNodeFromComponent(arrayType, populationComponent);
 		arrayType.setSize(Integer.parseInt(populationComponent.getStringValue("size")));
 
@@ -472,6 +542,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		ArrayValue arrayValue = valuesFactory.createArrayValue();
 
 		String populationType = populationComponent.getTypeName();
+		// If it is not of type populationList we don't have to do anything in particular
 		if(populationType != null && populationType.equals("populationList"))
 		{
 
@@ -500,13 +571,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			}
 
 		}
-		else
-		{
-
-		}
 		arrayType.setDefaultValue(arrayValue);
 		types.put(populationComponent.getID(), arrayType);
-
 	}
 
 	/*
@@ -553,15 +619,20 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				else
 				{
 
-					// LinkedHashMap<String, Standalone> neuroMLComponent = Utils.convertLemsComponentToNeuroML((Component)domainModel.getDomainModel());
-					// NeuroMLDocument neuroMLDoc = new NeuroMLDocument();
+					LinkedHashMap<String, Standalone> neuroMLComponent = Utils.convertLemsComponentToNeuroML((Component) domainModel.getDomainModel());
+
+					NeuroMLDocument neuroMLDoc = new NeuroMLDocument();
+
+					for(Standalone standalone : neuroMLComponent.values())
+					{
+						NeuroMLConverter.addElementToDocument(neuroMLDoc, standalone);
+					}
 
 					// Serialise NEUROML object
-					// NeuroMLDocument neuroMLDoc = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
-					// NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
-					// serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
-					// // Change extension to nml
-					// outputFile += "nml";
+					NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
+					serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
+					// Change extension to nml
+					outputFile += "nml";
 				}
 
 				// Write to disc
@@ -571,7 +642,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				return outputFolder;
 
 			}
-			catch(ContentError | IOException e)
+			catch(IOException | LEMSException | NeuroMLException e)
 			{
 				throw new ModelInterpreterException(e);
 			}
