@@ -236,7 +236,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			library.getTypes().addAll(types.values());
 
 			// Extract Summary and Description nodes from type
-			// AQP we need to implement a map resoucesdomaintype-list<types> and a method for setting the domain type. Once than remove empty hashmap parameter
 			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(neuroml, typesMap, url, access);
 			((CompositeType) type).getVariables().addAll(populateSummaryNodesModelTreeUtils.getSummaryVariables());
 
@@ -520,8 +519,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
 
 				Sphere sphere = valuesFactory.createSphere();
-				// SphereNode sphereNode = new SphereNode(id);
 				sphere.setRadius(1.2d);
+				Point point = valuesFactory.createPoint();
+				point.setX(0);
+				point.setY(0);
+				point.setZ(0);
+				sphere.setPosition(point);
 
 				Variable variable = variablesFactory.createVariable();
 				variable.setId(populationComponent.getRefComponents().get("component").getID());
