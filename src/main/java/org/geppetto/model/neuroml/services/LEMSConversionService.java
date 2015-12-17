@@ -128,7 +128,12 @@ public class LEMSConversionService extends AConversion
 		_logger.info("Getting supported outputs for a specific model and input format " + model.getFormat());
 		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
 
-		Lems lems = (Lems) model.getDomainModel();
+		Component component = (Component) model.getDomainModel();
+		
+		
+		Lems lems = new Lems();
+		lems.addComponent(component);
+		
 		processLems(lems);
 		try
 		{
@@ -141,6 +146,7 @@ public class LEMSConversionService extends AConversion
 		}
 		catch(NeuroMLException | LEMSException e)
 		{
+			e.printStackTrace();
 			_logger.error("NeuroMLException or LEMS exception caught while getting supported outputs");
 			throw new ConversionException(e);
 		}

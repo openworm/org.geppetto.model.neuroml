@@ -262,7 +262,7 @@ public class PopulateSummaryNodesModelTreeUtils
 					Variable variable = variablesFactory.createVariable();
 					variable.setId(PopulateGeneralModelTreeUtils.parseId(keyProperties));
 					variable.setName(keyProperties);
-					// variable.getInitialValues().put(access.getType(TypesPackage.Literals.DYNAMICS_TYPE), dynamics);
+					//variable.getInitialValues().put(access.getType(TypesPackage.Literals.DYNAMICS_TYPE), dynamics);
 					variable.getTypes().add(access.getType(TypesPackage.Literals.DYNAMICS_TYPE));
 
 					summaryCompositeType.getVariables().add(variable);

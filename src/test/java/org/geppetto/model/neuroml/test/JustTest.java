@@ -33,6 +33,7 @@
 
 package org.geppetto.model.neuroml.test;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
@@ -57,6 +58,7 @@ import org.geppetto.model.neuroml.services.LEMSConversionService;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.geppetto.model.types.Type;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -125,15 +127,15 @@ public class JustTest
 	@Test
 	public void testAcnet() throws Exception
 	{
-		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2AllTypes.xmi", "network_ACnet2", true);
-		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2AllTypes.xmi", null, true);
+		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2.xmi", "network_ACnet2", true);
+		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2NoTarget.xmi", null, true);
 	}
 	
 	@Test
-	public void testPurk() throws Exception
+	public void testPurkinje() throws Exception
 	{
-		serialise("/purk.nml", "./src/test/resources/purk.xmi", "purk2", true);
-		serialise("/purk.nml", "./src/test/resources/purk.xmi", null, true);
+		serialise("/purk.nml", "./src/test/resources/purkinje.xmi", "purk2", true);
+		serialise("/purk.nml", "./src/test/resources/purkinjeNotarget.xmi", null, true);
 	}
 
 	/**
@@ -147,10 +149,30 @@ public class JustTest
 	@Test
 	public void testBask() throws Exception
 	{
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.xmi", "bask", true);
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.xmi", null, true);
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskAllTypes.json", "bask", true);
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.xmi", "bask", true);
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskNoTarget.xmi", null, true);
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.json", "bask", true);
 	}
 
+	@AfterClass
+	public static void doYourOneTimeTeardown()
+	{
+//		File acnet2 = new File("./src/test/resources/acnet2.xmi");
+//		acnet2.delete();
+		File acnet2NoTarget = new File("./src/test/resources/acnet2NoTarget.xmi");
+		acnet2NoTarget.delete();
+		
+		File purkinje = new File("./src/test/resources/purkinje.xmi");
+		purkinje.delete();
+		File purkinjeNotarget = new File("./src/test/resources/purkinjeNotarget.xmi");
+		purkinjeNotarget.delete();
+		
+		File bask = new File("./src/test/resources/bask.xmi");
+		bask.delete();
+		File baskNoTarget = new File("./src/test/resources/baskNoTarget.xmi");
+		baskNoTarget.delete();
+		File baskjson = new File("./src/test/resources/bask.json");
+		baskjson.delete();
+	}
 }
 

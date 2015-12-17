@@ -240,7 +240,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			((CompositeType) type).getVariables().addAll(populateSummaryNodesModelTreeUtils.getSummaryVariables());
 
 			// Add LEMS Parameter Feature
-			this.addFeature(new LEMSParametersFeature(library));
+			this.addFeature(new LEMSParametersFeature());
 		}
 		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
 		{
@@ -369,10 +369,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 			Variable variable = variablesFactory.createVariable();
 			ModelInterpreterUtils.initialiseNodeFromComponent(variable, population);
-			// variable.getInitialValues().put(key, value);
+			//variable.getInitialValues().put(key, value);
 			variable.getTypes().add(types.get(population.getID()));
 			compositeType.getVariables().add(variable);
-
 		}
 
 		for(Component projection : component.getChildrenAL("projections"))
@@ -488,7 +487,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				Variable variable = variablesFactory.createVariable();
 				variable.setName(Resources.PROJECTION_ID + " - " + projection.getID() + " / " + Resources.CONNECTION + " - " + projectionChild.getID());
 				variable.setId(Resources.CONNECTION.getId() + projection.getID() + projectionChild.getID());
-				// variable.getInitialValues().put(connectionType, connection);
+				//variable.getInitialValues().put(connectionType, connection);
 				variable.getAnonymousTypes().add(connectionType);
 				compositeType.getVariables().add(variable);
 			}
@@ -530,7 +529,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				variable.setId(populationComponent.getRefComponents().get("component").getID());
 				variable.setName(populationComponent.getRefComponents().get("component").getID());
 				variable.getTypes().add(this.access.getType(TypesPackage.Literals.VISUAL_TYPE));
-				variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), sphere);
+				//variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), sphere);
 
 				visualCompositeType.getVariables().add(variable);
 
