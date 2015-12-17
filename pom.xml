@@ -172,7 +172,7 @@
 						</Include-Resource>
 						<Import-Package>
 							org.apache.velocity.app,org.apache.velocity.runtime.log,
-							com.sun.xml.bind.v2.model.core,org.geppetto.core.scope,org.aopalliance.aop,org.springframework.aop,,org.springframework.aop.scope,org.springframework.aop.framework,*
+							com.sun.xml.bind.v2.model.core,org.aopalliance.aop,org.springframework.aop,,org.springframework.aop.scope,org.springframework.aop.framework,*
 						</Import-Package>
 					</instructions>
 				</configuration>
