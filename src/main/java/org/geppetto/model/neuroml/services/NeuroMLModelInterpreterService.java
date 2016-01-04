@@ -172,10 +172,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			Lems lems = ((Lems) lemsDocument);
 			try
 			{
-				lems.setResolveModeLoose();
-				lems.deduplicate();
-				lems.resolve();
-				lems.evaluateStatic();
+				ModelInterpreterUtils.processLems(lems);
 			}
 			catch(NumberFormatException | LEMSException e)
 			{
@@ -369,19 +366,21 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 			Variable variable = variablesFactory.createVariable();
 			ModelInterpreterUtils.initialiseNodeFromComponent(variable, population);
-			//variable.getInitialValues().put(key, value);
+			// variable.getInitialValues().put(key, value);
 			variable.getTypes().add(types.get(population.getID()));
 			compositeType.getVariables().add(variable);
 		}
 
+		// Extracting projection and connections
 		for(Component projection : component.getChildrenAL("projections"))
 		{
 			createConnectionTypeVariablesForProjection(projection, compositeType);
 		}
 
+		//Extracting the rest of the children
 		for(Component componentChild : component.getAllChildren())
 		{
-			if(!componentChild.getDeclaredType().equals("population") && !componentChild.getDeclaredType().equals("projections"))
+			if(!componentChild.getDeclaredType().equals("population") && !componentChild.getDeclaredType().equals("projection"))
 			{
 				if(componentChild.getDeclaredType().equals("morphology"))
 				{
@@ -415,6 +414,23 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	public void createConnectionTypeVariablesForProjection(Component projection, CompositeType compositeType) throws GeppettoVisitingException, LEMSException, NeuroMLException
 	{
+		CompositeType projectionType = null;
+		if(!types.containsKey(projection.getID()))
+		{
+			projectionType = (CompositeType) getCompositeType(ResourcesDomainType.PROJECTION.get());
+			ModelInterpreterUtils.initialiseNodeFromComponent(projectionType, projection);
+			types.put(projection.getID(), projectionType);
+		}
+		else
+		{
+			projectionType = (CompositeType) types.get(projection.getID());
+		}
+		Variable projectionVariable = variablesFactory.createVariable();
+		ModelInterpreterUtils.initialiseNodeFromComponent(projectionVariable, projection);
+		// variable.getInitialValues().put(key, value);
+		projectionVariable.getTypes().add(types.get(projection.getID()));
+		compositeType.getVariables().add(projectionVariable);
+
 		if(!types.containsKey(projection.getRefComponents().get("synapse").getID()))
 		{
 			types.put(projection.getRefComponents().get("synapse").getID(), extractInfoFromComponent(projection.getRefComponents().get("synapse")));
@@ -448,7 +464,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			if(projectionChild.getDeclaredType().equals("connection"))
 			{
 				ConnectionType connectionType = typeFactory.createConnectionType();
-				connectionType.setName(Resources.PROJECTION_ID + " - " + projection.getID() + " / " + Resources.CONNECTION + " - " + projectionChild.getID());
+				connectionType.setName(Resources.CONNECTION + " - " + projectionChild.getID());
 				connectionType.setId(Resources.CONNECTION.getId() + projection.getID() + projectionChild.getID());
 				DomainModel domainModel = GeppettoFactory.eINSTANCE.createDomainModel();
 				domainModel.setDomainModel(projectionChild);
@@ -485,11 +501,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 
 				Variable variable = variablesFactory.createVariable();
-				variable.setName(Resources.PROJECTION_ID + " - " + projection.getID() + " / " + Resources.CONNECTION + " - " + projectionChild.getID());
+				variable.setName(Resources.CONNECTION + " - " + projectionChild.getID());
 				variable.setId(Resources.CONNECTION.getId() + projection.getID() + projectionChild.getID());
-				//variable.getInitialValues().put(connectionType, connection);
+				// variable.getInitialValues().put(connectionType, connection);
 				variable.getAnonymousTypes().add(connectionType);
-				compositeType.getVariables().add(variable);
+				projectionType.getVariables().add(variable);
 			}
 		}
 	}
@@ -529,7 +545,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				variable.setId(populationComponent.getRefComponents().get("component").getID());
 				variable.setName(populationComponent.getRefComponents().get("component").getID());
 				variable.getTypes().add(this.access.getType(TypesPackage.Literals.VISUAL_TYPE));
-				//variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), sphere);
+				// variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), sphere);
 
 				visualCompositeType.getVariables().add(variable);
 

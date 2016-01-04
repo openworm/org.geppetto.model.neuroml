@@ -37,6 +37,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +51,8 @@ import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.ModelFormat;
+import org.geppetto.model.types.Type;
+import org.geppetto.model.util.PointerUtility;
 import org.lemsml.export.base.IBaseWriter;
 import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -62,6 +65,7 @@ import org.lemsml.jlems.core.xml.XMLAttribute;
 import org.neuroml.export.utils.ExportFactory;
 import org.neuroml.export.utils.Format;
 import org.neuroml.export.utils.SupportedFormats;
+import org.neuroml.export.utils.Utils;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.stereotype.Service;
 
@@ -128,15 +132,14 @@ public class LEMSConversionService extends AConversion
 		_logger.info("Getting supported outputs for a specific model and input format " + model.getFormat());
 		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
 
-		Component component = (Component) model.getDomainModel();
-		
-		
-		Lems lems = new Lems();
-		lems.addComponent(component);
-		
-		processLems(lems);
 		try
 		{
+			// Read LEMS component to convert and add to the LEMS file
+			Lems lems = new Lems();
+			lems.addComponent((Component) model.getDomainModel());
+			ModelInterpreterUtils.processLems(lems);
+
+			// Get supported outputs and add them to the model formats list
 			for(Format format : SupportedFormats.getSupportedOutputs(lems))
 			{
 				// Convert from export formats to Geppetto formats
@@ -157,30 +160,30 @@ public class LEMSConversionService extends AConversion
 	public DomainModel convert(DomainModel model, ModelFormat output, IAspectConfiguration aspectConfig) throws ConversionException
 	{
 		_logger.info("Converting model from " + model.getFormat() + " to " + output.getModelFormat());
+		// AQP: Review if this was commented out
 		// checkSupportedFormat(input);
-
-		// Read lems
-		Lems lems = (Lems) model.getDomainModel();
-		processLems(lems);
 
 		ExternalDomainModel outputModel = GeppettoFactory.eINSTANCE.createExternalDomainModel();
 		try
 		{
-			// Create Folder
-			File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId, PathConfiguration.getName(output.getModelFormat()+ PathConfiguration.downloadModelFolderName,true));
+			// Create LEMS file with NML dependencies
+			Lems lems = Utils.getLemsWithNML2CompTypes();
+			
+			// Read LEMS component to convert and add to the LEMS file
+			Component component = (Component) model.getDomainModel();
+			lems.addComponent(component);
+			
+			// Process LEMS
+			ModelInterpreterUtils.processLems(lems);
 
-			// FIXME: When we can convert models without targets this needs to be changed
+			// Create Folder
+			File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId,
+					PathConfiguration.getName(output.getModelFormat() + PathConfiguration.downloadModelFolderName, true));
+
+			// FIXME: When we can convert models without targets this needs to be changed (currently the export library can only convert models with a target component)
 
 			// Extracting watch variables from aspect configuration
-			// Delete any output file block
 			PrintWriter writer = new PrintWriter(outputFolder + "/outputMapping.dat");
-			
-			if(lems.getTargets().size() > 0)
-			{
-				// Delete previous simulation component from LEMS. Not sure if this is needed
-				LemsCollection<Component> lemsComponent = lems.getComponents();
-				lemsComponent.getContents().remove(lems.getTarget().getComponent());
-			}
 
 			if(aspectConfig != null)
 			{
@@ -196,43 +199,22 @@ public class LEMSConversionService extends AConversion
 				writer.println("results/results.dat");
 
 				// Add outputcolumn and variable to outputmapping file per watch variable
-				String variables = "time";
+				String variables = "time(StateVariable)";
 				if(aspectConfig.getWatchedVariables() != null)
 				{
 					for(IInstancePath watchedVariable : aspectConfig.getWatchedVariables())
 					{
-						//AQP: We need to check how to convert from geppetto path to neuroml path
-						//String localInstancePath = watchedVariable.getLocalInstancePath();
-						String localInstancePath = watchedVariable.getInstancePath();
-						String subEntityPath = "";
+						String instancePath = watchedVariable.getInstancePath();
 						
 						// Create output column component
-						Component outputColumn = new Component(localInstancePath.substring(localInstancePath.lastIndexOf(".") + 1), new ComponentType("OutputColumn"));
-						
-						// Create LEMS variable Path 
-						String quantity = "";
-						//AQP: We need to check how to convert from geppetto path to neuroml path
-						//String[] splittedEntityInstancePath = watchedVariable.getEntityInstancePath().split("\\.");
-						String[] splittedEntityInstancePath = watchedVariable.getInstancePath().split("\\.");
-						if (splittedEntityInstancePath.length >1){
-							String entityPath = splittedEntityInstancePath[1];
-							
-							String populationName = entityPath.substring(0, entityPath.lastIndexOf("_"));
-							String populationInstance = entityPath.substring(entityPath.lastIndexOf("_") + 1);
-							
-							subEntityPath = populationName + "[" + populationInstance + "].";
-						}
-						
-						quantity += subEntityPath + localInstancePath;
-						quantity = quantity.replace(".", "/");
-						//AQP
-//						Component comp = LEMSAccessUtility.findLEMSComponent(lems.getComponents().getContents(), aspectConfig.getSimulatorConfiguration().getParameters().get("target"));
-//						if (LEMSAccessUtility.getSimulationTreePathType(comp).equals("populationList")){
-//							quantity = quantity.replace("[", "/").replace("]","");
-//						}
-						outputColumn.addAttribute(new XMLAttribute("quantity", quantity));
+						Component outputColumn = new Component(instancePath.substring(instancePath.lastIndexOf(".")+1).replace("(", "_").replace(")",""), new ComponentType("OutputColumn"));
 
-						//Add output column component to file
+						// Convert from Geppetto to LEMS Path
+						// outputColumn.addAttribute(new XMLAttribute("quantity", quantity));
+						// outputColumn.addAttribute(new XMLAttribute("quantity", "baskets_12/" + i + "/bask/0/v"));
+						outputColumn.addAttribute(new XMLAttribute("quantity", extractLEMSPath(component, instancePath)));
+
+						// Add output column component to file
 						outputFile.addComponent(outputColumn);
 						variables += " " + watchedVariable.getInstancePath();
 					}
@@ -243,13 +225,13 @@ public class LEMSConversionService extends AConversion
 				simulationComponent.addComponent(outputFile);
 				lems.addComponent(simulationComponent);
 				lems.setTargetComponent(simulationComponent);
-				processLems(lems);
+				ModelInterpreterUtils.processLems(lems);
 
 			}
 
 			writer.close();
 
-			String outputFileName="";
+			String outputFileName = "";
 			if(convertModel)
 			{
 				// FIXME: the py extension can be added inside.
@@ -273,19 +255,108 @@ public class LEMSConversionService extends AConversion
 		return outputModel;
 	}
 
-	private void processLems(Lems lems) throws ConversionException
+	
+	// Check whether main component is a network or a cell. If it is a network, return the type of population, otherwise return cell
+	// Returned value will define the lems path format 
+	public static String getSimulationTreePathType(Component targetComponent)
 	{
-		try
+		if(targetComponent.getDeclaredType().equals("network"))
 		{
-			lems.setResolveModeLoose();
-			lems.deduplicate();
-			lems.resolve();
-			lems.evaluateStatic();
+			// It is a network
+			for(Component componentChild : targetComponent.getAllChildren())
+			{
+				if(componentChild.getDeclaredType().equals("population"))
+				{
+					// population = componentChild;
+					if(componentChild.getComponentType().getName().equals("populationList"))
+					{
+						return "populationList";
+					}
+				}
+			}
+			return "population";
+
 		}
-		catch(ContentError | ParseError e)
+		else
 		{
-			throw new ConversionException(e);
+			// It is a cell
+			return "cell";
 		}
+
+	}
+
+	/**
+	 * @param token
+	 * @return
+	 */
+	private String extractLEMSPath(Component component, String watchedVariable) throws ContentError
+	{
+		// First we identify what sort of network/cell it is and depending on this we will generate the Simulation Tree format
+		String simulationTreePathType = getSimulationTreePathType(component);
+		// populationList,population,cell
+
+		String lemsPath = "";
+
+		StringTokenizer st = new StringTokenizer(watchedVariable, ".");
+		while(st.hasMoreElements())
+		{
+			String instancePath = (component.getID() != null) ? component.getID() : component.getDeclaredType();
+			
+			String token = st.nextToken();
+			if(!st.hasMoreTokens())
+			{
+				lemsPath += "/" + PointerUtility.getVariable(token);
+			}
+			else if(!instancePath.equals(PointerUtility.getType(token)))
+			{
+				
+				for(Component componentChild : component.getAllChildren())
+				{
+					String componentChildInstancePath = (componentChild.getID() != null) ? componentChild.getID() : componentChild.getDeclaredType();
+					if(componentChildInstancePath.equals(PointerUtility.getType(token)))
+					{
+						component = componentChild;
+						instancePath = componentChildInstancePath; 
+						break;
+					}
+				}
+
+				if(component.getDeclaredType().equals("population"))
+				{
+
+					String populationSize = component.getStringValue("size");
+
+					component = component.getRefComponents().get("component");
+					
+					// Create path for cells and network
+					if(Integer.parseInt(populationSize) == 1)
+					{
+						lemsPath += instancePath + "[0]";
+					}
+					else
+					{
+						if(simulationTreePathType.equals("populationList"))
+						{
+							//FIXME AQP What to do with the different segments?
+							lemsPath += instancePath + "/" + PointerUtility.getIndex(token) + "/" + component.getID() + "/0";
+						}
+						else
+						{
+							lemsPath += instancePath + "[" + PointerUtility.getIndex(token) + "]";
+						}
+					}
+
+				}
+				else
+				{
+					lemsPath += "/" + PointerUtility.getType(token);
+				}
+
+			}
+		}
+		System.out.println("lemsPath");
+		System.out.println(lemsPath);
+		return lemsPath;
 	}
 
 }

@@ -3,14 +3,13 @@ package org.geppetto.model.neuroml.services;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.Node;
 import org.geppetto.model.neuroml.utils.Resources;
-import org.geppetto.model.neuroml.utils.modeltree.PopulateGeneralModelTreeUtils;
-import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;
@@ -20,7 +19,10 @@ import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
+import org.lemsml.jlems.core.expression.ParseError;
+import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Component;
+import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Base;
 
 public class ModelInterpreterUtils
@@ -81,9 +83,9 @@ public class ModelInterpreterUtils
 		text.setText(value);
 
 		Variable variable = variablesFactory.createVariable();
-		variable.setId(PopulateGeneralModelTreeUtils.parseId(id));
+		variable.setId(parseId(id));
 		variable.setName(id);
-		//variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+		// variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
 		variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
 		return variable;
 	}
@@ -104,14 +106,14 @@ public class ModelInterpreterUtils
 			physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
 
 			Variable variable = variablesFactory.createVariable();
-			//variable.getInitialValues().put(access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
-			ModelInterpreterUtils.initialiseNodeFromString(variable, id);
+			// variable.getInitialValues().put(access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
+			initialiseNodeFromString(variable, id);
 			variable.getTypes().add(access.getType(TypesPackage.Literals.PARAMETER_TYPE));
 			return variable;
 		}
 		return null;
 	}
-	
+
 	public static Variable createExposureTypeVariable(String id, String unitSymbol, GeppettoModelAccess access) throws GeppettoVisitingException
 	{
 		if(unitSymbol.equals("none")) unitSymbol = "";
@@ -122,8 +124,8 @@ public class ModelInterpreterUtils
 		physicalQuantity.setUnit(unit);
 
 		Variable variable = variablesFactory.createVariable();
-		//variable.getInitialValues().put(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE), physicalQuantity);
-		ModelInterpreterUtils.initialiseNodeFromString(variable, id);
+		// variable.getInitialValues().put(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE), physicalQuantity);
+		initialiseNodeFromString(variable, id);
 		variable.getTypes().add(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE));
 		return variable;
 	}
@@ -145,5 +147,13 @@ public class ModelInterpreterUtils
 	{
 		node.setName(Resources.getValueById(attributesName));
 		node.setId(attributesName);
+	}
+
+	public static void processLems(Lems lems) throws ContentError, ParseError
+	{
+		lems.setResolveModeLoose();
+		lems.deduplicate();
+		lems.resolve();
+		lems.evaluateStatic();
 	}
 }

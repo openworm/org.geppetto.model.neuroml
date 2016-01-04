@@ -48,6 +48,7 @@ public enum ResourcesDomainType
 	IONCHANNEL("IonChannel"),
 	PULSEGENERATOR("PulseGenerator"),
 	POPULATION("Population"),
+	PROJECTION("Projection"),
 	NETWORK("Network"),
 	CELL("Cell");
 	

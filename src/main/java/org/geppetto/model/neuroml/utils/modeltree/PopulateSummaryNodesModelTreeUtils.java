@@ -260,7 +260,7 @@ public class PopulateSummaryNodesModelTreeUtils
 					dynamics.setDynamics(function);
 
 					Variable variable = variablesFactory.createVariable();
-					variable.setId(PopulateGeneralModelTreeUtils.parseId(keyProperties));
+					variable.setId(ModelInterpreterUtils.parseId(keyProperties));
 					variable.setName(keyProperties);
 					//variable.getInitialValues().put(access.getType(TypesPackage.Literals.DYNAMICS_TYPE), dynamics);
 					variable.getTypes().add(access.getType(TypesPackage.Literals.DYNAMICS_TYPE));
@@ -270,7 +270,7 @@ public class PopulateSummaryNodesModelTreeUtils
 				else if(valueProperties instanceof InfoNode)
 				{
 					Variable variable = variablesFactory.createVariable();
-					variable.setId(PopulateGeneralModelTreeUtils.parseId(keyProperties));
+					variable.setId(ModelInterpreterUtils.parseId(keyProperties));
 					variable.setName(keyProperties);
 					variable.getAnonymousTypes().add(createInfoNode((InfoNode) valueProperties));
 					summaryCompositeType.getVariables().add(variable);
