@@ -545,7 +545,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				variable.setId(populationComponent.getRefComponents().get("component").getID());
 				variable.setName(populationComponent.getRefComponents().get("component").getID());
 				variable.getTypes().add(this.access.getType(TypesPackage.Literals.VISUAL_TYPE));
-				// variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), sphere);
+				variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), sphere);
 
 				visualCompositeType.getVariables().add(variable);
 

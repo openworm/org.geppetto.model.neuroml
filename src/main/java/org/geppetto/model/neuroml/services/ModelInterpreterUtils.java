@@ -85,7 +85,7 @@ public class ModelInterpreterUtils
 		Variable variable = variablesFactory.createVariable();
 		variable.setId(parseId(id));
 		variable.setName(id);
-		// variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+		variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
 		variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
 		return variable;
 	}
@@ -106,7 +106,7 @@ public class ModelInterpreterUtils
 			physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
 
 			Variable variable = variablesFactory.createVariable();
-			// variable.getInitialValues().put(access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
+			variable.getInitialValues().put(access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
 			initialiseNodeFromString(variable, id);
 			variable.getTypes().add(access.getType(TypesPackage.Literals.PARAMETER_TYPE));
 			return variable;
@@ -124,7 +124,7 @@ public class ModelInterpreterUtils
 		physicalQuantity.setUnit(unit);
 
 		Variable variable = variablesFactory.createVariable();
-		// variable.getInitialValues().put(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE), physicalQuantity);
+		variable.getInitialValues().put(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE), physicalQuantity);
 		initialiseNodeFromString(variable, id);
 		variable.getTypes().add(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE));
 		return variable;

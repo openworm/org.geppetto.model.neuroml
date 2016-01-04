@@ -196,7 +196,7 @@ public class PopulateSummaryNodesModelTreeUtils
 		descriptionVariable.setId(Resources.MODEL_DESCRIPTION.getId());
 		descriptionVariable.setName(Resources.MODEL_DESCRIPTION.get());
 		descriptionVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-		//descriptionVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+		descriptionVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 
 		return descriptionVariable;
 	}
@@ -262,7 +262,7 @@ public class PopulateSummaryNodesModelTreeUtils
 					Variable variable = variablesFactory.createVariable();
 					variable.setId(ModelInterpreterUtils.parseId(keyProperties));
 					variable.setName(keyProperties);
-					//variable.getInitialValues().put(access.getType(TypesPackage.Literals.DYNAMICS_TYPE), dynamics);
+					variable.getInitialValues().put(access.getType(TypesPackage.Literals.DYNAMICS_TYPE), dynamics);
 					variable.getTypes().add(access.getType(TypesPackage.Literals.DYNAMICS_TYPE));
 
 					summaryCompositeType.getVariables().add(variable);

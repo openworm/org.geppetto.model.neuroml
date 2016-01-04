@@ -171,7 +171,7 @@ public class ExtractVisualType
 				// get groups list for segment and put it in visual objects
 				visualObject.getGroupElements().addAll(segmentsMap.get(variable.getId()));
 			}
-			//variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), visualObject);
+			variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), visualObject);
 
 			distalPoints.put(segment.getId().toString(), segment.getDistal());
 			visualObjectVariables.add(variable);
