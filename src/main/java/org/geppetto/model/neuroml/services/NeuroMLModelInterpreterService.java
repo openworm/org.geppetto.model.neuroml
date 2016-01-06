@@ -62,11 +62,12 @@ import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
+import org.geppetto.model.neuroml.modelinterpreter.utils.ExtractVisualType;
+import org.geppetto.model.neuroml.modelinterpreter.utils.ModelInterpreterUtils;
+import org.geppetto.model.neuroml.modelinterpreter.utils.PopulateSummaryNodesModelTreeUtils;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
-import org.geppetto.model.neuroml.utils.modeltree.PopulateSummaryNodesModelTreeUtils;
-import org.geppetto.model.neuroml.visitors.ExtractVisualType;
 import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.CompositeVisualType;
@@ -151,24 +152,21 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			String urlBase = url.toString().substring(0, index + 1);
 			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.NEUROML); // expand it to have all the inclusions
 
-			/*
-			 * LEMS
-			 */
+			// Reading LEMS files
 			long start = System.currentTimeMillis();
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument lemsDocument = lemsReader.readModel(reader.getLEMSString());
 			_logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
 
-			/*
-			 * NEUROML
-			 */
+			// Reading NEUROML file
 			start = System.currentTimeMillis();
 			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 			_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
 
-			// Resolve lems model
-			// If there is any problem resolving the lems model we will try to go on anyway as there are some models, as purkinje, which are not valid lems format
+			// Resolve LEMS model
+			// If there is any problem resolving the lems model, we will try to go ahead anyway
+			// as there are some models, as purkinje, which are not valid LEMS format
 			Lems lems = ((Lems) lemsDocument);
 			try
 			{
@@ -183,7 +181,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			// Otherwise let's iterate through all the components
 			if(typeId != null && !typeId.isEmpty())
 			{
-				// type = extractInfoFromComponent(lems.getComponent(typeId));
 				types.put(typeId, extractInfoFromComponent(lems.getComponent(typeId)));
 				type = types.get(typeId);
 			}
@@ -250,7 +247,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	}
 
 	/*
-	 * Return a regular composite type if domainType is null. Otherwise return
+	 * Return a regular composite type if domainType is null.
+	 * Otherwise return a composite type with supertype equal to the domaintype or an array type
 	 */
 	private Type getCompositeType(String domainName)
 	{
@@ -290,7 +288,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		String declaredType = component.getDeclaredType();
 
 		// AQP: Try to centralise all the domain type in a single pace. Problem: cells inside population
-		CompositeType compositeType = null;
+		//CompositeType compositeType = (CompositeType)getCompositeType(declaredType);
+		CompositeType compositeType;
+		
 		if(domainType != null)
 		{
 			compositeType = (CompositeType) getCompositeType(domainType);
@@ -524,6 +524,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		ModelInterpreterUtils.initialiseNodeFromComponent(arrayType, populationComponent);
 		arrayType.setSize(Integer.parseInt(populationComponent.getStringValue("size")));
 
+		// If it is not of type cell, it won't have morphology and we can assume an sphere in the 
 		if(!populationComponent.getRefComponents().get("component").getDeclaredType().equals("cell"))
 		{
 			if(!types.containsKey("morphology" + populationComponent.getID()))

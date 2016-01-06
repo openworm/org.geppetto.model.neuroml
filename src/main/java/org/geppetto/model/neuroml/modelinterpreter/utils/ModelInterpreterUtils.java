@@ -1,9 +1,8 @@
-package org.geppetto.model.neuroml.services;
+package org.geppetto.model.neuroml.modelinterpreter.utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
@@ -148,6 +147,7 @@ public class ModelInterpreterUtils
 		node.setName(Resources.getValueById(attributesName));
 		node.setId(attributesName);
 	}
+	
 
 	public static void processLems(Lems lems) throws ContentError, ParseError
 	{

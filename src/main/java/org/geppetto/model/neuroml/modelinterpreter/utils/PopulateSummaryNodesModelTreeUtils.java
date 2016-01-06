@@ -31,7 +31,7 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
 
-package org.geppetto.model.neuroml.utils.modeltree;
+package org.geppetto.model.neuroml.modelinterpreter.utils;
 
 import java.math.BigInteger;
 import java.net.URL;
@@ -41,7 +41,6 @@ import java.util.Map;
 
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.model.neuroml.services.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.geppetto.model.types.ArrayType;

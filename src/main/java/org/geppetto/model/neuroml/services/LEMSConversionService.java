@@ -51,6 +51,8 @@ import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.ModelFormat;
+import org.geppetto.model.neuroml.modelinterpreter.utils.ModelInterpreterUtils;
+import org.geppetto.model.neuroml.utils.ModelFormatMapping;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.util.PointerUtility;
 import org.lemsml.export.base.IBaseWriter;

@@ -30,7 +30,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE 
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package org.geppetto.model.neuroml.visitors;
+package org.geppetto.model.neuroml.modelinterpreter.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.geppetto.core.model.GeppettoModelAccess;
-import org.geppetto.model.neuroml.services.ModelInterpreterUtils;
 import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
