@@ -161,6 +161,13 @@ public class JustTest
 		serialise("/pvdr/PVDR.nml", "./src/test/resources/pvdrNoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
 	}
 	
+	@Test
+	public void testc302() throws Exception
+	{
+		serialise("/c302/LEMS_c302_A.xml", "./src/test/resources/c302.xmi", "c302_A", true, new LEMSModelInterpreterService());
+		serialise("/c302/LEMS_c302_A.xml", "./src/test/resources/c302NoTarget.xmi", null, true, new LEMSModelInterpreterService());
+	}
+	
 	@AfterClass
 	public static void doYourOneTimeTeardown()
 	{
@@ -192,6 +199,11 @@ public class JustTest
 		pvdr.delete();
 		File pvdrNoTarget = new File("./src/test/resources/pvdrNoTarget.xmi");
 		pvdrNoTarget.delete();
+		
+		File c302 = new File("./src/test/resources/c302.xmi");
+		c302.delete();
+		File c302NoTarget = new File("./src/test/resources/c302NoTarget.xmi");
+		c302NoTarget.delete();
 	}
 }
 
