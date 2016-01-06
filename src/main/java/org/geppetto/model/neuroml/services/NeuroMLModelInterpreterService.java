@@ -535,8 +535,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		ArrayType arrayType = (ArrayType) getCompositeType(ResourcesDomainType.POPULATION.get());
 		ModelInterpreterUtils.initialiseNodeFromComponent(arrayType, populationComponent);
-		arrayType.setSize(Integer.parseInt(populationComponent.getStringValue("size")));
-
+		
 		// If it is not of type cell, it won't have morphology and we can assume an sphere in the 
 		if(!populationComponent.getRefComponents().get("component").getDeclaredType().equals("cell"))
 		{
@@ -578,6 +577,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		if(populationType != null && populationType.equals("populationList"))
 		{
 
+			int size = 0;
 			for(Component populationChild : populationComponent.getAllChildren())
 			{
 				if(populationChild.getDeclaredType().equals("instance"))
@@ -599,9 +599,15 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					arrayElement.setPosition(point);
 					arrayValue.getElements().add(arrayElement);
 
+					size++;
 				}
 			}
-
+			arrayType.setSize(size);
+		}
+		else{
+			// If it has size attribute we read it otherwise we count the number of instances
+			if (populationComponent.hasStringValue("size"))
+				arrayType.setSize(Integer.parseInt(populationComponent.getStringValue("size")));
 		}
 		arrayType.setDefaultValue(arrayValue);
 		types.put(populationComponent.getID(), arrayType);
