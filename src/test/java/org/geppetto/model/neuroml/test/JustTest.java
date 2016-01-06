@@ -49,6 +49,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.emfjson.jackson.resource.JsonResourceFactory;
 import org.geppetto.core.manager.SharedLibraryManager;
 import org.geppetto.core.model.GeppettoModelAccess;
+import org.geppetto.core.model.IModelInterpreter;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
@@ -86,14 +87,13 @@ public class JustTest
 		neuromlModelInterpreter.registerGeppettoService();
 	}
 	
-	public void serialise(String modelPath, String outputPath, String typeName, boolean allTypes) throws Exception
+	public void serialise(String modelPath, String outputPath, String typeName, boolean allTypes, IModelInterpreter modelInterpreter) throws Exception
 	{
 		GeppettoFactory geppettoFactory = GeppettoFactory.eINSTANCE;
 		GeppettoLibrary gl = geppettoFactory.createGeppettoLibrary();
 		GeppettoModel gm = geppettoFactory.createGeppettoModel();
 		gm.getLibraries().add(gl);
 		
-		NeuroMLModelInterpreterService modelInterpreter = new NeuroMLModelInterpreterService();
 		URL url = this.getClass().getResource(modelPath);
 		
 		gm.getLibraries().add(EcoreUtil.copy(SharedLibraryManager.getSharedCommonLibrary()));
@@ -123,42 +123,43 @@ public class JustTest
 		long endTime = System.currentTimeMillis();
 		_logger.info("Serialising " + (endTime - startTime) + " milliseconds for url " + url + " and  typename " + typeName);
 	}
-
+	
 	@Test
 	public void testAcnet() throws Exception
 	{
-		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2.xmi", "network_ACnet2", true);
-		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2NoTarget.xmi", null, true);
+		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2.xmi", "network_ACnet2", true, new NeuroMLModelInterpreterService());
+		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2NoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
 	}
 	
 	@Test
 	public void testPurkinje() throws Exception
 	{
-		serialise("/purk.nml", "./src/test/resources/purkinje.xmi", "purk2", true);
-		serialise("/purk.nml", "./src/test/resources/purkinjeNotarget.xmi", null, true);
+		serialise("/purkinje/purk.nml", "./src/test/resources/purkinje.xmi", "purk2", true, new NeuroMLModelInterpreterService());
+		serialise("/purkinje/purk.nml", "./src/test/resources/purkinjeNotarget.xmi", null, true, new NeuroMLModelInterpreterService());
 	}
 
-	/**
-	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
-	 * 
-	 * @throws ModelInterpreterException
-	 * @throws IOException
-	 * @throws ContentError
-	 * @throws NeuroMLException
-	 */
 	@Test
 	public void testBask() throws Exception
 	{
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.xmi", "bask", true);
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskNoTarget.xmi", null, true);
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.json", "bask", true);
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.xmi", "bask", true, new NeuroMLModelInterpreterService());
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskNoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
+		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.json", "bask", true, new NeuroMLModelInterpreterService());
 	}
 
+	@Test
+	public void testHHCell() throws Exception
+	{
+		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhcell.xmi", "hhcell", true, new LEMSModelInterpreterService());
+		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhcellNoTarget.xmi", null, true, new LEMSModelInterpreterService());
+		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhnet1.xmi", "net1", true, new LEMSModelInterpreterService());
+	}
+
+	
 	@AfterClass
 	public static void doYourOneTimeTeardown()
 	{
-//		File acnet2 = new File("./src/test/resources/acnet2.xmi");
-//		acnet2.delete();
+		File acnet2 = new File("./src/test/resources/acnet2.xmi");
+		acnet2.delete();
 		File acnet2NoTarget = new File("./src/test/resources/acnet2NoTarget.xmi");
 		acnet2NoTarget.delete();
 		
@@ -173,6 +174,13 @@ public class JustTest
 		baskNoTarget.delete();
 		File baskjson = new File("./src/test/resources/bask.json");
 		baskjson.delete();
+		
+		File hhcell = new File("./src/test/resources/hhcell.xmi");
+		hhcell.delete();
+		File hhcellNoTarget = new File("./src/test/resources/hhcellNoTarget.xmi");
+		hhcellNoTarget.delete();
+		File hhnet1 = new File("./src/test/resources/hhnet1.xmi");
+		hhnet1.delete();
 	}
 }
 

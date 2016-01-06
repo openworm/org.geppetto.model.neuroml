@@ -91,6 +91,7 @@ import org.geppetto.model.variables.VariablesFactory;
 import org.lemsml.jlems.api.LEMSDocumentReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
+import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Attribute;
 import org.lemsml.jlems.core.type.Component;
@@ -121,7 +122,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private Map<String, Type> types = new HashMap<String, Type>();
 	private Map<ResourcesDomainType, List<Type>> typesMap = new HashMap<ResourcesDomainType, List<Type>>();
-	private Type type = null;
+//	private Type type = null;
 
 	private GeppettoModelAccess access;
 
@@ -137,16 +138,16 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Override
 	public Type importType(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
 	{
-
+		Type type;
+		
 		// AQP: Shall we verify if types != null?
 		long startTime = System.currentTimeMillis();
-
-		this.access = access;
 
 		dependentModels.clear();
 
 		try
 		{
+			// Read main and includes as a String
 			OptimizedLEMSReader reader = new OptimizedLEMSReader(this.dependentModels);
 			int index = url.toString().lastIndexOf('/');
 			String urlBase = url.toString().substring(0, index + 1);
@@ -164,77 +165,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
 			_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
 
-			// Resolve LEMS model
-			// If there is any problem resolving the lems model, we will try to go ahead anyway
-			// as there are some models, as purkinje, which are not valid LEMS format
-			Lems lems = ((Lems) lemsDocument);
-			try
-			{
-				ModelInterpreterUtils.processLems(lems);
-			}
-			catch(NumberFormatException | LEMSException e)
-			{
-				_logger.warn("Error resolving lems file");
-			}
-
-			// If we have a typeId let's get the type for this component
-			// Otherwise let's iterate through all the components
-			if(typeId != null && !typeId.isEmpty())
-			{
-				types.put(typeId, extractInfoFromComponent(lems.getComponent(typeId)));
-				type = types.get(typeId);
-			}
-			else
-			{
-				boolean multipleTypes = false;
-				for(Component component : lems.getComponents())
-				{
-					if(!types.containsKey(component.getID()))
-					{
-
-						types.put(component.getID(), extractInfoFromComponent(component));
-
-						// Business rule: 1) If there is a network in the NeuroML file we don't visualise spurious cells which
-						// "most likely" are just included types in NeuroML and are instantiated as part of the network
-						// populations
-						// If there is not a network we visualise the cell (as far as there is just a single cell)
-						// If there is just a single component we return the single cell
-						// Otherwise we throw an exception
-						Type currentType = types.get(component.getID());
-						if(type == null)
-						{
-							type = currentType;
-						}
-						else
-						{
-							String declaredType = ((Component) type.getDomainModel().getDomainModel()).getDeclaredType();
-							String currentDeclaredType = ((Component) currentType.getDomainModel().getDomainModel()).getDeclaredType();
-							if(!declaredType.equals("network") && (currentDeclaredType.equals("network") || (!declaredType.equals("cell") && currentDeclaredType.equals("cell"))))
-							{
-								multipleTypes = false;
-								type = currentType;
-							}
-							else if((!declaredType.equals("cell") && !declaredType.equals("network")) || (declaredType.equals("cell") && currentDeclaredType.equals("cell"))
-									|| (declaredType.equals("network") && currentDeclaredType.equals("network")))
-							{
-								multipleTypes = true;
-							}
-						}
-					}
-				}
-
-				if(multipleTypes) throw new ModelInterpreterException("Multiple types found and no type id specified");
-			}
-
-			// Add all the types to the library
-			library.getTypes().addAll(types.values());
-
-			// Extract Summary and Description nodes from type
-			PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(neuroml, typesMap, url, access);
-			((CompositeType) type).getVariables().addAll(populateSummaryNodesModelTreeUtils.getSummaryVariables());
-
-			// Add LEMS Parameter Feature
-			this.addFeature(new LEMSParametersFeature());
+			type = extractTypes(url, typeId, library, access, lemsDocument, neuroml);
 		}
 		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
 		{
@@ -243,6 +174,87 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		long endTime = System.currentTimeMillis();
 		_logger.info("Import Type took " + (endTime - startTime) + " milliseconds for url " + url + " and typename " + typeId);
+		return type;
+	}
+
+	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument, NeuroMLDocument neuroml) throws NeuroMLException, LEMSException,
+			GeppettoVisitingException, ContentError, ModelInterpreterException
+	{
+		Type type = null;
+		this.access = access;
+		
+		// Resolve LEMS model
+		// If there is any problem resolving the lems model, we will try to go ahead anyway
+		// as there are some models, as purkinje, which are not valid LEMS format
+		Lems lems = ((Lems) lemsDocument);
+		try
+		{
+			ModelInterpreterUtils.processLems(lems);
+		}
+		catch(NumberFormatException | LEMSException e)
+		{
+			_logger.warn("Error resolving lems file");
+		}
+
+		// If we have a typeId let's get the type for this component
+		// Otherwise let's iterate through all the components
+		if(typeId != null && !typeId.isEmpty())
+		{
+			types.put(typeId, extractInfoFromComponent(lems.getComponent(typeId)));
+			type = types.get(typeId);
+		}
+		else
+		{
+			boolean multipleTypes = false;
+			for(Component component : lems.getComponents())
+			{
+				if(!types.containsKey(component.getID()))
+				{
+
+					types.put(component.getID(), extractInfoFromComponent(component));
+
+					// Business rule: 1) If there is a network in the NeuroML file we don't visualise spurious cells which
+					// "most likely" are just included types in NeuroML and are instantiated as part of the network
+					// populations
+					// If there is not a network we visualise the cell (as far as there is just a single cell)
+					// If there is just a single component we return the single cell
+					// Otherwise we throw an exception
+					Type currentType = types.get(component.getID());
+					if(type == null)
+					{
+						type = currentType;
+					}
+					else
+					{
+						String declaredType = ((Component) type.getDomainModel().getDomainModel()).getDeclaredType();
+						String currentDeclaredType = ((Component) currentType.getDomainModel().getDomainModel()).getDeclaredType();
+						if(!declaredType.equals("network") && (currentDeclaredType.equals("network") || (!declaredType.equals("cell") && currentDeclaredType.equals("cell"))))
+						{
+							multipleTypes = false;
+							type = currentType;
+						}
+						else if((!declaredType.equals("cell") && !declaredType.equals("network")) || (declaredType.equals("cell") && currentDeclaredType.equals("cell"))
+								|| (declaredType.equals("network") && currentDeclaredType.equals("network")))
+						{
+							multipleTypes = true;
+						}
+					}
+				}
+			}
+
+			if(multipleTypes) throw new ModelInterpreterException("Multiple types found and no type id specified");
+		}
+
+		// Add all the types to the library
+		library.getTypes().addAll(types.values());
+
+		// Extract Summary and Description nodes from type
+		PopulateSummaryNodesModelTreeUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesModelTreeUtils(neuroml, typesMap, url, access);
+		((CompositeType) type).getVariables().addAll(populateSummaryNodesModelTreeUtils.getSummaryVariables());
+
+		// Add LEMS Parameter Feature
+		this.addFeature(new LEMSParametersFeature());
+		
 		return type;
 	}
 
