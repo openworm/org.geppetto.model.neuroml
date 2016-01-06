@@ -1,0 +1,3047 @@
+<?xml version="1.0" encoding="ASCII"?>
+<gep:GeppettoModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gep="https://raw.githubusercontent.com/openworm/org.geppetto.model/development/src/main/resources/geppettoModel.ecore" xmlns:gep_1="https://raw.githubusercontent.com/openworm/org.geppetto.model/development/src/main/resources/geppettoModel.ecore#//types" xmlns:gep_2="https://raw.githubusercontent.com/openworm/org.geppetto.model/development/src/main/resources/geppettoModel.ecore#//values">
+  <libraries>
+    <types xsi:type="gep_1:CompositeType" id="notes" name="notes"/>
+    <types xsi:type="gep_1:CompositeType" id="offsetToMin75" name="pulseGenerator - offsetToMin75" superType="//@libraries.0/@types.23">
+      <variables id="delay" name="delay" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="ms"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="duration" name="duration" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="1000.0">
+            <unit unit="ms"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="amplitude" name="amplitude" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="-120.0">
+            <unit unit="pA"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="i" name="i" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="A"/>
+          </value>
+        </initialValues>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="ca_boyle" name="ionChannel - ca_boyle" superType="//@libraries.0/@types.20">
+      <variables id="conductance" name="conductance" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+            <unit unit="pS"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="species" name="species" types="//@libraries.1/@types.5">
+        <initialValues key="//@libraries.1/@types.5">
+          <value xsi:type="gep_2:Text" text="ca"/>
+        </initialValues>
+      </variables>
+      <variables id="g" name="g" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="S"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="fopen" name="fopen" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit=""/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="notes" name="notes">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="notes" name="notes"/>
+      </variables>
+      <variables id="e" name="gateHHtauInf - e">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="e" name="gateHHtauInf - e">
+          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="2.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit="s"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="q" name="q" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="steadyState" name="steadyState">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="steadyState" name="steadyState">
+              <variables id="rate" name="rate" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit=""/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="midpoint" name="midpoint" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="-3.356800079345703">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="6.7482099533081055">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="x" name="x" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit=""/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="timeCourse" name="timeCourse">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="timeCourse" name="timeCourse">
+              <variables id="tau" name="tau" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="0.10002700239419937">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="t" name="t" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="s"/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+      <variables id="f" name="gateHHtauInf - f">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="f" name="gateHHtauInf - f">
+          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit="s"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="q" name="q" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="steadyState" name="steadyState">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="steadyState" name="steadyState">
+              <variables id="rate" name="rate" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit=""/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="midpoint" name="midpoint" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="25.181499481201172">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="-5.031760215759277">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="x" name="x" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit=""/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="timeCourse" name="timeCourse">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="timeCourse" name="timeCourse">
+              <variables id="tau" name="tau" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="150.8800048828125">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="t" name="t" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="s"/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+      <variables id="h" name="customHGate - h">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="h" name="customHGate - h">
+          <variables id="alpha" name="alpha" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="0.28247299790382385">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="k" name="k" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="-1.00055999041615E-8">
+                <unit unit="mM"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="ca_half" name="ca_half" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="6.418890308168557E-8">
+                <unit unit="mM"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit="s"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="q" name="q" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+        </anonymousTypes>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="Leak" name="ionChannel - Leak" superType="//@libraries.0/@types.20">
+      <variables id="conductance" name="conductance" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+            <unit unit="pS"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="g" name="g" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="S"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="fopen" name="fopen" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit=""/>
+          </value>
+        </initialValues>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="net1" name="network - net1" superType="//@libraries.0/@types.14">
+      <variables id="neuron" name="population - neuron" types="//@libraries.0/@types.5"/>
+      <variables id="muscle" name="population - muscle" types="//@libraries.0/@types.16"/>
+      <variables id="N_M" name="projection - N_M" types="//@libraries.0/@types.22"/>
+      <variables id="explicitInput" name="explicitInput">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="explicitInput" name="explicitInput">
+          <variables id="offset_current" name="pulseGenerator - offset_current" types="//@libraries.0/@types.13"/>
+          <variables id="offset_current" name="pulseGenerator - offset_current">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="offset_current" name="pulseGenerator - offset_current" superType="//@libraries.0/@types.23">
+              <variables id="delay" name="delay" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="duration" name="duration" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="290.0">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="amplitude" name="amplitude" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="0.44999998807907104">
+                    <unit unit="nA"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="i" name="i" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="A"/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+      <variables id="explicitInput" name="explicitInput">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="explicitInput" name="explicitInput">
+          <variables id="offsetToMin75" name="pulseGenerator - offsetToMin75" types="//@libraries.0/@types.1"/>
+          <variables id="offsetToMin75" name="pulseGenerator - offsetToMin75">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="offsetToMin75" name="pulseGenerator - offsetToMin75" superType="//@libraries.0/@types.23">
+              <variables id="delay" name="delay" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="duration" name="duration" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1000.0">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="amplitude" name="amplitude" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="-120.0">
+                    <unit unit="pA"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="i" name="i" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="A"/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+      <variables id="ModelDescription" name="Model Description" types="//@libraries.1/@types.3">
+        <initialValues key="//@libraries.1/@types.3">
+          <value xsi:type="gep_2:HTML" html="&lt;b>Model Summary&lt;/b>&lt;br/>Description: &lt;a href=&quot;#&quot; instancePath=&quot;$net1$&quot;>network - net1&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$net1$&quot;>network - net1&lt;/a> &lt;br/>&lt;a target=&quot;_blank&quot; href=&quot;file:/home/adrian/code/geppetto-luna-code/org.geppetto.model.neuroml/target/test-classes/muscle/LEMS_NeuronMuscle.xml&quot;>NeuroML Source File&lt;/a>&lt;br/>&lt;b>Populations&lt;/b>&lt;br/>Population neuron: &lt;a href=&quot;#&quot; instancePath=&quot;$generic_iaf_cell$&quot;>1 generic_iaf_cell&lt;/a>&lt;br/>Population muscle: &lt;a href=&quot;#&quot; instancePath=&quot;$SingleCompMuscleCell$&quot;>1 SingleCompMuscleCell&lt;/a>&lt;br/>&lt;br/>&lt;b>Cells&lt;/b>&lt;br/>&lt;a href=&quot;#&quot; instancePath=&quot;$SingleCompMuscleCell$&quot;>cell - SingleCompMuscleCell&lt;/a> &lt;br/>&lt;b>Channels&lt;/b>&lt;br/>&lt;a href=&quot;#&quot; instancePath=&quot;$Leak$&quot;>ionChannel - Leak&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$Leak$&quot;>ionChannel - Leak&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$k_slow$&quot;>ionChannel - k_slow&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$k_slow$&quot;>ionChannel - k_slow&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$k_fast$&quot;>ionChannel - k_fast&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$k_fast$&quot;>ionChannel - k_fast&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$ca_boyle$&quot;>ionChannel - ca_boyle&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$ca_boyle$&quot;>ionChannel - ca_boyle&lt;/a> &lt;br/>&lt;b>Inputs&lt;/b>&lt;br/>&lt;a href=&quot;#&quot; instancePath=&quot;$offset_current$&quot;>pulseGenerator - offset_current&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$offsetToMin75$&quot;>pulseGenerator - offsetToMin75&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$offset_current$&quot;>pulseGenerator - offset_current&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$offsetToMin75$&quot;>pulseGenerator - offsetToMin75&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$offset_current$&quot;>pulseGenerator - offset_current&lt;/a> &lt;a href=&quot;#&quot; instancePath=&quot;$offsetToMin75$&quot;>pulseGenerator - offsetToMin75&lt;/a> &lt;br/>"/>
+        </initialValues>
+      </variables>
+      <variables id="Summary" name="Summary">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+          <variables id="Ion_Channel_Leak" name="Ion Channel Leak">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+              <variables id="Gates" name="Gates">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary"/>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="Ion_Channel_k_slow" name="Ion Channel k_slow">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+              <variables id="Description" name="Description" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="K slow channel from Boyle and Cohen 2008"/>
+                </initialValues>
+              </variables>
+              <variables id="Gates" name="Gates">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="gate_n" name="gate n">
+                    <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                      <variables id="steady_state_" name="steady state " types="//@libraries.1/@types.1">
+                        <initialValues key="//@libraries.1/@types.1">
+                          <value xsi:type="gep_2:Dynamics">
+                            <dynamics>
+                              <arguments argument="v"/>
+                              <expression expression="1E0 /(1 + exp((v - (1.9874E-2))/1.5851E-2))"/>
+                              <functionPlot title="Ion Channel k_slow - Steady State Activation - HHSigmoidRate" xAxisLabel="V" yAxisLabel="ms-1" initialValue="-0.08" finalValue="0.1" stepValue="0.005"/>
+                            </dynamics>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="time_constant" name="time constant" types="//@libraries.1/@types.1">
+                        <initialValues key="//@libraries.1/@types.1">
+                          <value xsi:type="gep_2:Dynamics">
+                            <dynamics>
+                              <arguments argument="v"/>
+                              <expression expression="org.neuroml.export.info.model.HHTimeToIHHExpressionAdapter@48d25859"/>
+                              <functionPlot title="Ion Channel k_slow - Time Co - null" xAxisLabel="V" yAxisLabel="ms-1" initialValue="-0.08" finalValue="0.1" stepValue="0.005"/>
+                            </dynamics>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="instances" name="instances" types="//@libraries.1/@types.5">
+                        <initialValues key="//@libraries.1/@types.5">
+                          <value xsi:type="gep_2:Text" text="1"/>
+                        </initialValues>
+                      </variables>
+                    </anonymousTypes>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="Ion_Channel_k_fast" name="Ion Channel k_fast">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+              <variables id="Description" name="Description" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="K fast channel from Boyle and Cohen 2008"/>
+                </initialValues>
+              </variables>
+              <variables id="Gates" name="Gates">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="gate_p" name="gate p">
+                    <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                      <variables id="steady_state_" name="steady state " types="//@libraries.1/@types.1">
+                        <initialValues key="//@libraries.1/@types.1">
+                          <value xsi:type="gep_2:Dynamics">
+                            <dynamics>
+                              <arguments argument="v"/>
+                              <expression expression="1E0 /(1 + exp((v - (-8.0523E-3))/7.4264E-3))"/>
+                              <functionPlot title="Ion Channel k_fast - Steady State Activation - HHSigmoidRate" xAxisLabel="V" yAxisLabel="ms-1" initialValue="-0.08" finalValue="0.1" stepValue="0.005"/>
+                            </dynamics>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="time_constant" name="time constant" types="//@libraries.1/@types.1">
+                        <initialValues key="//@libraries.1/@types.1">
+                          <value xsi:type="gep_2:Dynamics">
+                            <dynamics>
+                              <arguments argument="v"/>
+                              <expression expression="org.neuroml.export.info.model.HHTimeToIHHExpressionAdapter@3da98dcc"/>
+                              <functionPlot title="Ion Channel k_fast - Time Co - null" xAxisLabel="V" yAxisLabel="ms-1" initialValue="-0.08" finalValue="0.1" stepValue="0.005"/>
+                            </dynamics>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="instances" name="instances" types="//@libraries.1/@types.5">
+                        <initialValues key="//@libraries.1/@types.5">
+                          <value xsi:type="gep_2:Text" text="4"/>
+                        </initialValues>
+                      </variables>
+                    </anonymousTypes>
+                  </variables>
+                  <variables id="gate_q" name="gate q">
+                    <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                      <variables id="steady_state_" name="steady state " types="//@libraries.1/@types.1">
+                        <initialValues key="//@libraries.1/@types.1">
+                          <value xsi:type="gep_2:Dynamics">
+                            <dynamics>
+                              <arguments argument="v"/>
+                              <expression expression="1E0 /(1 + exp((v - (-1.5646E-2))/-9.9747E-3))"/>
+                              <functionPlot title="Ion Channel k_fast - Steady State Activation - HHSigmoidRate" xAxisLabel="V" yAxisLabel="ms-1" initialValue="-0.08" finalValue="0.1" stepValue="0.005"/>
+                            </dynamics>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="time_constant" name="time constant" types="//@libraries.1/@types.1">
+                        <initialValues key="//@libraries.1/@types.1">
+                          <value xsi:type="gep_2:Dynamics">
+                            <dynamics>
+                              <arguments argument="v"/>
+                              <expression expression="org.neuroml.export.info.model.HHTimeToIHHExpressionAdapter@153a474c"/>
+                              <functionPlot title="Ion Channel k_fast - Time Co - null" xAxisLabel="V" yAxisLabel="ms-1" initialValue="-0.08" finalValue="0.1" stepValue="0.005"/>
+                            </dynamics>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="instances" name="instances" types="//@libraries.1/@types.5">
+                        <initialValues key="//@libraries.1/@types.5">
+                          <value xsi:type="gep_2:Text" text="1"/>
+                        </initialValues>
+                      </variables>
+                    </anonymousTypes>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="Ion_Channel_ca_boyle" name="Ion Channel ca_boyle">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+              <variables id="Description" name="Description" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="Ca channel from Boyle and Cohen 2008"/>
+                </initialValues>
+              </variables>
+              <variables id="Gates" name="Gates">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="gate_e" name="gate e">
+                    <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                      <variables id="steady_state_" name="steady state " types="//@libraries.1/@types.1">
+                        <initialValues key="//@libraries.1/@types.1">
+                          <value xsi:type="gep_2:Dynamics">
+                            <dynamics>
+                              <arguments argument="v"/>
+                              <expression expression="1E0 /(1 + exp((v - (-3.3568E-3))/6.7482E-3))"/>
+                              <functionPlot title="Ion Channel ca_boyle - Steady State Activation - HHSigmoidRate" xAxisLabel="V" yAxisLabel="ms-1" initialValue="-0.08" finalValue="0.1" stepValue="0.005"/>
+                            </dynamics>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="time_constant" name="time constant" types="//@libraries.1/@types.1">
+                        <initialValues key="//@libraries.1/@types.1">
+                          <value xsi:type="gep_2:Dynamics">
+                            <dynamics>
+                              <arguments argument="v"/>
+                              <expression expression="org.neuroml.export.info.model.HHTimeToIHHExpressionAdapter@2ed99833"/>
+                              <functionPlot title="Ion Channel ca_boyle - Time Co - null" xAxisLabel="V" yAxisLabel="ms-1" initialValue="-0.08" finalValue="0.1" stepValue="0.005"/>
+                            </dynamics>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="instances" name="instances" types="//@libraries.1/@types.5">
+                        <initialValues key="//@libraries.1/@types.5">
+                          <value xsi:type="gep_2:Text" text="2"/>
+                        </initialValues>
+                      </variables>
+                    </anonymousTypes>
+                  </variables>
+                  <variables id="gate_f" name="gate f">
+                    <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                      <variables id="steady_state_" name="steady state " types="//@libraries.1/@types.1">
+                        <initialValues key="//@libraries.1/@types.1">
+                          <value xsi:type="gep_2:Dynamics">
+                            <dynamics>
+                              <arguments argument="v"/>
+                              <expression expression="1E0 /(1 + exp((v - (2.5182E-2))/-5.0318E-3))"/>
+                              <functionPlot title="Ion Channel ca_boyle - Steady State Activation - HHSigmoidRate" xAxisLabel="V" yAxisLabel="ms-1" initialValue="-0.08" finalValue="0.1" stepValue="0.005"/>
+                            </dynamics>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="time_constant" name="time constant" types="//@libraries.1/@types.1">
+                        <initialValues key="//@libraries.1/@types.1">
+                          <value xsi:type="gep_2:Dynamics">
+                            <dynamics>
+                              <arguments argument="v"/>
+                              <expression expression="org.neuroml.export.info.model.HHTimeToIHHExpressionAdapter@74931d21"/>
+                              <functionPlot title="Ion Channel ca_boyle - Time Co - null" xAxisLabel="V" yAxisLabel="ms-1" initialValue="-0.08" finalValue="0.1" stepValue="0.005"/>
+                            </dynamics>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="instances" name="instances" types="//@libraries.1/@types.5">
+                        <initialValues key="//@libraries.1/@types.5">
+                          <value xsi:type="gep_2:Text" text="1"/>
+                        </initialValues>
+                      </variables>
+                    </anonymousTypes>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="Element_CaPool" name="Element CaPool">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+              <variables id="restingConc" name="restingConc" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="0 mM (0.0 mol_per_m3)"/>
+                </initialValues>
+              </variables>
+              <variables id="decayConstant" name="decayConstant" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="11.5943 ms (0.0115943 s)"/>
+                </initialValues>
+              </variables>
+              <variables id="rho" name="rho" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="0.000238919 mol_per_m_per_A_per_s (2.38919E-4 mol_per_m_per_A_per_s)"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="Element_exc_syn_1conns" name="Element exc_syn_1conns">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+              <variables id="tauRise" name="tauRise" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="1ms (0.001 s)"/>
+                </initialValues>
+              </variables>
+              <variables id="tauDecay" name="tauDecay" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="10ms (0.01 s)"/>
+                </initialValues>
+              </variables>
+              <variables id="gbase" name="gbase" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="25nS (2.5E-8 S)"/>
+                </initialValues>
+              </variables>
+              <variables id="erev" name="erev" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="0mV (0.0 V)"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="Cell_SingleCompMuscleCell" name="Cell SingleCompMuscleCell">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+              <variables id="Description" name="Description" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="Only muscle cell body..."/>
+                </initialValues>
+              </variables>
+              <variables id="Number_of_segments" name="Number of segments" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="1"/>
+                </initialValues>
+              </variables>
+              <variables id="Number_of_segment_groups" name="Number of segment groups" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="0"/>
+                </initialValues>
+              </variables>
+              <variables id="Channel_density__Leak_all" name="Channel density: Leak_all">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="IonChannel" name="IonChannel" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="Leak"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Ion" name="Ion" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="non_specific"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Reversal_potential" name="Reversal potential" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="10 mV (0.01 V)"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Conductance_density" name="Conductance density" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="0.0193181 mS_per_cm2 (0.193181 S_per_m2)"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Segment_group" name="Segment group" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="all"/>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="Channel_density__k_slow_all" name="Channel density: k_slow_all">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="IonChannel" name="IonChannel" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="k_slow"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Ion" name="Ion" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="k"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Reversal_potential" name="Reversal potential" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="-64.3461 mV (-0.0643461 V)"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Conductance_density" name="Conductance density" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="0.43584 mS_per_cm2 (4.3584 S_per_m2)"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Segment_group" name="Segment group" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="all"/>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="Channel_density__k_fast_all" name="Channel density: k_fast_all">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="IonChannel" name="IonChannel" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="k_fast"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Ion" name="Ion" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="k"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Reversal_potential" name="Reversal potential" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="-54.9998 mV (-0.0549998 V)"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Conductance_density" name="Conductance density" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="0.399994 mS_per_cm2 (3.99994 S_per_m2)"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Segment_group" name="Segment group" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="all"/>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="Channel_density__ca_boyle_all" name="Channel density: ca_boyle_all">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="IonChannel" name="IonChannel" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="ca_boyle"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Ion" name="Ion" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="ca"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Reversal_potential" name="Reversal potential" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="49.11 mV (0.04911 V)"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Conductance_density" name="Conductance density" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="0.220209 mS_per_cm2 (2.20209 S_per_m2)"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Segment_group" name="Segment group" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="all"/>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="Specific_capacitance_on_group_all" name="Specific capacitance on group all">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="Value" name="Value" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="1 uF_per_cm2 (0.01 F_per_m2)"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Segment_group" name="Segment group" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="all"/>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="Resistivity_on_group_all" name="Resistivity on group all">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="Value" name="Value" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="0.1 kohm_cm (1.0 ohm_m)"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Segment_group" name="Segment group" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="all"/>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="Element_generic_iaf_cell" name="Element generic_iaf_cell">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+              <variables id="leakConductance" name="leakConductance" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="0.02uS (2.0E-8 S)"/>
+                </initialValues>
+              </variables>
+              <variables id="leakReversal" name="leakReversal" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="-70mV (-0.07 V)"/>
+                </initialValues>
+              </variables>
+              <variables id="thresh" name="thresh" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="-50mV (-0.05 V)"/>
+                </initialValues>
+              </variables>
+              <variables id="reset" name="reset" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="-70mV (-0.07 V)"/>
+                </initialValues>
+              </variables>
+              <variables id="C" name="C" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="0.4nF (4.0E-10 F)"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="Element_offset_current" name="Element offset_current">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+              <variables id="delay" name="delay" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="10ms (0.01 s)"/>
+                </initialValues>
+              </variables>
+              <variables id="duration" name="duration" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="290ms (0.29 s)"/>
+                </initialValues>
+              </variables>
+              <variables id="amplitude" name="amplitude" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="0.45nA (4.5E-10 A)"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="Element_offsetToMin75" name="Element offsetToMin75">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+              <variables id="delay" name="delay" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="0ms (0.0 s)"/>
+                </initialValues>
+              </variables>
+              <variables id="duration" name="duration" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="1000ms (1.0 s)"/>
+                </initialValues>
+              </variables>
+              <variables id="amplitude" name="amplitude" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="-120 pA (-1.2E-10 A)"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="Network_net1" name="Network net1">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+              <variables id="Number_of_populations" name="Number of populations" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="2"/>
+                </initialValues>
+              </variables>
+              <variables id="Population_neuron" name="Population neuron">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="Component" name="Component" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="generic_iaf_cell"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Size__number_of_instances_" name="Size (number of instances)" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="1"/>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="Population_muscle" name="Population muscle">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="Component" name="Component" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="SingleCompMuscleCell"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Size__number_of_instances_" name="Size (number of instances)" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="1"/>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="Number_of_projections" name="Number of projections" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="1"/>
+                </initialValues>
+              </variables>
+              <variables id="Projection_N_M" name="Projection N_M">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Summary" name="Summary">
+                  <variables id="Presynaptic_population" name="Presynaptic population" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="neuron"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Postsynaptic_population" name="Postsynaptic population" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="muscle"/>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:ArrayType" id="neuron" name="population - neuron" superType="//@libraries.0/@types.19" size="1" arrayType="//@libraries.0/@types.17">
+      <defaultValue>
+        <elements>
+          <position/>
+        </elements>
+      </defaultValue>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="Projection" name="Projection"/>
+    <types xsi:type="gep_1:CompositeType" id="CaPool" name="fixedFactorConcentrationModel - CaPool">
+      <variables id="restingConc" name="restingConc" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="mM"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="decayConstant" name="decayConstant" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="11.594300270080566">
+            <unit unit="ms"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="rho" name="rho" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="2.389190049143508E-4">
+            <unit unit="mol_per_m_per_A_per_s"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="concentration" name="concentration" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="mol_per_m3"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="extConcentration" name="extConcentration" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="mol_per_m3"/>
+          </value>
+        </initialValues>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="sim1" name="Simulation - sim1">
+      <variables id="length" name="length" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="500.0">
+            <unit unit="ms"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="step" name="step" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="0.05000000074505806">
+            <unit unit="ms"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="net1" name="network - net1" types="//@libraries.0/@types.4"/>
+      <variables id="voltage" name="OutputFile - voltage">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="voltage" name="OutputFile - voltage">
+          <variables id="fileName" name="fileName" types="//@libraries.1/@types.5">
+            <initialValues key="//@libraries.1/@types.5">
+              <value xsi:type="gep_2:Text" text="nm_v.dat"/>
+            </initialValues>
+          </variables>
+          <variables id="neuron_v" name="OutputColumn - neuron_v">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="neuron_v" name="OutputColumn - neuron_v"/>
+          </variables>
+          <variables id="muscle_v" name="OutputColumn - muscle_v">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="muscle_v" name="OutputColumn - muscle_v"/>
+          </variables>
+        </anonymousTypes>
+      </variables>
+      <variables id="CaConcentration" name="OutputFile - CaConcentration">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="CaConcentration" name="OutputFile - CaConcentration">
+          <variables id="fileName" name="fileName" types="//@libraries.1/@types.5">
+            <initialValues key="//@libraries.1/@types.5">
+              <value xsi:type="gep_2:Text" text="nm_conc.dat"/>
+            </initialValues>
+          </variables>
+          <variables id="muscle_ca_conc" name="OutputColumn - muscle_ca_conc">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="muscle_ca_conc" name="OutputColumn - muscle_ca_conc"/>
+          </variables>
+        </anonymousTypes>
+      </variables>
+      <variables id="d1" name="Display - d1">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="d1" name="Display - d1">
+          <variables id="xmin" name="xmin" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="xmax" name="xmax" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="500.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="ymin" name="ymin" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="-80.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="ymax" name="ymax" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="timeScale" name="timeScale" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                <unit unit="ms"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="title" name="title" types="//@libraries.1/@types.5">
+            <initialValues key="//@libraries.1/@types.5">
+              <value xsi:type="gep_2:Text" text="Voltage response neuron (mV)"/>
+            </initialValues>
+          </variables>
+          <variables id="neuron_v" name="Line - neuron_v">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="neuron_v" name="Line - neuron_v">
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="timeScale" name="timeScale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="color" name="color" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="#bbffbb"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="muscle_v" name="Line - muscle_v">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="muscle_v" name="Line - muscle_v">
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="timeScale" name="timeScale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="color" name="color" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="#ff0000"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+      <variables id="d5" name="Display - d5">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="d5" name="Display - d5">
+          <variables id="xmin" name="xmin" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="xmax" name="xmax" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="500.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="ymin" name="ymin" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="-9.999999717180685E-10">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="ymax" name="ymax" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="1.999999987845058E-8">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="timeScale" name="timeScale" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                <unit unit="ms"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="title" name="title" types="//@libraries.1/@types.5">
+            <initialValues key="//@libraries.1/@types.5">
+              <value xsi:type="gep_2:Text" text="Ca concentration muscle (mM)"/>
+            </initialValues>
+          </variables>
+          <variables id="Ca concentration" name="Line - Ca concentration">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Ca concentration" name="Line - Ca concentration">
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="mM"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="timeScale" name="timeScale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="color" name="color" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="#000000"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+      <variables id="d4" name="Display - d4">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="d4" name="Display - d4">
+          <variables id="xmin" name="xmin" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="xmax" name="xmax" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="500.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="ymin" name="ymin" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="-2.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="ymax" name="ymax" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="2.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="timeScale" name="timeScale" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                <unit unit="ms"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="title" name="title" types="//@libraries.1/@types.5">
+            <initialValues key="//@libraries.1/@types.5">
+              <value xsi:type="gep_2:Text" text="Current densities in muscle"/>
+            </initialValues>
+          </variables>
+          <variables id="Leak" name="Line - Leak">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="Leak" name="Line - Leak">
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="uA_per_cm2"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="timeScale" name="timeScale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="color" name="color" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="#550000"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="k_slow" name="Line - k_slow">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="k_slow" name="Line - k_slow">
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="uA_per_cm2"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="timeScale" name="timeScale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="color" name="color" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="#005500"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="k_fast" name="Line - k_fast">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="k_fast" name="Line - k_fast">
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="uA_per_cm2"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="timeScale" name="timeScale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="color" name="color" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="#000055"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="ca_boyle" name="Line - ca_boyle">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="ca_boyle" name="Line - ca_boyle">
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="uA_per_cm2"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="timeScale" name="timeScale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="color" name="color" types="//@libraries.1/@types.5">
+                <initialValues key="//@libraries.1/@types.5">
+                  <value xsi:type="gep_2:Text" text="#fff555"/>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+      <variables id="net1" name="network - net1">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="net1" name="network - net1" superType="//@libraries.0/@types.14">
+          <variables id="neuron" name="population - neuron" types="//@libraries.0/@types.5"/>
+          <variables id="muscle" name="population - muscle" types="//@libraries.0/@types.16"/>
+          <variables id="N_M" name="projection - N_M" types="//@libraries.0/@types.22"/>
+          <variables id="explicitInput" name="explicitInput">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="explicitInput" name="explicitInput">
+              <variables id="offset_current" name="pulseGenerator - offset_current" types="//@libraries.0/@types.13"/>
+              <variables id="offset_current" name="pulseGenerator - offset_current">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="offset_current" name="pulseGenerator - offset_current" superType="//@libraries.0/@types.23">
+                  <variables id="delay" name="delay" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+                        <unit unit="ms"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="duration" name="duration" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="290.0">
+                        <unit unit="ms"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="amplitude" name="amplitude" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="0.44999998807907104">
+                        <unit unit="nA"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="i" name="i" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="A"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="explicitInput" name="explicitInput">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="explicitInput" name="explicitInput">
+              <variables id="offsetToMin75" name="pulseGenerator - offsetToMin75" types="//@libraries.0/@types.1"/>
+              <variables id="offsetToMin75" name="pulseGenerator - offsetToMin75">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="offsetToMin75" name="pulseGenerator - offsetToMin75" superType="//@libraries.0/@types.23">
+                  <variables id="delay" name="delay" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="ms"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="duration" name="duration" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="1000.0">
+                        <unit unit="ms"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="amplitude" name="amplitude" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="-120.0">
+                        <unit unit="pA"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="i" name="i" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="A"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="k_fast" name="ionChannel - k_fast" superType="//@libraries.0/@types.20">
+      <variables id="conductance" name="conductance" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+            <unit unit="pS"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="species" name="species" types="//@libraries.1/@types.5">
+        <initialValues key="//@libraries.1/@types.5">
+          <value xsi:type="gep_2:Text" text="k"/>
+        </initialValues>
+      </variables>
+      <variables id="g" name="g" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="S"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="fopen" name="fopen" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit=""/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="notes" name="notes">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="notes" name="notes"/>
+      </variables>
+      <variables id="p" name="gateHHtauInf - p">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="p" name="gateHHtauInf - p">
+          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="4.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit="s"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="q" name="q" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="steadyState" name="steadyState">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="steadyState" name="steadyState">
+              <variables id="rate" name="rate" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit=""/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="midpoint" name="midpoint" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="-8.052319526672363">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="7.426360130310059">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="x" name="x" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit=""/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="timeCourse" name="timeCourse">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="timeCourse" name="timeCourse">
+              <variables id="tau" name="tau" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="2.2551798820495605">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="t" name="t" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="s"/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+      <variables id="q" name="gateHHtauInf - q">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="q" name="gateHHtauInf - q">
+          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit="s"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="q" name="q" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="steadyState" name="steadyState">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="steadyState" name="steadyState">
+              <variables id="rate" name="rate" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit=""/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="midpoint" name="midpoint" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="-15.645600318908691">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="-9.974679946899414">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="x" name="x" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit=""/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="timeCourse" name="timeCourse">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="timeCourse" name="timeCourse">
+              <variables id="tau" name="tau" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="149.96299743652344">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="t" name="t" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="s"/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="k_slow" name="ionChannel - k_slow" superType="//@libraries.0/@types.20">
+      <variables id="conductance" name="conductance" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+            <unit unit="pS"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="species" name="species" types="//@libraries.1/@types.5">
+        <initialValues key="//@libraries.1/@types.5">
+          <value xsi:type="gep_2:Text" text="k"/>
+        </initialValues>
+      </variables>
+      <variables id="g" name="g" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="S"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="fopen" name="fopen" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit=""/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="notes" name="notes">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="notes" name="notes"/>
+      </variables>
+      <variables id="n" name="gateHHtauInf - n">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="n" name="gateHHtauInf - n">
+          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+            <initialValues key="//@libraries.1/@types.0">
+              <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit="s"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="q" name="q" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit=""/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="steadyState" name="steadyState">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="steadyState" name="steadyState">
+              <variables id="rate" name="rate" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                    <unit unit=""/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="midpoint" name="midpoint" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="19.874099731445312">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="15.851200103759766">
+                    <unit unit="mV"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="x" name="x" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit=""/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="timeCourse" name="timeCourse">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="timeCourse" name="timeCourse">
+              <variables id="tau" name="tau" types="//@libraries.1/@types.0">
+                <initialValues key="//@libraries.1/@types.0">
+                  <value xsi:type="gep_2:PhysicalQuantity" value="25.000699996948242">
+                    <unit unit="ms"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="t" name="t" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="s"/>
+                  </value>
+                </initialValues>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeVisualType" id="morphology_SingleCompMuscleCell" name="morphology_SingleCompMuscleCell">
+      <variables id="vo0" name="vo0" types="//@libraries.1/@types.8">
+        <initialValues key="//@libraries.1/@types.8">
+          <value xsi:type="gep_2:Cylinder" bottomRadius="5.0" topRadius="5.0">
+            <position/>
+            <distal z="230.3459"/>
+          </value>
+        </initialValues>
+      </variables>
+      <visualGroups name="Cell Regions"/>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="exc_syn_1conns" name="expTwoSynapse - exc_syn_1conns">
+      <variables id="tauRise" name="tauRise" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+            <unit unit="ms"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="tauDecay" name="tauDecay" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+            <unit unit="ms"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="gbase" name="gbase" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="25.0">
+            <unit unit="nS"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="erev" name="erev" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="mV"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="g" name="g" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="S"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="i" name="i" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="A"/>
+          </value>
+        </initialValues>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="offset_current" name="pulseGenerator - offset_current" superType="//@libraries.0/@types.23">
+      <variables id="delay" name="delay" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+            <unit unit="ms"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="duration" name="duration" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="290.0">
+            <unit unit="ms"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="amplitude" name="amplitude" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="0.44999998807907104">
+            <unit unit="nA"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="i" name="i" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="A"/>
+          </value>
+        </initialValues>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="Network" name="Network"/>
+    <types xsi:type="gep_1:CompositeVisualType">
+      <variables id="generic_iaf_cell" name="generic_iaf_cell" types="//@libraries.1/@types.8">
+        <initialValues key="//@libraries.1/@types.8">
+          <value xsi:type="gep_2:Sphere" radius="1.2">
+            <position/>
+          </value>
+        </initialValues>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:ArrayType" id="muscle" name="population - muscle" superType="//@libraries.0/@types.19" size="1" arrayType="//@libraries.0/@types.18">
+      <defaultValue>
+        <elements>
+          <position x="50.0"/>
+        </elements>
+      </defaultValue>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="generic_iaf_cell" name="iafCell - generic_iaf_cell" visualType="//@libraries.0/@types.15">
+      <variables id="leakConductance" name="leakConductance" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="0.019999999552965164">
+            <unit unit="uS"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="leakReversal" name="leakReversal" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="-70.0">
+            <unit unit="mV"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="thresh" name="thresh" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="-50.0">
+            <unit unit="mV"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="reset" name="reset" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="-70.0">
+            <unit unit="mV"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="C" name="C" types="//@libraries.1/@types.0">
+        <initialValues key="//@libraries.1/@types.0">
+          <value xsi:type="gep_2:PhysicalQuantity" value="0.4000000059604645">
+            <unit unit="nF"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="iSyn" name="iSyn" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="A"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="iMemb" name="iMemb" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="A"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="v" name="v" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="V"/>
+          </value>
+        </initialValues>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="SingleCompMuscleCell" name="cell - SingleCompMuscleCell" superType="//@libraries.0/@types.21" visualType="//@libraries.0/@types.11">
+      <variables id="spiking" name="spiking" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit=""/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="debugVal" name="debugVal" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit=""/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="iChannels" name="iChannels" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="A"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="iSyn" name="iSyn" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="A"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="totSpecCap" name="totSpecCap" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="F_per_m2"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="surfaceArea" name="surfaceArea" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="m2"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="iCa" name="iCa" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="A"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="caConc" name="caConc" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="mol_per_m3"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="caConcExt" name="caConcExt" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="mol_per_m3"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="v" name="v" types="//@libraries.1/@types.2">
+        <initialValues key="//@libraries.1/@types.2">
+          <value xsi:type="gep_2:PhysicalQuantity">
+            <unit unit="V"/>
+          </value>
+        </initialValues>
+      </variables>
+      <variables id="notes" name="notes">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="notes" name="notes"/>
+      </variables>
+      <variables id="biophys" name="biophysicalProperties - biophys">
+        <anonymousTypes xsi:type="gep_1:CompositeType" id="biophys" name="biophysicalProperties - biophys">
+          <variables id="totSpecCap" name="totSpecCap" types="//@libraries.1/@types.2">
+            <initialValues key="//@libraries.1/@types.2">
+              <value xsi:type="gep_2:PhysicalQuantity">
+                <unit unit="F_per_m2"/>
+              </value>
+            </initialValues>
+          </variables>
+          <variables id="membraneProperties" name="membraneProperties">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="membraneProperties" name="membraneProperties">
+              <variables id="totChanCurrent" name="totChanCurrent" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="A"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="iCa" name="iCa" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="A"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="totSpecCap" name="totSpecCap" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="F_per_m2"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="specificCapacitance" name="specificCapacitance">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="specificCapacitance" name="specificCapacitance">
+                  <variables id="value" name="value" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                        <unit unit="uF_per_cm2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="totSpecCap" name="totSpecCap" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="F_per_m2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="initMembPotential" name="initMembPotential">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="initMembPotential" name="initMembPotential">
+                  <variables id="value" name="value" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="-75.0">
+                        <unit unit="mV"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="spikeThresh" name="spikeThresh">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="spikeThresh" name="spikeThresh">
+                  <variables id="value" name="value" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="mV"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="Leak_all" name="channelDensity - Leak_all">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="Leak_all" name="channelDensity - Leak_all">
+                  <variables id="erev" name="erev" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+                        <unit unit="mV"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="condDensity" name="condDensity" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="0.019318100064992905">
+                        <unit unit="mS_per_cm2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="ion" name="ion" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="non_specific"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="Leak" name="ionChannel - Leak" types="//@libraries.0/@types.3"/>
+                  <variables id="gDensity" name="gDensity" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="S_per_m2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="iDensity" name="iDensity" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="A_per_m2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="Leak" name="ionChannel - Leak">
+                    <anonymousTypes xsi:type="gep_1:CompositeType" id="Leak" name="ionChannel - Leak" superType="//@libraries.0/@types.20">
+                      <variables id="conductance" name="conductance" types="//@libraries.1/@types.0">
+                        <initialValues key="//@libraries.1/@types.0">
+                          <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+                            <unit unit="pS"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="g" name="g" types="//@libraries.1/@types.2">
+                        <initialValues key="//@libraries.1/@types.2">
+                          <value xsi:type="gep_2:PhysicalQuantity">
+                            <unit unit="S"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="fopen" name="fopen" types="//@libraries.1/@types.2">
+                        <initialValues key="//@libraries.1/@types.2">
+                          <value xsi:type="gep_2:PhysicalQuantity">
+                            <unit unit=""/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                    </anonymousTypes>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="k_slow_all" name="channelDensity - k_slow_all">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="k_slow_all" name="channelDensity - k_slow_all">
+                  <variables id="erev" name="erev" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="-64.34609985351562">
+                        <unit unit="mV"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="condDensity" name="condDensity" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="0.43584001064300537">
+                        <unit unit="mS_per_cm2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="ion" name="ion" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="k"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="k_slow" name="ionChannel - k_slow" types="//@libraries.0/@types.10"/>
+                  <variables id="gDensity" name="gDensity" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="S_per_m2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="iDensity" name="iDensity" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="A_per_m2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="k_slow" name="ionChannel - k_slow">
+                    <anonymousTypes xsi:type="gep_1:CompositeType" id="k_slow" name="ionChannel - k_slow" superType="//@libraries.0/@types.20">
+                      <variables id="conductance" name="conductance" types="//@libraries.1/@types.0">
+                        <initialValues key="//@libraries.1/@types.0">
+                          <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+                            <unit unit="pS"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="species" name="species" types="//@libraries.1/@types.5">
+                        <initialValues key="//@libraries.1/@types.5">
+                          <value xsi:type="gep_2:Text" text="k"/>
+                        </initialValues>
+                      </variables>
+                      <variables id="g" name="g" types="//@libraries.1/@types.2">
+                        <initialValues key="//@libraries.1/@types.2">
+                          <value xsi:type="gep_2:PhysicalQuantity">
+                            <unit unit="S"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="fopen" name="fopen" types="//@libraries.1/@types.2">
+                        <initialValues key="//@libraries.1/@types.2">
+                          <value xsi:type="gep_2:PhysicalQuantity">
+                            <unit unit=""/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="notes" name="notes">
+                        <anonymousTypes xsi:type="gep_1:CompositeType" id="notes" name="notes"/>
+                      </variables>
+                      <variables id="n" name="gateHHtauInf - n">
+                        <anonymousTypes xsi:type="gep_1:CompositeType" id="n" name="gateHHtauInf - n">
+                          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+                            <initialValues key="//@libraries.1/@types.0">
+                              <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit="s"/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="q" name="q" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="steadyState" name="steadyState">
+                            <anonymousTypes xsi:type="gep_1:CompositeType" id="steadyState" name="steadyState">
+                              <variables id="rate" name="rate" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                                    <unit unit=""/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="midpoint" name="midpoint" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="19.874099731445312">
+                                    <unit unit="mV"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="15.851200103759766">
+                                    <unit unit="mV"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="x" name="x" types="//@libraries.1/@types.2">
+                                <initialValues key="//@libraries.1/@types.2">
+                                  <value xsi:type="gep_2:PhysicalQuantity">
+                                    <unit unit=""/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                            </anonymousTypes>
+                          </variables>
+                          <variables id="timeCourse" name="timeCourse">
+                            <anonymousTypes xsi:type="gep_1:CompositeType" id="timeCourse" name="timeCourse">
+                              <variables id="tau" name="tau" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="25.000699996948242">
+                                    <unit unit="ms"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="t" name="t" types="//@libraries.1/@types.2">
+                                <initialValues key="//@libraries.1/@types.2">
+                                  <value xsi:type="gep_2:PhysicalQuantity">
+                                    <unit unit="s"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                            </anonymousTypes>
+                          </variables>
+                        </anonymousTypes>
+                      </variables>
+                    </anonymousTypes>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="k_fast_all" name="channelDensity - k_fast_all">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="k_fast_all" name="channelDensity - k_fast_all">
+                  <variables id="erev" name="erev" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="-54.99980163574219">
+                        <unit unit="mV"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="condDensity" name="condDensity" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="0.39999398589134216">
+                        <unit unit="mS_per_cm2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="ion" name="ion" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="k"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="k_fast" name="ionChannel - k_fast" types="//@libraries.0/@types.9"/>
+                  <variables id="gDensity" name="gDensity" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="S_per_m2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="iDensity" name="iDensity" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="A_per_m2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="k_fast" name="ionChannel - k_fast">
+                    <anonymousTypes xsi:type="gep_1:CompositeType" id="k_fast" name="ionChannel - k_fast" superType="//@libraries.0/@types.20">
+                      <variables id="conductance" name="conductance" types="//@libraries.1/@types.0">
+                        <initialValues key="//@libraries.1/@types.0">
+                          <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+                            <unit unit="pS"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="species" name="species" types="//@libraries.1/@types.5">
+                        <initialValues key="//@libraries.1/@types.5">
+                          <value xsi:type="gep_2:Text" text="k"/>
+                        </initialValues>
+                      </variables>
+                      <variables id="g" name="g" types="//@libraries.1/@types.2">
+                        <initialValues key="//@libraries.1/@types.2">
+                          <value xsi:type="gep_2:PhysicalQuantity">
+                            <unit unit="S"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="fopen" name="fopen" types="//@libraries.1/@types.2">
+                        <initialValues key="//@libraries.1/@types.2">
+                          <value xsi:type="gep_2:PhysicalQuantity">
+                            <unit unit=""/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="notes" name="notes">
+                        <anonymousTypes xsi:type="gep_1:CompositeType" id="notes" name="notes"/>
+                      </variables>
+                      <variables id="p" name="gateHHtauInf - p">
+                        <anonymousTypes xsi:type="gep_1:CompositeType" id="p" name="gateHHtauInf - p">
+                          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+                            <initialValues key="//@libraries.1/@types.0">
+                              <value xsi:type="gep_2:PhysicalQuantity" value="4.0">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit="s"/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="q" name="q" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="steadyState" name="steadyState">
+                            <anonymousTypes xsi:type="gep_1:CompositeType" id="steadyState" name="steadyState">
+                              <variables id="rate" name="rate" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                                    <unit unit=""/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="midpoint" name="midpoint" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="-8.052319526672363">
+                                    <unit unit="mV"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="7.426360130310059">
+                                    <unit unit="mV"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="x" name="x" types="//@libraries.1/@types.2">
+                                <initialValues key="//@libraries.1/@types.2">
+                                  <value xsi:type="gep_2:PhysicalQuantity">
+                                    <unit unit=""/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                            </anonymousTypes>
+                          </variables>
+                          <variables id="timeCourse" name="timeCourse">
+                            <anonymousTypes xsi:type="gep_1:CompositeType" id="timeCourse" name="timeCourse">
+                              <variables id="tau" name="tau" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="2.2551798820495605">
+                                    <unit unit="ms"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="t" name="t" types="//@libraries.1/@types.2">
+                                <initialValues key="//@libraries.1/@types.2">
+                                  <value xsi:type="gep_2:PhysicalQuantity">
+                                    <unit unit="s"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                            </anonymousTypes>
+                          </variables>
+                        </anonymousTypes>
+                      </variables>
+                      <variables id="q" name="gateHHtauInf - q">
+                        <anonymousTypes xsi:type="gep_1:CompositeType" id="q" name="gateHHtauInf - q">
+                          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+                            <initialValues key="//@libraries.1/@types.0">
+                              <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit="s"/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="q" name="q" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="steadyState" name="steadyState">
+                            <anonymousTypes xsi:type="gep_1:CompositeType" id="steadyState" name="steadyState">
+                              <variables id="rate" name="rate" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                                    <unit unit=""/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="midpoint" name="midpoint" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="-15.645600318908691">
+                                    <unit unit="mV"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="-9.974679946899414">
+                                    <unit unit="mV"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="x" name="x" types="//@libraries.1/@types.2">
+                                <initialValues key="//@libraries.1/@types.2">
+                                  <value xsi:type="gep_2:PhysicalQuantity">
+                                    <unit unit=""/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                            </anonymousTypes>
+                          </variables>
+                          <variables id="timeCourse" name="timeCourse">
+                            <anonymousTypes xsi:type="gep_1:CompositeType" id="timeCourse" name="timeCourse">
+                              <variables id="tau" name="tau" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="149.96299743652344">
+                                    <unit unit="ms"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="t" name="t" types="//@libraries.1/@types.2">
+                                <initialValues key="//@libraries.1/@types.2">
+                                  <value xsi:type="gep_2:PhysicalQuantity">
+                                    <unit unit="s"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                            </anonymousTypes>
+                          </variables>
+                        </anonymousTypes>
+                      </variables>
+                    </anonymousTypes>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="ca_boyle_all" name="channelDensity - ca_boyle_all">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="ca_boyle_all" name="channelDensity - ca_boyle_all">
+                  <variables id="erev" name="erev" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="49.11000061035156">
+                        <unit unit="mV"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="condDensity" name="condDensity" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="0.220209002494812">
+                        <unit unit="mS_per_cm2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="ion" name="ion" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="ca"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="ca_boyle" name="ionChannel - ca_boyle" types="//@libraries.0/@types.2"/>
+                  <variables id="gDensity" name="gDensity" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="S_per_m2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="iDensity" name="iDensity" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="A_per_m2"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="ca_boyle" name="ionChannel - ca_boyle">
+                    <anonymousTypes xsi:type="gep_1:CompositeType" id="ca_boyle" name="ionChannel - ca_boyle" superType="//@libraries.0/@types.20">
+                      <variables id="conductance" name="conductance" types="//@libraries.1/@types.0">
+                        <initialValues key="//@libraries.1/@types.0">
+                          <value xsi:type="gep_2:PhysicalQuantity" value="10.0">
+                            <unit unit="pS"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="species" name="species" types="//@libraries.1/@types.5">
+                        <initialValues key="//@libraries.1/@types.5">
+                          <value xsi:type="gep_2:Text" text="ca"/>
+                        </initialValues>
+                      </variables>
+                      <variables id="g" name="g" types="//@libraries.1/@types.2">
+                        <initialValues key="//@libraries.1/@types.2">
+                          <value xsi:type="gep_2:PhysicalQuantity">
+                            <unit unit="S"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="fopen" name="fopen" types="//@libraries.1/@types.2">
+                        <initialValues key="//@libraries.1/@types.2">
+                          <value xsi:type="gep_2:PhysicalQuantity">
+                            <unit unit=""/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="notes" name="notes">
+                        <anonymousTypes xsi:type="gep_1:CompositeType" id="notes" name="notes"/>
+                      </variables>
+                      <variables id="e" name="gateHHtauInf - e">
+                        <anonymousTypes xsi:type="gep_1:CompositeType" id="e" name="gateHHtauInf - e">
+                          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+                            <initialValues key="//@libraries.1/@types.0">
+                              <value xsi:type="gep_2:PhysicalQuantity" value="2.0">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit="s"/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="q" name="q" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="steadyState" name="steadyState">
+                            <anonymousTypes xsi:type="gep_1:CompositeType" id="steadyState" name="steadyState">
+                              <variables id="rate" name="rate" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                                    <unit unit=""/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="midpoint" name="midpoint" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="-3.356800079345703">
+                                    <unit unit="mV"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="6.7482099533081055">
+                                    <unit unit="mV"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="x" name="x" types="//@libraries.1/@types.2">
+                                <initialValues key="//@libraries.1/@types.2">
+                                  <value xsi:type="gep_2:PhysicalQuantity">
+                                    <unit unit=""/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                            </anonymousTypes>
+                          </variables>
+                          <variables id="timeCourse" name="timeCourse">
+                            <anonymousTypes xsi:type="gep_1:CompositeType" id="timeCourse" name="timeCourse">
+                              <variables id="tau" name="tau" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="0.10002700239419937">
+                                    <unit unit="ms"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="t" name="t" types="//@libraries.1/@types.2">
+                                <initialValues key="//@libraries.1/@types.2">
+                                  <value xsi:type="gep_2:PhysicalQuantity">
+                                    <unit unit="s"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                            </anonymousTypes>
+                          </variables>
+                        </anonymousTypes>
+                      </variables>
+                      <variables id="f" name="gateHHtauInf - f">
+                        <anonymousTypes xsi:type="gep_1:CompositeType" id="f" name="gateHHtauInf - f">
+                          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+                            <initialValues key="//@libraries.1/@types.0">
+                              <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit="s"/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="q" name="q" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="steadyState" name="steadyState">
+                            <anonymousTypes xsi:type="gep_1:CompositeType" id="steadyState" name="steadyState">
+                              <variables id="rate" name="rate" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                                    <unit unit=""/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="midpoint" name="midpoint" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="25.181499481201172">
+                                    <unit unit="mV"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="scale" name="scale" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="-5.031760215759277">
+                                    <unit unit="mV"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="x" name="x" types="//@libraries.1/@types.2">
+                                <initialValues key="//@libraries.1/@types.2">
+                                  <value xsi:type="gep_2:PhysicalQuantity">
+                                    <unit unit=""/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                            </anonymousTypes>
+                          </variables>
+                          <variables id="timeCourse" name="timeCourse">
+                            <anonymousTypes xsi:type="gep_1:CompositeType" id="timeCourse" name="timeCourse">
+                              <variables id="tau" name="tau" types="//@libraries.1/@types.0">
+                                <initialValues key="//@libraries.1/@types.0">
+                                  <value xsi:type="gep_2:PhysicalQuantity" value="150.8800048828125">
+                                    <unit unit="ms"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                              <variables id="t" name="t" types="//@libraries.1/@types.2">
+                                <initialValues key="//@libraries.1/@types.2">
+                                  <value xsi:type="gep_2:PhysicalQuantity">
+                                    <unit unit="s"/>
+                                  </value>
+                                </initialValues>
+                              </variables>
+                            </anonymousTypes>
+                          </variables>
+                        </anonymousTypes>
+                      </variables>
+                      <variables id="h" name="customHGate - h">
+                        <anonymousTypes xsi:type="gep_1:CompositeType" id="h" name="customHGate - h">
+                          <variables id="alpha" name="alpha" types="//@libraries.1/@types.0">
+                            <initialValues key="//@libraries.1/@types.0">
+                              <value xsi:type="gep_2:PhysicalQuantity" value="0.28247299790382385">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="k" name="k" types="//@libraries.1/@types.0">
+                            <initialValues key="//@libraries.1/@types.0">
+                              <value xsi:type="gep_2:PhysicalQuantity" value="-1.00055999041615E-8">
+                                <unit unit="mM"/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="ca_half" name="ca_half" types="//@libraries.1/@types.0">
+                            <initialValues key="//@libraries.1/@types.0">
+                              <value xsi:type="gep_2:PhysicalQuantity" value="6.418890308168557E-8">
+                                <unit unit="mM"/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="instances" name="instances" types="//@libraries.1/@types.0">
+                            <initialValues key="//@libraries.1/@types.0">
+                              <value xsi:type="gep_2:PhysicalQuantity" value="1.0">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="tau" name="tau" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit="s"/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="inf" name="inf" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="rateScale" name="rateScale" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="fcond" name="fcond" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                          <variables id="q" name="q" types="//@libraries.1/@types.2">
+                            <initialValues key="//@libraries.1/@types.2">
+                              <value xsi:type="gep_2:PhysicalQuantity">
+                                <unit unit=""/>
+                              </value>
+                            </initialValues>
+                          </variables>
+                        </anonymousTypes>
+                      </variables>
+                    </anonymousTypes>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+            </anonymousTypes>
+          </variables>
+          <variables id="intracellularProperties" name="intracellularProperties">
+            <anonymousTypes xsi:type="gep_1:CompositeType" id="intracellularProperties" name="intracellularProperties">
+              <variables id="caConc" name="caConc" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="mol_per_m3"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="caConcExt" name="caConcExt" types="//@libraries.1/@types.2">
+                <initialValues key="//@libraries.1/@types.2">
+                  <value xsi:type="gep_2:PhysicalQuantity">
+                    <unit unit="mol_per_m3"/>
+                  </value>
+                </initialValues>
+              </variables>
+              <variables id="resistivity" name="resistivity">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="resistivity" name="resistivity">
+                  <variables id="value" name="value" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="0.10000000149011612">
+                        <unit unit="kohm_cm"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+              <variables id="ca" name="species - ca">
+                <anonymousTypes xsi:type="gep_1:CompositeType" id="ca" name="species - ca">
+                  <variables id="initialConcentration" name="initialConcentration" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="mM"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="initialExtConcentration" name="initialExtConcentration" types="//@libraries.1/@types.0">
+                    <initialValues key="//@libraries.1/@types.0">
+                      <value xsi:type="gep_2:PhysicalQuantity" value="1.9999999949504854E-6">
+                        <unit unit="mol_per_cm3"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="ion" name="ion" types="//@libraries.1/@types.5">
+                    <initialValues key="//@libraries.1/@types.5">
+                      <value xsi:type="gep_2:Text" text="ca"/>
+                    </initialValues>
+                  </variables>
+                  <variables id="CaPool" name="fixedFactorConcentrationModel - CaPool" types="//@libraries.0/@types.7"/>
+                  <variables id="concentration" name="concentration" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="mol_per_m3"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="extConcentration" name="extConcentration" types="//@libraries.1/@types.2">
+                    <initialValues key="//@libraries.1/@types.2">
+                      <value xsi:type="gep_2:PhysicalQuantity">
+                        <unit unit="mol_per_m3"/>
+                      </value>
+                    </initialValues>
+                  </variables>
+                  <variables id="CaPool" name="fixedFactorConcentrationModel - CaPool">
+                    <anonymousTypes xsi:type="gep_1:CompositeType" id="CaPool" name="fixedFactorConcentrationModel - CaPool">
+                      <variables id="restingConc" name="restingConc" types="//@libraries.1/@types.0">
+                        <initialValues key="//@libraries.1/@types.0">
+                          <value xsi:type="gep_2:PhysicalQuantity">
+                            <unit unit="mM"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="decayConstant" name="decayConstant" types="//@libraries.1/@types.0">
+                        <initialValues key="//@libraries.1/@types.0">
+                          <value xsi:type="gep_2:PhysicalQuantity" value="11.594300270080566">
+                            <unit unit="ms"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="rho" name="rho" types="//@libraries.1/@types.0">
+                        <initialValues key="//@libraries.1/@types.0">
+                          <value xsi:type="gep_2:PhysicalQuantity" value="2.389190049143508E-4">
+                            <unit unit="mol_per_m_per_A_per_s"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="concentration" name="concentration" types="//@libraries.1/@types.2">
+                        <initialValues key="//@libraries.1/@types.2">
+                          <value xsi:type="gep_2:PhysicalQuantity">
+                            <unit unit="mol_per_m3"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                      <variables id="extConcentration" name="extConcentration" types="//@libraries.1/@types.2">
+                        <initialValues key="//@libraries.1/@types.2">
+                          <value xsi:type="gep_2:PhysicalQuantity">
+                            <unit unit="mol_per_m3"/>
+                          </value>
+                        </initialValues>
+                      </variables>
+                    </anonymousTypes>
+                  </variables>
+                </anonymousTypes>
+              </variables>
+            </anonymousTypes>
+          </variables>
+        </anonymousTypes>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="Population" name="Population"/>
+    <types xsi:type="gep_1:CompositeType" id="IonChannel" name="IonChannel"/>
+    <types xsi:type="gep_1:CompositeType" id="Cell" name="Cell"/>
+    <types xsi:type="gep_1:CompositeType" id="N_M" name="projection - N_M" superType="//@libraries.0/@types.6">
+      <variables id="ConnectionN_M0" name="CONNECTION - 0">
+        <anonymousTypes xsi:type="gep_1:ConnectionType" id="ConnectionN_M0" name="CONNECTION - 0">
+          <variables id="exc_syn_1conns" name="expTwoSynapse - exc_syn_1conns" types="//@libraries.0/@types.12"/>
+        </anonymousTypes>
+      </variables>
+      <variables id="ConnectionN_M0" name="CONNECTION - 0">
+        <anonymousTypes xsi:type="gep_1:ConnectionType" id="ConnectionN_M0" name="CONNECTION - 0">
+          <variables id="exc_syn_1conns" name="expTwoSynapse - exc_syn_1conns" types="//@libraries.0/@types.12"/>
+        </anonymousTypes>
+      </variables>
+    </types>
+    <types xsi:type="gep_1:CompositeType" id="PulseGenerator" name="PulseGenerator"/>
+  </libraries>
+  <libraries id="common" name="Geppetto Common Library">
+    <types xsi:type="gep_1:ParameterType" id="Parameter" name="Parameter"/>
+    <types xsi:type="gep_1:DynamicsType" id="Dynamics" name="Dynamics"/>
+    <types xsi:type="gep_1:StateVariableType" id="StateVariable" name="State Variable"/>
+    <types xsi:type="gep_1:HTMLType" id="HTML" name="HTML"/>
+    <types xsi:type="gep_1:URLType" id="URL" name="URL"/>
+    <types xsi:type="gep_1:TextType" id="Text" name="Text"/>
+    <types xsi:type="gep_1:PointType" id="Point" name="Point"/>
+    <types xsi:type="gep_1:ExpressionType" id="Expression" name="Expression"/>
+    <types xsi:type="gep_1:VisualType" id="Visual" name="Visual"/>
+  </libraries>
+</gep:GeppettoModel>

@@ -168,6 +168,13 @@ public class JustTest
 		serialise("/c302/LEMS_c302_A.xml", "./src/test/resources/c302NoTarget.xmi", null, true, new LEMSModelInterpreterService());
 	}
 	
+	@Test
+	public void testMuscle() throws Exception
+	{
+		serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/Muscle.xmi", "net1", true, new LEMSModelInterpreterService());
+		serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/MuscleNoTarget.xmi", null, true, new LEMSModelInterpreterService());
+	}
+	
 	@AfterClass
 	public static void doYourOneTimeTeardown()
 	{
