@@ -154,6 +154,12 @@ public class JustTest
 		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhnet1.xmi", "net1", true, new LEMSModelInterpreterService());
 	}
 
+	@Test
+	public void testPVDR() throws Exception
+	{
+		serialise("/pvdr/PVDR.nml", "./src/test/resources/pvdr.xmi", "PVDR", true, new NeuroMLModelInterpreterService());
+		serialise("/pvdr/PVDR.nml", "./src/test/resources/pvdrNoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
+	}
 	
 	@AfterClass
 	public static void doYourOneTimeTeardown()
@@ -181,6 +187,11 @@ public class JustTest
 		hhcellNoTarget.delete();
 		File hhnet1 = new File("./src/test/resources/hhnet1.xmi");
 		hhnet1.delete();
+		
+		File pvdr = new File("./src/test/resources/pvdr.xmi");
+		pvdr.delete();
+		File pvdrNoTarget = new File("./src/test/resources/pvdrNoTarget.xmi");
+		pvdrNoTarget.delete();
 	}
 }
 

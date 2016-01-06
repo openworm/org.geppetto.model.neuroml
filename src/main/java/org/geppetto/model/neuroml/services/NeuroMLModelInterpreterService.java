@@ -157,6 +157,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			long start = System.currentTimeMillis();
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument lemsDocument = lemsReader.readModel(reader.getLEMSString());
+			
 			_logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
 
 			// Reading NEUROML file
@@ -362,7 +363,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			compositeType.getVariables().add(variable);
 		}
 
-		// Exposures are the variables that can potentially being watch.
+		// Exposures are the variables that can potentially be watched
 		for(Exposure exposure : component.getComponentType().getExposures())
 		{
 			compositeType.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
