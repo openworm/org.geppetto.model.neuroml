@@ -140,34 +140,34 @@ public class JustTest
 		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.json", "bask", true, new NeuroMLModelInterpreterService());
 	}
 
-	// @Test
-	// public void testHHCell() throws Exception
-	// {
-	// serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhcell.xmi", "hhcell", true, new LEMSModelInterpreterService());
-	// serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhcellNoTarget.xmi", null, true, new LEMSModelInterpreterService());
-	// serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhnet1.xmi", "net1", true, new LEMSModelInterpreterService());
-	// }
-	//
-	// @Test
-	// public void testPVDR() throws Exception
-	// {
-	// serialise("/pvdr/PVDR.nml", "./src/test/resources/pvdr.xmi", "PVDR", true, new NeuroMLModelInterpreterService());
-	// serialise("/pvdr/PVDR.nml", "./src/test/resources/pvdrNoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
-	// }
-	//
-	// @Test
-	// public void testc302() throws Exception
-	// {
-	// serialise("/c302/LEMS_c302_A.xml", "./src/test/resources/c302.xmi", "c302_A", true, new LEMSModelInterpreterService());
-	// serialise("/c302/LEMS_c302_A.xml", "./src/test/resources/c302NoTarget.xmi", null, true, new LEMSModelInterpreterService());
-	// }
-	//
-	// @Test
-	// public void testMuscle() throws Exception
-	// {
-	// serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/Muscle.xmi", "net1", true, new LEMSModelInterpreterService());
-	// serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/MuscleNoTarget.xmi", null, true, new LEMSModelInterpreterService());
-	// }
+	@Test
+	public void testHHCell() throws Exception
+	{
+		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhcell.xmi", "hhcell", true, new LEMSModelInterpreterService());
+		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhcellNoTarget.xmi", null, true, new LEMSModelInterpreterService());
+		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhnet1.xmi", "net1", true, new LEMSModelInterpreterService());
+	}
+
+	@Test
+	public void testPVDR() throws Exception
+	{
+		serialise("/pvdr/PVDR.nml", "./src/test/resources/pvdr.xmi", "PVDR", true, new NeuroMLModelInterpreterService());
+		serialise("/pvdr/PVDR.nml", "./src/test/resources/pvdrNoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
+	}
+
+	@Test
+	public void testc302() throws Exception
+	{
+		serialise("/c302/LEMS_c302_A.xml", "./src/test/resources/c302.xmi", "c302_A", true, new LEMSModelInterpreterService());
+		serialise("/c302/LEMS_c302_A.xml", "./src/test/resources/c302NoTarget.xmi", null, true, new LEMSModelInterpreterService());
+	}
+
+	@Test
+	public void testMuscle() throws Exception
+	{
+		serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/Muscle.xmi", "net1", true, new LEMSModelInterpreterService());
+		serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/MuscleNoTarget.xmi", null, true, new LEMSModelInterpreterService());
+	}
 
 	@AfterClass
 	public static void doYourOneTimeTeardown()
@@ -189,26 +189,26 @@ public class JustTest
 		File baskjson = new File("./src/test/resources/bask.json");
 		baskjson.delete();
 
-		// File hhcell = new File("./src/test/resources/hhcell.xmi");
-		// hhcell.delete();
-		// File hhcellNoTarget = new File("./src/test/resources/hhcellNoTarget.xmi");
-		// hhcellNoTarget.delete();
-		// File hhnet1 = new File("./src/test/resources/hhnet1.xmi");
-		// hhnet1.delete();
-		//
-		// File pvdr = new File("./src/test/resources/pvdr.xmi");
-		// pvdr.delete();
-		// File pvdrNoTarget = new File("./src/test/resources/pvdrNoTarget.xmi");
-		// pvdrNoTarget.delete();
-		//
-		// File c302 = new File("./src/test/resources/c302.xmi");
-		// c302.delete();
-		// File c302NoTarget = new File("./src/test/resources/c302NoTarget.xmi");
-		// c302NoTarget.delete();
-		//
-		// File muscle = new File("./src/test/resources/Muscle.xmi");
-		// muscle.delete();
-		// File muscleNoTarget = new File("./src/test/resources/MuscleNoTarget.xmi");
-		// muscleNoTarget.delete();
+		 File hhcell = new File("./src/test/resources/hhcell.xmi");
+		 hhcell.delete();
+		 File hhcellNoTarget = new File("./src/test/resources/hhcellNoTarget.xmi");
+		 hhcellNoTarget.delete();
+		 File hhnet1 = new File("./src/test/resources/hhnet1.xmi");
+		 hhnet1.delete();
+		
+		 File pvdr = new File("./src/test/resources/pvdr.xmi");
+		 pvdr.delete();
+		 File pvdrNoTarget = new File("./src/test/resources/pvdrNoTarget.xmi");
+		 pvdrNoTarget.delete();
+		
+		 File c302 = new File("./src/test/resources/c302.xmi");
+		 c302.delete();
+		 File c302NoTarget = new File("./src/test/resources/c302NoTarget.xmi");
+		 c302NoTarget.delete();
+		
+		 File muscle = new File("./src/test/resources/Muscle.xmi");
+		 muscle.delete();
+		 File muscleNoTarget = new File("./src/test/resources/MuscleNoTarget.xmi");
+		 muscleNoTarget.delete();
 	}
 }

@@ -81,35 +81,19 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	@Override
 	public Type importType(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
 	{
-		// return _neuroMLModelInterpreter.importType(url, typeName, library, access);
-
-		Type type;
-
 		long startTime = System.currentTimeMillis();
 
+		Type type;
 		dependentModels.clear();
 
 		try
 		{
 			// Read main and includes as a String
 			OptimizedLEMSReader reader = new OptimizedLEMSReader(this.dependentModels);
-			int index = url.toString().lastIndexOf('/');
-			String urlBase = url.toString().substring(0, index + 1);
-			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.LEMS); // expand it to have all the inclusions
+			reader.readAllFormats(url, OptimizedLEMSReader.NMLDOCTYPE.LEMS);
 
-			// Reading LEMS files
-			long start = System.currentTimeMillis();
-			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			ILEMSDocument lemsDocument = lemsReader.readModel(reader.getLEMSString());
-			_logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
-
-			// Reading NEUROML file
-			start = System.currentTimeMillis();
-			NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-			NeuroMLDocument neuroml = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
-			_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
-
-			type = _neuroMLModelInterpreter.extractTypes(url, typeId, library, access, lemsDocument, neuroml);
+			// Extract Types from the lems/neuroml files
+			type = _neuroMLModelInterpreter.extractTypes(url, typeId, library, access, reader.getLEMSDocument(), reader.getNeuroMLDocument());
 		}
 		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
 		{
