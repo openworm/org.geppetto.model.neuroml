@@ -122,7 +122,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private Map<String, Type> types = new HashMap<String, Type>();
 	private Map<ResourcesDomainType, List<Type>> typesMap = new HashMap<ResourcesDomainType, List<Type>>();
-//	private Type type = null;
+	// private Type type = null;
 
 	private GeppettoModelAccess access;
 
@@ -139,7 +139,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	public Type importType(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
 	{
 		Type type;
-		
+
 		// AQP: Shall we verify if types != null?
 		long startTime = System.currentTimeMillis();
 
@@ -157,7 +157,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			long start = System.currentTimeMillis();
 			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
 			ILEMSDocument lemsDocument = lemsReader.readModel(reader.getLEMSString());
-			
+
 			_logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
 
 			// Reading NEUROML file
@@ -183,7 +183,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		Type type = null;
 		this.access = access;
-		
+
 		// Resolve LEMS model
 		// If there is any problem resolving the lems model, we will try to go ahead anyway
 		// as there are some models, as purkinje, which are not valid LEMS format
@@ -201,7 +201,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		// Otherwise let's iterate through all the components
 		if(typeId != null && !typeId.isEmpty())
 		{
-			types.put(typeId, extractInfoFromComponent(lems.getComponent(typeId)));
+			types.put(typeId, extractInfoFromComponent(lems.getComponent(typeId), null));
 			type = types.get(typeId);
 		}
 		else
@@ -212,7 +212,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				if(!types.containsKey(component.getID()))
 				{
 
-					types.put(component.getID(), extractInfoFromComponent(component));
+					types.put(component.getID(), extractInfoFromComponent(component, null));
 
 					// Business rule: 1) If there is a network in the NeuroML file we don't visualise spurious cells which
 					// "most likely" are just included types in NeuroML and are instantiated as part of the network
@@ -255,13 +255,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		// Add LEMS Parameter Feature
 		this.addFeature(new LEMSParametersFeature());
-		
+
 		return type;
 	}
 
 	/*
-	 * Return a regular composite type if domainType is null.
-	 * Otherwise return a composite type with supertype equal to the domaintype or an array type
+	 * Return a regular composite type if domainType is null. Otherwise return a composite type with supertype equal to the domaintype or an array type
 	 */
 	private Type getCompositeType(String domainName)
 	{
@@ -281,8 +280,14 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		}
 
 		Type newType;
-		if(domainName.equals(ResourcesDomainType.POPULATION.get())) newType = typeFactory.createArrayType();
-		else newType = typeFactory.createCompositeType();
+		if(domainName.equals(ResourcesDomainType.POPULATION.get()))
+		{
+			newType = typeFactory.createArrayType();
+		}
+		else
+		{
+			newType = typeFactory.createCompositeType();
+		}
 		newType.setSuperType(types.get(domainName));
 
 		List<Type> typeList = typesMap.get(ResourcesDomainType.getValueByValue(domainName));
@@ -291,47 +296,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return newType;
 	}
 
-	private CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException
-	{
-		return extractInfoFromComponent(component, null);
-	}
-
 	private CompositeType extractInfoFromComponent(Component component, String domainType) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException
 	{
-		String declaredType = component.getDeclaredType();
-
-		// AQP: Try to centralise all the domain type in a single pace. Problem: cells inside population
-		//CompositeType compositeType = (CompositeType)getCompositeType(declaredType);
-		CompositeType compositeType;
-		
-		if(domainType != null)
-		{
-			compositeType = (CompositeType) getCompositeType(domainType);
-		}
-		else
-		{
-			if(declaredType.equals("network"))
-			{
-				compositeType = (CompositeType) getCompositeType(ResourcesDomainType.NETWORK.get());
-			}
-			else if(declaredType.startsWith("ionChannel"))
-			{
-				compositeType = (CompositeType) getCompositeType(ResourcesDomainType.IONCHANNEL.get());
-			}
-			// AQP: Review all the possible pulse generator
-			else if(declaredType.equals("pulseGenerator"))
-			{
-				compositeType = (CompositeType) getCompositeType(ResourcesDomainType.PULSEGENERATOR.get());
-			}
-			else if(declaredType.equals("synapse"))
-			{
-				compositeType = (CompositeType) getCompositeType(ResourcesDomainType.SYNAPSE.get());
-			}
-			else
-			{
-				compositeType = typeFactory.createCompositeType();
-			}
-		}
+		CompositeType compositeType = (CompositeType) getCompositeType((domainType != null) ? domainType : component.getDeclaredType());
 
 		ModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
 
@@ -355,7 +322,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		{
 			if(!types.containsKey(entry.getValue().getID()))
 			{
-				types.put(entry.getValue().getID(), extractInfoFromComponent(entry.getValue()));
+				types.put(entry.getValue().getID(), extractInfoFromComponent(entry.getValue(), null));
 			}
 			Variable variable = variablesFactory.createVariable();
 			ModelInterpreterUtils.initialiseNodeFromComponent(variable, entry.getValue());
@@ -390,7 +357,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			createConnectionTypeVariablesForProjection(projection, compositeType);
 		}
 
-		//Extracting the rest of the children
+		// Extracting the rest of the children
 		for(Component componentChild : component.getAllChildren())
 		{
 			if(!componentChild.getDeclaredType().equals("population") && !componentChild.getDeclaredType().equals("projection"))
@@ -409,7 +376,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				else
 				{
 
-					CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
+					CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild, null);
 					if(anonymousCompositeType != null)
 					{
 						Variable variable = variablesFactory.createVariable();
@@ -446,7 +413,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		if(!types.containsKey(projection.getRefComponents().get("synapse").getID()))
 		{
-			types.put(projection.getRefComponents().get("synapse").getID(), extractInfoFromComponent(projection.getRefComponents().get("synapse")));
+			types.put(projection.getRefComponents().get("synapse").getID(), extractInfoFromComponent(projection.getRefComponents().get("synapse"), null));
 		}
 
 		// Pre and post synaptic population should be ref component but there are just attributes
@@ -535,8 +502,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		ArrayType arrayType = (ArrayType) getCompositeType(ResourcesDomainType.POPULATION.get());
 		ModelInterpreterUtils.initialiseNodeFromComponent(arrayType, populationComponent);
-		
-		// If it is not of type cell, it won't have morphology and we can assume an sphere in the 
+
+		// If it is not of type cell, it won't have morphology and we can assume an sphere in the
 		if(!populationComponent.getRefComponents().get("component").getDeclaredType().equals("cell"))
 		{
 			if(!types.containsKey("morphology" + populationComponent.getID()))
@@ -604,10 +571,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			}
 			arrayType.setSize(size);
 		}
-		else{
+		else
+		{
 			// If it has size attribute we read it otherwise we count the number of instances
-			if (populationComponent.hasStringValue("size"))
-				arrayType.setSize(Integer.parseInt(populationComponent.getStringValue("size")));
+			if(populationComponent.hasStringValue("size")) arrayType.setSize(Integer.parseInt(populationComponent.getStringValue("size")));
 		}
 		arrayType.setDefaultValue(arrayValue);
 		types.put(populationComponent.getID(), arrayType);

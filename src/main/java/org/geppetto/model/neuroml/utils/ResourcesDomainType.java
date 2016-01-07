@@ -42,15 +42,15 @@ package org.geppetto.model.neuroml.utils;
 public enum ResourcesDomainType
 {
 	
-	SYNAPSE("Synapse"),
-	PREFRACTIONALONG("PreFractionAlong"),
-	POSTFRACTIONALONG("PostFractionAlong"),
-	IONCHANNEL("IonChannel"),
-	PULSEGENERATOR("PulseGenerator"),
-	POPULATION("Population"),
-	PROJECTION("Projection"),
-	NETWORK("Network"),
-	CELL("Cell");
+	SYNAPSE("synapse"),
+	PREFRACTIONALONG("preFractionAlong"),
+	POSTFRACTIONALONG("postFractionAlong"),
+	IONCHANNEL("ionChannel"),
+	PULSEGENERATOR("pulseGenerator"),
+	POPULATION("population"),
+	PROJECTION("projection"),
+	NETWORK("network"),
+	CELL("cell");
 	
 	
 	private String _value;
