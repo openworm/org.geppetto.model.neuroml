@@ -295,19 +295,19 @@ public class PopulateChannelDensityVisualGroups
 			{
 				VisualGroup vis = createVisualGroup(groupsMap, ionChannel);
 				vis.getTags().add(tag);
-				createVisualGroupElementFromSegmentGroup(density, segmentGroup, condDensity, vis);
+				createVisualGroupElementFromSegmentGroup(segmentGroup, condDensity, vis);
 			}
 		}
 		else
 		{
 			VisualGroup vis = groupsMap.get(ionChannel);
-			if(!density.getId().endsWith("_all")) createVisualGroupElementFromSegmentGroup(density, segmentGroup, condDensity, vis);
+			if(!density.getId().endsWith("_all")) createVisualGroupElementFromSegmentGroup(segmentGroup, condDensity, vis);
 			// densities.addChild(vis);
 			groupsMap.put(ionChannel, vis);
 		}
 	}
 
-	private void createVisualGroupElementFromSegmentGroup(Base density, String segmentGroup, String condDensity, VisualGroup vis) throws GeppettoVisitingException
+	private void createVisualGroupElementFromSegmentGroup(String segmentGroup, String condDensity, VisualGroup vis) throws GeppettoVisitingException
 	{
 		// VisualGroupElementNode element = new VisualGroupElementNode(segmentGroup);
 		VisualGroupElement element = valuesFactory.createVisualGroupElement();
