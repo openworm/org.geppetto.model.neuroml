@@ -60,6 +60,7 @@ import org.neuroml.model.Cell;
 import org.neuroml.model.Include;
 import org.neuroml.model.Member;
 import org.neuroml.model.Morphology;
+import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Point3DWithDiam;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
@@ -86,7 +87,7 @@ public class ExtractVisualType
 	ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 	VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
 
-	Map<String, List<VisualGroupElement>> segmentsMap;
+	Map<String, List<VisualGroupElement>> segmentsMap = new HashMap<String, List<VisualGroupElement>>();
 
 	GeppettoModelAccess access;
 
@@ -98,12 +99,27 @@ public class ExtractVisualType
 		super();
 
 		this.cellComponent = cellComponent;
+		this.access = access;
+		
 		LinkedHashMap<String, Standalone> cellMap = Utils.convertLemsComponentToNeuroML(cellComponent);
 		this.cell = (Cell) cellMap.get(cellComponent.getID());
 
-		this.access = access;
+		cellUtils = new CellUtils(cell);
+	}
+	
+	public ExtractVisualType(Component cellComponent, GeppettoModelAccess access, NeuroMLDocument neuroml) throws LEMSException, NeuroMLException
+	{
+		super();
 
-		segmentsMap = new HashMap<String, List<VisualGroupElement>>();
+		this.cellComponent = cellComponent;
+		this.access = access;
+		
+		for (Cell cell : neuroml.getCell()){
+			if (cell.getId().equals(cellComponent.getID())){
+				this.cell = cell;
+				break;
+			}
+		}
 
 		cellUtils = new CellUtils(cell);
 	}
