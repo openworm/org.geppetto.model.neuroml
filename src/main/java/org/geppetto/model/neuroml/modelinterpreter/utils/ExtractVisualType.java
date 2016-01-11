@@ -130,8 +130,6 @@ public class ExtractVisualType
 		ModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, cell.getMorphology().getId());
 		visualCompositeType.getVisualGroups().add(createCellPartsVisualGroups());
 
-		// List<VisualValue> visualizationNodes = new ArrayList<VisualValue>();
-
 		if(cell.getMorphology().getSegmentGroup().isEmpty())
 		{
 			visualCompositeType.getVariables().addAll(getVisualObjectsFromListOfSegments(cell.getMorphology()));

@@ -122,8 +122,6 @@ public class PopulateChannelDensityVisualGroups
 	{
 		Map<String, VisualGroup> groupsMap = new HashMap<String, VisualGroup>();
 
-		// CompositeNode densities = null;
-
 		BiophysicalProperties biophysicalProperties = cell.getBiophysicalProperties();
 		if(biophysicalProperties != null
 				&& biophysicalProperties.getMembraneProperties() != null

@@ -352,7 +352,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		// Extracting the rest of the children
 		for(Component componentChild : component.getAllChildren())
 		{
-			if(!componentChild.getDeclaredType().equals("population") && !componentChild.getDeclaredType().equals("projection"))
+			//AQP we need to find a good way to extract the notes
+			if(!componentChild.getDeclaredType().equals("population") && !componentChild.getDeclaredType().equals("projection") && !componentChild.getDeclaredType().equals("notes"))
 			{
 				if(componentChild.getDeclaredType().equals("morphology"))
 				{
@@ -360,6 +361,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 				else
 				{
+					
 					// If it is not a population, a projection/connection or a morphology, let's deal with it in a generic way
 					CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild, null);
 					if(anonymousCompositeType != null)
