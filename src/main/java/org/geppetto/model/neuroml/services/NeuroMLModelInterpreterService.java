@@ -85,6 +85,7 @@ import org.geppetto.model.values.Connectivity;
 import org.geppetto.model.values.Point;
 import org.geppetto.model.values.Pointer;
 import org.geppetto.model.values.Sphere;
+import org.geppetto.model.values.Text;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
@@ -127,11 +128,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private TypesFactory typeFactory = TypesFactory.eINSTANCE;
 	private ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 	private VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
-	
+
 	private boolean isValidLEMS = true;
 
 	private NeuroMLDocument neuroml;
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -350,19 +351,21 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		}
 
 		// Extracting the rest of the children
-		for(Component componentChild : component.getAllChildren())
+		for(Component componentChild : component.getChildHM().values())
 		{
-			//AQP we need to find a good way to extract the notes
-			if(!componentChild.getDeclaredType().equals("population") && !componentChild.getDeclaredType().equals("projection") && !componentChild.getDeclaredType().equals("notes"))
+			if(!componentChild.getDeclaredType().equals("notes"))
 			{
 				if(componentChild.getDeclaredType().equals("morphology"))
 				{
 					createVisualTypeFromMorphology(component, compositeType, componentChild);
 				}
+				else if(componentChild.getDeclaredType().equals("annotation"))
+				{
+					createCompositeTypeFromAnnotation(compositeType, componentChild);
+				}
 				else
 				{
-					
-					// If it is not a population, a projection/connection or a morphology, let's deal with it in a generic way
+					// AQP: Shouldn't be anonymous by default
 					CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild, null);
 					if(anonymousCompositeType != null)
 					{
@@ -375,27 +378,97 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			}
 		}
 
+		// Extracting the rest of the children
+		for(Component componentChild : component.getStrictChildren())
+		{
+			// AQP we need to find a good way to extract the notes
+			if(!componentChild.getDeclaredType().equals("population") && !componentChild.getDeclaredType().equals("projection") && !componentChild.getDeclaredType().equals("notes"))
+			{
+				// If it is not a population, a projection/connection or a morphology, let's deal with it in a generic way
+				CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild, null);
+				if(anonymousCompositeType != null)
+				{
+					Variable variable = variablesFactory.createVariable();
+					ModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
+					variable.getAnonymousTypes().add(anonymousCompositeType);
+					compositeType.getVariables().add(variable);
+				}
+			}
+		}
+
 		return compositeType;
 
 	}
 
-	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component componentChild) throws LEMSException, NeuroMLException, GeppettoVisitingException
+	private void createCompositeTypeFromAnnotation(CompositeType compositeType, Component annotation) throws LEMSException, NeuroMLException, GeppettoVisitingException
 	{
-		if(!types.containsKey(componentChild.getID()))
+		CompositeVisualType annotationType = typeFactory.createCompositeVisualType();
+		ModelInterpreterUtils.initialiseNodeFromComponent(annotationType, annotation);
+		for (Map.Entry<String, Component> entry : annotation.getChildHM().entrySet()){
+			if (entry.getKey().equals("property")){
+				Component property = entry.getValue();
+				Text text = valuesFactory.createText();
+				text.setText(property.getTextParam("value"));
+				
+				Variable variable = variablesFactory.createVariable();
+				ModelInterpreterUtils.initialiseNodeFromString(variable, property.getTextParam("tag"));
+				variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
+				variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+				annotationType.getVariables().add(variable);
+			}
+			else{
+				Component rdf = entry.getValue();
+				if (rdf.hasTextParam("xmlns:rdf")){
+					Text text = valuesFactory.createText();
+					text.setText(rdf.getTextParam("xmlns:rdf"));
+					
+					Variable variable = variablesFactory.createVariable();
+					ModelInterpreterUtils.initialiseNodeFromString(variable, "rdf");
+					variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
+					variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+					annotationType.getVariables().add(variable);
+				}
+				
+				Component rdfDescription = rdf.getChild("rdf:Description");
+				for (Map.Entry<String, Component> rdfDescriptionChild : rdfDescription.getChildHM().entrySet()){
+					//AQP: we can't access the information in here. JLems needs to be fixed
+					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChild("rdf:li");
+					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChild("rdf:li").getTextParam("rdf:resource");
+					
+					Text text = valuesFactory.createText();
+					// AQP: we need to conver from this to a readable label
+					text.setText(rdfDescriptionChild.getKey());
+					
+					Variable variable = variablesFactory.createVariable();
+					ModelInterpreterUtils.initialiseNodeFromString(variable, rdfDescriptionChild.getKey());
+					variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
+					variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+					annotationType.getVariables().add(variable);
+				}
+			}
+		}
+		
+		Variable variable = variablesFactory.createVariable();
+		ModelInterpreterUtils.initialiseNodeFromComponent(variable, annotation);
+		variable.getAnonymousTypes().add(annotationType);
+		compositeType.getVariables().add(variable);
+	}
+	
+	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component morphology) throws LEMSException, NeuroMLException, GeppettoVisitingException
+	{
+		if(!types.containsKey(morphology.getID()))
 		{
 			// We assume when we find a morphology it belongs to a cell
 			// If it is not a valid LEMS file (e.g. purkinje) we need to use the cell component from the neuroml file because
 			// converting it from the LEMS component it is not going to work
 			ExtractVisualType extractVisualType = null;
-			if (isValidLEMS)
-				extractVisualType = new ExtractVisualType(component, access);
-			else
-				extractVisualType = new ExtractVisualType(component, access, this.neuroml);
-			
-			types.put(componentChild.getID(), extractVisualType.createTypeFromCellMorphology());
+			if(isValidLEMS) extractVisualType = new ExtractVisualType(component, access);
+			else extractVisualType = new ExtractVisualType(component, access, this.neuroml);
+
+			types.put(morphology.getID(), extractVisualType.createTypeFromCellMorphology());
 		}
 
-		compositeType.setVisualType((VisualType) types.get(componentChild.getID()));
+		compositeType.setVisualType((VisualType) types.get(morphology.getID()));
 	}
 
 	public void createConnectionTypeVariablesFromProjection(Component projection, CompositeType compositeType) throws GeppettoVisitingException, LEMSException, NeuroMLException
@@ -543,8 +616,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				Variable variable = variablesFactory.createVariable();
 				variable.setId(populationComponent.getRefComponents().get("component").getID());
 				variable.setName(populationComponent.getRefComponents().get("component").getID());
-				variable.getTypes().add(this.access.getType(TypesPackage.Literals.VISUAL_TYPE));
-				variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), sphere);
+				variable.getTypes().add(access.getType(TypesPackage.Literals.VISUAL_TYPE));
+				variable.getInitialValues().put(access.getType(TypesPackage.Literals.VISUAL_TYPE), sphere);
 
 				visualCompositeType.getVariables().add(variable);
 
