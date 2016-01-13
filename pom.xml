@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>org.lemsml</groupId>
 			<artifactId>jlems</artifactId>
-			<version>0.9.8.1</version>
+			<version>0.9.8.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geppetto</groupId>
