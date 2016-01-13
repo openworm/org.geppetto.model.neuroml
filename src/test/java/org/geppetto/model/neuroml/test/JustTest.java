@@ -125,12 +125,12 @@ public class JustTest
 		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2NoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
 	}
 
-	@Test
-	public void testPurkinje() throws Exception
-	{
-		serialise("/purkinje/purk.nml", "./src/test/resources/purkinje.xmi", "purk2", true, new NeuroMLModelInterpreterService());
-		serialise("/purkinje/purk.nml", "./src/test/resources/purkinjeNotarget.xmi", null, true, new NeuroMLModelInterpreterService());
-	}
+//	@Test
+//	public void testPurkinje() throws Exception
+//	{
+//		serialise("/purkinje/purk.nml", "./src/test/resources/purkinje.xmi", "purk2", true, new NeuroMLModelInterpreterService());
+//		serialise("/purkinje/purk.nml", "./src/test/resources/purkinjeNotarget.xmi", null, true, new NeuroMLModelInterpreterService());
+//	}
 
 	@Test
 	public void testBask() throws Exception
@@ -140,75 +140,98 @@ public class JustTest
 		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.json", "bask", true, new NeuroMLModelInterpreterService());
 	}
 
-	@Test
-	public void testHHCell() throws Exception
-	{
-		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhcell.xmi", "hhcell", true, new LEMSModelInterpreterService());
-		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhcellNoTarget.xmi", null, true, new LEMSModelInterpreterService());
-		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhnet1.xmi", "net1", true, new LEMSModelInterpreterService());
-	}
+//	@Test
+//	public void testHHCell() throws Exception
+//	{
+//		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhcell.xmi", "hhcell", true, new LEMSModelInterpreterService());
+//		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhcellNoTarget.xmi", null, true, new LEMSModelInterpreterService());
+//		serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "./src/test/resources/hhnet1.xmi", "net1", true, new LEMSModelInterpreterService());
+//	}
+//
+//	@Test
+//	public void testPVDR() throws Exception
+//	{
+//		serialise("/pvdr/PVDR.nml", "./src/test/resources/pvdr.xmi", "PVDR", true, new NeuroMLModelInterpreterService());
+//		serialise("/pvdr/PVDR.nml", "./src/test/resources/pvdrNoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
+//	}
+//
+//	@Test
+//	public void testc302() throws Exception
+//	{
+//		serialise("/c302/LEMS_c302_A.xml", "./src/test/resources/c302.xmi", "c302_A", true, new LEMSModelInterpreterService());
+//		serialise("/c302/LEMS_c302_A.xml", "./src/test/resources/c302NoTarget.xmi", null, true, new LEMSModelInterpreterService());
+//	}
+//
+//	@Test
+//	public void testMuscle() throws Exception
+//	{
+//		serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/Muscle.xmi", "net1", true, new LEMSModelInterpreterService());
+//		serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/MuscleNoTarget.xmi", null, true, new LEMSModelInterpreterService());
+//	}
+	
+//	@Test
+//	public void testDipde() throws Exception
+//	{
+//		serialise("/dipde/dipde.nml", "./src/test/resources/dipde.xmi", "c302_A", true, new NeuroMLModelInterpreterService());
+//		serialise("/dipde/dipde.nml", "./src/test/resources/dipdeNoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
+//	}
 
 	@Test
-	public void testPVDR() throws Exception
+	public void testCA1() throws Exception
 	{
-		serialise("/pvdr/PVDR.nml", "./src/test/resources/pvdr.xmi", "PVDR", true, new NeuroMLModelInterpreterService());
-		serialise("/pvdr/PVDR.nml", "./src/test/resources/pvdrNoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
+		serialise("/ca1/BigCA1.net.nml", "./src/test/resources/ca1.xmi", "CA1", true, new NeuroMLModelInterpreterService());
+		serialise("/ca1/BigCA1.net.nml", "./src/test/resources/ca1NoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
 	}
-
-	@Test
-	public void testc302() throws Exception
-	{
-		serialise("/c302/LEMS_c302_A.xml", "./src/test/resources/c302.xmi", "c302_A", true, new LEMSModelInterpreterService());
-		serialise("/c302/LEMS_c302_A.xml", "./src/test/resources/c302NoTarget.xmi", null, true, new LEMSModelInterpreterService());
-	}
-
-	@Test
-	public void testMuscle() throws Exception
-	{
-		serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/Muscle.xmi", "net1", true, new LEMSModelInterpreterService());
-		serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/MuscleNoTarget.xmi", null, true, new LEMSModelInterpreterService());
-	}
-
 	@AfterClass
 	public static void doYourOneTimeTeardown()
 	{
-		File acnet2 = new File("./src/test/resources/acnet2.xmi");
-		acnet2.delete();
-		File acnet2NoTarget = new File("./src/test/resources/acnet2NoTarget.xmi");
-		acnet2NoTarget.delete();
+//		File acnet2 = new File("./src/test/resources/acnet2.xmi");
+//		acnet2.delete();
+//		File acnet2NoTarget = new File("./src/test/resources/acnet2NoTarget.xmi");
+//		acnet2NoTarget.delete();
 
-		File purkinje = new File("./src/test/resources/purkinje.xmi");
-		purkinje.delete();
-		File purkinjeNotarget = new File("./src/test/resources/purkinjeNotarget.xmi");
-		purkinjeNotarget.delete();
+//		File purkinje = new File("./src/test/resources/purkinje.xmi");
+//		purkinje.delete();
+//		File purkinjeNotarget = new File("./src/test/resources/purkinjeNotarget.xmi");
+//		purkinjeNotarget.delete();
 
-		File bask = new File("./src/test/resources/bask.xmi");
-		bask.delete();
-		File baskNoTarget = new File("./src/test/resources/baskNoTarget.xmi");
-		baskNoTarget.delete();
-		File baskjson = new File("./src/test/resources/bask.json");
-		baskjson.delete();
+//		File bask = new File("./src/test/resources/bask.xmi");
+//		bask.delete();
+//		File baskNoTarget = new File("./src/test/resources/baskNoTarget.xmi");
+//		baskNoTarget.delete();
+//		File baskjson = new File("./src/test/resources/bask.json");
+//		baskjson.delete();
 
-		 File hhcell = new File("./src/test/resources/hhcell.xmi");
-		 hhcell.delete();
-		 File hhcellNoTarget = new File("./src/test/resources/hhcellNoTarget.xmi");
-		 hhcellNoTarget.delete();
-		 File hhnet1 = new File("./src/test/resources/hhnet1.xmi");
-		 hhnet1.delete();
+//		 File hhcell = new File("./src/test/resources/hhcell.xmi");
+//		 hhcell.delete();
+//		 File hhcellNoTarget = new File("./src/test/resources/hhcellNoTarget.xmi");
+//		 hhcellNoTarget.delete();
+//		 File hhnet1 = new File("./src/test/resources/hhnet1.xmi");
+//		 hhnet1.delete();
+//		
+//		 File pvdr = new File("./src/test/resources/pvdr.xmi");
+//		 pvdr.delete();
+//		 File pvdrNoTarget = new File("./src/test/resources/pvdrNoTarget.xmi");
+//		 pvdrNoTarget.delete();
+//		
+//		 File c302 = new File("./src/test/resources/c302.xmi");
+//		 c302.delete();
+//		 File c302NoTarget = new File("./src/test/resources/c302NoTarget.xmi");
+//		 c302NoTarget.delete();
+//		
+//		 File muscle = new File("./src/test/resources/Muscle.xmi");
+//		 muscle.delete();
+//		 File muscleNoTarget = new File("./src/test/resources/MuscleNoTarget.xmi");
+//		 muscleNoTarget.delete();
 		
-		 File pvdr = new File("./src/test/resources/pvdr.xmi");
-		 pvdr.delete();
-		 File pvdrNoTarget = new File("./src/test/resources/pvdrNoTarget.xmi");
-		 pvdrNoTarget.delete();
+//		File dipde = new File("./src/test/resources/dipde.xmi");
+//		dipde.delete();
+//		 File dipdeNoTarget = new File("./src/test/resources/dipdeNoTarget.xmi");
+//		 dipdeNoTarget.delete();
 		
-		 File c302 = new File("./src/test/resources/c302.xmi");
-		 c302.delete();
-		 File c302NoTarget = new File("./src/test/resources/c302NoTarget.xmi");
-		 c302NoTarget.delete();
-		
-		 File muscle = new File("./src/test/resources/Muscle.xmi");
-		 muscle.delete();
-		 File muscleNoTarget = new File("./src/test/resources/MuscleNoTarget.xmi");
-		 muscleNoTarget.delete();
+//		File ca1 = new File("./src/test/resources/ca1.xmi");
+//		ca1.delete();
+//		 File ca1NoTarget = new File("./src/test/resources/ca1.xmi");
+//		 ca1NoTarget.delete();
 	}
 }
