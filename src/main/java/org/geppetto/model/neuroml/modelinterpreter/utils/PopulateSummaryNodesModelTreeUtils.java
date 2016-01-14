@@ -101,9 +101,8 @@ public class PopulateSummaryNodesModelTreeUtils
 
 		// Summary
 		Variable summaryVariable = variablesFactory.createVariable();
-		summaryVariable.setId(Resources.SUMMARY.getId());
-		summaryVariable.setName(Resources.SUMMARY.get());
-		summaryVariable.getAnonymousTypes().add(createInfoNode(InfoTreeCreator.createInfoTree(neuroml)));
+		ModelInterpreterUtils.initialiseNodeFromString(summaryVariable, "Summary");
+		summaryVariable.getAnonymousTypes().add(createInfoNode(InfoTreeCreator.createInfoTree(neuroml), "Summary"));
 		summaryVariables.add(summaryVariable);
 
 		return summaryVariables;
@@ -112,12 +111,12 @@ public class PopulateSummaryNodesModelTreeUtils
 	public Variable createDescriptionNode() throws ModelInterpreterException, GeppettoVisitingException
 	{
 
-		List<Type> networkComponents = typesMap.containsKey(ResourcesDomainType.NETWORK)?typesMap.get(ResourcesDomainType.NETWORK):null;
-		List<Type> populationComponents = typesMap.containsKey(ResourcesDomainType.POPULATION)?typesMap.get(ResourcesDomainType.POPULATION):null;
-		List<Type> cellComponents = typesMap.containsKey(ResourcesDomainType.CELL)?typesMap.get(ResourcesDomainType.CELL):null;
-		List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL)?typesMap.get(ResourcesDomainType.IONCHANNEL):null;
-		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE)?typesMap.get(ResourcesDomainType.SYNAPSE):null;
-		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR)?typesMap.get(ResourcesDomainType.PULSEGENERATOR):null;
+		List<Type> networkComponents = typesMap.containsKey(ResourcesDomainType.NETWORK) ? typesMap.get(ResourcesDomainType.NETWORK) : null;
+		List<Type> populationComponents = typesMap.containsKey(ResourcesDomainType.POPULATION) ? typesMap.get(ResourcesDomainType.POPULATION) : null;
+		List<Type> cellComponents = typesMap.containsKey(ResourcesDomainType.CELL) ? typesMap.get(ResourcesDomainType.CELL) : null;
+		List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL) ? typesMap.get(ResourcesDomainType.IONCHANNEL) : null;
+		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE) ? typesMap.get(ResourcesDomainType.SYNAPSE) : null;
+		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR) : null;
 
 		StringBuilder modelDescription = new StringBuilder();
 		modelDescription.append("<b>Model Summary</b><br/>");
@@ -200,11 +199,10 @@ public class PopulateSummaryNodesModelTreeUtils
 		return descriptionVariable;
 	}
 
-	public CompositeType createInfoNode(InfoNode node) throws ModelInterpreterException, GeppettoVisitingException
+	public CompositeType createInfoNode(InfoNode node, String typeName) throws ModelInterpreterException, GeppettoVisitingException
 	{
 		CompositeType summaryCompositeType = typeFactory.createCompositeType();
-		summaryCompositeType.setId(Resources.SUMMARY.getId());
-		summaryCompositeType.setName(Resources.SUMMARY.get());
+		ModelInterpreterUtils.initialiseNodeFromString(summaryCompositeType, typeName);
 
 		for(Map.Entry<String, Object> properties : node.getProperties().entrySet())
 		{
@@ -212,7 +210,6 @@ public class PopulateSummaryNodesModelTreeUtils
 			Object valueProperties = properties.getValue();
 			if(!keyProperties.equals("ID"))
 			{
-
 				if(valueProperties == null)
 				{
 					summaryCompositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(keyProperties, "", access));
@@ -268,12 +265,17 @@ public class PopulateSummaryNodesModelTreeUtils
 				}
 				else if(valueProperties instanceof InfoNode)
 				{
-					Variable variable = variablesFactory.createVariable();
-					variable.setId(ModelInterpreterUtils.parseId(keyProperties));
-					variable.setName(keyProperties);
-					variable.getAnonymousTypes().add(createInfoNode((InfoNode) valueProperties));
-					summaryCompositeType.getVariables().add(variable);
+					//This shouldn't happen but sometimes export library returns a node with no children inside
+					if(((InfoNode) valueProperties).getProperties().size() > 0)
+					{
+						Variable variable = variablesFactory.createVariable();
+						variable.setId(ModelInterpreterUtils.parseId(keyProperties));
+						variable.setName(keyProperties);
+						variable.getAnonymousTypes().add(createInfoNode((InfoNode) valueProperties, keyProperties));
+						summaryCompositeType.getVariables().add(variable);
+					}
 				}
+				// This should be removed once it is fixed in the export library
 				else if(!(valueProperties instanceof PlotNode))
 				{
 					throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());

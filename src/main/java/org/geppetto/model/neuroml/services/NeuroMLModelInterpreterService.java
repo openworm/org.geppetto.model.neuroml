@@ -178,6 +178,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		}
 		catch(NumberFormatException | LEMSException e)
 		{
+			e.printStackTrace();
 			isValidLEMS = false;
 			_logger.warn("Error resolving lems file");
 		}

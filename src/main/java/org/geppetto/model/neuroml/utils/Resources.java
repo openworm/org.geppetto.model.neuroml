@@ -151,7 +151,6 @@ public enum Resources
 	POSTSEGMENT("Postsegment", "Postsegment"),
 	PREFRACTIONALONG("Prefraction Along", "Prefractionalong"),
 	POSTFRACTIONALONG("Postfraction Along", "Postfractionalong"),
-	SUMMARY("Summary", "Summary"),
 	MODEL_DESCRIPTION("Model Description", "ModelDescription"),
 	RESOURCE("Resource", "Resource"),
 	PYNN_SYNAPSE("Pynn Synapse", "PynnSynapse"),
