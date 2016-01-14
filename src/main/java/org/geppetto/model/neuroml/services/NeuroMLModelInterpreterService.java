@@ -532,12 +532,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				domainModel.setFormat(ServicesRegistry.getModelFormat("LEMS"));
 				connectionType.setDomainModel(domainModel);
 
-				// AQP: Synapse should be in the projection?
-				Variable synapseVariable = variablesFactory.createVariable();
-				ModelInterpreterUtils.initialiseNodeFromComponent(synapseVariable, projection.getRefComponents().get("synapse"));
-				synapseVariable.getTypes().add(types.get(projection.getRefComponents().get("synapse").getID()));
-				connectionType.getVariables().add(synapseVariable);
-
 				Connection connection = valuesFactory.createConnection();
 				connection.setConnectivity(Connectivity.DIRECTIONAL);
 
@@ -562,11 +556,16 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					}
 				}
 
+				
+				
 				Variable variable = variablesFactory.createVariable();
 				variable.setName(Resources.CONNECTION + " - " + projectionChild.getID());
 				variable.setId(Resources.CONNECTION.getId() + projection.getID() + projectionChild.getID());
 				variable.getAnonymousTypes().add(connectionType);
+				variable.getInitialValues().put(connectionType, connection);
 				projectionType.getVariables().add(variable);
+				
+				
 			}
 			else
 			{
