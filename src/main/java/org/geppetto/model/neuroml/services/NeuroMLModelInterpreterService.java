@@ -402,7 +402,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private void createCompositeTypeFromAnnotation(CompositeType compositeType, Component annotation) throws LEMSException, NeuroMLException, GeppettoVisitingException
 	{
-		CompositeVisualType annotationType = typeFactory.createCompositeVisualType();
+		CompositeType annotationType = typeFactory.createCompositeType();
 		ModelInterpreterUtils.initialiseNodeFromComponent(annotationType, annotation);
 		for (Map.Entry<String, Component> entry : annotation.getChildHM().entrySet()){
 			if (entry.getKey().equals("property")){
