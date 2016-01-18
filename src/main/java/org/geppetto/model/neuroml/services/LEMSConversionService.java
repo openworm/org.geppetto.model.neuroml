@@ -46,24 +46,21 @@ import org.geppetto.core.conversion.AConversion;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.IInstancePath;
+import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoFactory;
-import org.geppetto.model.GeppettoModel;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.modelinterpreter.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.ModelFormatMapping;
-import org.geppetto.model.types.Type;
 import org.geppetto.model.util.PointerUtility;
 import org.lemsml.export.base.IBaseWriter;
-import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.jlems.core.type.Lems;
-import org.lemsml.jlems.core.type.LemsCollection;
 import org.lemsml.jlems.core.xml.XMLAttribute;
 import org.neuroml.export.utils.ExportFactory;
 import org.neuroml.export.utils.Format;
@@ -161,7 +158,7 @@ public class LEMSConversionService extends AConversion
 	}
 
 	@Override
-	public DomainModel convert(DomainModel model, ModelFormat output, IAspectConfiguration aspectConfig) throws ConversionException
+	public DomainModel convert(DomainModel model, ModelFormat output, IAspectConfiguration aspectConfig, GeppettoModelAccess modelAccess) throws ConversionException
 	{
 		_logger.info("Converting model from " + model.getFormat() + " to " + output.getModelFormat());
 		// AQP: Review if this was commented out
