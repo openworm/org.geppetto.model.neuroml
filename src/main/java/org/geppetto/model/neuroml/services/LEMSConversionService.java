@@ -36,8 +36,8 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,7 +54,9 @@ import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.modelinterpreter.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.ModelFormatMapping;
-import org.geppetto.model.util.PointerUtility;
+import org.geppetto.model.util.GeppettoModelException;
+import org.geppetto.model.values.Pointer;
+import org.geppetto.model.values.PointerElement;
 import org.lemsml.export.base.IBaseWriter;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -168,15 +170,15 @@ public class LEMSConversionService extends AConversion
 		try
 		{
 			// Create LEMS file with NML dependencies
-			//Lems lems = Utils.getLemsWithNML2CompTypes();
-			
+			// Lems lems = Utils.getLemsWithNML2CompTypes();
+
 			// Create LEMS file with NML dependencies
 			Lems lems = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems("<neuroml></neuroml>")).getLems();
-			
+
 			// Read LEMS component to convert and add to the LEMS file
 			Component component = (Component) model.getDomainModel();
 			lems.addComponent(component);
-			
+
 			// Process LEMS
 			ModelInterpreterUtils.processLems(lems);
 
@@ -209,14 +211,14 @@ public class LEMSConversionService extends AConversion
 					for(IInstancePath watchedVariable : aspectConfig.getWatchedVariables())
 					{
 						String instancePath = watchedVariable.getInstancePath();
-						
+
 						// Create output column component
-						Component outputColumn = new Component(instancePath.substring(instancePath.lastIndexOf(".")+1).replace("(", "_").replace(")",""), new ComponentType("OutputColumn"));
+						Component outputColumn = new Component(instancePath.substring(instancePath.lastIndexOf(".") + 1).replace("(", "_").replace(")", ""), new ComponentType("OutputColumn"));
 
 						// Convert from Geppetto to LEMS Path
 						// outputColumn.addAttribute(new XMLAttribute("quantity", quantity));
 						// outputColumn.addAttribute(new XMLAttribute("quantity", "baskets_12/" + i + "/bask/0/v"));
-						outputColumn.addAttribute(new XMLAttribute("quantity", extractLEMSPath(component, instancePath)));
+						outputColumn.addAttribute(new XMLAttribute("quantity", extractLEMSPath(component, modelAccess.getPointer(instancePath))));
 
 						// Add output column component to file
 						outputFile.addComponent(outputColumn);
@@ -259,9 +261,8 @@ public class LEMSConversionService extends AConversion
 		return outputModel;
 	}
 
-	
 	// Check whether main component is a network or a cell. If it is a network, return the type of population, otherwise return cell
-	// Returned value will define the lems path format 
+	// Returned value will define the lems path format
 	public static String getSimulationTreePathType(Component targetComponent)
 	{
 		if(targetComponent.getDeclaredType().equals("network"))
@@ -292,35 +293,38 @@ public class LEMSConversionService extends AConversion
 	/**
 	 * @param token
 	 * @return
+	 * @throws GeppettoModelException
 	 */
-	private String extractLEMSPath(Component component, String watchedVariable) throws ContentError
+	private String extractLEMSPath(Component component, Pointer watchedPointer) throws ContentError, GeppettoModelException
 	{
+		String lemsPath = "";
+
 		// First we identify what sort of network/cell it is and depending on this we will generate the Simulation Tree format
 		String simulationTreePathType = getSimulationTreePathType(component);
 		// populationList,population,cell
 
-		String lemsPath = "";
-
-		StringTokenizer st = new StringTokenizer(watchedVariable, ".");
-		while(st.hasMoreElements())
+		Iterator<PointerElement> elementIterator = watchedPointer.getElements().iterator();
+		while(elementIterator.hasNext())
 		{
+			PointerElement pointerElement = elementIterator.next();
+
 			String instancePath = (component.getID() != null) ? component.getID() : component.getDeclaredType();
-			
-			String token = st.nextToken();
-			if(!st.hasMoreTokens())
+
+			// String token = st.nextToken();
+			if(!elementIterator.hasNext())
 			{
-				lemsPath += "/" + PointerUtility.getVariable(token);
+				lemsPath += "/" + pointerElement.getVariable().getId();
 			}
-			else if(!instancePath.equals(PointerUtility.getType(token)))
+			else if(!instancePath.equals(pointerElement.getType().getId()))
 			{
-				
+
 				for(Component componentChild : component.getAllChildren())
 				{
 					String componentChildInstancePath = (componentChild.getID() != null) ? componentChild.getID() : componentChild.getDeclaredType();
-					if(componentChildInstancePath.equals(PointerUtility.getType(token)))
+					if(componentChildInstancePath.equals(pointerElement.getType().getId()))
 					{
 						component = componentChild;
-						instancePath = componentChildInstancePath; 
+						instancePath = componentChildInstancePath;
 						break;
 					}
 				}
@@ -331,7 +335,7 @@ public class LEMSConversionService extends AConversion
 					String populationSize = component.getStringValue("size");
 
 					component = component.getRefComponents().get("component");
-					
+
 					// Create path for cells and network
 					if(Integer.parseInt(populationSize) == 1)
 					{
@@ -341,23 +345,22 @@ public class LEMSConversionService extends AConversion
 					{
 						if(simulationTreePathType.equals("populationList"))
 						{
-							//FIXME AQP What to do with the different segments?
-							lemsPath += instancePath + "/" + PointerUtility.getIndex(token) + "/" + component.getID() + "/0";
+							// FIXME AQP What to do with the different segments?
+							lemsPath += instancePath + "/" + pointerElement.getIndex() + "/" + component.getID() + "/0";
 						}
 						else
 						{
-							lemsPath += instancePath + "[" + PointerUtility.getIndex(token) + "]";
+							lemsPath += instancePath + "[" + pointerElement.getIndex() + "]";
 						}
 					}
-
 				}
 				else
 				{
-					lemsPath += "/" + PointerUtility.getType(token);
+					lemsPath += "/" + pointerElement.getType().getId();
 				}
-
 			}
 		}
+
 		System.out.println("lemsPath");
 		System.out.println(lemsPath);
 		return lemsPath;
