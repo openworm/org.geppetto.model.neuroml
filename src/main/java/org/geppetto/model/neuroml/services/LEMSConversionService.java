@@ -50,6 +50,7 @@ import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoFactory;
+import org.geppetto.model.GeppettoModel;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.modelinterpreter.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.ModelFormatMapping;
@@ -68,6 +69,7 @@ import org.neuroml.export.utils.ExportFactory;
 import org.neuroml.export.utils.Format;
 import org.neuroml.export.utils.SupportedFormats;
 import org.neuroml.export.utils.Utils;
+import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.stereotype.Service;
 
@@ -169,7 +171,10 @@ public class LEMSConversionService extends AConversion
 		try
 		{
 			// Create LEMS file with NML dependencies
-			Lems lems = Utils.getLemsWithNML2CompTypes();
+			//Lems lems = Utils.getLemsWithNML2CompTypes();
+			
+			// Create LEMS file with NML dependencies
+			Lems lems = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems("<neuroml></neuroml>")).getLems();
 			
 			// Read LEMS component to convert and add to the LEMS file
 			Component component = (Component) model.getDomainModel();
