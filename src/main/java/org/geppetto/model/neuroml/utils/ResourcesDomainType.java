@@ -49,6 +49,7 @@ public enum ResourcesDomainType
 	PULSEGENERATOR("pulseGenerator"),
 	POPULATION("population"),
 	PROJECTION("projection"),
+	CONNECTION("connection"),
 	NETWORK("network"),
 	CELL("cell");
 	

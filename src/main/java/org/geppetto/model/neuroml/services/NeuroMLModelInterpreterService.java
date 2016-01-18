@@ -72,6 +72,7 @@ import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.ConnectionType;
+import org.geppetto.model.types.PointerType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
@@ -277,6 +278,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		{
 			newType = typeFactory.createArrayType();
 		}
+		else if(domainName.equals(ResourcesDomainType.CONNECTION.get()))
+		{
+			newType = typeFactory.createConnectionType();
+		}
 		else
 		{
 			newType = typeFactory.createCompositeType();
@@ -351,7 +356,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			createConnectionTypeVariablesFromProjection(projection, compositeType);
 		}
 
-		// Extracting the rest of the children
+		// Extracting the rest of the child
 		for(Component componentChild : component.getChildHM().values())
 		{
 			if(componentChild.getDeclaredType().equals("morphology"))
@@ -498,12 +503,17 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		compositeType.getVariables().add(projectionVariable);
 
 		// Create synapse type
-		if(!types.containsKey(projection.getRefComponents().get("synapse").getID()))
+		Component synapse = projection.getRefComponents().get("synapse");
+		if(!types.containsKey(synapse.getID()))
 		{
-			types.put(projection.getRefComponents().get("synapse").getID(), extractInfoFromComponent(projection.getRefComponents().get("synapse"), null));
+			types.put(synapse.getID(), extractInfoFromComponent(projection.getRefComponents().get("synapse"), ResourcesDomainType.SYNAPSE.get()));
 		}
+		Variable synapsesVariable = variablesFactory.createVariable();
+		ModelInterpreterUtils.initialiseNodeFromComponent(synapsesVariable, synapse);
+		synapsesVariable.getTypes().add(types.get(synapse.getID()));
+		projectionType.getVariables().add(synapsesVariable);
 
-		// Create pre and post synaptic population
+		// Create pre synaptic population
 		ArrayType prePopulationType = (ArrayType) types.get(projection.getAttributeValue("presynapticPopulation"));
 		Variable prePopulationVariable = null;
 		for(Variable variable : compositeType.getVariables())
@@ -514,7 +524,19 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				break;
 			}
 		}
+		if(!types.containsKey(projection.getAttributeValue("presynapticPopulation") + "_pointer"))
+		{
+			PointerType pointerType = typeFactory.createPointerType();
+			pointerType.setDefaultValue(PointerUtility.getPointer(prePopulationVariable, prePopulationType, null));
+			types.put(projection.getAttributeValue("presynapticPopulation") + "_pointer", pointerType);
+		}
+		Variable preSynapticPopulationVariable = variablesFactory.createVariable();
+		ModelInterpreterUtils.initialiseNodeFromString(preSynapticPopulationVariable, "presynapticPopulation");
+		preSynapticPopulationVariable.getTypes().add(types.get(projection.getAttributeValue("presynapticPopulation") + "_pointer"));
+		projectionType.getVariables().add(preSynapticPopulationVariable);
 
+		
+		// Create post synaptic population
 		ArrayType postPopulationType = (ArrayType) types.get(projection.getAttributeValue("postsynapticPopulation"));
 		Variable postPopulationVariable = null;
 		for(Variable variable : compositeType.getVariables())
@@ -525,19 +547,36 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				break;
 			}
 		}
+		if(!types.containsKey(projection.getAttributeValue("postsynapticPopulation") + "_pointer"))
+		{
+			PointerType pointerType = typeFactory.createPointerType();
+			pointerType.setDefaultValue(PointerUtility.getPointer(postPopulationVariable, postPopulationType, null));
+			types.put(projection.getAttributeValue("postsynapticPopulation") + "_pointer", pointerType);
+		}
+		Variable postSynapticPopulationVariable = variablesFactory.createVariable();
+		ModelInterpreterUtils.initialiseNodeFromString(postSynapticPopulationVariable, "postsynapticPopulation");
+		postSynapticPopulationVariable.getTypes().add(types.get(projection.getAttributeValue("postsynapticPopulation") + "_pointer"));
+		projectionType.getVariables().add(postSynapticPopulationVariable);
+
+		for(Component projectionChild : projection.getChildHM().values())
+		{
+			CompositeType anonymousCompositeType = extractInfoFromComponent(projectionChild, null);
+			if(anonymousCompositeType != null)
+			{
+				Variable variable = variablesFactory.createVariable();
+				ModelInterpreterUtils.initialiseNodeFromComponent(variable, projectionChild);
+				variable.getAnonymousTypes().add(anonymousCompositeType);
+				projectionType.getVariables().add(variable);
+			}
+		}
 
 		// Iterate over all the children. Most of them are connections
-		for(Component projectionChild : projection.getAllChildren())
+		for(Component projectionChild : projection.getStrictChildren())
 		{
 			if(projectionChild.getDeclaredType().equals("connection"))
 			{
-				ConnectionType connectionType = typeFactory.createConnectionType();
-				connectionType.setName(Resources.CONNECTION + " - " + projectionChild.getID());
-				connectionType.setId(Resources.CONNECTION.getId() + projection.getID() + projectionChild.getID());
-				DomainModel domainModel = GeppettoFactory.eINSTANCE.createDomainModel();
-				domainModel.setDomainModel(projectionChild);
-				domainModel.setFormat(ServicesRegistry.getModelFormat("LEMS"));
-				connectionType.setDomainModel(domainModel);
+				ConnectionType connectionType = (ConnectionType) getCompositeType(ResourcesDomainType.CONNECTION.get());
+				ModelInterpreterUtils.initialiseNodeFromComponent(connectionType, projectionChild);
 
 				Connection connection = valuesFactory.createConnection();
 				connection.setConnectivity(Connectivity.DIRECTIONAL);
@@ -547,14 +586,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					if(attribute.getName().equals("preCellId"))
 					{
 						String preCellId = ModelInterpreterUtils.parseCellRefStringForCellNum(attribute.getValue());
-						Pointer prePointer = PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCellId));
-						connection.getA().add(prePointer);
+						connection.getA().add(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCellId)));
 					}
 					else if(attribute.getName().equals("postCellId"))
 					{
 						String postCellId = ModelInterpreterUtils.parseCellRefStringForCellNum(attribute.getValue());
-						Pointer postPointer = PointerUtility.getPointer(postPopulationVariable, postPopulationType, Integer.parseInt(postCellId));
-						connection.getB().add(postPointer);
+						connection.getB().add(PointerUtility.getPointer(postPopulationVariable, postPopulationType, Integer.parseInt(postCellId)));
 					}
 					else
 					{
@@ -583,6 +620,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 			}
 		}
+
 	}
 
 	public void createPopulationTypeVariable(Component populationComponent) throws GeppettoVisitingException, LEMSException, NeuroMLException
