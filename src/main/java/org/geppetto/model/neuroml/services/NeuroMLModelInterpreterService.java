@@ -354,27 +354,28 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		// Extracting the rest of the children
 		for(Component componentChild : component.getChildHM().values())
 		{
-			if(!componentChild.getDeclaredType().equals("notes"))
+			if(componentChild.getDeclaredType().equals("morphology"))
 			{
-				if(componentChild.getDeclaredType().equals("morphology"))
+				createVisualTypeFromMorphology(component, compositeType, componentChild);
+			}
+			else if(componentChild.getDeclaredType().equals("annotation"))
+			{
+				createCompositeTypeFromAnnotation(compositeType, componentChild);
+			}
+			else if(componentChild.getDeclaredType().equals("notes"))
+			{
+				compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable("notes", componentChild.getAbout(), this.access));
+			}
+			else
+			{
+				// AQP: Shouldn't be anonymous by default
+				CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild, null);
+				if(anonymousCompositeType != null)
 				{
-					createVisualTypeFromMorphology(component, compositeType, componentChild);
-				}
-				else if(componentChild.getDeclaredType().equals("annotation"))
-				{
-					createCompositeTypeFromAnnotation(compositeType, componentChild);
-				}
-				else
-				{
-					// AQP: Shouldn't be anonymous by default
-					CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild, null);
-					if(anonymousCompositeType != null)
-					{
-						Variable variable = variablesFactory.createVariable();
-						ModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
-						variable.getAnonymousTypes().add(anonymousCompositeType);
-						compositeType.getVariables().add(variable);
-					}
+					Variable variable = variablesFactory.createVariable();
+					ModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
+					variable.getAnonymousTypes().add(anonymousCompositeType);
+					compositeType.getVariables().add(variable);
 				}
 			}
 		}
@@ -405,41 +406,46 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		CompositeType annotationType = typeFactory.createCompositeType();
 		ModelInterpreterUtils.initialiseNodeFromComponent(annotationType, annotation);
-		for (Map.Entry<String, Component> entry : annotation.getChildHM().entrySet()){
-			if (entry.getKey().equals("property")){
+		for(Map.Entry<String, Component> entry : annotation.getChildHM().entrySet())
+		{
+			if(entry.getKey().equals("property"))
+			{
 				Component property = entry.getValue();
 				Text text = valuesFactory.createText();
 				text.setText(property.getTextParam("value"));
-				
+
 				Variable variable = variablesFactory.createVariable();
 				ModelInterpreterUtils.initialiseNodeFromString(variable, property.getTextParam("tag"));
 				variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
 				variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
 				annotationType.getVariables().add(variable);
 			}
-			else{
+			else
+			{
 				Component rdf = entry.getValue();
-				if (rdf.hasTextParam("xmlns:rdf")){
+				if(rdf.hasTextParam("xmlns:rdf"))
+				{
 					Text text = valuesFactory.createText();
 					text.setText(rdf.getTextParam("xmlns:rdf"));
-					
+
 					Variable variable = variablesFactory.createVariable();
 					ModelInterpreterUtils.initialiseNodeFromString(variable, "rdf");
 					variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
 					variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
 					annotationType.getVariables().add(variable);
 				}
-				
+
 				Component rdfDescription = rdf.getChild("rdf:Description");
-				for (Map.Entry<String, Component> rdfDescriptionChild : rdfDescription.getChildHM().entrySet()){
-					//AQP: we can't access the information in here. JLems needs to be fixed
-					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChild("rdf:li");
+				for(Map.Entry<String, Component> rdfDescriptionChild : rdfDescription.getChildHM().entrySet())
+				{
+					// AQP: we can't access the information in here. Schema needs to change so that rdf:li are children instead of child
+					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChild("rdf:li").getAbout();
 					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChild("rdf:li").getTextParam("rdf:resource");
-					
+
 					Text text = valuesFactory.createText();
 					// AQP: we need to conver from this to a readable label
 					text.setText(rdfDescriptionChild.getKey());
-					
+
 					Variable variable = variablesFactory.createVariable();
 					ModelInterpreterUtils.initialiseNodeFromString(variable, rdfDescriptionChild.getKey());
 					variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
@@ -448,13 +454,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 			}
 		}
-		
+
 		Variable variable = variablesFactory.createVariable();
 		ModelInterpreterUtils.initialiseNodeFromComponent(variable, annotation);
 		variable.getAnonymousTypes().add(annotationType);
 		compositeType.getVariables().add(variable);
 	}
-	
+
 	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component morphology) throws LEMSException, NeuroMLException, GeppettoVisitingException
 	{
 		if(!types.containsKey(morphology.getID()))
@@ -557,16 +563,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					}
 				}
 
-				
-				
 				Variable variable = variablesFactory.createVariable();
 				variable.setName(Resources.CONNECTION + " - " + projectionChild.getID());
 				variable.setId(Resources.CONNECTION.getId() + projection.getID() + projectionChild.getID());
 				variable.getAnonymousTypes().add(connectionType);
 				variable.getInitialValues().put(connectionType, connection);
 				projectionType.getVariables().add(variable);
-				
-				
+
 			}
 			else
 			{
