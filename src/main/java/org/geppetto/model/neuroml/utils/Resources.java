@@ -111,7 +111,7 @@ public enum Resources
 	ELEMENT("Element", "Element"),
 	ID("Id", "Id"),
 	NEUROLEX_ID("NeuroLexId", "NeuroLexId"),
-	SIZE("Size", "Size"),
+	SIZE("Size", "size"),
 	METAID("MetaId", "MetaId"),
 	POPULATION_TYPE("Population Type", "PopulationType"),
 	INSTANCES("Instances", "Instances"),
