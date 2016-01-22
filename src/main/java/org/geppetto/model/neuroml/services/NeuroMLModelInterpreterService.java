@@ -128,8 +128,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 	private VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
 
-	private boolean isValidLEMS = true;
-
 	private NeuroMLDocument neuroml;
 
 	/*
@@ -177,9 +175,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		}
 		catch(NumberFormatException | LEMSException e)
 		{
-			e.printStackTrace();
-			isValidLEMS = false;
 			_logger.warn("Error resolving lems file");
+			throw new ModelInterpreterException(e);
 		}
 
 		// If we have a typeId let's get the type for this component
@@ -470,13 +467,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		if(!types.containsKey(morphology.getID()))
 		{
-			// We assume when we find a morphology it belongs to a cell
-			// If it is not a valid LEMS file (e.g. purkinje) we need to use the cell component from the neuroml file because
-			// converting it from the LEMS component it is not going to work
-			ExtractVisualType extractVisualType = null;
-			if(isValidLEMS) extractVisualType = new ExtractVisualType(component, access);
-			else extractVisualType = new ExtractVisualType(component, access, this.neuroml);
-
+			ExtractVisualType extractVisualType = new ExtractVisualType(component, access);
 			types.put(morphology.getID(), extractVisualType.createTypeFromCellMorphology());
 		}
 

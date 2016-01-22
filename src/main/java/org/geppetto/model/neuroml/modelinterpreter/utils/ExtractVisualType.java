@@ -61,7 +61,6 @@ import org.neuroml.model.Cell;
 import org.neuroml.model.Include;
 import org.neuroml.model.Member;
 import org.neuroml.model.Morphology;
-import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Point3DWithDiam;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
@@ -94,6 +93,7 @@ public class ExtractVisualType
 
 	// AQP Maybe we can initialise cellutils here and pass this variable to the create density class
 	CellUtils cellUtils;
+	
 
 	public ExtractVisualType(Component cellComponent, GeppettoModelAccess access) throws LEMSException, NeuroMLException
 	{
@@ -104,23 +104,6 @@ public class ExtractVisualType
 		
 		LinkedHashMap<String, Standalone> cellMap = Utils.convertLemsComponentToNeuroML(cellComponent);
 		this.cell = (Cell) cellMap.get(cellComponent.getID());
-
-		cellUtils = new CellUtils(cell);
-	}
-	
-	public ExtractVisualType(Component cellComponent, GeppettoModelAccess access, NeuroMLDocument neuroml) throws LEMSException, NeuroMLException
-	{
-		super();
-
-		this.cellComponent = cellComponent;
-		this.access = access;
-		
-		for (Cell cell : neuroml.getCell()){
-			if (cell.getId().equals(cellComponent.getID())){
-				this.cell = cell;
-				break;
-			}
-		}
 
 		cellUtils = new CellUtils(cell);
 	}
@@ -253,9 +236,6 @@ public class ExtractVisualType
 		VisualGroup cellParts = valuesFactory.createVisualGroup();
 		cellParts.setName("Cell Regions");
 
-		// Create map with segment ids, keeping track of groups they correspond to
-		// Map<String, List<String>> segmentsGroupsMap = new HashMap<String, List<String>>();
-
 		// Get all the segment groups from morphology
 		for(SegmentGroup segmentGroup : this.cell.getMorphology().getSegmentGroup())
 		{
@@ -308,61 +288,6 @@ public class ExtractVisualType
 			}
 		}
 
-		// // AQP: Let's see if we can get all this information from the cellutils
-		// // segment not in map, add with new list for groups
-		// if(!segmentsGroupsMap.containsKey(segmentGroupID)) segmentsGroupsMap.put(segmentGroupID, new ArrayList<String>());
-		//
-		// // traverse through group segments finding segments inside
-		// for(Member member : segmentGroup.getMember())
-		// {
-		// // segment found
-		// String segmentID = getVisualObjectIdentifier(member.getSegment().toString());
-		//
-		// if(visualGroupElement != null)
-		// {
-		// // segment not in map, add with new list for groups
-		// if(!segmentsMap.containsKey(segmentID))
-		// {
-		// List<VisualGroupElement> groups = new ArrayList<VisualGroupElement>();
-		// groups.add(visualGroupElement);
-		// segmentsMap.put(segmentID, groups);
-		// }
-		// // segment in map, get list and put with updated one for groups
-		// else
-		// {
-		// List<VisualGroupElement> groups = segmentsMap.get(segmentID);
-		// groups.add(visualGroupElement);
-		// segmentsMap.put(segmentID, groups);
-		// }
-		// }
-		//
-		// List<String> groups = segmentsGroupsMap.get(segmentGroupID);
-		// groups.add(segmentID);
-		// segmentsGroupsMap.put(segmentGroupID, groups);
-		// }
-		//
-		// if(visualGroupElement != null)
-		// {
-		// // traverse through group segments finding segments inside
-		// for(Include i : segmentGroup.getInclude())
-		// {
-		// // segment found
-		// String sg = i.getSegmentGroup();
-		// // segment not in map, add with new list for groups
-		// if(segmentsGroupsMap.containsKey(sg))
-		// {
-		// List<String> segmentsMembers = segmentsGroupsMap.get(sg);
-		// for(String key : segmentsMembers)
-		// {
-		// List<VisualGroupElement> groups = segmentsMap.get(key);
-		// groups.add(visualGroupElement);
-		// segmentsMap.put(key, groups);
-		// }
-		// }
-		// }
-		// }
-		// }
-
 		return cellParts;
 	}
 
@@ -411,18 +336,14 @@ public class ExtractVisualType
 		if(samePoint(proximal, distal)) // ideally an equals but the objects
 										// are generated. hassle postponed.
 		{
-			// SphereNode sphere = new SphereNode(s.getName());
 			Sphere sphere = valuesFactory.createSphere();
 			sphere.setRadius(proximal.getDiameter() / 2);
 			sphere.setPosition(getPoint(proximal));
-			// sphere.setId(getVisualObjectIdentifier(s.getId().toString()));
 			return sphere;
 		}
 		else
 		{
-			// CylinderNode cyl = new CylinderNode(s.getName());
 			Cylinder cylinder = valuesFactory.createCylinder();
-			// cylinder.setId(getVisualObjectIdentifier(s.getId().toString()));
 			if(proximal != null)
 			{
 				cylinder.setPosition(getPoint(proximal));
