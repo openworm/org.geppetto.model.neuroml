@@ -34,45 +34,26 @@ package org.geppetto.model.neuroml.services;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
-import org.geppetto.core.beans.PathConfiguration;
-import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
-import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.AModelInterpreter;
-import org.geppetto.core.model.IModel;
+import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.runtime.AspectNode;
-import org.geppetto.core.model.runtime.EntityNode;
-import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
-import org.geppetto.model.neuroml.features.LEMSParametersFeature;
-import org.geppetto.model.neuroml.features.LEMSSimulationTreeFeature;
-import org.geppetto.model.neuroml.features.LEMSVisualTreeFeature;
-import org.geppetto.model.neuroml.utils.LEMSAccessUtility;
-import org.geppetto.model.neuroml.utils.NeuroMLAccessUtility;
+import org.geppetto.model.GeppettoLibrary;
+import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
-import org.lemsml.jlems.api.LEMSDocumentReader;
-import org.lemsml.jlems.api.interfaces.ILEMSDocument;
-import org.lemsml.jlems.api.interfaces.ILEMSDocumentReader;
-import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Lems;
-import org.lemsml.jlems.io.xmlio.XMLSerializer;
-import org.neuroml.model.Base;
-import org.neuroml.model.BaseCell;
-import org.neuroml.model.NeuroMLDocument;
-import org.neuroml.model.util.NeuroMLConverter;
+import org.geppetto.model.types.Type;
+import org.geppetto.model.util.GeppettoVisitingException;
+import org.geppetto.model.values.Pointer;
+import org.lemsml.jlems.core.sim.LEMSException;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -92,108 +73,31 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openworm.simulationengine.core.model.IModelProvider#readModel(java .lang.String)
-	 */
-	public IModel readModel(URL url, List<URL> recordings, String instancePath) throws ModelInterpreterException
+	@Override
+	public Type importType(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
 	{
+		long startTime = System.currentTimeMillis();
+
+		Type type;
 		dependentModels.clear();
-		ModelWrapper model = new ModelWrapper(instancePath);
+
 		try
 		{
-			OptimizedLEMSReader reader = new OptimizedLEMSReader(dependentModels);
-			int index = url.toString().lastIndexOf('/');
-			String urlBase = url.toString().substring(0, index + 1);
-			reader.read(url, urlBase, OptimizedLEMSReader.NMLDOCTYPE.LEMS);
+			// Read main and includes as a String
+			OptimizedLEMSReader reader = new OptimizedLEMSReader(this.dependentModels);
+			reader.readAllFormats(url, OptimizedLEMSReader.NMLDOCTYPE.LEMS);
 
-			model = new ModelWrapper(UUID.randomUUID().toString());
-			model.setInstancePath(instancePath);
-
-			/*
-			 * LEMS
-			 */
-			long start = System.currentTimeMillis();
-			ILEMSDocumentReader lemsReader = new LEMSDocumentReader();
-			ILEMSDocument document = lemsReader.readModel(reader.getLEMSString());
-			_logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
-			/*
-			 * PrintWriter out = new PrintWriter("LEMS.txt"); out.println(reader.getLEMSString()); out.close();
-			 */
-
-			model = new ModelWrapper(UUID.randomUUID().toString());
-			model.setInstancePath(instancePath);
-			/*
-			 * NEUROML
-			 */
-			if(!reader.getNeuroMLString().isEmpty())
-			{
-				start = System.currentTimeMillis();
-				NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-				NeuroMLDocument neuroml_inclusions = neuromlConverter.loadNeuroML(reader.getNeuroMLString());
-				_logger.info("Parsed NeuroML document of size " + reader.getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
-				model.wrapModel(ServicesRegistry.getModelFormat("NEUROML"), neuroml_inclusions);
-
-				// add visual tree feature to the model service
-				this.addFeature(new LEMSVisualTreeFeature(neuroml_inclusions, document));
-			}
-
-			model.wrapModel(ServicesRegistry.getModelFormat("LEMS"), document);
-			model.wrapModel(NeuroMLAccessUtility.URL_ID, url);
-
-			/*
-			 * out = new PrintWriter("NEUROML.txt"); out.println(reader.getNeuroMLString()); out.close();
-			 */
-
-			// TODO: This need to be changed (BaseCell, String)
-			model.wrapModel(NeuroMLAccessUtility.SUBENTITIES_MAPPING_ID, new HashMap<BaseCell, EntityNode>());
-			model.wrapModel(NeuroMLAccessUtility.CELL_SUBENTITIES_MAPPING_ID, new HashMap<String, BaseCell>());
-
-			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_COMPONENTS, new HashMap<String, Base>());
-			model.wrapModel(LEMSAccessUtility.DISCOVERED_LEMS_COMPONENTS, new HashMap<String, Object>());
-			model.wrapModel(NeuroMLAccessUtility.DISCOVERED_NESTED_COMPONENTS_ID, new ArrayList<String>());
-
-			addRecordings(recordings, instancePath, model);
-
-			this.addFeature(new LEMSParametersFeature(this._neuroMLModelInterpreter.getPopulateModelTree(), model));
-			this.addFeature(new LEMSSimulationTreeFeature());
+			// Extract Types from the lems/neuroml files
+			type = _neuroMLModelInterpreter.extractTypes(url, typeId, library, access, reader.getLEMSDocument(), reader.getNeuroMLDocument());
 		}
-		catch(IOException e)
+		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
 		{
 			throw new ModelInterpreterException(e);
 		}
-		catch(ContentError e)
-		{
-			throw new ModelInterpreterException(e);
-		}
-		catch(NeuroMLException e)
-		{
-			throw new ModelInterpreterException(e);
-		}
-		return model;
-	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geppetto.core.model.IModelInterpreter#populateModelTree(org.geppetto .core.model.runtime.AspectNode)
-	 */
-	@Override
-	public boolean populateModelTree(AspectNode aspectNode) throws ModelInterpreterException
-	{
-		return _neuroMLModelInterpreter.populateModelTree(aspectNode);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geppetto.core.model.IModelInterpreter#populateRuntimeTree(org.geppetto .core.model.runtime.AspectNode)
-	 */
-	@Override
-	public boolean populateRuntimeTree(AspectNode aspectNode) throws ModelInterpreterException
-	{
-		return _neuroMLModelInterpreter.populateRuntimeTree(aspectNode);
+		long endTime = System.currentTimeMillis();
+		_logger.info("Import Type took " + (endTime - startTime) + " milliseconds for url " + url + " and typename " + typeId);
+		return type;
 	}
 
 	@Override
@@ -210,83 +114,96 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	}
 
 	@Override
-	public File downloadModel(AspectNode aspectNode, ModelFormat format, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
+	public File downloadModel(Pointer pointer, ModelFormat format, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
 	{
-		if(format.equals(ServicesRegistry.getModelFormat("LEMS")) || format.equals(ServicesRegistry.getModelFormat("NEUROML")))
-		{
-			try
-			{
-				// Create file and folder
-				File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId, PathConfiguration.getName(format.getModelFormat()+ PathConfiguration.downloadModelFolderName,true));
-				String outputFile = ((URL) ((ModelWrapper) aspectNode.getModel()).getModel(NeuroMLAccessUtility.URL_ID)).getPath();
+		// AQP
+		return _neuroMLModelInterpreter.downloadModel(pointer, format, aspectConfiguration);
 
-				// Serialise objects
-				String serialisedModel = "";
-				if(format.equals(ServicesRegistry.getModelFormat("LEMS")))
-				{
-					// Serialise LEMS object
-					Lems lems = (Lems) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("LEMS"));
-					serialisedModel = XMLSerializer.serialize(lems);
-				}
-				else
-				{
-					// Serialise NEUROML object
-					NeuroMLDocument neuroMLDoc = (NeuroMLDocument) ((ModelWrapper) aspectNode.getModel()).getModel(ServicesRegistry.getModelFormat("NEUROML"));
-					NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
-					serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
-					// Change extension to nml
-					outputFile = outputFile.substring(0, outputFile.lastIndexOf(".") + 1) + "nml";
-				}
-
-				// Write to disc
-				PrintWriter writer = new PrintWriter(outputFolder + outputFile.substring(outputFile.lastIndexOf("/")));
-				writer.print(serialisedModel);
-				writer.close();
-				return outputFolder;
-
-			}
-			catch(ContentError | IOException | NeuroMLException e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-
-		}
-		else
-		{
-
-			// Call conversion service
-			LEMSConversionService lemsConversionService = new LEMSConversionService();
-			lemsConversionService.setProjectId(projectId);
-			lemsConversionService.setScope(Scope.CONNECTION);
-			ModelWrapper outputModel = null;
-			try
-			{
-				outputModel = (ModelWrapper) lemsConversionService.convert(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS"), format, aspectConfiguration);
-			}
-			catch(ConversionException e)
-			{
-				throw new ModelInterpreterException(e);
-			}
-			String outputFile = (String) outputModel.getModel(format);
-			return new File(outputFile.substring(0, outputFile.lastIndexOf(File.separator)));
-		}
+		// We are taking the domain model for the last element of the pointer
+		// IModel model = (IModel) pointer.getElements().get(pointer.getElements().size() - 1).getType().getDomainModel();
+		//
+		// if(format.equals(ServicesRegistry.getModelFormat("LEMS")) || format.equals(ServicesRegistry.getModelFormat("NEUROML")))
+		// {
+		// try
+		// {
+		// // Create file and folder
+		// File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId,
+		// PathConfiguration.getName(format.getModelFormat() + PathConfiguration.downloadModelFolderName, true));
+		// String outputFile = ((URL) ((ModelWrapper) model).getModel(NeuroMLAccessUtility.URL_ID)).getPath();
+		//
+		// // Serialise objects
+		// String serialisedModel = "";
+		// if(format.equals(ServicesRegistry.getModelFormat("LEMS")))
+		// {
+		// // Serialise LEMS object
+		// Lems lems = (Lems) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("LEMS"));
+		// serialisedModel = XMLSerializer.serialize(lems);
+		// }
+		// else
+		// {
+		// // Serialise NEUROML object
+		// NeuroMLDocument neuroMLDoc = (NeuroMLDocument) ((ModelWrapper) model).getModel(ServicesRegistry.getModelFormat("NEUROML"));
+		// NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
+		// serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
+		// // Change extension to nml
+		// outputFile = outputFile.substring(0, outputFile.lastIndexOf(".") + 1) + "nml";
+		// }
+		//
+		// // Write to disc
+		// PrintWriter writer = new PrintWriter(outputFolder + outputFile.substring(outputFile.lastIndexOf("/")));
+		// writer.print(serialisedModel);
+		// writer.close();
+		// return outputFolder;
+		//
+		// }
+		// catch(ContentError | IOException | NeuroMLException e)
+		// {
+		// throw new ModelInterpreterException(e);
+		// }
+		//
+		// }
+		// else
+		// {
+		//
+		// // Call conversion service
+		// LEMSConversionService lemsConversionService = new LEMSConversionService();
+		// lemsConversionService.setProjectId(projectId);
+		// lemsConversionService.setScope(Scope.CONNECTION);
+		// ModelWrapper outputModel = null;
+		// try
+		// {
+		// outputModel = (ModelWrapper) lemsConversionService.convert(model, ServicesRegistry.getModelFormat("LEMS"), format, aspectConfiguration);
+		// }
+		// catch(ConversionException e)
+		// {
+		// throw new ModelInterpreterException(e);
+		// }
+		// String outputFile = (String) outputModel.getModel(format);
+		// return new File(outputFile.substring(0, outputFile.lastIndexOf(File.separator)));
+		// }
 	}
 
 	@Override
-	public List<ModelFormat> getSupportedOutputs(AspectNode aspectNode) throws ModelInterpreterException
+	public List<ModelFormat> getSupportedOutputs(Pointer pointer) throws ModelInterpreterException
 	{
-		List<ModelFormat> supportedOutputs = super.getSupportedOutputs(aspectNode);
-		supportedOutputs.add(ServicesRegistry.getModelFormat("NEUROML"));
-		try
-		{
-			LEMSConversionService lemsConversionService = new LEMSConversionService();
-			supportedOutputs.addAll(lemsConversionService.getSupportedOutputs(aspectNode.getModel(), ServicesRegistry.getModelFormat("LEMS")));
-		}
-		catch(ConversionException e)
-		{
-			throw new ModelInterpreterException(e);
-		}
-		return supportedOutputs;
+		// AQP
+		return _neuroMLModelInterpreter.getSupportedOutputs(pointer);
+
+		// List<ModelFormat> supportedOutputs = super.getSupportedOutputs(pointer);
+		// supportedOutputs.add(ServicesRegistry.getModelFormat("NEUROML"));
+		// try
+		// {
+		// // We are taking the domain model for the last element of the pointer
+		// IModel model = (IModel) pointer.getElements().get(pointer.getElements().size() - 1).getType().getDomainModel();
+		//
+		// LEMSConversionService lemsConversionService = new LEMSConversionService();
+		// supportedOutputs.addAll(lemsConversionService.getSupportedOutputs(model, ServicesRegistry.getModelFormat("LEMS")));
+		// }
+		// catch(ConversionException e)
+		// {
+		// throw new ModelInterpreterException(e);
+		// }
+		// return supportedOutputs;
 	}
 
 }

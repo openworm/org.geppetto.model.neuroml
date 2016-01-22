@@ -1,7 +1,7 @@
 /*******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2011 - 2015 OpenWorm.
+ * Copyright (c) 2011, 2013 OpenWorm.
  * http://openworm.org
  *
  * All rights reserved. This program and the accompanying materials
@@ -30,48 +30,60 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-
 package org.geppetto.model.neuroml.utils;
 
+
 /**
- * Class to hold resources used in the visualiser. This elements will be displayed to the user.
- * @author matteocantarelli
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  *
  */
-public enum ResourcesDomainType
+public enum ModelFormatMapping 
 {
-	
-	SYNAPSE("synapse"),
-	PREFRACTIONALONG("preFractionAlong"),
-	POSTFRACTIONALONG("postFractionAlong"),
-	IONCHANNEL("ionChannel"),
-	PULSEGENERATOR("pulseGenerator"),
-	POPULATION("population"),
-	PROJECTION("projection"),
-	CONNECTION("connection"),
-	NETWORK("network"),
-	CELL("cell");
+
+	NEUROML("NeuroML"),
+	LEMS("LEMS"),
+
+	//LEMS
+	C("C"),
+	DLEMS("DLEMS"),
+	MATLAB("MATLAB"),
+	MODELICA("MODELICA"),
+	SEDML("SEDML"),
+	//NEUROML
+	BRIAN("BRIAN"),
+	CELLML("CELLML"),
+	DN_SIM("DN_SIM"),
+	GRAPH_VIZ("GRAPH_VIZ"),
+	NEST("NEST"),
+	NEURON("NEURON"),
+	PYNN("PYNN"),
+	SBML("SBML"),
+	SVG("SVG"),
+	XINEML("XINEML"),
+	XPP("XPP");
 	
 	
 	private String _value;
 	
-	private ResourcesDomainType(String value)
+	private ModelFormatMapping(String value)
 	{
 		_value = value;
 	}
 	
-	public String get()
+	public String getExportValue()
 	{
 		return _value;
 	}
 	
-	public static ResourcesDomainType getValueByValue(String value){
-		for(ResourcesDomainType e : ResourcesDomainType.values()){
-            if(value == e._value) return e;
-        }
-		//If we can't find a value, return the id
-		return null;
-	}
+	public static ModelFormatMapping fromExportValue(String format) {
+	    if (format != null) {
+	      for (ModelFormatMapping mf : ModelFormatMapping.values()) {
+	        if (format.equalsIgnoreCase(mf.getExportValue())) {
+	          return mf;
+	        }
+	      }
+	    }
+	    return null;
+	  }
 	
 }
