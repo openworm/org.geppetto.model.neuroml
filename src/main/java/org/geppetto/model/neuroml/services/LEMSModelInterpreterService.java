@@ -92,6 +92,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		}
 		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
 		{
+			e.printStackTrace();
 			throw new ModelInterpreterException(e);
 		}
 

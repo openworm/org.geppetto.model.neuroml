@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.Tag;
 import org.geppetto.model.types.TypesFactory;
@@ -88,7 +89,7 @@ public class PopulateChannelDensityVisualGroups
 	ValuesFactory valuesFactory;
 	VariablesFactory variablesFactory;
 	GeppettoFactory geppettoFactory;
-	
+
 	private Tag channelDensityTag;
 
 	public PopulateChannelDensityVisualGroups(Cell cell)
@@ -100,15 +101,11 @@ public class PopulateChannelDensityVisualGroups
 		variablesFactory = VariablesFactory.eINSTANCE;
 		geppettoFactory = GeppettoFactory.eINSTANCE;
 	}
-	
-
 
 	public Tag getChannelDensityTag()
 	{
 		return channelDensityTag;
 	}
-
-
 
 	/**
 	 * Create Channel densities visual groups for a cell
@@ -117,8 +114,12 @@ public class PopulateChannelDensityVisualGroups
 	 *            - Densities visual groups for this cell
 	 * @return
 	 * @throws GeppettoVisitingException
+	 * @throws ModelInterpreterException
+	 * @throws NeuroMLException
+	 * @throws ParseError 
+	 * @throws ContentError 
 	 */
-	public List<VisualGroup> createChannelDensities() throws GeppettoVisitingException
+	public List<VisualGroup> createChannelDensities() throws GeppettoVisitingException, ModelInterpreterException, NeuroMLException, ContentError, ParseError
 	{
 		Map<String, VisualGroup> groupsMap = new HashMap<String, VisualGroup>();
 
@@ -199,24 +200,15 @@ public class PopulateChannelDensityVisualGroups
 		return vis;
 	}
 
-	private DoubleEvaluator getExpressionEvaluator(String expression)
+	private DoubleEvaluator getExpressionEvaluator(String expression) throws ContentError, ParseError
 	{
-		DoubleEvaluator doubleEvaluator = null;
-		try
-		{
-			Parser parser = new Parser();
-			ParseTree parseTree = parser.parseExpression(expression);
-			doubleEvaluator = parseTree.makeFloatEvaluator();
-		}
-		catch(ParseError | ContentError e2)
-		{
-			_logger.error("Error creating expression evaluator");
-			return null;
-		}
-		return doubleEvaluator;
+		Parser parser = new Parser();
+		ParseTree parseTree = parser.parseExpression(expression);
+		return parseTree.makeFloatEvaluator();
 	}
 
 	private void createVisualGroupElement(Map<String, VisualGroup> groupsMap, Tag tag, String densityId, String ionChannel, List<VariableParameter> variableParameters)
+			throws NeuroMLException, ContentError, ParseError
 	{
 		// Iterate through the segment groups looking for the right segment group with a variable parameter equals to condDensity
 		for(SegmentGroup segmentGroup : cell.getMorphology().getSegmentGroup())
@@ -237,45 +229,38 @@ public class PopulateChannelDensityVisualGroups
 					{
 						if(inhomogeneousParameter.getId().equals(variableParameter.getInhomogeneousValue().getInhomogeneousParameter()))
 						{
-							try
+							// Get all segments for the subgroup
+							List<Segment> segmentsPerSubgroup = cellUtils.getSegmentsInGroup(segmentGroup.getId());
+							for(Segment sg : segmentsPerSubgroup)
 							{
-								// Get all segments for the subgroup
-								List<Segment> segmentsPerSubgroup = cellUtils.getSegmentsInGroup(segmentGroup.getId());
-								for(Segment sg : segmentsPerSubgroup)
-								{
-									double distanceAllSegments = cellUtils.calculateDistanceInGroup(0.0, sg);
-									if(inhomogeneousParameter.getProximal() != null) distanceAllSegments = distanceAllSegments - inhomogeneousParameter.getProximal().getTranslationStart();
+								double distanceAllSegments = cellUtils.calculateDistanceInGroup(0.0, sg);
+								if(inhomogeneousParameter.getProximal() != null) distanceAllSegments = distanceAllSegments - inhomogeneousParameter.getProximal().getTranslationStart();
 
-									// double distanceAllSegments = distanceInGroup - inhomogeneousParameter.getProximal().getTranslationStart();
+								// double distanceAllSegments = distanceInGroup - inhomogeneousParameter.getProximal().getTranslationStart();
 
-									// Calculate conductance density
-									HashMap<String, Double> valHM = new HashMap<String, Double>();
-									valHM.put(inhomogeneousParameter.getVariable(), distanceAllSegments);
+								// Calculate conductance density
+								HashMap<String, Double> valHM = new HashMap<String, Double>();
+								valHM.put(inhomogeneousParameter.getVariable(), distanceAllSegments);
 
-									// Create visual group element
-									VisualGroupElement element = valuesFactory.createVisualGroupElement();
-									element.setId("vo" + sg.getId().toString());
-									element.setName(sg.getName());
+								// Create visual group element
+								VisualGroupElement element = valuesFactory.createVisualGroupElement();
+								element.setId("vo" + sg.getId().toString());
+								element.setName(sg.getName());
 
-									// Add calculated value as a physical quantity
-									// FIXME We are hardcoding the units as NeuroML2 does not have it for inhomogeneous channels
-									PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
-									// physicalQuantity.setScalingFactor(value);
-									physicalQuantity.setValue((float) doubleEvaluator.evalD(valHM));
+								// Add calculated value as a physical quantity
+								// FIXME We are hardcoding the units as NeuroML2 does not have it for inhomogeneous channels
+								PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
+								// physicalQuantity.setScalingFactor(value);
+								physicalQuantity.setValue((float) doubleEvaluator.evalD(valHM));
 
-									Unit unit = valuesFactory.createUnit();
-									unit.setUnit("S_per_cm2");
-									physicalQuantity.setUnit(unit);
-									physicalQuantity.setScalingFactor(1);
+								Unit unit = valuesFactory.createUnit();
+								unit.setUnit("S_per_cm2");
+								physicalQuantity.setUnit(unit);
+								physicalQuantity.setScalingFactor(1);
 
-									element.setParameter(physicalQuantity);
-									element.setDefaultColor(defaultColor);
-									visualGroup.getVisualGroupElements().add(element);
-								}
-							}
-							catch(NeuroMLException e1)
-							{
-								_logger.error("Error extracting channel densities");
+								element.setParameter(physicalQuantity);
+								element.setDefaultColor(defaultColor);
+								visualGroup.getVisualGroupElements().add(element);
 							}
 						}
 					}

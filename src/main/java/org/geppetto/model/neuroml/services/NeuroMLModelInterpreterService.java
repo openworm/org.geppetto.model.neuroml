@@ -58,7 +58,6 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
-import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
@@ -72,7 +71,6 @@ import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.ConnectionType;
-import org.geppetto.model.types.PointerType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
@@ -218,12 +216,14 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					{
 						String declaredType = ((Component) type.getDomainModel().getDomainModel()).getDeclaredType();
 						String currentDeclaredType = ((Component) currentType.getDomainModel().getDomainModel()).getDeclaredType();
-						if(!declaredType.equals(Resources.NETWORK.getId()) && (currentDeclaredType.equals(Resources.NETWORK.getId()) || (!declaredType.equals(Resources.CELL.getId()) && currentDeclaredType.equals(Resources.CELL.getId()))))
+						if(!declaredType.equals(Resources.NETWORK.getId())
+								&& (currentDeclaredType.equals(Resources.NETWORK.getId()) || (!declaredType.equals(Resources.CELL.getId()) && currentDeclaredType.equals(Resources.CELL.getId()))))
 						{
 							multipleTypes = false;
 							type = currentType;
 						}
-						else if((!declaredType.equals(Resources.CELL.getId()) && !declaredType.equals(Resources.NETWORK.getId())) || (declaredType.equals(Resources.CELL.getId()) && currentDeclaredType.equals(Resources.CELL.getId()))
+						else if((!declaredType.equals(Resources.CELL.getId()) && !declaredType.equals(Resources.NETWORK.getId()))
+								|| (declaredType.equals(Resources.CELL.getId()) && currentDeclaredType.equals(Resources.CELL.getId()))
 								|| (declaredType.equals(Resources.NETWORK.getId()) && currentDeclaredType.equals(Resources.NETWORK.getId())))
 						{
 							multipleTypes = true;
@@ -297,7 +297,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	/*
 	 * Generic method to extract info from any component
 	 */
-	private CompositeType extractInfoFromComponent(Component component, String domainType) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException
+	private CompositeType extractInfoFromComponent(Component component, String domainType) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
 	{
 		// Create composite type depending on type of component and initialise it
 		CompositeType compositeType = (CompositeType) getCompositeType((domainType != null) ? domainType : null);
@@ -466,7 +466,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		compositeType.getVariables().add(variable);
 	}
 
-	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component morphology) throws LEMSException, NeuroMLException, GeppettoVisitingException
+	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component morphology) throws GeppettoVisitingException, LEMSException, NeuroMLException, ModelInterpreterException 
 	{
 		if(!types.containsKey(morphology.getID()))
 		{
@@ -483,7 +483,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		compositeType.setVisualType((VisualType) types.get(morphology.getID()));
 	}
 
-	public void createConnectionTypeVariablesFromProjection(Component projection, CompositeType compositeType) throws GeppettoVisitingException, LEMSException, NeuroMLException
+	public void createConnectionTypeVariablesFromProjection(Component projection, CompositeType compositeType) throws GeppettoVisitingException, LEMSException, NeuroMLException, NumberFormatException, ModelInterpreterException
 	{
 		// get/create the projection type and variable
 		CompositeType projectionType = null;
@@ -612,7 +612,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	}
 
-	public void createPopulationTypeVariable(Component populationComponent) throws GeppettoVisitingException, LEMSException, NeuroMLException
+	public void createPopulationTypeVariable(Component populationComponent) throws GeppettoVisitingException, LEMSException, NeuroMLException, NumberFormatException, ModelInterpreterException
 	{
 
 		if(!types.containsKey(populationComponent.getRefComponents().get("component").getID()))

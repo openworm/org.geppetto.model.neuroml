@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.geppetto.core.model.GeppettoModelAccess;
+import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
@@ -124,7 +125,7 @@ public class ExtractVisualType
 		cellUtils = new CellUtils(cell);
 	}
 
-	public VisualType createTypeFromCellMorphology() throws GeppettoVisitingException, LEMSException, NeuroMLException
+	public VisualType createTypeFromCellMorphology() throws GeppettoVisitingException, LEMSException, NeuroMLException, ModelInterpreterException
 	{
 		CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
 		ModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, cell.getMorphology().getId());
