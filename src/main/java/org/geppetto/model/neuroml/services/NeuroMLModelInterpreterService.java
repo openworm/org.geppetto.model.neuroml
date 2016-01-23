@@ -619,13 +619,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		// If it is not of type cell, it won't have morphology and we can assume an sphere in the
 		if(!populationComponent.getRefComponents().get("component").getDeclaredType().equals(Resources.CELL.getId()))
 		{
-			if(!types.containsKey("morphology" + populationComponent.getID()))
+			if(!types.containsKey("morphology_sphere"))
 			{
-				VisualType visualType = typeFactory.createVisualType();
-				// AQP Have a look at the id
-				ModelInterpreterUtils.initialiseNodeFromString(visualType, "morphology" + populationComponent.getID());
 				CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
-
+				ModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, "morphology_sphere");
+				
 				Sphere sphere = valuesFactory.createSphere();
 				sphere.setRadius(1.2d);
 				Point point = valuesFactory.createPoint();
@@ -642,10 +640,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 				visualCompositeType.getVariables().add(variable);
 
-				types.put("morphology" + populationComponent.getID(), visualCompositeType);
+				types.put("morphology_sphere", visualCompositeType);
 			}
 
-			refCompositeType.setVisualType((VisualType) types.get("morphology" + populationComponent.getID()));
+			refCompositeType.setVisualType((VisualType) types.get("morphology_sphere"));
 
 		}
 		arrayType.setArrayType(refCompositeType);
