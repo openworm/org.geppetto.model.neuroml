@@ -128,8 +128,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 	private VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
 
-	private NeuroMLDocument neuroml;
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -163,7 +161,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			GeppettoVisitingException, ContentError, ModelInterpreterException
 	{
 		this.access = access;
-		this.neuroml = neuroml;
 
 		// Resolve LEMS model
 		// If there is any problem resolving the lems model, we will try to go ahead anyway

@@ -79,7 +79,7 @@ public class PopulateChannelDensityVisualGroups
 	private String type = "static";
 	private String highSpectrum = "0XFF0000";
 	private String lowSpectrum = "0XFFFF00";
-	private String defaultColor = "0XFF3300";
+	//private String defaultColor = "0XFF3300";
 
 	private static Log _logger = LogFactory.getLog(PopulateChannelDensityVisualGroups.class);
 
@@ -116,8 +116,8 @@ public class PopulateChannelDensityVisualGroups
 	 * @throws GeppettoVisitingException
 	 * @throws ModelInterpreterException
 	 * @throws NeuroMLException
-	 * @throws ParseError 
-	 * @throws ContentError 
+	 * @throws ParseError
+	 * @throws ContentError
 	 */
 	public List<VisualGroup> createChannelDensities() throws GeppettoVisitingException, ModelInterpreterException, NeuroMLException, ContentError, ParseError
 	{
@@ -207,8 +207,8 @@ public class PopulateChannelDensityVisualGroups
 		return parseTree.makeFloatEvaluator();
 	}
 
-	private void createVisualGroupElement(Map<String, VisualGroup> groupsMap, Tag tag, String densityId, String ionChannel, List<VariableParameter> variableParameters)
-			throws NeuroMLException, ContentError, ParseError
+	private void createVisualGroupElement(Map<String, VisualGroup> groupsMap, Tag tag, String densityId, String ionChannel, List<VariableParameter> variableParameters) throws NeuroMLException,
+			ContentError, ParseError
 	{
 		// Iterate through the segment groups looking for the right segment group with a variable parameter equals to condDensity
 		for(SegmentGroup segmentGroup : cell.getMorphology().getSegmentGroup())
@@ -259,7 +259,7 @@ public class PopulateChannelDensityVisualGroups
 								physicalQuantity.setScalingFactor(1);
 
 								element.setParameter(physicalQuantity);
-								element.setDefaultColor(defaultColor);
+								//element.setDefaultColor(defaultColor);
 								visualGroup.getVisualGroupElements().add(element);
 							}
 						}
@@ -285,18 +285,17 @@ public class PopulateChannelDensityVisualGroups
 		{
 			VisualGroup vis = groupsMap.get(ionChannel);
 			if(!density.getId().endsWith("_all")) createVisualGroupElementFromSegmentGroup(segmentGroup, condDensity, vis);
-			// densities.addChild(vis);
 			groupsMap.put(ionChannel, vis);
 		}
 	}
 
 	private void createVisualGroupElementFromSegmentGroup(String segmentGroup, String condDensity, VisualGroup vis) throws GeppettoVisitingException
 	{
-		// VisualGroupElementNode element = new VisualGroupElementNode(segmentGroup);
 		VisualGroupElement element = valuesFactory.createVisualGroupElement();
-		// element.setName(density.getId());
+		element.setId(vis.getId() + "_" + segmentGroup);
+		element.setName(vis.getName() + "_" + segmentGroup);
 		element.setParameter(getParameterFromCondDensity(condDensity));
-		element.setDefaultColor(defaultColor);
+		//element.setDefaultColor(defaultColor);
 		vis.getVisualGroupElements().add(element);
 	}
 
@@ -317,13 +316,8 @@ public class PopulateChannelDensityVisualGroups
 			physicalQuantity.setUnit(unit);
 			physicalQuantity.setScalingFactor(1);
 
-			// Variable variable = variablesFactory.createVariable();
-			// initialiseNodeFromString(variable, condDensity);
-			// variable.getTypes().add(this.access.getType(TypesPackage.Literals.PARAMETER_TYPE));
-			// variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
 			return physicalQuantity;
 		}
 		return null;
 	}
-
 }
