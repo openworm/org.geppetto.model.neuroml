@@ -22,7 +22,6 @@ import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Lems;
-import org.neuroml.model.Base;
 
 public class ModelInterpreterUtils
 {
@@ -32,29 +31,6 @@ public class ModelInterpreterUtils
 	static GeppettoFactory geppettoFactory = GeppettoFactory.eINSTANCE;
 	static ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 	static VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
-
-	public static String getUniqueName(String label, Object base)
-	{
-		String id = "";
-		if(base instanceof Base)
-		{
-			id = ((Base) base).getId();
-		}
-		else if(base instanceof Integer)
-		{
-			id = String.valueOf((Integer) base);
-		}
-		else
-		{
-			id = ((String) base);
-		}
-		return label + " - " + id;
-	}
-
-	public static String getUniqueId(String id, int index)
-	{
-		return id + "_" + index;
-	}
 
 	public static String parseId(String id)
 	{
@@ -82,8 +58,7 @@ public class ModelInterpreterUtils
 		text.setText(value);
 
 		Variable variable = variablesFactory.createVariable();
-		variable.setId(parseId(id));
-		variable.setName(id);
+		initialiseNodeFromString(variable, id);
 		variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
 		variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
 		return variable;
@@ -138,16 +113,15 @@ public class ModelInterpreterUtils
 			domainModel.setFormat(ServicesRegistry.getModelFormat("LEMS"));
 			((Type) node).setDomainModel(domainModel);
 		}
-		node.setName(Resources.getValueById(component.getDeclaredType()) + ((component.getID() != null) ? " - " + component.getID() : ""));
+		node.setName(Resources.getValueById(component.getDeclaredType()) + ((component.getID() != null) ? " - " + parseId(component.getID()) : ""));
 		node.setId((component.getID() != null) ? component.getID() : component.getDeclaredType());
 	}
 
 	public static void initialiseNodeFromString(Node node, String attributesName)
 	{
 		node.setName(Resources.getValueById(attributesName));
-		node.setId(attributesName);
+		node.setId(parseId(attributesName));
 	}
-	
 
 	public static void processLems(Lems lems) throws ContentError, ParseError
 	{

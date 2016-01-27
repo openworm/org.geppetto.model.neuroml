@@ -94,6 +94,8 @@ public class ExtractVisualType
 	// AQP Maybe we can initialise cellutils here and pass this variable to the create density class
 	CellUtils cellUtils;
 	
+	List<Variable> visualObjectsSegments;
+	
 
 	public ExtractVisualType(Component cellComponent, GeppettoModelAccess access) throws LEMSException, NeuroMLException
 	{
@@ -114,9 +116,11 @@ public class ExtractVisualType
 		ModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, cell.getMorphology().getId());
 		visualCompositeType.getVisualGroups().add(createCellPartsVisualGroups());
 
+		visualObjectsSegments = getVisualObjectsFromListOfSegments();
+		
 		if(cell.getMorphology().getSegmentGroup().isEmpty())
 		{
-			visualCompositeType.getVariables().addAll(getVisualObjectsFromListOfSegments(cell.getMorphology()));
+			visualCompositeType.getVariables().addAll(visualObjectsSegments);
 		}
 		else
 		{
@@ -140,12 +144,12 @@ public class ExtractVisualType
 	 * @return
 	 * @throws GeppettoVisitingException
 	 */
-	public List<Variable> getVisualObjectsFromListOfSegments(Morphology morphology) throws GeppettoVisitingException
+	private List<Variable> getVisualObjectsFromListOfSegments() throws GeppettoVisitingException
 	{
 		List<Variable> visualObjectVariables = new ArrayList<Variable>();
 
 		Map<String, Point3DWithDiam> distalPoints = new HashMap<String, Point3DWithDiam>();
-		for(Segment segment : morphology.getSegment())
+		for(Segment segment : cell.getMorphology().getSegment())
 		{
 			Variable variable = variablesFactory.createVariable();
 			variable.setId("vo" + segment.getId().toString());
@@ -184,15 +188,13 @@ public class ExtractVisualType
 	 * @return
 	 * @throws GeppettoVisitingException
 	 */
-	public List<Variable> createNodesFromMorphologyBySegmentGroup() throws GeppettoVisitingException
+	private List<Variable> createNodesFromMorphologyBySegmentGroup() throws GeppettoVisitingException
 	{
 		List<Variable> visualObjectVariables = new ArrayList<Variable>();
 
-		Morphology morphology = cell.getMorphology();
-		List<Variable> allSegments = getVisualObjectsFromListOfSegments(morphology);
-
 		Map<String, List<Variable>> segmentGeometries = new HashMap<String, List<Variable>>();
 
+		Morphology morphology = cell.getMorphology();
 		if(!morphology.getSegmentGroup().isEmpty())
 		{
 			Map<String, List<String>> subgroupsMap = new HashMap<String, List<String>>();
@@ -209,7 +211,7 @@ public class ExtractVisualType
 				}
 				if(!sg.getMember().isEmpty())
 				{
-					segmentGeometries.put(sg.getId(), getVisualObjectsForGroup(sg, allSegments));
+					segmentGeometries.put(sg.getId(), getVisualObjectsForGroup(sg, visualObjectsSegments));
 				}
 			}
 
@@ -231,7 +233,7 @@ public class ExtractVisualType
 	 * @param visualizationTree
 	 * @return
 	 */
-	public VisualGroup createCellPartsVisualGroups()
+	private VisualGroup createCellPartsVisualGroups()
 	{
 		VisualGroup cellParts = valuesFactory.createVisualGroup();
 		cellParts.setName("Cell Regions");
@@ -380,5 +382,12 @@ public class ExtractVisualType
 	{
 		return "vo" + neuromlID;
 	}
+
+	public List<Variable> getVisualObjectsSegments()
+	{
+		return visualObjectsSegments;
+	}
+	
+
 
 }
