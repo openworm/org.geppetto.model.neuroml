@@ -71,17 +71,19 @@ public class OptimizedLEMSReader
 		String urlBase = url.toString().substring(0, index + 1);
 		read(url, urlBase, type); // expand it to have all the inclusions
 
-		// Reading LEMS files
+		// Reading NEUROML file 
+		// Let's extract first the neuroml file so that if we have an error resolving the lems object at least we have the neuroml doc to validate it against neuroml.model
+		// We will show warning and error instead of an incomprehensible exception 
 		long start = System.currentTimeMillis();
-		Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(getNeuroMLString()));
-		lemsDocument = sim.getLems();
-		_logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
-
-		// Reading NEUROML file
-		start = System.currentTimeMillis();
 		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 		neuromlDocument = neuromlConverter.loadNeuroML(getNeuroMLString());
 		_logger.info("Parsed NeuroML document of size " + getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
+
+		// Reading LEMS files
+		start = System.currentTimeMillis();
+		Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(getNeuroMLString()));
+		lemsDocument = sim.getLems();
+		_logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
 
 	}
 
@@ -142,7 +144,7 @@ public class OptimizedLEMSReader
 	{
 		// 1. We receive a document, it could be NeuroML or LEMS, we remove useless parts as optimization
 		String smallerDocumentString = cleanLEMSNeuroMLDocument(documentString);
-		
+
 		// We create two string buffers one which will contain the NML representation of this include and one that will include the LEMS one
 		Map<NMLDOCTYPE, StringBuffer> processedDocs = new HashMap<OptimizedLEMSReader.NMLDOCTYPE, StringBuffer>();
 		StringBuffer processedNMLString = new StringBuffer();

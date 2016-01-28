@@ -100,6 +100,7 @@ import org.lemsml.jlems.io.xmlio.XMLSerializer;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Standalone;
+import org.neuroml.model.util.NeuroML2Validator;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,18 +141,34 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		long startTime = System.currentTimeMillis();
 		dependentModels.clear();
+		OptimizedLEMSReader reader = null;
 		try
 		{
 			// Read main and includes as a String
-			OptimizedLEMSReader reader = new OptimizedLEMSReader(this.dependentModels);
+			reader = new OptimizedLEMSReader(this.dependentModels);
 			reader.readAllFormats(url, OptimizedLEMSReader.NMLDOCTYPE.NEUROML);
 
 			// Extract Types from the lems/neuroml files
 			extractTypes(url, typeId, library, access, reader.getLEMSDocument(), reader.getNeuroMLDocument());
 		}
-		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
+		catch(IOException | NumberFormatException | GeppettoVisitingException e)
 		{
 			throw new ModelInterpreterException(e);
+		}
+		catch(NeuroMLException | LEMSException e)
+		{
+			NeuroML2Validator neuroML2Validator = new NeuroML2Validator();
+			neuroML2Validator.validateWithTests(reader.getNeuroMLDocument());
+			// AQP: Change to isValid once we update model.neuroml
+			if(neuroML2Validator.hasWarnings()
+					|| !(neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_SCHEMA) || 
+							neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_SCHEMA_AND_TESTS) ||
+							neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_TESTS))){
+				throw new ModelInterpreterException("Validity: " + neuroML2Validator.getValidity() + " Warnings: " + neuroML2Validator.getWarnings());
+			}
+			else{
+				throw new ModelInterpreterException(e);
+			}
 		}
 
 		long endTime = System.currentTimeMillis();
