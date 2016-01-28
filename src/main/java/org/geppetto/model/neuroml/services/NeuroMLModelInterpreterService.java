@@ -127,8 +127,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private TypesFactory typeFactory = TypesFactory.eINSTANCE;
 	private ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 	private VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
-	
-	private Map<Component, List<Variable>> cellSegmentMap = new HashMap<Component, List<Variable>>(); 
+
+	private Map<Component, List<Variable>> cellSegmentMap = new HashMap<Component, List<Variable>>();
 
 	/*
 	 * (non-Javadoc)
@@ -293,8 +293,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	/*
 	 * Generic method to extract info from any component
 	 */
-	private CompositeType extractInfoFromComponent(Component component, String domainType) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
+	private CompositeType extractInfoFromComponent(Component component, String domainType) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException,
+			ModelInterpreterException
 	{
+		if(component.getID() != null && component.getID().equals("BackgroundRandomIClamps"))
+		{
+			System.out.println("tak");
+		}
 		// Create composite type depending on type of component and initialise it
 		CompositeType compositeType = (CompositeType) getCompositeType((domainType != null) ? domainType : null);
 		ModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
@@ -307,6 +312,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				compositeType.getVariables().add(ModelInterpreterUtils.createParameterTypeVariable(pv.getName(), component.getStringValue(pv.getName()), this.access));
 			}
 		}
+
+		// String preCellId = ModelInterpreterUtils.parseCellRefStringForCellNum(attribute.getValue());
+		// connection.getA().add(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCellId)));
+		//
+		// for(Attribute entry : component.getAttributes()){
+		// entry.getClass()
+		// }
 
 		// Text types
 		for(Entry<String, String> entry : component.getTextParamMap().entrySet())
@@ -392,40 +404,45 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 			}
 		}
-		
+
 		// Exposures are the variables that can potentially be watched
 		for(Exposure exposure : component.getComponentType().getExposures())
 		{
-			if ((exposure.getName().equals("v") || exposure.getName().equals("spiking")) && cellSegmentMap.containsKey(component) && cellSegmentMap.get(component).size() > 0){
-				
-				cellSegmentMap.get(component);
+			if(cellSegmentMap.containsKey(component) && cellSegmentMap.get(component).size() > 1 && (exposure.getName().equals("v") || exposure.getName().equals("spiking")))
+			{
+				if(!types.containsKey("compartment") || ((CompositeType) types.get("compartment")).getVariables().size() == 1)
+				{
 
-				for (Variable compartment : cellSegmentMap.get(component)){
-					CompositeType compartmentCompositeType = null;
-					for (Variable compositeVariableChild : compositeType.getVariables()){
-						if (compositeVariableChild.getId().equals("compartment_" + compartment.getId().substring(2))){
-							compartmentCompositeType = (CompositeType)compositeVariableChild.getAnonymousTypes().get(0);
-							break;
-						}
-							
+					if(!types.containsKey("compartment"))
+					{
+						CompositeType compartmentCompositeType = (CompositeType) getCompositeType(null);
+						ModelInterpreterUtils.initialiseNodeFromString(compartmentCompositeType, "compartment");
+						types.put("compartment", compartmentCompositeType);
 					}
-					
-					if (compartmentCompositeType == null){
-						compartmentCompositeType = (CompositeType) getCompositeType(null);
-						ModelInterpreterUtils.initialiseNodeFromString(compartmentCompositeType, "compartment_" + compartment.getId().substring(2));
-						
-						Variable variable = variablesFactory.createVariable();
-						ModelInterpreterUtils.initialiseNodeFromString(variable, "compartment_" + compartment.getId().substring(2));
-						variable.getAnonymousTypes().add(compartmentCompositeType);
-						compositeType.getVariables().add(variable);
+
+					if(exposure.getName().equals("v") || exposure.getName().equals("spiking"))
+					{
+						CompositeType compartmentCompositeType = (CompositeType) types.get("compartment");
+						compartmentCompositeType.getVariables().add(
+								ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
+
 					}
-					
-					compartmentCompositeType.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
 				}
-				
 			}
-			else{
+			else
+			{
 				compositeType.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
+			}
+		}
+
+		if(cellSegmentMap.containsKey(component) && cellSegmentMap.get(component).size() > 1)
+		{
+			for(Variable compartment : cellSegmentMap.get(component))
+			{
+				Variable variable = variablesFactory.createVariable();
+				ModelInterpreterUtils.initialiseNodeFromString(variable, compartment.getName());
+				variable.getTypes().add(types.get("compartment"));
+				compositeType.getVariables().add(variable);
 			}
 		}
 
@@ -492,20 +509,22 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		compositeType.getVariables().add(variable);
 	}
 
-	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component morphology) throws GeppettoVisitingException, LEMSException, NeuroMLException, ModelInterpreterException 
+	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component morphology) throws GeppettoVisitingException, LEMSException, NeuroMLException,
+			ModelInterpreterException
 	{
 		if(!types.containsKey(morphology.getID()))
 		{
 			ExtractVisualType extractVisualType = new ExtractVisualType(component, access);
 			types.put(morphology.getID(), extractVisualType.createTypeFromCellMorphology());
-			
+
 			cellSegmentMap.put(component, extractVisualType.getVisualObjectsSegments());
 		}
 
 		compositeType.setVisualType((VisualType) types.get(morphology.getID()));
 	}
 
-	public void createConnectionTypeVariablesFromProjection(Component projection, CompositeType compositeType) throws GeppettoVisitingException, LEMSException, NeuroMLException, NumberFormatException, ModelInterpreterException
+	public void createConnectionTypeVariablesFromProjection(Component projection, CompositeType compositeType) throws GeppettoVisitingException, LEMSException, NeuroMLException,
+			NumberFormatException, ModelInterpreterException
 	{
 		// get/create the projection type and variable
 		CompositeType projectionType = null;
@@ -652,7 +671,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 				CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
 				ModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, "morphology_sphere");
-				
+
 				Sphere sphere = valuesFactory.createSphere();
 				sphere.setRadius(1.2d);
 				Point point = valuesFactory.createPoint();

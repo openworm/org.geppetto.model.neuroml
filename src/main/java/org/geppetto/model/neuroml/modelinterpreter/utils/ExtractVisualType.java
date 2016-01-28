@@ -152,8 +152,9 @@ public class ExtractVisualType
 		for(Segment segment : cell.getMorphology().getSegment())
 		{
 			Variable variable = variablesFactory.createVariable();
-			variable.setId("vo" + segment.getId().toString());
-			variable.setName("vo" + segment.getId().toString());
+			variable.setId(getVisualObjectIdentifier(segment.getId().toString()));
+			variable.setName((segment.getName() != null && !segment.getName().equals(""))?segment.getName(): "compartment_" + segment.getId());
+			
 			variable.getTypes().add(this.access.getType(TypesPackage.Literals.VISUAL_TYPE));
 
 			String idSegmentParent = null;
