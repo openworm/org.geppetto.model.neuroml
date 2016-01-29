@@ -44,6 +44,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.Tag;
+import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.PhysicalQuantity;
@@ -76,11 +77,6 @@ import org.neuroml.model.util.NeuroMLException;
  */
 public class PopulateChannelDensityVisualGroups
 {
-	private String type = "static";
-	private String highSpectrum = "0XFF0000";
-	private String lowSpectrum = "0XFFFF00";
-	//private String defaultColor = "0XFF3300";
-
 	private static Log _logger = LogFactory.getLog(PopulateChannelDensityVisualGroups.class);
 
 	private CellUtils cellUtils;
@@ -191,11 +187,9 @@ public class PopulateChannelDensityVisualGroups
 	private VisualGroup createVisualGroup(Map<String, VisualGroup> groupsMap, String ionChannel)
 	{
 		VisualGroup vis = valuesFactory.createVisualGroup();
-		vis.setId(ionChannel);
-		vis.setName(ionChannel);
-		vis.setType(type);
-		vis.setHighSpectrumColor(highSpectrum);
-		vis.setLowSpectrumColor(lowSpectrum);
+		ModelInterpreterUtils.initialiseNodeFromString(vis, ionChannel);
+		vis.setHighSpectrumColor(ModelInterpreterConstants.HIGH_SPECTRUM);
+		vis.setLowSpectrumColor(ModelInterpreterConstants.LOW_SPECTRUM);
 		groupsMap.put(ionChannel, vis);
 		return vis;
 	}
@@ -215,7 +209,7 @@ public class PopulateChannelDensityVisualGroups
 		{
 			for(VariableParameter variableParameter : variableParameters)
 			{
-				if(variableParameter.getParameter().equals("condDensity") && segmentGroup.getId().equals(variableParameter.getSegmentGroup()))
+				if(variableParameter.getParameter().equals(Resources.COND_DENSITY.get()) && segmentGroup.getId().equals(variableParameter.getSegmentGroup()))
 				{
 					String ionChannelLabel = ionChannel + "_" + segmentGroup.getId();
 					VisualGroup visualGroup = createVisualGroup(groupsMap, ionChannelLabel);
@@ -259,7 +253,6 @@ public class PopulateChannelDensityVisualGroups
 								physicalQuantity.setScalingFactor(1);
 
 								element.setParameter(physicalQuantity);
-								//element.setDefaultColor(defaultColor);
 								visualGroup.getVisualGroupElements().add(element);
 							}
 						}

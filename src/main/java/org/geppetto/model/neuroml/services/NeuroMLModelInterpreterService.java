@@ -321,31 +321,28 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		CompositeType compositeType = (CompositeType) getCompositeType((domainType != null) ? domainType : null);
 		ModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
 
+		List<String> attributes = new ArrayList<String>();
 		// Parameter types
 		for(ParamValue pv : component.getParamValues())
 		{
 			if(component.hasAttribute(pv.getName()))
 			{
+				attributes.add(pv.getName());
 				compositeType.getVariables().add(ModelInterpreterUtils.createParameterTypeVariable(pv.getName(), component.getStringValue(pv.getName()), this.access));
 			}
 		}
 
-		// String preCellId = ModelInterpreterUtils.parseCellRefStringForCellNum(attribute.getValue());
-		// connection.getA().add(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCellId)));
-		//
-		// for(Attribute entry : component.getAttributes()){
-		// entry.getClass()
-		// }
-
 		// Text types
 		for(Entry<String, String> entry : component.getTextParamMap().entrySet())
 		{
+			attributes.add(entry.getKey());
 			compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(entry.getKey(), entry.getValue(), this.access));
 		}
 
 		// Composite Type
 		for(Entry<String, Component> entry : component.getRefComponents().entrySet())
 		{
+			attributes.add(entry.getValue().getID());
 			if(!types.containsKey(entry.getValue().getID()))
 			{
 				types.put(entry.getValue().getID(), extractInfoFromComponent(entry.getValue(), null));
@@ -354,6 +351,20 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			ModelInterpreterUtils.initialiseNodeFromComponent(variable, entry.getValue());
 			variable.getTypes().add(types.get(entry.getValue().getID()));
 			compositeType.getVariables().add(variable);
+		}
+		
+
+		if (attributes.size() < component.getAttributes().size()){
+			for(Attribute entry : component.getAttributes()){
+				if (!attributes.contains(entry.getName())){
+					//component.getRelativeComponent("../pyramidals_48/37/pyr_4_sym")
+					//component.getRelativeComponent(entry.getValue());
+					// connection.getA().add(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCellId)));					
+
+					//AQP For now: let's added as a metatype because I haven't found an easy way to extract the pointer
+					compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(entry.getName(), entry.getValue(), this.access));
+				}
+			}
 		}
 
 		// Extracting populations (this needs to be executed before extracting the projection otherwise we can't get the population)

@@ -40,6 +40,7 @@ import java.util.Map;
 
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
@@ -74,21 +75,14 @@ import org.neuroml.model.util.NeuroMLException;
 public class ExtractVisualType
 {
 
-	private String axonsColor = "0XFF6600";
-	private String dendritesColor = "0X99CC00";
-	private String somaColor = "0X0066FF";
-	private String SOMA = "soma_group";
-	private String AXONS = "axon_group";
-	private String DENDRITES = "dendrite_group";
-
 	Component cellComponent;
 	Cell cell;
+
 	TypesFactory typeFactory = TypesFactory.eINSTANCE;
 	ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 	VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
 
 	Map<String, List<VisualGroupElement>> segmentsMap = new HashMap<String, List<VisualGroupElement>>();
-
 	GeppettoModelAccess access;
 
 	// AQP Maybe we can initialise cellutils here and pass this variable to the create density class
@@ -237,7 +231,7 @@ public class ExtractVisualType
 	private VisualGroup createCellPartsVisualGroups()
 	{
 		VisualGroup cellParts = valuesFactory.createVisualGroup();
-		cellParts.setName("Cell Regions");
+		ModelInterpreterUtils.initialiseNodeFromString(cellParts, Resources.CELL_REGIONS.get());
 
 		// Get all the segment groups from morphology
 		for(SegmentGroup segmentGroup : this.cell.getMorphology().getSegmentGroup())
@@ -246,25 +240,22 @@ public class ExtractVisualType
 			String segmentGroupID = segmentGroup.getId();
 
 			// create visual groups for cell regions
-			if(segmentGroupID.equals(SOMA) || segmentGroupID.equals(DENDRITES) || segmentGroupID.equals(AXONS))
+			if(segmentGroupID.equals(Resources.SOMA.get()) || segmentGroupID.equals(Resources.DENDRITES.get()) || segmentGroupID.equals(Resources.AXONS.get()))
 			{
 				VisualGroupElement visualGroupElement = valuesFactory.createVisualGroupElement();
-				visualGroupElement.setId(segmentGroupID);
+				ModelInterpreterUtils.initialiseNodeFromString(visualGroupElement, segmentGroupID);
 
-				if(segmentGroupID.equals(SOMA))
+				if(segmentGroupID.equals(Resources.SOMA.get()))
 				{
-					visualGroupElement.setName("Soma");
-					visualGroupElement.setDefaultColor(somaColor);
+					visualGroupElement.setDefaultColor(ModelInterpreterConstants.SOMA_COLOR);
 				}
-				else if(segmentGroupID.equals(DENDRITES))
+				else if(segmentGroupID.equals(Resources.DENDRITES.get()))
 				{
-					visualGroupElement.setName("Dendrites");
-					visualGroupElement.setDefaultColor(dendritesColor);
+					visualGroupElement.setDefaultColor(ModelInterpreterConstants.DENDRITES_COLOR);
 				}
-				else if(segmentGroupID.equals(AXONS))
+				else if(segmentGroupID.equals(Resources.AXONS.get()))
 				{
-					visualGroupElement.setName("Axons");
-					visualGroupElement.setDefaultColor(axonsColor);
+					visualGroupElement.setDefaultColor(ModelInterpreterConstants.AXONS_COLOR);
 				}
 				cellParts.getVisualGroupElements().add(visualGroupElement);
 
