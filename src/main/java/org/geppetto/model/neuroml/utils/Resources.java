@@ -41,7 +41,8 @@ package org.geppetto.model.neuroml.utils;
  */
 public enum Resources
 {
-	COND_DENSITY("Passive Conductance Density", "passiveConductanceDensity"),
+	PASSIVE_COND_DENSITY("Passive Conductance Density", "passiveConductanceDensity"),
+	COND_DENSITY("Conductance Density", "condDensity"),
 	SPIKE_THRESHOLD("Spike Threshold", "spikeThreshold"),
 	EREV("Reverse Potential", "reversePotential"),
 	SPECIFIC_CAPACITANCE("Specific Capacitance", "specificCapacitance"),
@@ -191,7 +192,11 @@ public enum Resources
 	POST_SYNAPTIC_POPULATION("Post Synaptic Population", "postsynapticPopulation"),
 	PRE_SYNAPTIC_POPULATION("Pre Synaptic Population", "presynapticPopulation"),
 	MORPHOLOGY("Morphology", "morphology"),
-	ANNOTATION("Annotation", "annotation");
+	ANNOTATION("Annotation", "annotation"),
+	CELL_REGIONS("Cell Regions", "cellRegions"),
+	SOMA("Soma", "soma_group"),
+	AXONS("Axons", "axon_group"),
+	DENDRITES("Dendrites", "dendrite_group");
 	
 	private String _value;
 	private String _id;
