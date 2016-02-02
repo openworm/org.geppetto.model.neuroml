@@ -209,7 +209,7 @@ public class PopulateChannelDensityVisualGroups
 		{
 			for(VariableParameter variableParameter : variableParameters)
 			{
-				if(variableParameter.getParameter().equals(Resources.COND_DENSITY.get()) && segmentGroup.getId().equals(variableParameter.getSegmentGroup()))
+				if(variableParameter.getParameter().equals(Resources.COND_DENSITY.getId()) && segmentGroup.getId().equals(variableParameter.getSegmentGroup()))
 				{
 					String ionChannelLabel = ionChannel + "_" + segmentGroup.getId();
 					VisualGroup visualGroup = createVisualGroup(groupsMap, ionChannelLabel);
@@ -269,7 +269,7 @@ public class PopulateChannelDensityVisualGroups
 		{
 			if(!density.getId().endsWith("_all"))
 			{
-				VisualGroup vis = createVisualGroup(groupsMap, ionChannel);
+				VisualGroup vis = createVisualGroup(groupsMap, density.getId());
 				vis.getTags().add(tag);
 				createVisualGroupElementFromSegmentGroup(segmentGroup, condDensity, vis);
 			}
