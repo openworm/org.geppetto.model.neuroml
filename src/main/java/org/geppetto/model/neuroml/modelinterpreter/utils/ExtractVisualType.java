@@ -240,20 +240,20 @@ public class ExtractVisualType
 			String segmentGroupID = segmentGroup.getId();
 
 			// create visual groups for cell regions
-			if(segmentGroupID.equals(Resources.SOMA.get()) || segmentGroupID.equals(Resources.DENDRITES.get()) || segmentGroupID.equals(Resources.AXONS.get()))
+			if(segmentGroupID.equals(Resources.SOMA.getId()) || segmentGroupID.equals(Resources.DENDRITES.getId()) || segmentGroupID.equals(Resources.AXONS.getId()))
 			{
 				VisualGroupElement visualGroupElement = valuesFactory.createVisualGroupElement();
 				ModelInterpreterUtils.initialiseNodeFromString(visualGroupElement, segmentGroupID);
 
-				if(segmentGroupID.equals(Resources.SOMA.get()))
+				if(segmentGroupID.equals(Resources.SOMA.getId()))
 				{
 					visualGroupElement.setDefaultColor(ModelInterpreterConstants.SOMA_COLOR);
 				}
-				else if(segmentGroupID.equals(Resources.DENDRITES.get()))
+				else if(segmentGroupID.equals(Resources.DENDRITES.getId()))
 				{
 					visualGroupElement.setDefaultColor(ModelInterpreterConstants.DENDRITES_COLOR);
 				}
-				else if(segmentGroupID.equals(Resources.AXONS.get()))
+				else if(segmentGroupID.equals(Resources.AXONS.getId()))
 				{
 					visualGroupElement.setDefaultColor(ModelInterpreterConstants.AXONS_COLOR);
 				}
