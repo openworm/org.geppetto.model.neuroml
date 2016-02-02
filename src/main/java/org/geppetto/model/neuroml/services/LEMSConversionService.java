@@ -300,8 +300,8 @@ public class LEMSConversionService extends AConversion
 		String lemsPath = "";
 
 		// First we identify what sort of network/cell it is and depending on this we will generate the Simulation Tree format
-		String simulationTreePathType = getSimulationTreePathType(component);
 		// populationList,population,cell
+		String simulationTreePathType = getSimulationTreePathType(component);
 
 		Iterator<PointerElement> elementIterator = watchedPointer.getElements().iterator();
 		while(elementIterator.hasNext())
@@ -343,10 +343,11 @@ public class LEMSConversionService extends AConversion
 					}
 					else
 					{
+						
 						if(simulationTreePathType.equals("populationList"))
 						{
 							// FIXME AQP What to do with the different segments?
-							lemsPath += instancePath + "/" + pointerElement.getIndex() + "/" + component.getID() + "/0";
+							lemsPath += instancePath + "/" + pointerElement.getIndex() + "/" + component.getID();
 						}
 						else
 						{
@@ -354,10 +355,14 @@ public class LEMSConversionService extends AConversion
 						}
 					}
 				}
-				else
-				{
+				else if (pointerElement.getType().getId().equals("compartment")){
+					lemsPath += "/" + pointerElement.getVariable().getId().substring("vo".length());
+				}
+				else{
 					lemsPath += "/" + pointerElement.getType().getId();
 				}
+				
+
 			}
 		}
 

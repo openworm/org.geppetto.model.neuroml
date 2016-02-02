@@ -313,10 +313,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private CompositeType extractInfoFromComponent(Component component, String domainType) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException,
 			ModelInterpreterException
 	{
-		if(component.getID() != null && component.getID().equals("BackgroundRandomIClamps"))
-		{
-			System.out.println("tak");
-		}
 		// Create composite type depending on type of component and initialise it
 		CompositeType compositeType = (CompositeType) getCompositeType((domainType != null) ? domainType : null);
 		ModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
@@ -468,7 +464,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			for(Variable compartment : cellSegmentMap.get(component))
 			{
 				Variable variable = variablesFactory.createVariable();
-				ModelInterpreterUtils.initialiseNodeFromString(variable, compartment.getName());
+				variable.setName(Resources.getValueById(compartment.getName()));
+				variable.setId(compartment.getId());
 				variable.getTypes().add(types.get("compartment"));
 				compositeType.getVariables().add(variable);
 			}
@@ -805,7 +802,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				{
 					// Serialise LEMS object
 					serialisedModel = XMLSerializer.serialize((Component) domainModel.getDomainModel());
-					outputFile += "xml";
+					outputFile += ".xml";
 				}
 				else
 				{
@@ -821,7 +818,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
 					serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
 					// Change extension to nml
-					outputFile += "nml";
+					outputFile += ".nml";
 				}
 
 				// Write to disc
