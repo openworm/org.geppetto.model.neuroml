@@ -238,8 +238,7 @@ public class PopulateChannelDensityVisualGroups
 
 								// Create visual group element
 								VisualGroupElement element = valuesFactory.createVisualGroupElement();
-								element.setId("vo" + sg.getId().toString());
-								element.setName(sg.getName());
+								ModelInterpreterUtils.initialiseNodeFromString(element, ModelInterpreterUtils.getVisualObjectIdentifier(sg));
 
 								// Add calculated value as a physical quantity
 								// FIXME We are hardcoding the units as NeuroML2 does not have it for inhomogeneous channels

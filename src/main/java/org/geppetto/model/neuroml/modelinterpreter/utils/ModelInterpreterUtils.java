@@ -22,6 +22,7 @@ import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Lems;
+import org.neuroml.model.Segment;
 
 public class ModelInterpreterUtils
 {
@@ -129,5 +130,14 @@ public class ModelInterpreterUtils
 		lems.deduplicate();
 		lems.resolve();
 		lems.evaluateStatic();
+	}
+	
+	/**
+	 * @param neuromlID
+	 * @return
+	 */
+	public static String getVisualObjectIdentifier(Segment segment)
+	{
+		return (segment.getName() != null && !segment.getName().equals("")) ? (segment.getName() + "_" + segment.getId()) : "vo" + segment.getId();
 	}
 }

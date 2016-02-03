@@ -148,7 +148,7 @@ public class ExtractVisualType
 		{
 			Variable variable = variablesFactory.createVariable();
 
-			ModelInterpreterUtils.initialiseNodeFromString(variable, getVisualObjectIdentifier(segment));
+			ModelInterpreterUtils.initialiseNodeFromString(variable, ModelInterpreterUtils.getVisualObjectIdentifier(segment));
 
 			// variable.setId(getVisualObjectIdentifier(segment.getId().toString()));
 			// variable.setName((segment.getName() != null && !segment.getName().equals(""))?segment.getName(): "compartment_" + segment.getId());
@@ -265,7 +265,7 @@ public class ExtractVisualType
 
 				for(Segment segment : segmentGroupSegMap.get(segmentGroup))
 				{
-					String segmentID = getVisualObjectIdentifier(segment);
+					String segmentID = ModelInterpreterUtils.getVisualObjectIdentifier(segment);
 					List<VisualGroupElement> groups;
 					// segment not in map, add with new list for groups
 					if(!segmentsMap.containsKey(segmentID))
@@ -301,7 +301,7 @@ public class ExtractVisualType
 		for (Segment segment : segmentGroupSegMap.get(sg)){
 			for(Variable g : allSegments)
 			{
-				if(g.getId().equals(getVisualObjectIdentifier(segment)))
+				if(g.getId().equals(ModelInterpreterUtils.getVisualObjectIdentifier(segment)))
 				{
 					geometries.add(g);
 				}
@@ -369,20 +369,6 @@ public class ExtractVisualType
 		point.setY(distal.getY());
 		point.setZ(distal.getZ());
 		return point;
-	}
-
-	/**
-	 * @param neuromlID
-	 * @return
-	 */
-	// private String getVisualObjectIdentifier(String neuromlID)
-	// {
-	// return "vo" + neuromlID;
-	// }
-
-	private String getVisualObjectIdentifier(Segment segment)
-	{
-		return (segment.getName() != null && !segment.getName().equals("")) ? (segment.getName() + "_" + segment.getId()) : "vo" + segment.getId();
 	}
 
 	public List<Variable> getVisualObjectsSegments()
