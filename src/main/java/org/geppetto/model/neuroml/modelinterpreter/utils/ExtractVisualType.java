@@ -85,11 +85,9 @@ public class ExtractVisualType
 	Map<String, List<VisualGroupElement>> segmentsMap = new HashMap<String, List<VisualGroupElement>>();
 	GeppettoModelAccess access;
 
-	// AQP Maybe we can initialise cellutils here and pass this variable to the create density class
-	CellUtils cellUtils;
-	
+	LinkedHashMap<SegmentGroup, List<Segment>> segmentGroupSegMap;
+
 	List<Variable> visualObjectsSegments;
-	
 
 	public ExtractVisualType(Component cellComponent, GeppettoModelAccess access) throws LEMSException, NeuroMLException
 	{
@@ -97,11 +95,14 @@ public class ExtractVisualType
 
 		this.cellComponent = cellComponent;
 		this.access = access;
-		
+
 		LinkedHashMap<String, Standalone> cellMap = Utils.convertLemsComponentToNeuroML(cellComponent);
 		this.cell = (Cell) cellMap.get(cellComponent.getID());
+		
 
-		cellUtils = new CellUtils(cell);
+		// AQP Maybe we can initialise cellutils here and pass this variable to the create density class
+		CellUtils cellUtils = new CellUtils(cell);
+		segmentGroupSegMap = cellUtils.getSegmentGroupsVsSegs();
 	}
 
 	public VisualType createTypeFromCellMorphology() throws GeppettoVisitingException, LEMSException, NeuroMLException, ModelInterpreterException
@@ -111,7 +112,7 @@ public class ExtractVisualType
 		visualCompositeType.getVisualGroups().add(createCellPartsVisualGroups());
 
 		visualObjectsSegments = getVisualObjectsFromListOfSegments();
-		
+
 		if(cell.getMorphology().getSegmentGroup().isEmpty())
 		{
 			visualCompositeType.getVariables().addAll(visualObjectsSegments);
@@ -146,9 +147,12 @@ public class ExtractVisualType
 		for(Segment segment : cell.getMorphology().getSegment())
 		{
 			Variable variable = variablesFactory.createVariable();
-			variable.setId(getVisualObjectIdentifier(segment.getId().toString()));
-			variable.setName((segment.getName() != null && !segment.getName().equals(""))?segment.getName(): "compartment_" + segment.getId());
-			
+
+			ModelInterpreterUtils.initialiseNodeFromString(variable, getVisualObjectIdentifier(segment));
+
+			// variable.setId(getVisualObjectIdentifier(segment.getId().toString()));
+			// variable.setName((segment.getName() != null && !segment.getName().equals(""))?segment.getName(): "compartment_" + segment.getId());
+
 			variable.getTypes().add(this.access.getType(TypesPackage.Literals.VISUAL_TYPE));
 
 			String idSegmentParent = null;
@@ -259,9 +263,9 @@ public class ExtractVisualType
 				}
 				cellParts.getVisualGroupElements().add(visualGroupElement);
 
-				for(Integer segmentId : cellUtils.getSegmentIdsInGroup(segmentGroup))
+				for(Segment segment : segmentGroupSegMap.get(segmentGroup))
 				{
-					String segmentID = getVisualObjectIdentifier(segmentId.toString());
+					String segmentID = getVisualObjectIdentifier(segment);
 					List<VisualGroupElement> groups;
 					// segment not in map, add with new list for groups
 					if(!segmentsMap.containsKey(segmentID))
@@ -293,16 +297,17 @@ public class ExtractVisualType
 	private List<Variable> getVisualObjectsForGroup(SegmentGroup sg, List<Variable> allSegments)
 	{
 		List<Variable> geometries = new ArrayList<Variable>();
-		for(Member m : sg.getMember())
-		{
+		
+		for (Segment segment : segmentGroupSegMap.get(sg)){
 			for(Variable g : allSegments)
 			{
-				if(g.getId().equals(getVisualObjectIdentifier(m.getSegment().toString())))
+				if(g.getId().equals(getVisualObjectIdentifier(segment)))
 				{
 					geometries.add(g);
 				}
 			}
 		}
+		
 		return geometries;
 	}
 
@@ -370,16 +375,19 @@ public class ExtractVisualType
 	 * @param neuromlID
 	 * @return
 	 */
-	private String getVisualObjectIdentifier(String neuromlID)
+	// private String getVisualObjectIdentifier(String neuromlID)
+	// {
+	// return "vo" + neuromlID;
+	// }
+
+	private String getVisualObjectIdentifier(Segment segment)
 	{
-		return "vo" + neuromlID;
+		return (segment.getName() != null && !segment.getName().equals("")) ? (segment.getName() + "_" + segment.getId()) : "vo" + segment.getId();
 	}
 
 	public List<Variable> getVisualObjectsSegments()
 	{
 		return visualObjectsSegments;
 	}
-	
-
 
 }

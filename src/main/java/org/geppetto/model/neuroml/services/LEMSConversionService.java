@@ -343,7 +343,7 @@ public class LEMSConversionService extends AConversion
 					}
 					else
 					{
-						
+
 						if(simulationTreePathType.equals("populationList"))
 						{
 							// FIXME AQP What to do with the different segments?
@@ -355,13 +355,14 @@ public class LEMSConversionService extends AConversion
 						}
 					}
 				}
-				else if (pointerElement.getType().getId().equals("compartment")){
-					lemsPath += "/" + pointerElement.getVariable().getId().substring("vo".length());
+				else if(pointerElement.getType().getId().equals("compartment"))
+				{
+					lemsPath += "/" + pointerElement.getVariable().getId().substring(pointerElement.getVariable().getId().lastIndexOf("_") + 1);
 				}
-				else{
+				else
+				{
 					lemsPath += "/" + pointerElement.getType().getId();
 				}
-				
 
 			}
 		}

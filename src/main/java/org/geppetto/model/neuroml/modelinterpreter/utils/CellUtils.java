@@ -133,6 +133,22 @@ public class CellUtils
 
 		return sgVsSegId;
 	}
+	
+	public LinkedHashMap<SegmentGroup, List<Segment>> getSegmentGroupsVsSegs() throws NeuroMLException
+	{
+
+		LinkedHashMap<SegmentGroup, List<Segment>> sgVsSegId = new LinkedHashMap<SegmentGroup, List<Segment>>();
+
+		LinkedHashMap<String, SegmentGroup> namesVsSegmentGroups = getNamesVsSegmentGroups();
+
+		for(SegmentGroup sg : cell.getMorphology().getSegmentGroup())
+		{
+			List<Segment> segsHere = getSegmentsInGroup(namesVsSegmentGroups, sg);
+			sgVsSegId.put(sg, segsHere);
+		}
+
+		return sgVsSegId;
+	}
 
 	public LinkedHashMap<String, SegmentGroup> getNamesVsSegmentGroups()
 	{
