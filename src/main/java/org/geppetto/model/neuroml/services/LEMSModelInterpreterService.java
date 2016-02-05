@@ -49,6 +49,7 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
+import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.util.GeppettoVisitingException;
@@ -72,6 +73,14 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 
 	@Autowired
 	private ModelInterpreterConfig jlemsModelInterpreterConfig;
+
+	public LEMSModelInterpreterService()
+	{
+		super();
+		
+		// Add LEMS Parameter Feature
+		this.addFeature(new LEMSParametersFeature());
+	}
 
 	@Override
 	public Type importType(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
