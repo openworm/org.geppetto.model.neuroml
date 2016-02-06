@@ -332,17 +332,12 @@ public class LEMSConversionService extends AConversion
 				if(component.getDeclaredType().equals("population"))
 				{
 
-					String populationSize = component.getStringValue("size");
+					//String populationSize = component.getStringValue("size");
 
 					component = component.getRefComponents().get("component");
 
 					// Create path for cells and network
-					if(Integer.parseInt(populationSize) == 1)
-					{
-						lemsPath += instancePath + "[0]";
-					}
-					else
-					{
+					
 
 						if(simulationTreePathType.equals("populationList"))
 						{
@@ -351,9 +346,16 @@ public class LEMSConversionService extends AConversion
 						}
 						else
 						{
-							lemsPath += instancePath + "[" + pointerElement.getIndex() + "]";
+//							if(Integer.parseInt(populationSize) == 1)
+//							{
+//								lemsPath += instancePath + "[0]";
+//							}
+//							else
+//							{
+								lemsPath += instancePath + "[" + pointerElement.getIndex() + "]";
+//							}
 						}
-					}
+					
 				}
 				else if(pointerElement.getType().getId().equals("compartment"))
 				{
