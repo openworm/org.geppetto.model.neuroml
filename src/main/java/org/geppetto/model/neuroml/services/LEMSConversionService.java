@@ -170,9 +170,6 @@ public class LEMSConversionService extends AConversion
 		try
 		{
 			// Create LEMS file with NML dependencies
-			// Lems lems = Utils.getLemsWithNML2CompTypes();
-
-			// Create LEMS file with NML dependencies
 			Lems lems = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems("<neuroml></neuroml>")).getLems();
 
 			// Read LEMS component to convert and add to the LEMS file
@@ -186,49 +183,64 @@ public class LEMSConversionService extends AConversion
 			File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId,
 					PathConfiguration.getName(output.getModelFormat() + PathConfiguration.downloadModelFolderName, true));
 
-			// FIXME: When we can convert models without targets this needs to be changed (currently the export library can only convert models with a target component)
-
 			// Extracting watch variables from aspect configuration
 			PrintWriter writer = new PrintWriter(outputFolder + "/outputMapping.dat");
 
 			if(aspectConfig != null)
 			{
 				// FIXME: Units in seconds
+				// FIXME: When we can convert models without targets this needs to be changed (currently the export library can only convert models with a target component)
 				Component simulationComponent = new Component("sim1", new ComponentType("Simulation"));
 				simulationComponent.addAttribute(new XMLAttribute("length", Float.toString(aspectConfig.getSimulatorConfiguration().getLength()) + "s"));
 				simulationComponent.addAttribute(new XMLAttribute("step", Float.toString(aspectConfig.getSimulatorConfiguration().getTimestep()) + "s"));
 				simulationComponent.addAttribute(new XMLAttribute("target", aspectConfig.getSimulatorConfiguration().getParameters().get("target")));
 
-				// Create output file component and add file to outputmapping file
-				Component outputFile = new Component("outputFile1", new ComponentType("OutputFile"));
-				outputFile.addAttribute(new XMLAttribute("fileName", "results/results.dat"));
-				writer.println("results/results.dat");
+				int fileIndex = 0;
+				int i = 0;
+				String variables = "";
+				Component outputFile = null;
 
-				// Add outputcolumn and variable to outputmapping file per watch variable
-				String variables = "time(StateVariable)";
 				if(aspectConfig.getWatchedVariables() != null)
 				{
 					for(IInstancePath watchedVariable : aspectConfig.getWatchedVariables())
 					{
+						if(i == 0)
+						{
+							if(fileIndex != 0)
+							{
+								// Add outputcolumn and variable to outputmapping file per watch variable
+								writer.println(variables);
+							}
+							variables = "time(StateVariable)";
+
+							// Create output file component and add file to outputmapping file
+							outputFile = new Component("outputFile" + fileIndex, new ComponentType("OutputFile"));
+							outputFile.addAttribute(new XMLAttribute("fileName", "results/results" + fileIndex + ".dat"));
+							simulationComponent.addComponent(outputFile);
+							writer.println("results/results" + fileIndex + ".dat");
+
+							i = 10;
+							fileIndex++;
+						}
+
 						String instancePath = watchedVariable.getInstancePath();
 
 						// Create output column component
 						Component outputColumn = new Component(instancePath.substring(instancePath.lastIndexOf(".") + 1).replace("(", "_").replace(")", ""), new ComponentType("OutputColumn"));
 
 						// Convert from Geppetto to LEMS Path
-						// outputColumn.addAttribute(new XMLAttribute("quantity", quantity));
-						// outputColumn.addAttribute(new XMLAttribute("quantity", "baskets_12/" + i + "/bask/0/v"));
 						outputColumn.addAttribute(new XMLAttribute("quantity", extractLEMSPath(component, modelAccess.getPointer(instancePath))));
 
 						// Add output column component to file
 						outputFile.addComponent(outputColumn);
 						variables += " " + watchedVariable.getInstancePath();
+						i--;
 					}
 				}
-				writer.println(variables);
 
 				// Add block to lems and process lems doc
-				simulationComponent.addComponent(outputFile);
+				writer.println(variables);
+
 				lems.addComponent(simulationComponent);
 				lems.setTargetComponent(simulationComponent);
 				ModelInterpreterUtils.processLems(lems);
@@ -331,31 +343,26 @@ public class LEMSConversionService extends AConversion
 
 				if(component.getDeclaredType().equals("population"))
 				{
-
-					//String populationSize = component.getStringValue("size");
-
+					// String populationSize = component.getStringValue("size");
 					component = component.getRefComponents().get("component");
 
 					// Create path for cells and network
-					
+					if(simulationTreePathType.equals("populationList"))
+					{
+						lemsPath += instancePath + "/" + pointerElement.getIndex() + "/" + component.getID();
+					}
+					else
+					{
+						// if(Integer.parseInt(populationSize) == 1)
+						// {
+						// lemsPath += instancePath + "[0]";
+						// }
+						// else
+						// {
+						lemsPath += instancePath + "[" + pointerElement.getIndex() + "]";
+						// }
+					}
 
-						if(simulationTreePathType.equals("populationList"))
-						{
-							// FIXME AQP What to do with the different segments?
-							lemsPath += instancePath + "/" + pointerElement.getIndex() + "/" + component.getID();
-						}
-						else
-						{
-//							if(Integer.parseInt(populationSize) == 1)
-//							{
-//								lemsPath += instancePath + "[0]";
-//							}
-//							else
-//							{
-								lemsPath += instancePath + "[" + pointerElement.getIndex() + "]";
-//							}
-						}
-					
 				}
 				else if(pointerElement.getType().getId().equals("compartment"))
 				{

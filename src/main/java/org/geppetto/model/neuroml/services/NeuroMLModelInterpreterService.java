@@ -102,6 +102,7 @@ import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroML2Validator;
 import org.neuroml.model.util.NeuroMLConverter;
+import org.neuroml.model.util.NeuroMLElements;
 import org.neuroml.model.util.NeuroMLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -158,16 +159,23 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		catch(NeuroMLException | LEMSException e)
 		{
 			NeuroML2Validator neuroML2Validator = new NeuroML2Validator();
-			neuroML2Validator.validateWithTests(reader.getNeuroMLDocument());
-			// AQP: Change to isValid once we update model.neuroml
-			if(neuroML2Validator.hasWarnings()
-					|| !(neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_SCHEMA) || 
-							neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_SCHEMA_AND_TESTS) ||
-							neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_TESTS))){
-				throw new ModelInterpreterException("Validity: " + neuroML2Validator.getValidity() + " Warnings: " + neuroML2Validator.getWarnings());
+			try
+			{
+				neuroML2Validator.validateWithTests(reader.getNeuroMLDocument());
+				// AQP: Change to isValid once we update model.neuroml
+				if(neuroML2Validator.hasWarnings()
+						|| !(neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_SCHEMA) || 
+								neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_SCHEMA_AND_TESTS) ||
+								neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_TESTS))){
+					throw new ModelInterpreterException("Validity: " + neuroML2Validator.getValidity() + " Warnings: " + neuroML2Validator.getWarnings());
+				}
+				else{
+					throw new ModelInterpreterException(e);
+				}
 			}
-			else{
-				throw new ModelInterpreterException(e);
+			catch(NeuroMLException e1)
+			{
+				throw new ModelInterpreterException(e1);
 			}
 		}
 
@@ -512,18 +520,19 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				for(Map.Entry<String, Component> rdfDescriptionChild : rdfDescription.getChildHM().entrySet())
 				{
 					// AQP: we can't access the information in here. Schema needs to change so that rdf:li are children instead of child
-					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChild("rdf:li").getAbout();
-					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChild("rdf:li").getTextParam("rdf:resource");
-
-					Text text = valuesFactory.createText();
-					// AQP: we need to conver from this to a readable label
-					text.setText(rdfDescriptionChild.getKey());
-
-					Variable variable = variablesFactory.createVariable();
-					ModelInterpreterUtils.initialiseNodeFromString(variable, rdfDescriptionChild.getKey());
-					variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
-					variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
-					annotationType.getVariables().add(variable);
+					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChildHM();
+//					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChild("rdf:li").getAbout();
+//					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChild("rdf:li").getTextParam("rdf:resource");
+//
+//					Text text = valuesFactory.createText();
+//					// AQP: we need to conver from this to a readable label
+//					text.setText(rdfDescriptionChild.getKey());
+//
+//					Variable variable = variablesFactory.createVariable();
+//					ModelInterpreterUtils.initialiseNodeFromString(variable, rdfDescriptionChild.getKey());
+//					variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
+//					variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+//					annotationType.getVariables().add(variable);
 				}
 			}
 		}
@@ -801,34 +810,34 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				if(format.equals(ServicesRegistry.getModelFormat("LEMS")))
 				{
 					// Serialise LEMS object
-					serialisedModel = XMLSerializer.serialize((Component) domainModel.getDomainModel());
+					XMLSerializer xmlSer = new XMLSerializer(true);
+					String compString = xmlSer.writeObject((Component) domainModel.getDomainModel());
+					serialisedModel = "<lems>" + compString + "</lems>";
 					outputFile += ".xml";
 				}
 				else
 				{
+					
 					// Convert to NeuroML
-					LinkedHashMap<String, Standalone> neuroMLComponent = Utils.convertLemsComponentToNeuroML((Component) domainModel.getDomainModel());
-					NeuroMLDocument neuroMLDoc = new NeuroMLDocument();
-					for(Standalone standalone : neuroMLComponent.values())
-					{
-						NeuroMLConverter.addElementToDocument(neuroMLDoc, standalone);
-					}
+					XMLSerializer xmlSer = new XMLSerializer(true);
+					String compString = xmlSer.writeObject((Component) domainModel.getDomainModel());
 
-					// Serialise NEUROML object
-					NeuroMLConverter neuroMLConverter = new NeuroMLConverter();
-					serialisedModel = neuroMLConverter.neuroml2ToXml(neuroMLDoc);
+					serialisedModel = "<neuroml xmlns=\"http://www.neuroml.org/schema/neuroml2\"\n" + "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+							+ "      xsi:schemaLocation=\"http://www.neuroml.org/schema/neuroml2 " + NeuroMLElements.LATEST_SCHEMA_LOCATION + "\">" + compString + "</neuroml>";
+					
+
 					// Change extension to nml
 					outputFile += ".nml";
 				}
 
 				// Write to disc
-				PrintWriter writer = new PrintWriter(outputFolder + outputFile);
+				PrintWriter writer = new PrintWriter(outputFolder + "/" + outputFile);
 				writer.print(serialisedModel);
 				writer.close();
 				return outputFolder;
 
 			}
-			catch(IOException | LEMSException | NeuroMLException e)
+			catch(IOException | LEMSException e)
 			{
 				throw new ModelInterpreterException(e);
 			}
