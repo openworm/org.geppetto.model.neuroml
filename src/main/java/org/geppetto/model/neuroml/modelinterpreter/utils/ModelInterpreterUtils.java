@@ -84,6 +84,8 @@ public class ModelInterpreterUtils
 			variable.getInitialValues().put(access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
 			initialiseNodeFromString(variable, id);
 			variable.getTypes().add(access.getType(TypesPackage.Literals.PARAMETER_TYPE));
+			variable.setStatic(true);
+			
 			return variable;
 		}
 		return null;
