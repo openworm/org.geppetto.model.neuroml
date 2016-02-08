@@ -58,6 +58,7 @@ import org.geppetto.model.values.HTML;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
+import org.lemsml.jlems.core.type.Component;
 import org.neuroml.export.info.InfoTreeCreator;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
@@ -121,7 +122,6 @@ public class PopulateSummaryNodesModelTreeUtils
 		StringBuilder modelDescription = new StringBuilder();
 		//modelDescription.append("<b>Model Summary</b><br/>");
 
-		// // FIXME: We need to extract the main component (target component) and extract the description from it in order to do this feature generic. This will wait until the instance/type refactor
 		// // FIXME: We need to add something about how beautiful the network is and so on
 		if(networkComponents != null && networkComponents.size() > 0)
 		{
@@ -131,7 +131,7 @@ public class PopulateSummaryNodesModelTreeUtils
 				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + network.getId() + "\">" + network.getName() + "</a> ");
 			}
 		}
-		modelDescription.append("<br/><a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/><br/>");
+		modelDescription.append("<br/><br/><a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/><br/>");
 
 		// FIXME: We should improve this once the instance/type refactor is done as we need the cell type
 		if(populationComponents != null && populationComponents.size() > 0)
@@ -139,9 +139,9 @@ public class PopulateSummaryNodesModelTreeUtils
 			modelDescription.append("<b>Populations</b><br/>");
 			for(Type population : populationComponents)
 			{
-				modelDescription.append("Population " + population.getId() + ": ");
+				modelDescription.append("Population " + population.getName() + ": ");
 				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ((ArrayType) population).getArrayType().getId() + "\">" + ((ArrayType) population).getSize() + " "
-						+ ((ArrayType) population).getArrayType().getId() + "</a><br/>");
+						+ ((ArrayType) population).getArrayType().getName() + "</a><br/>");
 			}
 			modelDescription.append("<br/>");
 		}
@@ -153,7 +153,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			{
 				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">" + cell.getName() + "</a> ");
 			}
-			modelDescription.append("<br/>");
+			modelDescription.append("<br/><br/>");
 		}
 
 		if(ionChannelComponents != null && ionChannelComponents.size() > 0)
@@ -163,7 +163,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			{
 				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
 			}
-			modelDescription.append("<br/>");
+			modelDescription.append("<br/><br/>");
 		}
 
 		if(synapseComponents != null && synapseComponents.size() > 0)
@@ -173,7 +173,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			{
 				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
 			}
-			modelDescription.append("<br/>");
+			modelDescription.append("<br/><br/>");
 		}
 
 		if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
