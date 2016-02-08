@@ -196,7 +196,15 @@ public enum Resources
 	CELL_REGIONS("Cell Regions", "cellRegions"),
 	SOMA("Soma", "soma_group"),
 	AXONS("Axons", "axon_group"),
-	DENDRITES("Dendrites", "dendrite_group");
+	DENDRITES("Dendrites", "dendrite_group"),
+	
+	
+	BIO_RESOURCE("Resource", "rdf:resource"),
+	BIO_DESCRIBED("Description", "bqmodel:isDescribedBy"),
+	BIO_Version("Version", "bqbiol:isVersionOf"),
+	;
+	
+	
 	
 	private String _value;
 	private String _id;
