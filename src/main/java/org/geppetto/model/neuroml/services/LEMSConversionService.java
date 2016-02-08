@@ -140,7 +140,7 @@ public class LEMSConversionService extends AConversion
 			// Read LEMS component to convert and add to the LEMS file
 			Lems lems = new Lems();
 			lems.addComponent((Component) model.getDomainModel());
-			ModelInterpreterUtils.processLems(lems);
+			lems.resolve();
 
 			// Get supported outputs and add them to the model formats list
 			for(Format format : SupportedFormats.getSupportedOutputs(lems))
@@ -175,9 +175,6 @@ public class LEMSConversionService extends AConversion
 			// Read LEMS component to convert and add to the LEMS file
 			Component component = (Component) model.getDomainModel();
 			lems.addComponent(component);
-
-			// Process LEMS
-			ModelInterpreterUtils.processLems(lems);
 
 			// Create Folder
 			File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId,
@@ -243,7 +240,9 @@ public class LEMSConversionService extends AConversion
 
 				lems.addComponent(simulationComponent);
 				lems.setTargetComponent(simulationComponent);
-				ModelInterpreterUtils.processLems(lems);
+
+				// Process LEMS
+				lems.resolve();
 
 			}
 

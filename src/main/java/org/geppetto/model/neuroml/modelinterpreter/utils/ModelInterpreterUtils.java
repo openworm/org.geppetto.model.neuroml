@@ -126,14 +126,6 @@ public class ModelInterpreterUtils
 		node.setId(parseId(attributesName));
 	}
 
-	public static void processLems(Lems lems) throws ContentError, ParseError
-	{
-		lems.setResolveModeLoose();
-		lems.deduplicate();
-		lems.resolve();
-		lems.evaluateStatic();
-	}
-	
 	/**
 	 * @param neuromlID
 	 * @return

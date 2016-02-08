@@ -195,7 +195,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		Lems lems = ((Lems) lemsDocument);
 		try
 		{
-			ModelInterpreterUtils.processLems(lems);
+			lems.resolve();
 		}
 		catch(NumberFormatException | LEMSException e)
 		{
