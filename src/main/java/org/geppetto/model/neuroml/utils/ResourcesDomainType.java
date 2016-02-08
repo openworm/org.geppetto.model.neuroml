@@ -68,7 +68,7 @@ public enum ResourcesDomainType
 	
 	public static ResourcesDomainType getValueByValue(String value){
 		for(ResourcesDomainType e : ResourcesDomainType.values()){
-            if(value == e._value) return e;
+            if(value.equals(e._value)) return e;
         }
 		//If we can't find a value, return the id
 		return null;

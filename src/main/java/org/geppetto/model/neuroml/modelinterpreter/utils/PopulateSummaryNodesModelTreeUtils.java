@@ -119,7 +119,7 @@ public class PopulateSummaryNodesModelTreeUtils
 		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR) : null;
 
 		StringBuilder modelDescription = new StringBuilder();
-		modelDescription.append("<b>Model Summary</b><br/>");
+		//modelDescription.append("<b>Model Summary</b><br/>");
 
 		// // FIXME: We need to extract the main component (target component) and extract the description from it in order to do this feature generic. This will wait until the instance/type refactor
 		// // FIXME: We need to add something about how beautiful the network is and so on
@@ -128,10 +128,10 @@ public class PopulateSummaryNodesModelTreeUtils
 			modelDescription.append("Description: ");
 			for(Type network : networkComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + network.getId() + "$\">" + network.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + network.getId() + "\">" + network.getName() + "</a> ");
 			}
 		}
-		modelDescription.append("<br/><a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/>");
+		modelDescription.append("<br/><a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/><br/>");
 
 		// FIXME: We should improve this once the instance/type refactor is done as we need the cell type
 		if(populationComponents != null && populationComponents.size() > 0)
@@ -140,7 +140,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			for(Type population : populationComponents)
 			{
 				modelDescription.append("Population " + population.getId() + ": ");
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + ((ArrayType) population).getArrayType().getId() + "$\">" + ((ArrayType) population).getSize() + " "
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ((ArrayType) population).getArrayType().getId() + "\">" + ((ArrayType) population).getSize() + " "
 						+ ((ArrayType) population).getArrayType().getId() + "</a><br/>");
 			}
 			modelDescription.append("<br/>");
@@ -151,7 +151,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			modelDescription.append("<b>Cells</b><br/>");
 			for(Type cell : cellComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + cell.getId() + "$\">" + cell.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">" + cell.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
 		}
@@ -161,7 +161,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			modelDescription.append("<b>Channels</b><br/>");
 			for(Type ionChannel : ionChannelComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + ionChannel.getId() + "$\">" + ionChannel.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
 		}
@@ -171,7 +171,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			modelDescription.append("<b>Synapses</b><br/>");
 			for(Type synapse : synapseComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + synapse.getId() + "$\">" + synapse.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
 		}
@@ -182,7 +182,7 @@ public class PopulateSummaryNodesModelTreeUtils
 			modelDescription.append("<b>Inputs</b><br/>");
 			for(Type pulseGenerator : pulseGeneratorComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"$" + pulseGenerator.getId() + "$\">" + pulseGenerator.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
 		}

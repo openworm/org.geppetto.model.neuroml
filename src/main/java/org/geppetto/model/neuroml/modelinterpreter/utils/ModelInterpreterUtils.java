@@ -35,7 +35,11 @@ public class ModelInterpreterUtils
 
 	public static String parseId(String id)
 	{
-		return id.replaceAll(forbiddenCharacters, "_");
+		String scapedId = id.replaceAll(forbiddenCharacters, "_");
+		if (Character.isDigit(scapedId.charAt(0))){
+			scapedId = "id" + scapedId;
+		}
+		return scapedId;
 	}
 
 	// For example, ../Pop0[0] returns 0; ../Gran/0/Granule_98 returns 0; Gran/1/Granule_98 returns 1
@@ -117,7 +121,7 @@ public class ModelInterpreterUtils
 			((Type) node).setDomainModel(domainModel);
 		}
 		node.setName(Resources.getValueById(component.getDeclaredType()) + ((component.getID() != null) ? " - " + parseId(component.getID()) : ""));
-		node.setId((component.getID() != null) ? component.getID() : component.getDeclaredType());
+		node.setId(parseId((component.getID() != null) ? component.getID() : component.getDeclaredType()));
 	}
 
 	public static void initialiseNodeFromString(Node node, String attributesName)

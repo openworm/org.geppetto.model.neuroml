@@ -276,7 +276,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private Type getCompositeType(String domainName)
 	{
 		// return a regular compositeType if no domain
-		if(domainName == null)
+		if(domainName == null || ResourcesDomainType.getValueByValue(domainName) == null)
 		{
 			return typeFactory.createCompositeType();
 		}
@@ -322,7 +322,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			ModelInterpreterException
 	{
 		// Create composite type depending on type of component and initialise it
-		CompositeType compositeType = (CompositeType) getCompositeType((domainType != null) ? domainType : null);
+		CompositeType compositeType = (CompositeType) getCompositeType((domainType != null) ? domainType : component.getDeclaredType());
 		ModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
 
 		List<String> attributes = new ArrayList<String>();
