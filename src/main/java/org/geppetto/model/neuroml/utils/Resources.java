@@ -201,8 +201,21 @@ public enum Resources
 	
 	BIO_RESOURCE("Resource", "rdf:resource"),
 	BIO_DESCRIBED("Description", "bqmodel:isDescribedBy"),
-	BIO_Version("Version", "bqbiol:isVersionOf"),
-	;
+	BIO_DESCRIBED_2("Description", "bqbiol:isDescribedBy"),
+	BIO_VERSION("Version", "bqbiol:isVersionOf"),
+	BIO_ENDOCE("Encodes", "bqbiol:encodes"),
+	BIO_PART("Has Part", "bqbiol:hasPart"),
+	BIO_HAS_PROPERTY("Has Property", "bqbiol:hasProperty"),
+	BIO_HAS_VERSION("Has Version", "bqbiol:hasVersion"),
+	BIO_IS("Is", "bqbiol:is"),
+	BIO_IS_2("Is", "bqmodel:is"),
+	BIO_ENCODED("Encoded by", "bqbiol:isEncodedBy"),
+	BIO_HOMOLOG("Homolog to", "bqbiol:isHomologTo"),
+	BIO_PART_OF("Part of", "bqbiol:isPartOf"),
+	BIO_PROPERTY_OF("Property of", "bqbiol:isPropertyOf"),
+	BIO_OCCURS_IN("Occurs in", "bqbiol:occursIn"),
+	BIO_HAS_TAXON("Has taxon", "bqbiol:hasTaxon"),
+	BIO_DERIVED_FROM("Derived from", "bqmodel:isDerivedFrom");
 	
 	
 	
