@@ -504,35 +504,37 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			else
 			{
 				Component rdf = entry.getValue();
-				if(rdf.hasTextParam("xmlns:rdf"))
-				{
-					Text text = valuesFactory.createText();
-					text.setText(rdf.getTextParam("xmlns:rdf"));
-
-					Variable variable = variablesFactory.createVariable();
-					ModelInterpreterUtils.initialiseNodeFromString(variable, "rdf");
-					variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
-					variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
-					annotationType.getVariables().add(variable);
-				}
+//				if(rdf.hasTextParam("xmlns:rdf"))
+//				{
+//					Text text = valuesFactory.createText();
+//					text.setText(rdf.getTextParam("xmlns:rdf"));
+//
+//					Variable variable = variablesFactory.createVariable();
+//					ModelInterpreterUtils.initialiseNodeFromString(variable, "rdf");
+//					variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
+//					variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+//					annotationType.getVariables().add(variable);
+//				}
 
 				Component rdfDescription = rdf.getChild("rdf:Description");
 				for(Map.Entry<String, Component> rdfDescriptionChild : rdfDescription.getChildHM().entrySet())
 				{
-					// AQP: we can't access the information in here. Schema needs to change so that rdf:li are children instead of child
-					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChildHM();
-//					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChild("rdf:li").getAbout();
-//					rdfDescriptionChild.getValue().getChild("rdf:Bag").getChild("rdf:li").getTextParam("rdf:resource");
-//
-//					Text text = valuesFactory.createText();
-//					// AQP: we need to conver from this to a readable label
-//					text.setText(rdfDescriptionChild.getKey());
-//
-//					Variable variable = variablesFactory.createVariable();
-//					ModelInterpreterUtils.initialiseNodeFromString(variable, rdfDescriptionChild.getKey());
-//					variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
-//					variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
-//					annotationType.getVariables().add(variable);
+					CompositeType annotationTypeChild = typeFactory.createCompositeType();
+					ModelInterpreterUtils.initialiseNodeFromString(annotationType, rdfDescriptionChild.getKey());
+					
+					Variable variable = variablesFactory.createVariable();
+					ModelInterpreterUtils.initialiseNodeFromString(variable, rdfDescriptionChild.getKey());
+					variable.getAnonymousTypes().add(annotationTypeChild);
+					annotationType.getVariables().add(variable);
+							
+					for (Component singleChildren : rdfDescriptionChild.getValue().getChild("rdf:Bag").getStrictChildren()){
+						for (Attribute attr: singleChildren.getAttributes()){
+							annotationTypeChild.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(attr.getName(), attr.getValue(), access));
+						}
+						if (!singleChildren.getAbout().equals(""))
+							annotationTypeChild.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(rdfDescriptionChild.getKey(), singleChildren.getAbout(), access));
+						
+					}
 				}
 			}
 		}
