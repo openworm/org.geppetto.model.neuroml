@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.neuroml.utils.Resources;
@@ -75,6 +77,7 @@ import org.neuroml.model.util.NeuroMLException;
 
 public class PopulateSummaryNodesModelTreeUtils
 {
+	private static Log logger = LogFactory.getLog(PopulateSummaryNodesModelTreeUtils.class);
 
 	TypesFactory typeFactory = TypesFactory.eINSTANCE;
 	VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
@@ -102,9 +105,15 @@ public class PopulateSummaryNodesModelTreeUtils
 		// Summary
 		Variable summaryVariable = variablesFactory.createVariable();
 		ModelInterpreterUtils.initialiseNodeFromString(summaryVariable, "Summary");
-		summaryVariable.getAnonymousTypes().add(createInfoNode(InfoTreeCreator.createInfoTree(neuroml), "Summary"));
+		long start = System.currentTimeMillis();
+		InfoNode info = InfoTreeCreator.createInfoTree(neuroml);
+		logger.info("Creating the NeuroML summary using the export library took: " + (System.currentTimeMillis() - start) + "ms");
+		start = System.currentTimeMillis();
+		CompositeType compositeInfo = createInfoNode(info, "Summary");
+		summaryVariable.getAnonymousTypes().add(compositeInfo);
 		summaryVariables.add(summaryVariable);
-
+		logger.info("Converting the NeuroML summary to the Geppetto model took: " + (System.currentTimeMillis() - start) + "ms");
+		
 		return summaryVariables;
 	}
 
@@ -119,7 +128,7 @@ public class PopulateSummaryNodesModelTreeUtils
 		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR) : null;
 
 		StringBuilder modelDescription = new StringBuilder();
-		//modelDescription.append("<b>Model Summary</b><br/>");
+		// modelDescription.append("<b>Model Summary</b><br/>");
 
 		// // FIXME: We need to extract the main component (target component) and extract the description from it in order to do this feature generic. This will wait until the instance/type refactor
 		// // FIXME: We need to add something about how beautiful the network is and so on
@@ -265,7 +274,7 @@ public class PopulateSummaryNodesModelTreeUtils
 				}
 				else if(valueProperties instanceof InfoNode)
 				{
-					//This shouldn't happen but sometimes export library returns a node with no children inside
+					// This shouldn't happen but sometimes export library returns a node with no children inside
 					if(((InfoNode) valueProperties).getProperties().size() > 0)
 					{
 						Variable variable = variablesFactory.createVariable();
