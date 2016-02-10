@@ -548,15 +548,14 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component morphology) throws GeppettoVisitingException, LEMSException, NeuroMLException,
 			ModelInterpreterException
 	{
-		if(!types.containsKey(morphology.getID()))
+		if(!types.containsKey(morphology.getParent().getID() + "_" + morphology.getID()))
 		{
 			ExtractVisualType extractVisualType = new ExtractVisualType(component, access);
-			types.put(morphology.getID(), extractVisualType.createTypeFromCellMorphology());
+			types.put(morphology.getParent().getID() + "_" + morphology.getID(), extractVisualType.createTypeFromCellMorphology());
 
 			cellSegmentMap.put(component, extractVisualType.getVisualObjectsSegments());
 		}
-
-		compositeType.setVisualType((VisualType) types.get(morphology.getID()));
+		compositeType.setVisualType((VisualType) types.get(morphology.getParent().getID() + "_" + morphology.getID()));
 	}
 
 	public void createConnectionTypeVariablesFromProjection(Component projection, CompositeType compositeType) throws GeppettoVisitingException, LEMSException, NeuroMLException,
