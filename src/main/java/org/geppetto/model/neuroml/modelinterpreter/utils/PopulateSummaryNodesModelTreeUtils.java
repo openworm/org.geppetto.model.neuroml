@@ -103,17 +103,17 @@ public class PopulateSummaryNodesModelTreeUtils
 		// Summary2
 		summaryVariables.add(createDescriptionNode());
 
-		// Summary
-		Variable summaryVariable = variablesFactory.createVariable();
-		ModelInterpreterUtils.initialiseNodeFromString(summaryVariable, "Summary");
-		long start = System.currentTimeMillis();
-		InfoNode info = InfoTreeCreator.createInfoTree(neuroml);
-		logger.info("Creating the NeuroML summary using the export library took: " + (System.currentTimeMillis() - start) + "ms");
-		start = System.currentTimeMillis();
-		CompositeType compositeInfo = createInfoNode(info, "Summary");
-		summaryVariable.getAnonymousTypes().add(compositeInfo);
-		summaryVariables.add(summaryVariable);
-		logger.info("Converting the NeuroML summary to the Geppetto model took: " + (System.currentTimeMillis() - start) + "ms");
+//		// Summary
+//		Variable summaryVariable = variablesFactory.createVariable();
+//		ModelInterpreterUtils.initialiseNodeFromString(summaryVariable, "Summary");
+//		long start = System.currentTimeMillis();
+//		InfoNode info = InfoTreeCreator.createInfoTree(neuroml);
+//		logger.info("Creating the NeuroML summary using the export library took: " + (System.currentTimeMillis() - start) + "ms");
+//		start = System.currentTimeMillis();
+//		CompositeType compositeInfo = createInfoNode(info, "Summary");
+//		summaryVariable.getAnonymousTypes().add(compositeInfo);
+//		summaryVariables.add(summaryVariable);
+//		logger.info("Converting the NeuroML summary to the Geppetto model took: " + (System.currentTimeMillis() - start) + "ms");
 		
 		return summaryVariables;
 	}
