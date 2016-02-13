@@ -45,14 +45,12 @@ import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.conversion.AConversion;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
-import org.geppetto.core.data.model.IInstancePath;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.ModelFormat;
-import org.geppetto.model.neuroml.modelinterpreter.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.ModelFormatMapping;
 import org.geppetto.model.util.GeppettoModelException;
 import org.geppetto.model.values.Pointer;
@@ -199,7 +197,7 @@ public class LEMSConversionService extends AConversion
 
 				if(aspectConfig.getWatchedVariables() != null)
 				{
-					for(IInstancePath watchedVariable : aspectConfig.getWatchedVariables())
+					for(String watchedVariable : aspectConfig.getWatchedVariables())
 					{
 						if(i == 0)
 						{
@@ -219,18 +217,15 @@ public class LEMSConversionService extends AConversion
 							i = 10;
 							fileIndex++;
 						}
-
-						String instancePath = watchedVariable.getInstancePath();
-
 						// Create output column component
-						Component outputColumn = new Component(instancePath.substring(instancePath.lastIndexOf(".") + 1).replace("(", "_").replace(")", ""), new ComponentType("OutputColumn"));
+						Component outputColumn = new Component(watchedVariable.substring(watchedVariable.lastIndexOf(".") + 1).replace("(", "_").replace(")", ""), new ComponentType("OutputColumn"));
 
 						// Convert from Geppetto to LEMS Path
-						outputColumn.addAttribute(new XMLAttribute("quantity", extractLEMSPath(component, modelAccess.getPointer(instancePath))));
+						outputColumn.addAttribute(new XMLAttribute("quantity", extractLEMSPath(component, modelAccess.getPointer(watchedVariable))));
 
 						// Add output column component to file
 						outputFile.addComponent(outputColumn);
-						variables += " " + watchedVariable.getInstancePath();
+						variables += " " + watchedVariable;
 						i--;
 					}
 				}
