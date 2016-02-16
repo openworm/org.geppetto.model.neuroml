@@ -39,36 +39,37 @@ package org.geppetto.model.neuroml.utils;
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  *
  */
-public enum ResourcesDomainType
+public enum ResourcesSummary
 {
 	
-	SYNAPSE("synapse"),
-	PREFRACTIONALONG("preFractionAlong"),
-	POSTFRACTIONALONG("postFractionAlong"),
-	IONCHANNEL("ionChannel"),
-	PULSEGENERATOR("pulseGenerator"),
-	POPULATION("population"),
-	PROJECTION("projection"),
-	CONNECTION("connection"),
-	NETWORK("network"),
-	CELL("cell");
+	FORWARD_RATE ("forwardRate", "forward rate"),
+	REVERSE_RATE ("reverseRate", "reverse rate"),
+	STEADY_STATE("steadyState", "steady state"),
+	TIME_CONSTANT("timeConstant", "time constant");
 	
 	
-	private String _value;
+	private String _neuromlId;
+	private String _summaryId;
 	
-	private ResourcesDomainType(String value)
+	private ResourcesSummary(String neuromlId, String summaryId)
 	{
-		_value = value;
+		_neuromlId = neuromlId;
+		_summaryId = summaryId;
 	}
 	
-	public String get()
+	public String getNeuromlId()
 	{
-		return _value;
+		return _neuromlId;
 	}
 	
-	public static ResourcesDomainType getValueByValue(String value){
-		for(ResourcesDomainType e : ResourcesDomainType.values()){
-            if(value.equals(e._value)) return e;
+	public String getSummaryId()
+	{
+		return _summaryId;
+	}
+	
+	public static ResourcesSummary getValueByValue(String value){
+		for(ResourcesSummary e : ResourcesSummary.values()){
+            if(value.trim().equals(e._summaryId)) return e;
         }
 		//If we can't find a value, return the id
 		return null;

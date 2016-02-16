@@ -5,7 +5,7 @@
 	<groupId>org.geppetto</groupId>
 	<artifactId>model.neuroml</artifactId>
 	<name>Geppetto NeuroML Model bundle</name>
-	<version>0.2.7</version>
+	<version>0.2.8</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<spring.version>3.1.3.RELEASE</spring.version>
@@ -31,22 +31,22 @@
 		<dependency>
 			<groupId>org.neuroml.model</groupId>
 			<artifactId>org.neuroml.model</artifactId>
-			<version>1.4.2</version>
+			<version>1.4.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
-			<version>1.4.2</version>
+			<version>1.4.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.lemsml</groupId>
 			<artifactId>jlems</artifactId>
-			<version>0.9.7.3</version>
+			<version>0.9.8.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geppetto</groupId>
 			<artifactId>core</artifactId>
-			<version>${version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
@@ -87,8 +87,13 @@
 		<dependency>
 			<groupId>org.junit</groupId>
 			<artifactId>com.springsource.org.junit</artifactId>
-			<version>4.5.0</version>
+			<version>4.7.0</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -172,7 +177,7 @@
 						</Include-Resource>
 						<Import-Package>
 							org.apache.velocity.app,org.apache.velocity.runtime.log,
-							com.sun.xml.bind.v2.model.core,org.geppetto.core.scope,org.aopalliance.aop,org.springframework.aop,,org.springframework.aop.scope,org.springframework.aop.framework,*
+							com.sun.xml.bind.v2.model.core,org.aopalliance.aop,org.springframework.aop,,org.springframework.aop.scope,org.springframework.aop.framework,*
 						</Import-Package>
 					</instructions>
 				</configuration>
