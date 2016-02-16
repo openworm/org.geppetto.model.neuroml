@@ -370,8 +370,6 @@ public class LEMSConversionService extends AConversion
 			}
 		}
 
-		System.out.println("lemsPath");
-		System.out.println(lemsPath);
 		return lemsPath;
 	}
 

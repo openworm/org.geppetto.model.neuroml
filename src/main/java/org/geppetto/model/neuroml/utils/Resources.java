@@ -71,6 +71,7 @@ public enum Resources
 	DURATION("Duration", "duration"),
 	ANOTATION("Anotation", "anotation"),
 	FW_RATE("Forward Rate", "forwardRate"),
+	RW_RATE("Reverse Rate", "reverseRate"),
 	FW_RATE_FN("Forward Rate Dynamics", "forwardRateDynamics"),
 	BW_RATE("Backward Rate", "backwardRate"),
 	BW_RATE_FN("Backward Rate Dynamics", "backwardRateDynamics"),

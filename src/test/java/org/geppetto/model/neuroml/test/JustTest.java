@@ -60,6 +60,8 @@ import org.geppetto.model.types.Type;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.lemsml.jlems.core.type.Component;
+import org.lemsml.jlems.io.xmlio.XMLSerializer;
 
 /**
  * @author matteocantarelli & friends
@@ -118,28 +120,21 @@ public class JustTest
 		_logger.info("Serialising " + (endTime - startTime) + " milliseconds for url " + url + " and  typename " + typeName);
 	}
 
-	@Test
-	public void testAcnet() throws Exception
-	{
-		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2.xmi", "network_ACnet2", true, new NeuroMLModelInterpreterService());
-		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2NoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
-	}
-
 //	@Test
-//	public void testPurkinje() throws Exception
+//	public void testAcnet() throws Exception
 //	{
-//		serialise("/purkinje/purk.nml", "./src/test/resources/purkinje.xmi", "purk2", true, new NeuroMLModelInterpreterService());
-//		serialise("/purkinje/purk.nml", "./src/test/resources/purkinjeNotarget.xmi", null, true, new NeuroMLModelInterpreterService());
+//		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2.xmi", "network_ACnet2", true, new NeuroMLModelInterpreterService());
+//		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2NoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
 //	}
-
-	@Test
-	public void testBask() throws Exception
-	{
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.xmi", "bask", true, new NeuroMLModelInterpreterService());
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskNoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
-		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.json", "bask", true, new NeuroMLModelInterpreterService());
-	}
-
+//
+//	@Test
+//	public void testBask() throws Exception
+//	{
+//		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.xmi", "bask", true, new NeuroMLModelInterpreterService());
+//		serialise("/acnet2/bask.cell.nml", "./src/test/resources/baskNoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
+//		serialise("/acnet2/bask.cell.nml", "./src/test/resources/bask.json", "bask", true, new NeuroMLModelInterpreterService());
+//	}
+//
 //	@Test
 //	public void testHHCell() throws Exception
 //	{
@@ -168,20 +163,21 @@ public class JustTest
 //		serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/Muscle.xmi", "net1", true, new LEMSModelInterpreterService());
 //		serialise("/muscle/LEMS_NeuronMuscle.xml", "./src/test/resources/MuscleNoTarget.xmi", null, true, new LEMSModelInterpreterService());
 //	}
-	
+//	
 //	@Test
 //	public void testDipde() throws Exception
 //	{
 //		serialise("/dipde/dipde.nml", "./src/test/resources/dipde.xmi", "c302_A", true, new NeuroMLModelInterpreterService());
 //		serialise("/dipde/dipde.nml", "./src/test/resources/dipdeNoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
 //	}
-
-	@Test
-	public void testCA1() throws Exception
-	{
-		serialise("/ca1/BigCA1.net.nml", "./src/test/resources/ca1.xmi", "CA1", true, new NeuroMLModelInterpreterService());
-		serialise("/ca1/BigCA1.net.nml", "./src/test/resources/ca1NoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
-	}
+//
+//	@Test
+//	public void testCA1() throws Exception
+//	{
+//		serialise("/ca1/BigCA1.net.nml", "./src/test/resources/ca1.xmi", "CA1", true, new NeuroMLModelInterpreterService());
+//		serialise("/ca1/BigCA1.net.nml", "./src/test/resources/ca1NoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
+//	}
+	
 	@AfterClass
 	public static void doYourOneTimeTeardown()
 	{
