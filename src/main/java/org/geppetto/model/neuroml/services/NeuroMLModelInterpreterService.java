@@ -164,12 +164,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				neuroML2Validator.validateWithTests(reader.getNeuroMLDocument());
 				// AQP: Change to isValid once we update model.neuroml
 				if(neuroML2Validator.hasWarnings()
-						|| !(neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_SCHEMA) || 
-								neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_SCHEMA_AND_TESTS) ||
-								neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_TESTS))){
+						|| !(neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_SCHEMA) || neuroML2Validator.getValidity().equals(NeuroML2Validator.VALID_AGAINST_SCHEMA_AND_TESTS) || neuroML2Validator
+								.getValidity().equals(NeuroML2Validator.VALID_AGAINST_TESTS)))
+				{
 					throw new ModelInterpreterException("Validity: " + neuroML2Validator.getValidity() + " Warnings: " + neuroML2Validator.getWarnings());
 				}
-				else{
+				else
+				{
 					throw new ModelInterpreterException(e);
 				}
 			}
@@ -217,9 +218,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			boolean multipleTypes = false;
 			for(Component component : lems.getComponents())
 			{
-				if(!types.containsKey(component.getID()))
+				if(!types.containsKey(component.getID()) && component.getID() != null)
 				{
-
 					types.put(component.getID(), extractInfoFromComponent(component, null));
 
 					// Business rule: 1) If there is a network in the NeuroML file we don't visualise spurious cells which
@@ -356,16 +356,18 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			variable.getTypes().add(types.get(entry.getValue().getID()));
 			compositeType.getVariables().add(variable);
 		}
-		
 
-		if (attributes.size() < component.getAttributes().size()){
-			for(Attribute entry : component.getAttributes()){
-				if (!attributes.contains(entry.getName())){
-					//component.getRelativeComponent("../pyramidals_48/37/pyr_4_sym")
-					//component.getRelativeComponent(entry.getValue());
-					// connection.getA().add(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCellId)));					
+		if(attributes.size() < component.getAttributes().size())
+		{
+			for(Attribute entry : component.getAttributes())
+			{
+				if(!attributes.contains(entry.getName()))
+				{
+					// component.getRelativeComponent("../pyramidals_48/37/pyr_4_sym")
+					// component.getRelativeComponent(entry.getValue());
+					// connection.getA().add(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCellId)));
 
-					//AQP For now: let's added as a metatype because I haven't found an easy way to extract the pointer
+					// AQP For now: let's added as a metatype because I haven't found an easy way to extract the pointer
 					compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(entry.getName(), entry.getValue(), this.access));
 				}
 			}
@@ -504,36 +506,38 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			else
 			{
 				Component rdf = entry.getValue();
-//				if(rdf.hasTextParam("xmlns:rdf"))
-//				{
-//					Text text = valuesFactory.createText();
-//					text.setText(rdf.getTextParam("xmlns:rdf"));
-//
-//					Variable variable = variablesFactory.createVariable();
-//					ModelInterpreterUtils.initialiseNodeFromString(variable, "rdf");
-//					variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
-//					variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
-//					annotationType.getVariables().add(variable);
-//				}
+				// if(rdf.hasTextParam("xmlns:rdf"))
+				// {
+				// Text text = valuesFactory.createText();
+				// text.setText(rdf.getTextParam("xmlns:rdf"));
+				//
+				// Variable variable = variablesFactory.createVariable();
+				// ModelInterpreterUtils.initialiseNodeFromString(variable, "rdf");
+				// variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
+				// variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+				// annotationType.getVariables().add(variable);
+				// }
 
 				Component rdfDescription = rdf.getChild("rdf:Description");
 				for(Map.Entry<String, Component> rdfDescriptionChild : rdfDescription.getChildHM().entrySet())
 				{
 					CompositeType annotationTypeChild = typeFactory.createCompositeType();
 					ModelInterpreterUtils.initialiseNodeFromString(annotationType, rdfDescriptionChild.getKey());
-					
+
 					Variable variable = variablesFactory.createVariable();
 					ModelInterpreterUtils.initialiseNodeFromString(variable, rdfDescriptionChild.getKey());
 					variable.getAnonymousTypes().add(annotationTypeChild);
 					annotationType.getVariables().add(variable);
-							
-					for (Component singleChildren : rdfDescriptionChild.getValue().getChild("rdf:Bag").getStrictChildren()){
-						for (Attribute attr: singleChildren.getAttributes()){
+
+					for(Component singleChildren : rdfDescriptionChild.getValue().getChild("rdf:Bag").getStrictChildren())
+					{
+						for(Attribute attr : singleChildren.getAttributes())
+						{
 							annotationTypeChild.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(attr.getName(), attr.getValue(), access));
 						}
-						if (!singleChildren.getAbout().equals(""))
-							annotationTypeChild.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(rdfDescriptionChild.getKey(), singleChildren.getAbout(), access));
-						
+						if(!singleChildren.getAbout().equals("")) annotationTypeChild.getVariables().add(
+								ModelInterpreterUtils.createTextTypeVariable(rdfDescriptionChild.getKey(), singleChildren.getAbout(), access));
+
 					}
 				}
 			}
@@ -818,14 +822,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 				else
 				{
-					
+
 					// Convert to NeuroML
 					XMLSerializer xmlSer = new XMLSerializer(true);
 					String compString = xmlSer.writeObject((Component) domainModel.getDomainModel());
 
 					serialisedModel = "<neuroml xmlns=\"http://www.neuroml.org/schema/neuroml2\"\n" + "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
 							+ "      xsi:schemaLocation=\"http://www.neuroml.org/schema/neuroml2 " + NeuroMLElements.LATEST_SCHEMA_LOCATION + "\">" + compString + "</neuroml>";
-					
 
 					// Change extension to nml
 					outputFile += ".nml";
