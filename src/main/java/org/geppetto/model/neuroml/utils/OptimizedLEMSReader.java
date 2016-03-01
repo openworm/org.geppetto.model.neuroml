@@ -4,7 +4,10 @@
 package org.geppetto.model.neuroml.utils;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,6 +31,8 @@ import org.neuroml.export.utils.Utils;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
+
+import com.amazonaws.services.cloudfront.model.Paths;
 
 /**
  * This class should not exist inside Geppetto and should be replaced when a proper library capable of reading a NeuroML and Lems file exists. This class is called Optimized reader because it uses a
@@ -107,7 +112,7 @@ public class OptimizedLEMSReader
 			_logger.info("Processed all inclusions, took " + (System.currentTimeMillis() - start) + "ms");
 
 		}
-		catch(JAXBException | NeuroMLException e)
+		catch(JAXBException | NeuroMLException | URISyntaxException e)
 		{
 			throw new IOException(e);
 		}
@@ -139,8 +144,9 @@ public class OptimizedLEMSReader
 	 * @throws IOException
 	 * @throws JAXBException
 	 * @throws NeuroMLException
+	 * @throws URISyntaxException 
 	 */
-	private Map<NMLDOCTYPE, StringBuffer> processLEMSInclusions(String documentString, String urlBase, NMLDOCTYPE type) throws IOException, JAXBException, NeuroMLException
+	private Map<NMLDOCTYPE, StringBuffer> processLEMSInclusions(String documentString, String urlBase, NMLDOCTYPE type) throws IOException, JAXBException, NeuroMLException, URISyntaxException
 	{
 		// 1. We receive a document, it could be NeuroML or LEMS, we remove useless parts as optimization
 		String smallerDocumentString = cleanLEMSNeuroMLDocument(documentString);
@@ -195,7 +201,7 @@ public class OptimizedLEMSReader
 
 			_logger.info("Check inclusion " + urlPath);
 
-			if(!_inclusions.contains(urlPath))
+			if(!_inclusions.contains(new URI(urlPath).normalize().toString()))
 			{
 				URL url = new URL(urlPath);
 
@@ -206,7 +212,8 @@ public class OptimizedLEMSReader
 					// OK It's something else
 					try
 					{
-						_inclusions.add(urlPath);
+						
+						_inclusions.add(new URI(urlPath).normalize().toString());
 						dependentModels.add(new URL(urlPath));
 						String s = URLReader.readStringFromURL(url);
 
@@ -215,7 +222,7 @@ public class OptimizedLEMSReader
 						{
 							urlPath = urlBase + urlPath.replace("file:///", "");
 							url = new URL(urlPath);
-							_inclusions.add(urlPath);
+							_inclusions.add(new URI(urlPath).normalize().toString());
 							s = URLReader.readStringFromURL(url);
 						}
 

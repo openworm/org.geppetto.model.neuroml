@@ -506,18 +506,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			else
 			{
 				Component rdf = entry.getValue();
-				// if(rdf.hasTextParam("xmlns:rdf"))
-				// {
-				// Text text = valuesFactory.createText();
-				// text.setText(rdf.getTextParam("xmlns:rdf"));
-				//
-				// Variable variable = variablesFactory.createVariable();
-				// ModelInterpreterUtils.initialiseNodeFromString(variable, "rdf");
-				// variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
-				// variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
-				// annotationType.getVariables().add(variable);
-				// }
-
 				Component rdfDescription = rdf.getChild("rdf:Description");
 				for(Map.Entry<String, Component> rdfDescriptionChild : rdfDescription.getChildHM().entrySet())
 				{
