@@ -200,50 +200,52 @@ public class PopulateSummaryNodesModelTreeUtils
 		// Get lems component and convert to neuroml
 		Component component = ((Component) ionChannel.getDomainModel().getDomainModel());
 		LinkedHashMap<String, Standalone> ionChannelMap = Utils.convertLemsComponentToNeuroML(component);
-		IonChannel neuromlIonChannel = (IonChannel) ionChannelMap.get(component.getID());
-		if(neuromlIonChannel != null)
-		{
-			//Create channel info extractor from export library
-			ChannelInfoExtractor channelInfoExtractor = new ChannelInfoExtractor(neuromlIonChannel);
-			InfoNode gatesNode = channelInfoExtractor.getGates();
-			for(Map.Entry<String, Object> entry : gatesNode.getProperties().entrySet())
+		if (ionChannelMap.get(component.getID()) instanceof IonChannel){
+			IonChannel neuromlIonChannel = (IonChannel) ionChannelMap.get(component.getID());
+			if(neuromlIonChannel != null)
 			{
-				String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
-				for(Variable gateVariable : ionChannel.getVariables())
+				//Create channel info extractor from export library
+				ChannelInfoExtractor channelInfoExtractor = new ChannelInfoExtractor(neuromlIonChannel);
+				InfoNode gatesNode = channelInfoExtractor.getGates();
+				for(Map.Entry<String, Object> entry : gatesNode.getProperties().entrySet())
 				{
-					if(gateVariable.getId().equals(id))
+					String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
+					for(Variable gateVariable : ionChannel.getVariables())
 					{
-						InfoNode gateNode = (InfoNode) entry.getValue();
-						for(Map.Entry<String, Object> gateProperties : gateNode.getProperties().entrySet())
+						if(gateVariable.getId().equals(id))
 						{
-							if(gateProperties.getValue() instanceof ExpressionNode)
+							InfoNode gateNode = (InfoNode) entry.getValue();
+							for(Map.Entry<String, Object> gateProperties : gateNode.getProperties().entrySet())
 							{
-								//Match property id in export lib with neuroml id
-								ResourcesSummary gatePropertyResources = ResourcesSummary.getValueByValue(gateProperties.getKey());
-								if(gatePropertyResources != null)
+								if(gateProperties.getValue() instanceof ExpressionNode)
 								{
-									CompositeType gateType = (CompositeType) gateVariable.getAnonymousTypes().get(0);
-									for(Variable rateVariable : gateType.getVariables())
+									//Match property id in export lib with neuroml id
+									ResourcesSummary gatePropertyResources = ResourcesSummary.getValueByValue(gateProperties.getKey());
+									if(gatePropertyResources != null)
 									{
-										if(rateVariable.getId().equals(gatePropertyResources.getNeuromlId()))
+										CompositeType gateType = (CompositeType) gateVariable.getAnonymousTypes().get(0);
+										for(Variable rateVariable : gateType.getVariables())
 										{
-											CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
-											// Create expression node
-											rateType.getVariables().add(getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue()));
+											if(rateVariable.getId().equals(gatePropertyResources.getNeuromlId()))
+											{
+												CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
+												// Create expression node
+												rateType.getVariables().add(getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue()));
+											}
 										}
+	
 									}
-
-								}
-								else{
-									throw new ModelInterpreterException("No node matches summary gate rate");
+									else{
+										throw new ModelInterpreterException("No node matches summary gate rate");
+									}
 								}
 							}
 						}
 					}
+	
 				}
-
 			}
-		}
+		}	
 	}
 
 	private Variable getExpressionVariable(String expressionNodeId, ExpressionNode expressionNode) throws GeppettoVisitingException

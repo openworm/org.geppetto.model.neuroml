@@ -33,6 +33,8 @@
 
 package org.geppetto.model.neuroml.utils;
 
+import org.lemsml.jlems.core.type.ComponentType;
+
 /**
  * Class to hold resources used in the visualiser. This elements will be displayed to the user.
  * @author matteocantarelli
@@ -42,23 +44,28 @@ package org.geppetto.model.neuroml.utils;
 public enum ResourcesDomainType
 {
 	
-	SYNAPSE("synapse"),
-	PREFRACTIONALONG("preFractionAlong"),
-	POSTFRACTIONALONG("postFractionAlong"),
-	IONCHANNEL("ionChannel"),
-	PULSEGENERATOR("pulseGenerator"),
-	POPULATION("population"),
-	PROJECTION("projection"),
-	CONNECTION("connection"),
-	NETWORK("network"),
-	CELL("cell");
+	SYNAPSE("synapse", "synapse"),
+	BASE_SYNAPSE("synapse", "baseSynapse"),
+	PREFRACTIONALONG("preFractionAlong", "preFractionAlong"),
+	POSTFRACTIONALONG("postFractionAlong", "postFractionAlong"),
+	IONCHANNEL("ionChannel", "ionChannel"),
+	PULSEGENERATOR("pulseGenerator", "pulseGenerator"),
+	POPULATION("population", "population"),
+	POPULATION_LIST("population", "populationList"),
+	PROJECTION("projection", "projection"),
+	CONNECTION("connection", "connection"),
+	CONNECTIONWD("connection", "connectionWD"),
+	NETWORK("network", "network"),
+	CELL("cell", "baseCell");
 	
 	
 	private String _value;
+	private String _id;
 	
-	private ResourcesDomainType(String value)
+	private ResourcesDomainType(String value, String id)
 	{
 		_value = value;
+		_id = id;
 	}
 	
 	public String get()
@@ -66,12 +73,25 @@ public enum ResourcesDomainType
 		return _value;
 	}
 	
-	public static ResourcesDomainType getValueByValue(String value){
+	public String getId()
+	{
+		return _id;
+	}
+	
+	public static ResourcesDomainType getValueById(String id){
 		for(ResourcesDomainType e : ResourcesDomainType.values()){
-            if(value.equals(e._value)) return e;
+            if(id.equals(e._id)) return e;
         }
 		//If we can't find a value, return the id
 		return null;
+	}
+	
+	public static String getValueByComponentType(ComponentType componentType){
+		for(ResourcesDomainType e : ResourcesDomainType.values()){
+            if(componentType.isOrExtends(e._id)) return e._value;
+        }
+		//If we can't find a value, return the id
+        return null;
 	}
 	
 }
