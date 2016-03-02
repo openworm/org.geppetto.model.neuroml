@@ -54,6 +54,7 @@ public enum Resources
 	INTRACELLULAR_P_SOMA("Soma Intracellular Properties", "somaIntracellularProperties"), 
 	SYNAPSE("Synapse", "synapse"), 
 	CONNECTION("Connection", "connection"),
+	CONNECTION_WD("Connection with Weight & Delay", "connectionWD"),
 	PROJECTION("Projection", "projection"),
 	PRE_SYNAPTIC("Input", "input"),
 	POST_SYNAPTIC("Output", "output"),

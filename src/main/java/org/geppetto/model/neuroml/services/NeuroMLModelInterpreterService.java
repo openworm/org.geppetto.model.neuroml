@@ -630,7 +630,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		// Iterate over all the children. Most of them are connections
 		for(Component projectionChild : projection.getStrictChildren())
 		{
-			if(projectionChild.getDeclaredType().equals(Resources.CONNECTION.getId()))
+			if(projectionChild.getDeclaredType().equals(Resources.CONNECTION.getId()) || projectionChild.getDeclaredType().equals(Resources.CONNECTION_WD.getId()))
 			{
 				ConnectionType connectionType = (ConnectionType) getCompositeType(ResourcesDomainType.CONNECTION.get());
 				ModelInterpreterUtils.initialiseNodeFromComponent(connectionType, projectionChild);
