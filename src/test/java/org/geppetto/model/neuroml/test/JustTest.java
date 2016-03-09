@@ -120,12 +120,12 @@ public class JustTest
 		_logger.info("Serialising " + (endTime - startTime) + " milliseconds for url " + url + " and  typename " + typeName);
 	}
 
-//	@Test
-//	public void testAcnet() throws Exception
-//	{
-//		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2.xmi", "network_ACnet2", true, new NeuroMLModelInterpreterService());
-//		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2NoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
-//	}
+	@Test
+	public void testAcnet() throws Exception
+	{
+		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2.xmi", "network_ACnet2", true, new NeuroMLModelInterpreterService());
+		serialise("/acnet2/MediumNet.net.nml", "./src/test/resources/acnet2NoTarget.xmi", null, true, new NeuroMLModelInterpreterService());
+	}
 //
 //	@Test
 //	public void testBask() throws Exception

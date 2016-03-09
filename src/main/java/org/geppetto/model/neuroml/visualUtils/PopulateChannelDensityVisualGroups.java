@@ -30,7 +30,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE 
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package org.geppetto.model.neuroml.modelinterpreter.utils;
+package org.geppetto.model.neuroml.visualUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +44,8 @@ import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.Tag;
+import org.geppetto.model.neuroml.utils.CellUtils;
+import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.util.GeppettoVisitingException;
@@ -188,8 +190,8 @@ public class PopulateChannelDensityVisualGroups
 	{
 		VisualGroup vis = valuesFactory.createVisualGroup();
 		ModelInterpreterUtils.initialiseNodeFromString(vis, ionChannel);
-		vis.setHighSpectrumColor(ModelInterpreterConstants.HIGH_SPECTRUM);
-		vis.setLowSpectrumColor(ModelInterpreterConstants.LOW_SPECTRUM);
+		vis.setHighSpectrumColor(ModelInterpreterVisualConstants.HIGH_SPECTRUM);
+		vis.setLowSpectrumColor(ModelInterpreterVisualConstants.LOW_SPECTRUM);
 		groupsMap.put(ionChannel, vis);
 		return vis;
 	}

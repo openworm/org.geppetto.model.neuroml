@@ -1,4 +1,4 @@
-package org.geppetto.model.neuroml.modelinterpreter.utils;
+package org.geppetto.model.neuroml.utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,7 +8,6 @@ import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.Node;
-import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;
@@ -18,10 +17,7 @@ import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
-import org.lemsml.jlems.core.expression.ParseError;
-import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Segment;
 
 public class ModelInterpreterUtils

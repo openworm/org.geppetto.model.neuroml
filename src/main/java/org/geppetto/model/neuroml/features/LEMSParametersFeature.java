@@ -9,7 +9,7 @@ import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.model.VariableValue;
-import org.geppetto.model.neuroml.modelinterpreter.utils.ModelInterpreterUtils;
+import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.values.PhysicalQuantity;
 import org.geppetto.model.values.Quantity;
 import org.geppetto.model.values.Value;

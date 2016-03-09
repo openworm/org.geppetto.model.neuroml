@@ -30,7 +30,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE 
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package org.geppetto.model.neuroml.modelinterpreter.utils;
+package org.geppetto.model.neuroml.visualUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +40,8 @@ import java.util.Map;
 
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.model.neuroml.utils.CellUtils;
+import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.TypesFactory;
@@ -251,15 +253,15 @@ public class ExtractVisualType
 
 				if(segmentGroupID.equals(Resources.SOMA.getId()))
 				{
-					visualGroupElement.setDefaultColor(ModelInterpreterConstants.SOMA_COLOR);
+					visualGroupElement.setDefaultColor(ModelInterpreterVisualConstants.SOMA_COLOR);
 				}
 				else if(segmentGroupID.equals(Resources.DENDRITES.getId()))
 				{
-					visualGroupElement.setDefaultColor(ModelInterpreterConstants.DENDRITES_COLOR);
+					visualGroupElement.setDefaultColor(ModelInterpreterVisualConstants.DENDRITES_COLOR);
 				}
 				else if(segmentGroupID.equals(Resources.AXONS.getId()))
 				{
-					visualGroupElement.setDefaultColor(ModelInterpreterConstants.AXONS_COLOR);
+					visualGroupElement.setDefaultColor(ModelInterpreterVisualConstants.AXONS_COLOR);
 				}
 				cellParts.getVisualGroupElements().add(visualGroupElement);
 
