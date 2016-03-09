@@ -223,27 +223,31 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		for(Type currentType : types.values())
 		{
-			if(type == null)
+			if(currentType.getDomainModel() != null)
 			{
-				type = currentType;
-			}
-			else
-			{
-				ComponentType declaredType = ((Component) type.getDomainModel().getDomainModel()).getComponentType();
-				ComponentType currentDeclaredType = ((Component) currentType.getDomainModel().getDomainModel()).getComponentType();
-				// ((Component) currentType.getDomainModel().getDomainModel()).getComponentType().isOrExtends("baseCell")
-				if(!declaredType.isOrExtends(Resources.NETWORK.getId())
-						&& (currentDeclaredType.isOrExtends(Resources.NETWORK.getId()) || (!declaredType.isOrExtends(Resources.BASE_CELL.getId()) && currentDeclaredType
-								.isOrExtends(Resources.BASE_CELL.getId()))))
+				if(type == null)
 				{
-					multipleTypes = false;
 					type = currentType;
 				}
-				else if((!declaredType.isOrExtends(Resources.BASE_CELL.getId()) && !declaredType.isOrExtends(Resources.NETWORK.getId()))
-						|| (declaredType.isOrExtends(Resources.BASE_CELL.getId()) && currentDeclaredType.isOrExtends(Resources.BASE_CELL.getId()))
-						|| (declaredType.isOrExtends(Resources.NETWORK.getId()) && currentDeclaredType.isOrExtends(Resources.NETWORK.getId())))
+				else
 				{
-					multipleTypes = true;
+
+					ComponentType declaredType = ((Component) type.getDomainModel().getDomainModel()).getComponentType();
+					ComponentType currentDeclaredType = ((Component) currentType.getDomainModel().getDomainModel()).getComponentType();
+					// ((Component) currentType.getDomainModel().getDomainModel()).getComponentType().isOrExtends("baseCell")
+					if(!declaredType.isOrExtends(Resources.NETWORK.getId())
+							&& (currentDeclaredType.isOrExtends(Resources.NETWORK.getId()) || (!declaredType.isOrExtends(Resources.BASE_CELL.getId()) && currentDeclaredType
+									.isOrExtends(Resources.BASE_CELL.getId()))))
+					{
+						multipleTypes = false;
+						type = currentType;
+					}
+					else if((!declaredType.isOrExtends(Resources.BASE_CELL.getId()) && !declaredType.isOrExtends(Resources.NETWORK.getId()))
+							|| (declaredType.isOrExtends(Resources.BASE_CELL.getId()) && currentDeclaredType.isOrExtends(Resources.BASE_CELL.getId()))
+							|| (declaredType.isOrExtends(Resources.NETWORK.getId()) && currentDeclaredType.isOrExtends(Resources.NETWORK.getId())))
+					{
+						multipleTypes = true;
+					}
 				}
 			}
 		}
