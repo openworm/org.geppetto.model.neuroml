@@ -102,6 +102,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	private Map<String, Type> types = new HashMap<String, Type>();
 	private Type type = null;
+	private GeppettoModelAccess access;
 
 	/*
 	 * (non-Javadoc)
@@ -152,6 +153,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		// Add LEMS Parameter Feature
 		this.addFeature(new LEMSParametersFeature());
+		this.access = access;
 
 		long endTime = System.currentTimeMillis();
 		_logger.info("Import Type took " + (endTime - startTime) + " milliseconds for url " + url + " and typename " + typeId);
@@ -267,7 +269,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	}
 
 	@Override
-	public File downloadModel(Pointer pointer, ModelFormat format, IAspectConfiguration aspectConfiguration, GeppettoModelAccess modelAccess) throws ModelInterpreterException
+	public File downloadModel(Pointer pointer, ModelFormat format, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
 	{
 		// Get domain model
 		DomainModel domainModel = PointerUtility.getType(pointer).getDomainModel();
@@ -325,7 +327,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			ExternalDomainModel outputDomainModel = null;
 			try
 			{
-				outputDomainModel = (ExternalDomainModel) lemsConversionService.convert(domainModel, format, aspectConfiguration, modelAccess);
+				outputDomainModel = (ExternalDomainModel) lemsConversionService.convert(domainModel, format, aspectConfiguration, this.access);
 			}
 			catch(ConversionException e)
 			{
