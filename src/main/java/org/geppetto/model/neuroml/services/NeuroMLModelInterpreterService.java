@@ -60,18 +60,13 @@ import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateTypes;
-import org.geppetto.model.neuroml.modelInterpreterUtils.TypeFactory;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.Type;
-import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Pointer;
-import org.geppetto.model.values.ValuesFactory;
-import org.geppetto.model.variables.Variable;
-import org.geppetto.model.variables.VariablesFactory;
 import org.gepppetto.model.neuroml.summaryUtils.PopulateSummaryNodesUtils;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -220,7 +215,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private void getUniqueType() throws ModelInterpreterException
 	{
 		boolean multipleTypes = false;
-
 		for(Type currentType : types.values())
 		{
 			if(currentType.getDomainModel() != null)
@@ -231,10 +225,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 				else
 				{
-
 					ComponentType declaredType = ((Component) type.getDomainModel().getDomainModel()).getComponentType();
 					ComponentType currentDeclaredType = ((Component) currentType.getDomainModel().getDomainModel()).getComponentType();
-					// ((Component) currentType.getDomainModel().getDomainModel()).getComponentType().isOrExtends("baseCell")
 					if(!declaredType.isOrExtends(Resources.NETWORK.getId())
 							&& (currentDeclaredType.isOrExtends(Resources.NETWORK.getId()) || (!declaredType.isOrExtends(Resources.BASE_CELL.getId()) && currentDeclaredType
 									.isOrExtends(Resources.BASE_CELL.getId()))))
