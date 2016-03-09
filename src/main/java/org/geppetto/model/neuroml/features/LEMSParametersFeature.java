@@ -9,22 +9,12 @@ import org.geppetto.core.features.ISetParameterFeature;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.model.VariableValue;
-import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
-import org.geppetto.model.values.PhysicalQuantity;
 import org.geppetto.model.values.Quantity;
-import org.geppetto.model.values.Value;
-import org.lemsml.jlems.core.expression.ParseError;
-import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
-import org.lemsml.jlems.core.type.Attribute;
 import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.Dimension;
 import org.lemsml.jlems.core.type.Lems;
-import org.lemsml.jlems.core.type.LemsCollection;
-import org.lemsml.jlems.core.type.Unit;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.util.NeuroMLConverter;
-import org.neuroml.model.util.NeuroMLException;
 
 /**
  * Set a Lems Parameter (State Variable)
@@ -58,7 +48,6 @@ public class LEMSParametersFeature implements ISetParameterFeature
 		// Get the parameter value
 		Quantity parameterValue = (Quantity) variableValue.getValue();
 		String value = String.valueOf(parameterValue.getValue());
-		//String units = parameterValue.getUnit().getUnit();
 
 		// Set the new value to the param
 		try

@@ -44,6 +44,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.Tag;
+import org.geppetto.model.neuroml.modelInterpreterUtils.NeuroMLModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.CellUtils;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
@@ -189,7 +190,7 @@ public class PopulateChannelDensityVisualGroups
 	private VisualGroup createVisualGroup(Map<String, VisualGroup> groupsMap, String ionChannel)
 	{
 		VisualGroup vis = valuesFactory.createVisualGroup();
-		ModelInterpreterUtils.initialiseNodeFromString(vis, ionChannel);
+		NeuroMLModelInterpreterUtils.initialiseNodeFromString(vis, ionChannel);
 		vis.setHighSpectrumColor(ModelInterpreterVisualConstants.HIGH_SPECTRUM);
 		vis.setLowSpectrumColor(ModelInterpreterVisualConstants.LOW_SPECTRUM);
 		groupsMap.put(ionChannel, vis);
@@ -240,7 +241,7 @@ public class PopulateChannelDensityVisualGroups
 
 								// Create visual group element
 								VisualGroupElement element = valuesFactory.createVisualGroupElement();
-								ModelInterpreterUtils.initialiseNodeFromString(element, ModelInterpreterUtils.getVisualObjectIdentifier(sg));
+								NeuroMLModelInterpreterUtils.initialiseNodeFromString(element, NeuroMLModelInterpreterUtils.getVisualObjectIdentifier(sg));
 
 								// Add calculated value as a physical quantity
 								// FIXME We are hardcoding the units as NeuroML2 does not have it for inhomogeneous channels

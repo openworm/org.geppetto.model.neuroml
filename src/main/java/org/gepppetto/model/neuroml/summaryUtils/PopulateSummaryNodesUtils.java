@@ -79,9 +79,9 @@ import org.neuroml.model.util.NeuroMLException;
  * 
  */
 
-public class PopulateSummaryNodesModelTreeUtils
+public class PopulateSummaryNodesUtils
 {
-	private static Log logger = LogFactory.getLog(PopulateSummaryNodesModelTreeUtils.class);
+	private static Log logger = LogFactory.getLog(PopulateSummaryNodesUtils.class);
 
 	TypesFactory typeFactory = TypesFactory.eINSTANCE;
 	VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
@@ -92,7 +92,7 @@ public class PopulateSummaryNodesModelTreeUtils
 	Map<ResourcesDomainType, List<Type>> typesMap;
 	URL url;
 
-	public PopulateSummaryNodesModelTreeUtils(Map<ResourcesDomainType, List<Type>> typesMap, URL url, GeppettoModelAccess access)
+	public PopulateSummaryNodesUtils(Map<ResourcesDomainType, List<Type>> typesMap, URL url, GeppettoModelAccess access)
 	{
 		this.access = access;
 		this.typesMap = typesMap;

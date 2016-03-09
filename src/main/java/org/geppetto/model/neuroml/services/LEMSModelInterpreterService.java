@@ -124,10 +124,10 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 	}
 
 	@Override
-	public File downloadModel(Pointer pointer, ModelFormat format, IAspectConfiguration aspectConfiguration) throws ModelInterpreterException
+	public File downloadModel(Pointer pointer, ModelFormat format, IAspectConfiguration aspectConfiguration, GeppettoModelAccess modelAccess) throws ModelInterpreterException
 	{
 		// AQP
-		return _neuroMLModelInterpreter.downloadModel(pointer, format, aspectConfiguration);
+		return _neuroMLModelInterpreter.downloadModel(pointer, format, aspectConfiguration, modelAccess);
 
 		// We are taking the domain model for the last element of the pointer
 		// IModel model = (IModel) pointer.getElements().get(pointer.getElements().size() - 1).getType().getDomainModel();
