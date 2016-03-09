@@ -816,7 +816,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 				else
 				{
-
 					// Convert to NeuroML
 					XMLSerializer xmlSer = new XMLSerializer(true);
 					String compString = xmlSer.writeObject((Component) domainModel.getDomainModel());
@@ -855,7 +854,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 				throw new ModelInterpreterException(e);
 			}
-			return (File) outputDomainModel.getDomainModel();
+			return new File((String)outputDomainModel.getDomainModel()).getParentFile();
 		}
 	}
 
