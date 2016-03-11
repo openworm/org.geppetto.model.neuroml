@@ -38,30 +38,17 @@ import java.net.MalformedURLException;
 
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
-import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lemsml.jlems.api.LEMSBuildException;
 
 /**
- * @author matteocantarelli
+ * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  * 
  */
 public class LEMSModelInterpreterServiceTest
 {
 
-	//FIXME: We have to use OSGI text or spring app context initialization
-	@BeforeClass
-	public static void initializeServiceRegistry() throws Exception
-	{
-		LEMSModelInterpreterService lemsModelInterpreter = new LEMSModelInterpreterService();
-		lemsModelInterpreter.registerGeppettoService();
-		
-		NeuroMLModelInterpreterService neuromlModelInterpreter = new NeuroMLModelInterpreterService();
-		neuromlModelInterpreter.registerGeppettoService();
-	}
-	
 	/**
 	 * "" Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
 	 * 
