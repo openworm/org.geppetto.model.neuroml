@@ -117,10 +117,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			// Read main and includes as a String
 			dependentModels.clear();
 			reader = new OptimizedLEMSReader(this.dependentModels);
-			reader.readAllFormats(url, OptimizedLEMSReader.NMLDOCTYPE.NEUROML);
+			reader.readAllFormats(url);
 
 			// Extract Types from the lems/neuroml files
-			extractTypes(url, typeId, library, access, reader.getLEMSDocument(), reader.getNeuroMLDocument());
+			extractTypes(url, typeId, library, access, reader.getLEMSDocument());
 		}
 		catch(IOException | NumberFormatException | GeppettoVisitingException e)
 		{
@@ -155,7 +155,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return type;
 	}
 
-	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument, NeuroMLDocument neuroml) throws NeuroMLException, LEMSException,
+	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument) throws NeuroMLException, LEMSException,
 			GeppettoVisitingException, ContentError, ModelInterpreterException
 	{
 		try

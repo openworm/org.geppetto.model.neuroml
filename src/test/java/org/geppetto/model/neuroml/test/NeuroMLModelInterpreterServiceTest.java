@@ -35,10 +35,8 @@ package org.geppetto.model.neuroml.test;
 
 import java.io.File;
 
-import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -56,10 +54,10 @@ public class NeuroMLModelInterpreterServiceTest
 	@Test
 	public void testReadModelACnet() throws Exception
 	{
-//		ModelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", "network_ACnet2", new NeuroMLModelInterpreterService());
+		ModelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", "network_ACnet2", new NeuroMLModelInterpreterService());
 		ModelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", null, new NeuroMLModelInterpreterService());
-//		ModelInterpreterTestUtils.serialise("/acnet2/bask.cell.nml", "bask", new NeuroMLModelInterpreterService());
-//		ModelInterpreterTestUtils.serialise("/acnet2/bask.cell.nml", null, new NeuroMLModelInterpreterService());
+		ModelInterpreterTestUtils.serialise("/acnet2/bask.cell.nml", "bask", new NeuroMLModelInterpreterService());
+		ModelInterpreterTestUtils.serialise("/acnet2/bask.cell.nml", null, new NeuroMLModelInterpreterService());
 	}
 
 	/**
@@ -70,15 +68,15 @@ public class NeuroMLModelInterpreterServiceTest
 	@Test
 	public void testReadModelPVDR() throws Exception
 	{
-//		ModelInterpreterTestUtils.serialise("/pvdr/PVDR.nml", "PVDR", new NeuroMLModelInterpreterService());
-//		ModelInterpreterTestUtils.serialise("/pvdr/PVDR.nml", null, new NeuroMLModelInterpreterService());
+		ModelInterpreterTestUtils.serialise("/pvdr/PVDR.nml", "PVDR", new NeuroMLModelInterpreterService());
+		ModelInterpreterTestUtils.serialise("/pvdr/PVDR.nml", null, new NeuroMLModelInterpreterService());
 	}
 
 	@Test
 	public void testCA1() throws Exception
 	{
 		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
-//		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", null, new NeuroMLModelInterpreterService());
+		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", null, new NeuroMLModelInterpreterService());
 	}
 
 
@@ -87,11 +85,11 @@ public class NeuroMLModelInterpreterServiceTest
 	{
 		File acnet2 = new File("./src/test/resources/MediumNet.net.nml.xmi");
 		acnet2.delete();
-//		File bask = new File("./src/test/resources/bask.cell.nml.xmi");
-//		bask.delete();
+		File bask = new File("./src/test/resources/bask.cell.nml.xmi");
+		bask.delete();
 
-//		File pvdr = new File("./src/test/resources/PVDR.nml.xmi");
-//		pvdr.delete();
+		File pvdr = new File("./src/test/resources/PVDR.nml.xmi");
+		pvdr.delete();
 
 		File ca1 = new File("./src/test/resources/BigCA1.net.nml.xmi");
 		ca1.delete();
