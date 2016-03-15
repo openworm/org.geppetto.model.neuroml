@@ -48,7 +48,7 @@ public enum ResourcesDomainType
 	BASE_SYNAPSE("synapse", "baseSynapse"),
 	PREFRACTIONALONG("preFractionAlong", "preFractionAlong"),
 	POSTFRACTIONALONG("postFractionAlong", "postFractionAlong"),
-	IONCHANNEL("ionChannel", "ionChannel"),
+	IONCHANNEL("ionChannel", "baseIonChannel"),
 	PULSEGENERATOR("pulseGenerator", "pulseGenerator"),
 	POPULATION("population", "population"),
 	POPULATION_LIST("population", "populationList"),
@@ -88,7 +88,7 @@ public enum ResourcesDomainType
 	
 	public static String getValueByComponentType(ComponentType componentType){
 		for(ResourcesDomainType e : ResourcesDomainType.values()){
-            if(componentType.isOrExtends(e._id)) return e._value;
+            if(componentType.isOrExtends(e._id)) return e._id;
         }
 		//If we can't find a value, return the id
         return null;

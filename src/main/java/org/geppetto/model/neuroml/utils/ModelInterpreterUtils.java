@@ -1,15 +1,10 @@
-package org.geppetto.model.neuroml.modelinterpreter.utils;
+package org.geppetto.model.neuroml.utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.geppetto.core.model.GeppettoModelAccess;
-import org.geppetto.core.services.registry.ServicesRegistry;
-import org.geppetto.model.DomainModel;
-import org.geppetto.model.GeppettoFactory;
-import org.geppetto.model.Node;
-import org.geppetto.model.neuroml.utils.Resources;
-import org.geppetto.model.types.Type;
+import org.geppetto.model.neuroml.modelInterpreterUtils.NeuroMLModelInterpreterUtils;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.PhysicalQuantity;
@@ -18,25 +13,20 @@ import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
-import org.lemsml.jlems.core.expression.ParseError;
-import org.lemsml.jlems.core.sim.ContentError;
-import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.Lems;
-import org.neuroml.model.Segment;
 
 public class ModelInterpreterUtils
 {
 
 	static String forbiddenCharacters = "[&\\/\\\\#,+()$~%.'\":*?<>{}\\s]";
 
-	static GeppettoFactory geppettoFactory = GeppettoFactory.eINSTANCE;
 	static ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 	static VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
 
 	public static String parseId(String id)
 	{
 		String scapedId = id.replaceAll(forbiddenCharacters, "_");
-		if (Character.isDigit(scapedId.charAt(0))){
+		if(Character.isDigit(scapedId.charAt(0)))
+		{
 			scapedId = "id" + scapedId;
 		}
 		return scapedId;
@@ -63,7 +53,7 @@ public class ModelInterpreterUtils
 		text.setText(value);
 
 		Variable variable = variablesFactory.createVariable();
-		initialiseNodeFromString(variable, id);
+		NeuroMLModelInterpreterUtils.initialiseNodeFromString(variable, id);
 		variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
 		variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
 		return variable;
@@ -86,10 +76,10 @@ public class ModelInterpreterUtils
 
 			Variable variable = variablesFactory.createVariable();
 			variable.getInitialValues().put(access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
-			initialiseNodeFromString(variable, id);
+			NeuroMLModelInterpreterUtils.initialiseNodeFromString(variable, id);
 			variable.getTypes().add(access.getType(TypesPackage.Literals.PARAMETER_TYPE));
 			variable.setStatic(true);
-			
+
 			return variable;
 		}
 		return null;
@@ -106,36 +96,9 @@ public class ModelInterpreterUtils
 
 		Variable variable = variablesFactory.createVariable();
 		variable.getInitialValues().put(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE), physicalQuantity);
-		initialiseNodeFromString(variable, id);
+		NeuroMLModelInterpreterUtils.initialiseNodeFromString(variable, id);
 		variable.getTypes().add(access.getType(TypesPackage.Literals.STATE_VARIABLE_TYPE));
 		return variable;
 	}
 
-	public static void initialiseNodeFromComponent(Node node, Component component)
-	{
-		if(node instanceof Type)
-		{
-			DomainModel domainModel = geppettoFactory.createDomainModel();
-			domainModel.setDomainModel(component);
-			domainModel.setFormat(ServicesRegistry.getModelFormat("LEMS"));
-			((Type) node).setDomainModel(domainModel);
-		}
-		node.setName(Resources.getValueById(component.getDeclaredType()) + ((component.getID() != null) ? " - " + parseId(component.getID()) : ""));
-		node.setId(parseId((component.getID() != null) ? component.getID() : component.getDeclaredType()));
-	}
-
-	public static void initialiseNodeFromString(Node node, String attributesName)
-	{
-		node.setName(Resources.getValueById(attributesName));
-		node.setId(parseId(attributesName));
-	}
-
-	/**
-	 * @param neuromlID
-	 * @return
-	 */
-	public static String getVisualObjectIdentifier(Segment segment)
-	{
-		return (segment.getName() != null && !segment.getName().equals("")) ? (segment.getName() + "_" + segment.getId()) : "vo" + segment.getId();
-	}
 }

@@ -1,6 +1,6 @@
-package org.geppetto.model.neuroml.modelinterpreter.utils;
+package org.geppetto.model.neuroml.visualUtils;
 
-public class ModelInterpreterConstants
+public class ModelInterpreterVisualConstants
 {
 	public static final String AXONS_COLOR = "0XFF6600";
 	public static final String DENDRITES_COLOR = "0X99CC00";

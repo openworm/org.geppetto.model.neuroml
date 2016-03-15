@@ -30,7 +30,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE 
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package org.geppetto.model.neuroml.modelinterpreter.utils;
+package org.geppetto.model.neuroml.visualUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +44,9 @@ import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.Tag;
+import org.geppetto.model.neuroml.modelInterpreterUtils.NeuroMLModelInterpreterUtils;
+import org.geppetto.model.neuroml.utils.CellUtils;
+import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.util.GeppettoVisitingException;
@@ -187,9 +190,9 @@ public class PopulateChannelDensityVisualGroups
 	private VisualGroup createVisualGroup(Map<String, VisualGroup> groupsMap, String ionChannel)
 	{
 		VisualGroup vis = valuesFactory.createVisualGroup();
-		ModelInterpreterUtils.initialiseNodeFromString(vis, ionChannel);
-		vis.setHighSpectrumColor(ModelInterpreterConstants.HIGH_SPECTRUM);
-		vis.setLowSpectrumColor(ModelInterpreterConstants.LOW_SPECTRUM);
+		NeuroMLModelInterpreterUtils.initialiseNodeFromString(vis, ionChannel);
+		vis.setHighSpectrumColor(ModelInterpreterVisualConstants.HIGH_SPECTRUM);
+		vis.setLowSpectrumColor(ModelInterpreterVisualConstants.LOW_SPECTRUM);
 		groupsMap.put(ionChannel, vis);
 		return vis;
 	}
@@ -238,7 +241,7 @@ public class PopulateChannelDensityVisualGroups
 
 								// Create visual group element
 								VisualGroupElement element = valuesFactory.createVisualGroupElement();
-								ModelInterpreterUtils.initialiseNodeFromString(element, ModelInterpreterUtils.getVisualObjectIdentifier(sg));
+								NeuroMLModelInterpreterUtils.initialiseNodeFromString(element, NeuroMLModelInterpreterUtils.getVisualObjectIdentifier(sg));
 
 								// Add calculated value as a physical quantity
 								// FIXME We are hardcoding the units as NeuroML2 does not have it for inhomogeneous channels
