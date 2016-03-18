@@ -347,7 +347,7 @@ public class PopulateTypes
 		types.put(Resources.POPULATION.getId() + populationComponent.getID(), arrayType);
 	}
 
-	public Map<ResourcesDomainType, List<Type>> getTypesMap()
+	public Map<String, List<Type>> getTypesMap()
 	{
 		return typeFactory.getTypesMap();
 	}

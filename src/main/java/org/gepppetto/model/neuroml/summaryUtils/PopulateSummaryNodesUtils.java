@@ -88,15 +88,17 @@ public class PopulateSummaryNodesUtils
 	ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 
 	GeppettoModelAccess access;
-	NeuroMLDocument neuroml;
-	Map<ResourcesDomainType, List<Type>> typesMap;
+	Map<String, List<Type>> typesMap;
+	Type type;
+	
 	URL url;
 
-	public PopulateSummaryNodesUtils(Map<ResourcesDomainType, List<Type>> typesMap, URL url, GeppettoModelAccess access)
+	public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, Type type, URL url, GeppettoModelAccess access)
 	{
 		this.access = access;
 		this.typesMap = typesMap;
 		this.url = url;
+		this.type = type;
 	}
 
 	public Variable getSummaryVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
@@ -107,12 +109,12 @@ public class PopulateSummaryNodesUtils
 	private Variable createDescriptionNode() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
 	{
 
-		List<Type> networkComponents = typesMap.containsKey(ResourcesDomainType.NETWORK) ? typesMap.get(ResourcesDomainType.NETWORK) : null;
-		List<Type> populationComponents = typesMap.containsKey(ResourcesDomainType.POPULATION) ? typesMap.get(ResourcesDomainType.POPULATION) : null;
-		List<Type> cellComponents = typesMap.containsKey(ResourcesDomainType.CELL) ? typesMap.get(ResourcesDomainType.CELL) : null;
-		List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL) ? typesMap.get(ResourcesDomainType.IONCHANNEL) : null;
-		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE) ? typesMap.get(ResourcesDomainType.SYNAPSE) : null;
-		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR) : null;
+		List<Type> networkComponents = typesMap.containsKey(ResourcesDomainType.NETWORK.get()) ? typesMap.get(ResourcesDomainType.NETWORK.get()) : null;
+		List<Type> populationComponents = typesMap.containsKey(ResourcesDomainType.POPULATION.get()) ? typesMap.get(ResourcesDomainType.POPULATION.get()) : null;
+		List<Type> cellComponents = typesMap.containsKey(ResourcesDomainType.CELL.get()) ? typesMap.get(ResourcesDomainType.CELL.get()) : null;
+		List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL.get()) ? typesMap.get(ResourcesDomainType.IONCHANNEL.get()) : null;
+		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
+		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
 
 		StringBuilder modelDescription = new StringBuilder();
 
@@ -121,10 +123,10 @@ public class PopulateSummaryNodesUtils
 			modelDescription.append("Description: ");
 			for(Type network : networkComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + network.getId() + "\">" + network.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + network.getId() + "\">" + network.getName() + "</a><br/><br/>");
 			}
 		}
-		modelDescription.append("<br/><br/><a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/><br/>");
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/><br/>");
 
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
@@ -180,6 +182,15 @@ public class PopulateSummaryNodesUtils
 				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
 			}
 			modelDescription.append("<br/>");
+		}
+		
+		//If there is nothing at least show a link to open the whole model in a tree visualiser
+		if((networkComponents == null || networkComponents.size() == 0) && 
+				(populationComponents == null || populationComponents.size() == 0) && 
+				(cellComponents == null || cellComponents.size() == 0) &&
+				(synapseComponents == null || synapseComponents.size() == 0) && 
+				(pulseGeneratorComponents == null || pulseGeneratorComponents.size() == 0)){
+			modelDescription.insert(0, "Description: <a href=\"#\" instancePath=\"Model.neuroml." + type.getId() + "\">" + type.getName() + "</a><br/><br/>");
 		}
 
 		HTML html = valuesFactory.createHTML();

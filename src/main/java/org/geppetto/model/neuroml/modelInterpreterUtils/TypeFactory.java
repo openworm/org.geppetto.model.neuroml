@@ -14,7 +14,7 @@ public class TypeFactory
 
 	private TypesFactory typeFactory = TypesFactory.eINSTANCE;
 
-	private Map<ResourcesDomainType, List<Type>> typesMap = new HashMap<ResourcesDomainType, List<Type>>();
+	private Map<String, List<Type>> typesMap = new HashMap<String, List<Type>>();
 
 	private Map<String, Type> types;
 
@@ -56,7 +56,7 @@ public class TypeFactory
 			newType.setSuperType(getSuperType(resourcesDomainType));
 
 			// Add new type to typesMap. It will be used later on to generate description node
-			List<Type> typeList = typesMap.get(resourcesDomainType);
+			List<Type> typeList = typesMap.get(resourcesDomainType.get());
 			typeList.add(newType);
 		}
 		return newType;
@@ -67,7 +67,7 @@ public class TypeFactory
 		// Create super type
 		if(!types.containsKey(resourcesDomainType.get()))
 		{
-			typesMap.put(resourcesDomainType, new ArrayList<Type>());
+			typesMap.put(resourcesDomainType.get(), new ArrayList<Type>());
 
 			Type domainType = typeFactory.createCompositeType();
 			domainType.setId(resourcesDomainType.get());
@@ -78,7 +78,7 @@ public class TypeFactory
 		return types.get(resourcesDomainType.get());
 	}
 
-	public Map<ResourcesDomainType, List<Type>> getTypesMap()
+	public Map<String, List<Type>> getTypesMap()
 	{
 		return typesMap;
 	}
