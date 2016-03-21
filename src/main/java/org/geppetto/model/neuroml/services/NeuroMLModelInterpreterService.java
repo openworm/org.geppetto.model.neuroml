@@ -244,6 +244,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			}
 		}
 		if(multipleTypes) throw new ModelInterpreterException("Multiple types found and no type id specified");
+		if(type == null) throw new ModelInterpreterException("No type found when parsing NeuroML Model Interpreter");
 	}
 
 	/*
