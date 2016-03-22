@@ -53,7 +53,7 @@ public class TypeFactory
 			{
 				newType = typeFactory.createCompositeType();
 			}
-			newType.getSuperType().add(getSuperType(resourcesDomainType));
+			newType.setSuperType(getSuperType(resourcesDomainType));
 
 			// Add new type to typesMap. It will be used later on to generate description node
 			List<Type> typeList = typesMap.get(resourcesDomainType.get());
