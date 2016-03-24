@@ -97,7 +97,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			reader.readAllFormats(url);
 
 			// Extract Types from the lems/neuroml files
-			type = _neuroMLModelInterpreter.extractTypes(url, typeId, library, access, reader.getLEMSDocument());
+			type = _neuroMLModelInterpreter.extractTypes(url, typeId, library, access, reader);
 		}
 		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
 		{

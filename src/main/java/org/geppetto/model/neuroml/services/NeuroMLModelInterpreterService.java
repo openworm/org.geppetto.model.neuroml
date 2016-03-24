@@ -120,7 +120,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			reader.readAllFormats(url);
 
 			// Extract Types from the lems/neuroml files
-			extractTypes(url, typeId, library, access, reader.getLEMSDocument());
+			extractTypes(url, typeId, library, access, reader);
 		}
 		catch(IOException | NumberFormatException | GeppettoVisitingException e)
 		{
@@ -155,13 +155,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return type;
 	}
 
-	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument) throws NeuroMLException, LEMSException,
+	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, OptimizedLEMSReader reader) throws NeuroMLException, LEMSException,
 			GeppettoVisitingException, ContentError, ModelInterpreterException
 	{
 		try
 		{
 			// Resolve LEMS model
-			Lems lems = ((Lems) lemsDocument);
+			Lems lems = ((Lems) reader.getLEMSDocument());
 			lems.resolve();
 
 			PopulateTypes populateTypes = new PopulateTypes(types, access);
@@ -194,12 +194,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			library.getTypes().addAll(types.values());
 
 			// Extract Summary and Description nodes from type
-			PopulateSummaryNodesUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesUtils(populateTypes.getTypesMap(), type, url, access);
+			PopulateSummaryNodesUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesUtils(populateTypes.getTypesMap(), type, url, access, reader.getNeuroML2String());
 			((CompositeType) type).getVariables().add(populateSummaryNodesModelTreeUtils.getSummaryVariable());
 
 			return type;
 		}
-		catch(NumberFormatException | LEMSException e)
+		catch(Throwable e)
 		{
 			_logger.warn("Error resolving lems file");
 			throw new ModelInterpreterException(e);

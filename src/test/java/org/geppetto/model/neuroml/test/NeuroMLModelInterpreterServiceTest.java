@@ -75,7 +75,7 @@ public class NeuroMLModelInterpreterServiceTest
 	@Test
 	public void testCA1() throws Exception
 	{
-		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
+		//ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
 //		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", null, new NeuroMLModelInterpreterService());
 	}
 
@@ -91,8 +91,8 @@ public class NeuroMLModelInterpreterServiceTest
 //		File pvdr = new File("./src/test/resources/PVDR.nml.xmi");
 //		pvdr.delete();
 
-		File ca1 = new File("./src/test/resources/BigCA1.net.nml.xmi");
-		ca1.delete();
+//		File ca1 = new File("./src/test/resources/BigCA1.net.nml.xmi");
+//		ca1.delete();
 	}
 
 }

@@ -46,6 +46,7 @@ public class OptimizedLEMSReader
 
 	private StringBuffer _LEMSString;
 	private String _neuroMLString;
+	private String _neuroML2String;
 	private List<URL> dependentModels;
 
 	private ILEMSDocument lemsDocument;
@@ -69,6 +70,7 @@ public class OptimizedLEMSReader
 		long start = System.currentTimeMillis();
 		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 		_neuroMLString = NMLHEADER + System.getProperty("line.separator") + trimOuterElement(getLEMSString()) + System.getProperty("line.separator") + "</neuroml>";
+		_neuroML2String = "<neuroml2>"  + System.getProperty("line.separator") + trimOuterElement(getLEMSString()) + System.getProperty("line.separator") + "</neuroml2>";
 		neuromlDocument = neuromlConverter.loadNeuroML(_neuroMLString);
 
 		_logger.info("Parsed NeuroML document of size " + getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
@@ -110,6 +112,11 @@ public class OptimizedLEMSReader
 		return _neuroMLString;
 	}
 
+	public String getNeuroML2String()
+	{
+		return _neuroML2String;
+	}
+	
 	public String getLEMSString()
 	{
 		return _LEMSString.toString();

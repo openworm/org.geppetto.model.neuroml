@@ -33,10 +33,17 @@
 
 package org.gepppetto.model.neuroml.summaryUtils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,15 +69,36 @@ import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
+import org.lemsml.model.Case;
+import org.lemsml.model.ConditionalDerivedVariable;
+import org.lemsml.model.exceptions.LEMSCompilerException;
+import org.lemsml.model.extended.LemsNode;
+import org.lemsml.model.extended.Scope;
+import org.lemsml.model.extended.Symbol;
 import org.neuroml.export.info.model.ChannelInfoExtractor;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.IonChannel;
-import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLException;
+import org.neuroml2.export.info.FunctionNodeHelper;
+import org.neuroml2.model.BaseGate;
+import org.neuroml2.model.BaseVoltageDepRate;
+import org.neuroml2.model.BaseVoltageDepTime;
+import org.neuroml2.model.BaseVoltageDepVariable;
+import org.neuroml2.model.Cell;
+import org.neuroml2.model.IonChannelHH;
+import org.neuroml2.model.NeuroML2ModelReader;
+import org.neuroml2.model.Neuroml2;
+
+import com.google.common.base.Joiner;
+
+import expr_parser.utils.UndefinedSymbolException;
+import expr_parser.visitors.ARenderAs;
+import expr_parser.visitors.AntlrExpressionParser;
+import expr_parser.visitors.RenderMathJS;
 
 /**
  * Populates the Model Tree of Aspect
@@ -90,20 +118,133 @@ public class PopulateSummaryNodesUtils
 	GeppettoModelAccess access;
 	Map<String, List<Type>> typesMap;
 	Type type;
-	
+
 	URL url;
 
-	public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, Type type, URL url, GeppettoModelAccess access)
+	Neuroml2 neuroml;
+	
+	Map<String, String> gatesExpression = new HashMap<String, String>();
+
+	public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, Type type, URL url, GeppettoModelAccess access, String neuromlContent) throws Throwable
 	{
 		this.access = access;
 		this.typesMap = typesMap;
 		this.url = url;
 		this.type = type;
+		    // Create temp file.
+		    File temp = File.createTempFile("tmp", ".nml");
+
+		    // Delete temp file when program exits.
+		    temp.deleteOnExit();
+
+		    // Write to temp file
+		    BufferedWriter out = new BufferedWriter(new FileWriter(temp));
+		    out.write(neuromlContent);
+		    out.close();
+		this.neuroml = NeuroML2ModelReader.read(temp);
+		;
 	}
 
-	public Variable getSummaryVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
+	public Variable getSummaryVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException, LEMSCompilerException, UndefinedSymbolException
 	{
+		getAllExpressionNodes();
 		return createDescriptionNode();
+	}
+
+	private void getAllExpressionNodes() throws LEMSCompilerException, UndefinedSymbolException
+	{
+		for(Cell cell : neuroml.getCells())
+		{
+			for(IonChannelHH chan : cell.getAllOfType(IonChannelHH.class))
+			{
+				
+//				System.out.println("#############################");
+//				System.out.println("channel:" + chan.getName());
+				for(BaseGate gate : chan.getAllOfType(BaseGate.class))
+				{
+					gatesExpression.put(chan.getId() + "_" + gate.getId(), gateInfo(gate));
+//					System.out.println("gate:" + gate.getName());
+//					System.out.println(gateInfo(gate));
+				}
+//				System.out.println("#############################\n\n");
+			}
+		}
+	}
+
+	private String gateInfo(BaseGate gate) throws LEMSCompilerException, UndefinedSymbolException
+	{
+		String ret = "";
+		for(BaseVoltageDepRate r : gate.getAllOfType(BaseVoltageDepRate.class))
+		{
+			ret += r.getName() + ": \n" + processExpression(r.getScope().resolve("r"));
+		}
+		for(BaseVoltageDepTime t : gate.getAllOfType(BaseVoltageDepTime.class))
+		{
+			ret += t.getName() + ": \n" + processExpression(t.getScope().resolve("t"));
+		}
+		for(BaseVoltageDepVariable x : gate.getAllOfType(BaseVoltageDepVariable.class))
+		{
+			ret += x.getName() + ": \n" + processExpression(x.getScope().resolve("x"));
+		}
+
+		return ret;
+	}
+
+	private String processExpression(Symbol resolved) throws LEMSCompilerException, UndefinedSymbolException
+	{
+
+		LemsNode type = resolved.getType();
+		FunctionNodeHelper f = new FunctionNodeHelper();
+		f.setName(resolved.getName());
+		f.register(depsToMathJS(resolved));
+		f.setIndependentVariable("v");
+
+		if(type instanceof ConditionalDerivedVariable)
+		{
+			ConditionalDerivedVariable cdv = (ConditionalDerivedVariable) resolved.getType();
+			f.register(f.getName(), conditionalDVToMathJS(cdv));
+		}
+
+		return f.getBigFatExpression(f.getName()) + "\n";
+	}
+
+	private Map<String, String> depsToMathJS(Symbol resolved) throws LEMSCompilerException, UndefinedSymbolException
+	{
+		Map<String, String> ret = new LinkedHashMap<String, String>();
+		Scope scope = resolved.getScope();
+		Map<String, String> sortedContext = scope.buildTopoSortedContext(resolved);
+		for(Entry<String, String> kv : sortedContext.entrySet())
+		{
+			String var = kv.getKey();
+			String def = kv.getValue();
+			ret.put(var, adaptToMathJS(def));
+		}
+		return ret;
+	}
+
+	private String adaptToMathJS(String expression)
+	{
+		ARenderAs adaptor = new RenderMathJS(neuroml.getSymbolToUnit());
+		AntlrExpressionParser p = new AntlrExpressionParser(expression);
+		return p.parseAndVisitWith(adaptor);
+	}
+
+	private String conditionalDVToMathJS(ConditionalDerivedVariable cdv)
+	{
+		List<String> condsVals = new ArrayList<String>();
+		String defaultCase = null;
+
+		for(Case c : cdv.getCase())
+		{
+			if(null == c.getCondition()) // undocumented LEMS feature: no
+											// condition, "catch-all" case
+			defaultCase = adaptToMathJS(c.getValueDefinition());
+			else condsVals.add(adaptToMathJS(c.getCondition()) + " ? " + adaptToMathJS(c.getValueDefinition()));
+		}
+		if(null != defaultCase) condsVals.add(defaultCase);
+		else condsVals.add("null"); // no case satisfied, no default
+
+		return Joiner.on(" : ").join(condsVals);
 	}
 
 	private Variable createDescriptionNode() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
@@ -183,13 +324,11 @@ public class PopulateSummaryNodesUtils
 			}
 			modelDescription.append("<br/>");
 		}
-		
-		//If there is nothing at least show a link to open the whole model in a tree visualiser
-		if((networkComponents == null || networkComponents.size() == 0) && 
-				(populationComponents == null || populationComponents.size() == 0) && 
-				(cellComponents == null || cellComponents.size() == 0) &&
-				(synapseComponents == null || synapseComponents.size() == 0) && 
-				(pulseGeneratorComponents == null || pulseGeneratorComponents.size() == 0)){
+
+		// If there is nothing at least show a link to open the whole model in a tree visualiser
+		if((networkComponents == null || networkComponents.size() == 0) && (populationComponents == null || populationComponents.size() == 0) && (cellComponents == null || cellComponents.size() == 0)
+				&& (synapseComponents == null || synapseComponents.size() == 0) && (pulseGeneratorComponents == null || pulseGeneratorComponents.size() == 0))
+		{
 			modelDescription.insert(0, "Description: <a href=\"#\" instancePath=\"Model.neuroml." + type.getId() + "\">" + type.getName() + "</a><br/><br/>");
 		}
 
@@ -205,58 +344,7 @@ public class PopulateSummaryNodesUtils
 		return descriptionVariable;
 	}
 
-	private void addExpresionNodes(CompositeType ionChannel) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
-	{
-		// Get lems component and convert to neuroml
-		Component component = ((Component) ionChannel.getDomainModel().getDomainModel());
-		LinkedHashMap<String, Standalone> ionChannelMap = Utils.convertLemsComponentToNeuroML(component);
-		if (ionChannelMap.get(component.getID()) instanceof IonChannel){
-			IonChannel neuromlIonChannel = (IonChannel) ionChannelMap.get(component.getID());
-			if(neuromlIonChannel != null)
-			{
-				//Create channel info extractor from export library
-				ChannelInfoExtractor channelInfoExtractor = new ChannelInfoExtractor(neuromlIonChannel);
-				InfoNode gatesNode = channelInfoExtractor.getGates();
-				for(Map.Entry<String, Object> entry : gatesNode.getProperties().entrySet())
-				{
-					String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
-					for(Variable gateVariable : ionChannel.getVariables())
-					{
-						if(gateVariable.getId().equals(id))
-						{
-							InfoNode gateNode = (InfoNode) entry.getValue();
-							for(Map.Entry<String, Object> gateProperties : gateNode.getProperties().entrySet())
-							{
-								if(gateProperties.getValue() instanceof ExpressionNode)
-								{
-									//Match property id in export lib with neuroml id
-									ResourcesSummary gatePropertyResources = ResourcesSummary.getValueByValue(gateProperties.getKey());
-									if(gatePropertyResources != null)
-									{
-										CompositeType gateType = (CompositeType) gateVariable.getAnonymousTypes().get(0);
-										for(Variable rateVariable : gateType.getVariables())
-										{
-											if(rateVariable.getId().equals(gatePropertyResources.getNeuromlId()))
-											{
-												CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
-												// Create expression node
-												rateType.getVariables().add(getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue()));
-											}
-										}
 	
-									}
-									else{
-										throw new ModelInterpreterException("No node matches summary gate rate");
-									}
-								}
-							}
-						}
-					}
-	
-				}
-			}
-		}	
-	}
 
 	private Variable getExpressionVariable(String expressionNodeId, ExpressionNode expressionNode) throws GeppettoVisitingException
 	{
@@ -294,5 +382,136 @@ public class PopulateSummaryNodesUtils
 
 		return variable;
 	}
+	
+//	private void addExpresionNodes(CompositeType ionChannel) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
+//	{
+//		for(Variable gateVariable : ionChannel.getVariables())
+//		{
+//			if(gateVariable.getId().equals(id))
+//			{
+//				CompositeType gateType = (CompositeType) gateVariable.getAnonymousTypes().get(0);
+//				for(Variable rateVariable : gateType.getVariables())
+//				{
+//					//ResourcesSummary gatePropertyResources = ResourcesSummary.getValueByValue(gateProperties.getKey());
+//					if(rateVariable.getId().equals(gatePropertyResources.getNeuromlId()))
+//					{
+//						CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
+//						// Create expression node
+//						rateType.getVariables().add(getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue()));
+//					}
+//				}
+//			}
+//		}
+//	}
+	
+	private void addExpresionNodes(CompositeType ionChannel) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
+	{
+		// Get lems component and convert to neuroml
+		Component component = ((Component) ionChannel.getDomainModel().getDomainModel());
+		LinkedHashMap<String, Standalone> ionChannelMap = Utils.convertLemsComponentToNeuroML(component);
+		if(ionChannelMap.get(component.getID()) instanceof IonChannel)
+		{
+			IonChannel neuromlIonChannel = (IonChannel) ionChannelMap.get(component.getID());
+			if(neuromlIonChannel != null)
+			{
+				// Create channel info extractor from export library
+				ChannelInfoExtractor channelInfoExtractor = new ChannelInfoExtractor(neuromlIonChannel);
+				InfoNode gatesNode = channelInfoExtractor.getGates();
+				for(Map.Entry<String, Object> entry : gatesNode.getProperties().entrySet())
+				{
+					String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
+					for(Variable gateVariable : ionChannel.getVariables())
+					{
+						if(gateVariable.getId().equals(id))
+						{
+							InfoNode gateNode = (InfoNode) entry.getValue();
+							for(Map.Entry<String, Object> gateProperties : gateNode.getProperties().entrySet())
+							{
+								if(gateProperties.getValue() instanceof ExpressionNode)
+								{
+									// Match property id in export lib with neuroml id
+									ResourcesSummary gatePropertyResources = ResourcesSummary.getValueByValue(gateProperties.getKey());
+									if(gatePropertyResources != null)
+									{
+										CompositeType gateType = (CompositeType) gateVariable.getAnonymousTypes().get(0);
+										for(Variable rateVariable : gateType.getVariables())
+										{
+											if(rateVariable.getId().equals(gatePropertyResources.getNeuromlId()))
+											{
+												CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
+												// Create expression node
+												rateType.getVariables().add(getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue()));
+											}
+										}
+
+									}
+									else
+									{
+										throw new ModelInterpreterException("No node matches summary gate rate");
+									}
+								}
+							}
+						}
+					}
+
+				}
+			}
+		}
+	}
+	
+//	private void addExpresionNodes(CompositeType ionChannel) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
+//	{
+//		// Get lems component and convert to neuroml
+//		Component component = ((Component) ionChannel.getDomainModel().getDomainModel());
+//		LinkedHashMap<String, Standalone> ionChannelMap = Utils.convertLemsComponentToNeuroML(component);
+//		if(ionChannelMap.get(component.getID()) instanceof IonChannel)
+//		{
+//			IonChannel neuromlIonChannel = (IonChannel) ionChannelMap.get(component.getID());
+//			if(neuromlIonChannel != null)
+//			{
+//				// Create channel info extractor from export library
+//				ChannelInfoExtractor channelInfoExtractor = new ChannelInfoExtractor(neuromlIonChannel);
+//				InfoNode gatesNode = channelInfoExtractor.getGates();
+//				for(Map.Entry<String, Object> entry : gatesNode.getProperties().entrySet())
+//				{
+//					String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
+//					for(Variable gateVariable : ionChannel.getVariables())
+//					{
+//						if(gateVariable.getId().equals(id))
+//						{
+//							InfoNode gateNode = (InfoNode) entry.getValue();
+//							for(Map.Entry<String, Object> gateProperties : gateNode.getProperties().entrySet())
+//							{
+//								if(gateProperties.getValue() instanceof ExpressionNode)
+//								{
+//									// Match property id in export lib with neuroml id
+//									ResourcesSummary gatePropertyResources = ResourcesSummary.getValueByValue(gateProperties.getKey());
+//									if(gatePropertyResources != null)
+//									{
+//										CompositeType gateType = (CompositeType) gateVariable.getAnonymousTypes().get(0);
+//										for(Variable rateVariable : gateType.getVariables())
+//										{
+//											if(rateVariable.getId().equals(gatePropertyResources.getNeuromlId()))
+//											{
+//												CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
+//												// Create expression node
+//												rateType.getVariables().add(getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue()));
+//											}
+//										}
+//
+//									}
+//									else
+//									{
+//										throw new ModelInterpreterException("No node matches summary gate rate");
+//									}
+//								}
+//							}
+//						}
+//					}
+//
+//				}
+//			}
+//		}
+//	}
 
 }
