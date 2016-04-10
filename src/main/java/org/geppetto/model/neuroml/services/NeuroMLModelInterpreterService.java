@@ -95,8 +95,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	@Autowired
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
 
-	private Map<String, Type> types = new HashMap<String, Type>();
-	private Type type = null;
+	private Map<String, Type> types;
+	private Type type;
 	private GeppettoModelAccess access;
 
 	/*
@@ -108,7 +108,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	public Type importType(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access) throws ModelInterpreterException
 	{
 		long startTime = System.currentTimeMillis();
-
+		
 		// Read the neuroml/lems model and includes
 		// if there is a neuroml/lems exception -> call NeuroML Validator in order to get a good explanation for the user
 		OptimizedLEMSReader reader = null;
@@ -160,6 +160,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	{
 		try
 		{
+			//Init variables
+			types = new HashMap<String, Type>();
+			type = null;
+			
 			// Resolve LEMS model
 			Lems lems = ((Lems) lemsDocument);
 			lems.resolve();
