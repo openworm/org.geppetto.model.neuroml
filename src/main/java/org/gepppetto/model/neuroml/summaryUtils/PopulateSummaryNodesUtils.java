@@ -31,10 +31,9 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
 
-package org.geppetto.model.neuroml.modelinterpreter.utils;
+package org.gepppetto.model.neuroml.summaryUtils;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,9 +42,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
-import org.geppetto.model.neuroml.utils.ResourcesSummary;
 import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.Type;
@@ -80,73 +79,55 @@ import org.neuroml.model.util.NeuroMLException;
  * 
  */
 
-public class PopulateSummaryNodesModelTreeUtils
+public class PopulateSummaryNodesUtils
 {
-	private static Log logger = LogFactory.getLog(PopulateSummaryNodesModelTreeUtils.class);
+	private static Log logger = LogFactory.getLog(PopulateSummaryNodesUtils.class);
 
 	TypesFactory typeFactory = TypesFactory.eINSTANCE;
 	VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
 	ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 
 	GeppettoModelAccess access;
-	NeuroMLDocument neuroml;
-	Map<ResourcesDomainType, List<Type>> typesMap;
+	Map<String, List<Type>> typesMap;
+	Type type;
+	
 	URL url;
 
-	public PopulateSummaryNodesModelTreeUtils(NeuroMLDocument neuroml, Map<ResourcesDomainType, List<Type>> typesMap, URL url, GeppettoModelAccess access)
+	public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, Type type, URL url, GeppettoModelAccess access)
 	{
-		this.neuroml = neuroml;
 		this.access = access;
 		this.typesMap = typesMap;
 		this.url = url;
+		this.type = type;
 	}
 
-	public List<Variable> getSummaryVariables() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
+	public Variable getSummaryVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
 	{
-		List<Variable> summaryVariables = new ArrayList<Variable>();
-		// Summary2
-		summaryVariables.add(createDescriptionNode());
-
-		// // Summary
-		// Variable summaryVariable = variablesFactory.createVariable();
-		// ModelInterpreterUtils.initialiseNodeFromString(summaryVariable, "Summary");
-		// long start = System.currentTimeMillis();
-		// InfoNode info = InfoTreeCreator.createInfoTree(neuroml);
-		// logger.info("Creating the NeuroML summary using the export library took: " + (System.currentTimeMillis() - start) + "ms");
-		// start = System.currentTimeMillis();
-		// CompositeType compositeInfo = createInfoNode(info, "Summary");
-		// summaryVariable.getAnonymousTypes().add(compositeInfo);
-		// summaryVariables.add(summaryVariable);
-		// logger.info("Converting the NeuroML summary to the Geppetto model took: " + (System.currentTimeMillis() - start) + "ms");
-
-		return summaryVariables;
+		return createDescriptionNode();
 	}
 
-	public Variable createDescriptionNode() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
+	private Variable createDescriptionNode() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
 	{
 
-		List<Type> networkComponents = typesMap.containsKey(ResourcesDomainType.NETWORK) ? typesMap.get(ResourcesDomainType.NETWORK) : null;
-		List<Type> populationComponents = typesMap.containsKey(ResourcesDomainType.POPULATION) ? typesMap.get(ResourcesDomainType.POPULATION) : null;
-		List<Type> cellComponents = typesMap.containsKey(ResourcesDomainType.CELL) ? typesMap.get(ResourcesDomainType.CELL) : null;
-		List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL) ? typesMap.get(ResourcesDomainType.IONCHANNEL) : null;
-		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE) ? typesMap.get(ResourcesDomainType.SYNAPSE) : null;
-		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR) : null;
+		List<Type> networkComponents = typesMap.containsKey(ResourcesDomainType.NETWORK.get()) ? typesMap.get(ResourcesDomainType.NETWORK.get()) : null;
+		List<Type> populationComponents = typesMap.containsKey(ResourcesDomainType.POPULATION.get()) ? typesMap.get(ResourcesDomainType.POPULATION.get()) : null;
+		List<Type> cellComponents = typesMap.containsKey(ResourcesDomainType.CELL.get()) ? typesMap.get(ResourcesDomainType.CELL.get()) : null;
+		List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL.get()) ? typesMap.get(ResourcesDomainType.IONCHANNEL.get()) : null;
+		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
+		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
 
 		StringBuilder modelDescription = new StringBuilder();
-		// modelDescription.append("<b>Model Summary</b><br/>");
 
-		// // FIXME: We need to add something about how beautiful the network is and so on
 		if(networkComponents != null && networkComponents.size() > 0)
 		{
 			modelDescription.append("Description: ");
 			for(Type network : networkComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + network.getId() + "\">" + network.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + network.getId() + "\">" + network.getName() + "</a><br/><br/>");
 			}
 		}
-		modelDescription.append("<br/><br/><a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/><br/>");
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/><br/>");
 
-		// FIXME: We should improve this once the instance/type refactor is done as we need the cell type
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
 			modelDescription.append("<b>Populations</b><br/>");
@@ -202,6 +183,15 @@ public class PopulateSummaryNodesModelTreeUtils
 			}
 			modelDescription.append("<br/>");
 		}
+		
+		//If there is nothing at least show a link to open the whole model in a tree visualiser
+		if((networkComponents == null || networkComponents.size() == 0) && 
+				(populationComponents == null || populationComponents.size() == 0) && 
+				(cellComponents == null || cellComponents.size() == 0) &&
+				(synapseComponents == null || synapseComponents.size() == 0) && 
+				(pulseGeneratorComponents == null || pulseGeneratorComponents.size() == 0)){
+			modelDescription.insert(0, "Description: <a href=\"#\" instancePath=\"Model.neuroml." + type.getId() + "\">" + type.getName() + "</a><br/><br/>");
+		}
 
 		HTML html = valuesFactory.createHTML();
 		html.setHtml(modelDescription.toString());
@@ -220,50 +210,52 @@ public class PopulateSummaryNodesModelTreeUtils
 		// Get lems component and convert to neuroml
 		Component component = ((Component) ionChannel.getDomainModel().getDomainModel());
 		LinkedHashMap<String, Standalone> ionChannelMap = Utils.convertLemsComponentToNeuroML(component);
-		IonChannel neuromlIonChannel = (IonChannel) ionChannelMap.get(component.getID());
-		if(neuromlIonChannel != null)
-		{
-			//Create channel info extractor from export library
-			ChannelInfoExtractor channelInfoExtractor = new ChannelInfoExtractor(neuromlIonChannel);
-			InfoNode gatesNode = channelInfoExtractor.getGates();
-			for(Map.Entry<String, Object> entry : gatesNode.getProperties().entrySet())
+		if (ionChannelMap.get(component.getID()) instanceof IonChannel){
+			IonChannel neuromlIonChannel = (IonChannel) ionChannelMap.get(component.getID());
+			if(neuromlIonChannel != null)
 			{
-				String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
-				for(Variable gateVariable : ionChannel.getVariables())
+				//Create channel info extractor from export library
+				ChannelInfoExtractor channelInfoExtractor = new ChannelInfoExtractor(neuromlIonChannel);
+				InfoNode gatesNode = channelInfoExtractor.getGates();
+				for(Map.Entry<String, Object> entry : gatesNode.getProperties().entrySet())
 				{
-					if(gateVariable.getId().equals(id))
+					String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
+					for(Variable gateVariable : ionChannel.getVariables())
 					{
-						InfoNode gateNode = (InfoNode) entry.getValue();
-						for(Map.Entry<String, Object> gateProperties : gateNode.getProperties().entrySet())
+						if(gateVariable.getId().equals(id))
 						{
-							if(gateProperties.getValue() instanceof ExpressionNode)
+							InfoNode gateNode = (InfoNode) entry.getValue();
+							for(Map.Entry<String, Object> gateProperties : gateNode.getProperties().entrySet())
 							{
-								//Match property id in export lib with neuroml id
-								ResourcesSummary gatePropertyResources = ResourcesSummary.getValueByValue(gateProperties.getKey());
-								if(gatePropertyResources != null)
+								if(gateProperties.getValue() instanceof ExpressionNode)
 								{
-									CompositeType gateType = (CompositeType) gateVariable.getAnonymousTypes().get(0);
-									for(Variable rateVariable : gateType.getVariables())
+									//Match property id in export lib with neuroml id
+									ResourcesSummary gatePropertyResources = ResourcesSummary.getValueByValue(gateProperties.getKey());
+									if(gatePropertyResources != null)
 									{
-										if(rateVariable.getId().equals(gatePropertyResources.getNeuromlId()))
+										CompositeType gateType = (CompositeType) gateVariable.getAnonymousTypes().get(0);
+										for(Variable rateVariable : gateType.getVariables())
 										{
-											CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
-											// Create expression node
-											rateType.getVariables().add(getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue()));
+											if(rateVariable.getId().equals(gatePropertyResources.getNeuromlId()))
+											{
+												CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
+												// Create expression node
+												rateType.getVariables().add(getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue()));
+											}
 										}
+	
 									}
-
-								}
-								else{
-									throw new ModelInterpreterException("No node matches summary gate rate");
+									else{
+										throw new ModelInterpreterException("No node matches summary gate rate");
+									}
 								}
 							}
 						}
 					}
+	
 				}
-
 			}
-		}
+		}	
 	}
 
 	private Variable getExpressionVariable(String expressionNodeId, ExpressionNode expressionNode) throws GeppettoVisitingException
@@ -302,91 +294,5 @@ public class PopulateSummaryNodesModelTreeUtils
 
 		return variable;
 	}
-
-	// public CompositeType createInfoNode(InfoNode node, String typeName) throws ModelInterpreterException, GeppettoVisitingException
-	// {
-	// CompositeType summaryCompositeType = typeFactory.createCompositeType();
-	// ModelInterpreterUtils.initialiseNodeFromString(summaryCompositeType, typeName);
-	//
-	// for(Map.Entry<String, Object> properties : node.getProperties().entrySet())
-	// {
-	// String keyProperties = properties.getKey();
-	// Object valueProperties = properties.getValue();
-	// if(!keyProperties.equals("ID"))
-	// {
-	// if(valueProperties == null)
-	// {
-	// summaryCompositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(keyProperties, "", access));
-	// }
-	// else if(valueProperties instanceof String)
-	// {
-	// summaryCompositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(keyProperties, (String) valueProperties, access));
-	// }
-	// else if(valueProperties instanceof BigInteger)
-	// {
-	// summaryCompositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(keyProperties, ((BigInteger) valueProperties).toString(), access));
-	// }
-	// else if(valueProperties instanceof Integer)
-	// {
-	// summaryCompositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(keyProperties, Integer.toString((Integer) valueProperties), access));
-	// }
-	// else if(valueProperties instanceof ExpressionNode)
-	// {
-	// ExpressionNode expressionNode = ((ExpressionNode) valueProperties);
-	//
-	// Argument argument = valuesFactory.createArgument();
-	// argument.setArgument("v");
-	//
-	// Expression expression = valuesFactory.createExpression();
-	// expression.setExpression(expressionNode.getExpression());
-	//
-	// Function function = valuesFactory.createFunction();
-	// function.setExpression(expression);
-	// function.getArguments().add(argument);
-	// PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
-	// if(plotMetadataNode != null)
-	// {
-	// FunctionPlot functionPlot = valuesFactory.createFunctionPlot();
-	// functionPlot.setTitle(plotMetadataNode.getPlotTitle());
-	// functionPlot.setXAxisLabel(plotMetadataNode.getXAxisLabel());
-	// functionPlot.setYAxisLabel(plotMetadataNode.getYAxisLabel());
-	// functionPlot.setInitialValue(plotMetadataNode.getInitialValue());
-	// functionPlot.setFinalValue(plotMetadataNode.getFinalValue());
-	// functionPlot.setStepValue(plotMetadataNode.getStepValue());
-	// function.setFunctionPlot(functionPlot);
-	// }
-	//
-	// Dynamics dynamics = valuesFactory.createDynamics();
-	// dynamics.setDynamics(function);
-	//
-	// Variable variable = variablesFactory.createVariable();
-	// variable.setId(ModelInterpreterUtils.parseId(keyProperties));
-	// variable.setName(keyProperties);
-	// variable.getInitialValues().put(access.getType(TypesPackage.Literals.DYNAMICS_TYPE), dynamics);
-	// variable.getTypes().add(access.getType(TypesPackage.Literals.DYNAMICS_TYPE));
-	//
-	// summaryCompositeType.getVariables().add(variable);
-	// }
-	// else if(valueProperties instanceof InfoNode)
-	// {
-	// // This shouldn't happen but sometimes export library returns a node with no children inside
-	// if(((InfoNode) valueProperties).getProperties().size() > 0)
-	// {
-	// Variable variable = variablesFactory.createVariable();
-	// variable.setId(ModelInterpreterUtils.parseId(keyProperties));
-	// variable.setName(keyProperties);
-	// variable.getAnonymousTypes().add(createInfoNode((InfoNode) valueProperties, keyProperties));
-	// summaryCompositeType.getVariables().add(variable);
-	// }
-	// }
-	// // This should be removed once it is fixed in the export library
-	// else if(!(valueProperties instanceof PlotNode))
-	// {
-	// throw new ModelInterpreterException("Info Writer Node type not supported. Object: " + keyProperties + ". Java class" + valueProperties.getClass());
-	// }
-	// }
-	// }
-	// return summaryCompositeType;
-	// }
 
 }

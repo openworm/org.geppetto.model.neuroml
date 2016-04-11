@@ -30,7 +30,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE 
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package org.geppetto.model.neuroml.modelinterpreter.utils;
+package org.geppetto.model.neuroml.visualUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +40,9 @@ import java.util.Map;
 
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.model.neuroml.modelInterpreterUtils.NeuroMLModelInterpreterUtils;
+import org.geppetto.model.neuroml.utils.CellUtils;
+import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.TypesFactory;
@@ -108,7 +111,7 @@ public class ExtractVisualType
 	public VisualType createTypeFromCellMorphology() throws GeppettoVisitingException, LEMSException, NeuroMLException, ModelInterpreterException
 	{
 		CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
-		ModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, cell.getMorphology().getId());
+		NeuroMLModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, cell.getMorphology().getId());
 		visualCompositeType.getVisualGroups().add(createCellPartsVisualGroups());
 
 		visualObjectsSegments = getVisualObjectsFromListOfSegments();
@@ -148,10 +151,7 @@ public class ExtractVisualType
 		{
 			Variable variable = variablesFactory.createVariable();
 
-			ModelInterpreterUtils.initialiseNodeFromString(variable, ModelInterpreterUtils.getVisualObjectIdentifier(segment));
-
-			// variable.setId(getVisualObjectIdentifier(segment.getId().toString()));
-			// variable.setName((segment.getName() != null && !segment.getName().equals(""))?segment.getName(): "compartment_" + segment.getId());
+			NeuroMLModelInterpreterUtils.initialiseNodeFromString(variable, NeuroMLModelInterpreterUtils.getVisualObjectIdentifier(segment));
 
 			variable.getTypes().add(this.access.getType(TypesPackage.Literals.VISUAL_TYPE));
 
@@ -235,7 +235,7 @@ public class ExtractVisualType
 	private VisualGroup createCellPartsVisualGroups()
 	{
 		VisualGroup cellParts = valuesFactory.createVisualGroup();
-		ModelInterpreterUtils.initialiseNodeFromString(cellParts, Resources.CELL_REGIONS.get());
+		NeuroMLModelInterpreterUtils.initialiseNodeFromString(cellParts, Resources.CELL_REGIONS.get());
 
 		// Get all the segment groups from morphology
 		for(SegmentGroup segmentGroup : this.cell.getMorphology().getSegmentGroup())
@@ -247,25 +247,25 @@ public class ExtractVisualType
 			if(segmentGroupID.equals(Resources.SOMA.getId()) || segmentGroupID.equals(Resources.DENDRITES.getId()) || segmentGroupID.equals(Resources.AXONS.getId()))
 			{
 				VisualGroupElement visualGroupElement = valuesFactory.createVisualGroupElement();
-				ModelInterpreterUtils.initialiseNodeFromString(visualGroupElement, segmentGroupID);
+				NeuroMLModelInterpreterUtils.initialiseNodeFromString(visualGroupElement, segmentGroupID);
 
 				if(segmentGroupID.equals(Resources.SOMA.getId()))
 				{
-					visualGroupElement.setDefaultColor(ModelInterpreterConstants.SOMA_COLOR);
+					visualGroupElement.setDefaultColor(ModelInterpreterVisualConstants.SOMA_COLOR);
 				}
 				else if(segmentGroupID.equals(Resources.DENDRITES.getId()))
 				{
-					visualGroupElement.setDefaultColor(ModelInterpreterConstants.DENDRITES_COLOR);
+					visualGroupElement.setDefaultColor(ModelInterpreterVisualConstants.DENDRITES_COLOR);
 				}
 				else if(segmentGroupID.equals(Resources.AXONS.getId()))
 				{
-					visualGroupElement.setDefaultColor(ModelInterpreterConstants.AXONS_COLOR);
+					visualGroupElement.setDefaultColor(ModelInterpreterVisualConstants.AXONS_COLOR);
 				}
 				cellParts.getVisualGroupElements().add(visualGroupElement);
 
 				for(Segment segment : segmentGroupSegMap.get(segmentGroup))
 				{
-					String segmentID = ModelInterpreterUtils.getVisualObjectIdentifier(segment);
+					String segmentID = NeuroMLModelInterpreterUtils.getVisualObjectIdentifier(segment);
 					List<VisualGroupElement> groups;
 					// segment not in map, add with new list for groups
 					if(!segmentsMap.containsKey(segmentID))
@@ -301,7 +301,7 @@ public class ExtractVisualType
 		for (Segment segment : segmentGroupSegMap.get(sg)){
 			for(Variable g : allSegments)
 			{
-				if(g.getId().equals(ModelInterpreterUtils.getVisualObjectIdentifier(segment)))
+				if(g.getId().equals(NeuroMLModelInterpreterUtils.getVisualObjectIdentifier(segment)))
 				{
 					geometries.add(g);
 				}

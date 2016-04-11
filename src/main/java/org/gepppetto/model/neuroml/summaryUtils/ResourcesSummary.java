@@ -31,7 +31,7 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
 
-package org.geppetto.model.neuroml.utils;
+package org.gepppetto.model.neuroml.summaryUtils;
 
 /**
  * Class to hold resources used in the visualiser. This elements will be displayed to the user.

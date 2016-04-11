@@ -94,10 +94,10 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		{
 			// Read main and includes as a String
 			OptimizedLEMSReader reader = new OptimizedLEMSReader(this.dependentModels);
-			reader.readAllFormats(url, OptimizedLEMSReader.NMLDOCTYPE.LEMS);
+			reader.readAllFormats(url);
 
 			// Extract Types from the lems/neuroml files
-			type = _neuroMLModelInterpreter.extractTypes(url, typeId, library, access, reader.getLEMSDocument(), reader.getNeuroMLDocument());
+			type = _neuroMLModelInterpreter.extractTypes(url, typeId, library, access, reader.getLEMSDocument());
 		}
 		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
 		{
