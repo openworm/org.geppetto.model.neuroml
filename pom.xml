@@ -106,11 +106,6 @@
 			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
-		<dependency>
-        	<groupId>org.neuroml2.export.info</groupId>
-        	<artifactId>neuroml2-info-extractor</artifactId>
-        	<version>0.1-SNAPSHOT</version>
-        </dependency>
 	</dependencies>
 	<repositories>
 		<repository>
