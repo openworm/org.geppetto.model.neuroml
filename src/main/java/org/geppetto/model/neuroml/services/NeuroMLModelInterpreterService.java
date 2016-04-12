@@ -205,6 +205,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		}
 		catch(Throwable e)
 		{
+			e.printStackTrace();
 			_logger.warn("Error resolving lems file");
 			throw new ModelInterpreterException(e);
 		}
