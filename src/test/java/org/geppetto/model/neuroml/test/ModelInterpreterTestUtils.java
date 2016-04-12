@@ -40,7 +40,7 @@ public class ModelInterpreterTestUtils
 		gm.getLibraries().add(EcoreUtil.copy(SharedLibraryManager.getSharedCommonLibrary()));
 		GeppettoModelAccess commonLibraryAccess = new GeppettoModelAccess(gm);
 
-		
+		Type type = modelInterpreter.importType(url, typeName, gl, commonLibraryAccess);
 
 		//long startTime = System.currentTimeMillis();
 
@@ -59,7 +59,7 @@ public class ModelInterpreterTestUtils
 		Resource resourceAll = domain.createResource(URI.createURI(outputPath_all).toString());
 		resourceAll.getContents().add(gm);
 		resourceAll.save(null);
-		Type type = modelInterpreter.importType(url, typeName, gl, commonLibraryAccess);
+		
 
 		//long endTime = System.currentTimeMillis();
 		//_logger.info("Serialising " + (endTime - startTime) + " milliseconds for url " + url + " and  typename " + typeName);
