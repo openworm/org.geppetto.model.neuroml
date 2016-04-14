@@ -53,6 +53,9 @@ import expr_parser.visitors.ARenderAs;
 import expr_parser.visitors.AntlrExpressionParser;
 import expr_parser.visitors.RenderMathJS;
 
+
+//Model to test it
+//http://opensourcebrain.org/projects/acnet2?explorer=https%3A%2F%2Fraw.githubusercontent.com%2FOpenSourceBrain%2FACnet2%2Fmaster%2FneuroConstruct%2FgeneratedNeuroML2%2FKahp_pyr.channel.nml
 public class PopulateDynamicsGate
 {
 	TypesFactory typeFactory = TypesFactory.eINSTANCE;
@@ -63,7 +66,6 @@ public class PopulateDynamicsGate
 	String neuromlContent;
 	Neuroml2 neuroml;
 	
-	//Neuroml2 neuroml;
 	Map<String, Map<String,Variable>> gatesExpression = new HashMap<String, Map<String,Variable>>();
 	
 	public PopulateDynamicsGate(String neuromlContent, GeppettoModelAccess access) throws Throwable{
@@ -90,16 +92,10 @@ public class PopulateDynamicsGate
 		{
 			for(IonChannelHH chan : cell.getAllOfType(IonChannelHH.class))
 			{
-				
-//				System.out.println("#############################");
-//				System.out.println("channel:" + chan.getName());
 				for(BaseGate gate : chan.getAllOfType(BaseGate.class))
 				{
 					gatesExpression.put(chan.getId() + "_" + gate.getId(), gateInfo(gate));
-//					System.out.println("gate:" + gate.getName());
-//					System.out.println(gateInfo(gate));
 				}
-//				System.out.println("#############################\n\n");
 			}
 		}
 	}
@@ -153,50 +149,9 @@ public class PopulateDynamicsGate
 
 		return variable;
 	}
-
-//	private Variable getExpressionVariable(String expressionNodeId, ExpressionNode expressionNode) throws GeppettoVisitingException
-//	{
-//
-//		Argument argument = valuesFactory.createArgument();
-//		argument.setArgument("v");
-//
-//		Expression expression = valuesFactory.createExpression();
-//		expression.setExpression(expressionNode.getExpression());
-//
-//		Function function = valuesFactory.createFunction();
-//		function.setExpression(expression);
-//		function.getArguments().add(argument);
-//		PlotMetadataNode plotMetadataNode = expressionNode.getPlotMetadataNode();
-//		if(plotMetadataNode != null)
-//		{
-//			FunctionPlot functionPlot = valuesFactory.createFunctionPlot();
-//			functionPlot.setTitle(plotMetadataNode.getPlotTitle());
-//			functionPlot.setXAxisLabel(plotMetadataNode.getXAxisLabel());
-//			functionPlot.setYAxisLabel(plotMetadataNode.getYAxisLabel());
-//			functionPlot.setInitialValue(plotMetadataNode.getInitialValue());
-//			functionPlot.setFinalValue(plotMetadataNode.getFinalValue());
-//			functionPlot.setStepValue(plotMetadataNode.getStepValue());
-//			function.setFunctionPlot(functionPlot);
-//		}
-//
-//		Dynamics dynamics = valuesFactory.createDynamics();
-//		dynamics.setDynamics(function);
-//
-//		Variable variable = variablesFactory.createVariable();
-//		variable.setId(ModelInterpreterUtils.parseId(expressionNodeId));
-//		variable.setName(expressionNodeId);
-//		variable.getInitialValues().put(access.getType(TypesPackage.Literals.DYNAMICS_TYPE), dynamics);
-//		variable.getTypes().add(access.getType(TypesPackage.Literals.DYNAMICS_TYPE));
-//
-//		return variable;
-//	}
 	
 	public void addExpresionNodes(CompositeType ionChannel) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
 	{
-		
-		
-		
-		
 		for(Variable gateVariable : ionChannel.getVariables())
 		{
 			
@@ -219,8 +174,6 @@ public class PopulateDynamicsGate
 		}
 	}
 	
-
-
 	private Map<String,Variable> gateInfo(BaseGate gate) throws LEMSCompilerException, UndefinedSymbolException, GeppettoVisitingException
 	{
 		Map<String,Variable> ret = new HashMap<String,Variable>();
@@ -278,59 +231,5 @@ public class PopulateDynamicsGate
 
 		return Joiner.on(" : ").join(condsVals);
 	}
-	
-//	private void addExpresionNodes(CompositeType ionChannel) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
-//	{
-//		// Get lems component and convert to neuroml
-//		Component component = ((Component) ionChannel.getDomainModel().getDomainModel());
-//		LinkedHashMap<String, Standalone> ionChannelMap = Utils.convertLemsComponentToNeuroML(component);
-//		if(ionChannelMap.get(component.getID()) instanceof IonChannel)
-//		{
-//			IonChannel neuromlIonChannel = (IonChannel) ionChannelMap.get(component.getID());
-//			if(neuromlIonChannel != null)
-//			{
-//				// Create channel info extractor from export library
-//				ChannelInfoExtractor channelInfoExtractor = new ChannelInfoExtractor(neuromlIonChannel);
-//				InfoNode gatesNode = channelInfoExtractor.getGates();
-//				for(Map.Entry<String, Object> entry : gatesNode.getProperties().entrySet())
-//				{
-//					String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
-//					for(Variable gateVariable : ionChannel.getVariables())
-//					{
-//						if(gateVariable.getId().equals(id))
-//						{
-//							InfoNode gateNode = (InfoNode) entry.getValue();
-//							for(Map.Entry<String, Object> gateProperties : gateNode.getProperties().entrySet())
-//							{
-//								if(gateProperties.getValue() instanceof ExpressionNode)
-//								{
-//									// Match property id in export lib with neuroml id
-//									ResourcesSummary gatePropertyResources = ResourcesSummary.getValueByValue(gateProperties.getKey());
-//									if(gatePropertyResources != null)
-//									{
-//										CompositeType gateType = (CompositeType) gateVariable.getAnonymousTypes().get(0);
-//										for(Variable rateVariable : gateType.getVariables())
-//										{
-//											if(rateVariable.getId().equals(gatePropertyResources.getNeuromlId()))
-//											{
-//												CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
-//												// Create expression node
-//												rateType.getVariables().add(getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue()));
-//											}
-//										}
-//
-//									}
-//									else
-//									{
-//										throw new ModelInterpreterException("No node matches summary gate rate");
-//									}
-//								}
-//							}
-//						}
-//					}
-//
-//				}
-//			}
-//		}
-//	}
+
 }
