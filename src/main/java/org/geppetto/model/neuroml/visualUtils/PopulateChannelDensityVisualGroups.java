@@ -305,9 +305,17 @@ public class PopulateChannelDensityVisualGroups
 		//element.setDefaultColor(defaultColor);
 		vis.getVisualGroupElements().add(element);
 
-		for (Segment segment :segmentGroupSegMap.get(segmentGroup)){
-			((VisualValue)segmentIdsvisualObjectsSegments.get(segment.getId()).getInitialValues().get(this.access.getType(TypesPackage.Literals.VISUAL_TYPE))).getGroupElements().add(element);
+		if (segmentGroupSegMap.containsKey(segmentGroup)){
+			for (Segment segment : segmentGroupSegMap.get(segmentGroup)){
+				((VisualValue)segmentIdsvisualObjectsSegments.get(segment.getId()).getInitialValues().get(this.access.getType(TypesPackage.Literals.VISUAL_TYPE))).getGroupElements().add(element);
+			}
 		}
+		else if (segmentGroup.equals("all")) {
+			for (Variable visualObject : segmentIdsvisualObjectsSegments.values()){
+				((VisualValue)visualObject.getInitialValues().get(this.access.getType(TypesPackage.Literals.VISUAL_TYPE))).getGroupElements().add(element);
+			}
+		}
+		
 
 	}
 
