@@ -34,6 +34,7 @@ package org.geppetto.model.neuroml.visualUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -41,20 +42,23 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.Tag;
 import org.geppetto.model.neuroml.modelInterpreterUtils.NeuroMLModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.CellUtils;
-import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.TypesFactory;
+import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.PhysicalQuantity;
 import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.values.VisualGroup;
 import org.geppetto.model.values.VisualGroupElement;
+import org.geppetto.model.values.VisualValue;
+import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
 import org.lemsml.jlems.core.eval.DoubleEvaluator;
 import org.lemsml.jlems.core.expression.ParseError;
@@ -84,22 +88,30 @@ public class PopulateChannelDensityVisualGroups
 
 	private CellUtils cellUtils;
 	private Cell cell;
+	private LinkedHashMap<String, List<Segment>> segmentGroupSegMap;
+	private Map<Integer, Variable> segmentIdsvisualObjectsSegments;
+	private GeppettoModelAccess access;
+	
 	TypesFactory typeFactory;
 	ValuesFactory valuesFactory;
 	VariablesFactory variablesFactory;
 	GeppettoFactory geppettoFactory;
-
+	
 	private Tag channelDensityTag;
-
-	public PopulateChannelDensityVisualGroups(Cell cell)
+	
+	public PopulateChannelDensityVisualGroups(Cell cell, LinkedHashMap<String, List<Segment>> segmentGroupSegMap, Map<Integer, Variable> segmentIdsvisualObjectsSegments, GeppettoModelAccess access)
 	{
 		super();
 		this.cell = cell;
+		this.segmentGroupSegMap = segmentGroupSegMap;
+		this.segmentIdsvisualObjectsSegments = segmentIdsvisualObjectsSegments;
+		this.access = access;
 		typeFactory = TypesFactory.eINSTANCE;
 		valuesFactory = ValuesFactory.eINSTANCE;
 		variablesFactory = VariablesFactory.eINSTANCE;
 		geppettoFactory = GeppettoFactory.eINSTANCE;
 	}
+
 
 	public Tag getChannelDensityTag()
 	{
@@ -118,7 +130,7 @@ public class PopulateChannelDensityVisualGroups
 	 * @throws ParseError
 	 * @throws ContentError
 	 */
-	public List<VisualGroup> createChannelDensities() throws GeppettoVisitingException, ModelInterpreterException, NeuroMLException, ContentError, ParseError
+	public List <VisualGroup> createChannelDensities() throws GeppettoVisitingException, ModelInterpreterException, NeuroMLException, ContentError, ParseError
 	{
 		Map<String, VisualGroup> groupsMap = new HashMap<String, VisualGroup>();
 
@@ -271,7 +283,7 @@ public class PopulateChannelDensityVisualGroups
 		{
 			if(!density.getId().endsWith("_all"))
 			{
-				VisualGroup vis = createVisualGroup(groupsMap, density.getId());
+				VisualGroup vis = createVisualGroup(groupsMap, ionChannel);
 				vis.getTags().add(tag);
 				createVisualGroupElementFromSegmentGroup(segmentGroup, condDensity, vis);
 			}
@@ -292,6 +304,11 @@ public class PopulateChannelDensityVisualGroups
 		element.setParameter(getParameterFromCondDensity(condDensity));
 		//element.setDefaultColor(defaultColor);
 		vis.getVisualGroupElements().add(element);
+
+		for (Segment segment :segmentGroupSegMap.get(segmentGroup)){
+			((VisualValue)segmentIdsvisualObjectsSegments.get(segment.getId()).getInitialValues().get(this.access.getType(TypesPackage.Literals.VISUAL_TYPE))).getGroupElements().add(element);
+		}
+
 	}
 
 	private PhysicalQuantity getParameterFromCondDensity(String condDensity) throws GeppettoVisitingException
@@ -315,4 +332,5 @@ public class PopulateChannelDensityVisualGroups
 		}
 		return null;
 	}
+	
 }
