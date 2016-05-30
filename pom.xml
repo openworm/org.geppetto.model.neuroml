@@ -7,6 +7,12 @@
 	<name>Geppetto NeuroML Model bundle</name>
 	<version>0.3.0</version>
 	<packaging>bundle</packaging>
+	<parent>
+		<groupId>org.geppetto</groupId>
+		<artifactId>org.geppetto</artifactId>
+		<version>${project.version}</version>
+		<relativePath>../org.geppetto</relativePath>
+	</parent>
 	<properties>
 		<spring.version>3.1.3.RELEASE</spring.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,10 +30,10 @@
 		</dependency>
 
 		<dependency>
- 			<groupId>org.apache.velocity</groupId>
- 			<artifactId>velocity</artifactId>
- 			<version>1.7</version>
- 		</dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.7</version>
+		</dependency>
 		<dependency>
 			<groupId>org.neuroml.model</groupId>
 			<artifactId>org.neuroml.model</artifactId>
@@ -155,7 +161,7 @@
 				<version>2.15</version>
 				<configuration>
 					<junitArtifactName>org.junit:com.springsource.org.junit</junitArtifactName>
-				</configuration>	
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
