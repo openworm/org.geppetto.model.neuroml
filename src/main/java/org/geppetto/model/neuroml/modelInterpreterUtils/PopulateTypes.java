@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
@@ -33,10 +35,14 @@ import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.ParamValue;
 import org.neuroml.export.utils.Utils;
+import org.neuroml.model.Cell;
+import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLException;
 
 public class PopulateTypes
 {
+
+	private static Log _logger = LogFactory.getLog(PopulateTypes.class);
 
 	private Map<String, Type> types;
 
@@ -49,18 +55,21 @@ public class PopulateTypes
 	private Map<Component, List<Variable>> cellSegmentMap = new HashMap<Component, List<Variable>>();
 
 	private GeppettoModelAccess access;
-	
+
 	private PopulateProjectionTypes populateProjectionTypes;
 	private PopulateElectricalProjectionTypes populateElectricalProjectionTypes;
 	private PopulateContinuousProjectionTypes populateContinuousProjectionTypes;
-	
-	public PopulateTypes(Map<String, Type> types, GeppettoModelAccess access)
+
+	private NeuroMLDocument neuroMLDocument;
+
+	public PopulateTypes(Map<String, Type> types, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument)
 	{
 		super();
 		this.types = types;
 		this.typeFactory = new TypeFactory(types);
 		this.access = access;
-		
+		this.neuroMLDocument = neuroMLDocument;
+
 		populateProjectionTypes = new PopulateProjectionTypes(this, access);
 		populateElectricalProjectionTypes = new PopulateElectricalProjectionTypes(this, access);
 		populateContinuousProjectionTypes = new PopulateContinuousProjectionTypes(this, access);
@@ -72,6 +81,8 @@ public class PopulateTypes
 	public CompositeType extractInfoFromComponent(Component component, String domainType) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException,
 			ModelInterpreterException
 	{
+		long start = System.currentTimeMillis();
+
 		// Create composite type depending on type of component and initialise it
 		CompositeType compositeType = (CompositeType) typeFactory.getType((domainType == null) ? ResourcesDomainType.getValueByComponentType(component.getComponentType()) : domainType);
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
@@ -151,8 +162,7 @@ public class PopulateTypes
 		{
 			populateContinuousProjectionTypes.createConnectionTypeVariablesFromProjection(projection, compositeType);
 		}
-		
-		
+
 		// Extracting the rest of the child
 		for(Component componentChild : component.getChildHM().values())
 		{
@@ -244,6 +254,8 @@ public class PopulateTypes
 			}
 		}
 
+		_logger.info("Creating composite type for " + component.getID() + ", took " + (System.currentTimeMillis() - start) + "ms");
+
 		return compositeType;
 
 	}
@@ -253,12 +265,28 @@ public class PopulateTypes
 	{
 		if(!types.containsKey(morphology.getDeclaredType() + morphology.getParent().getID() + "_" + morphology.getID()))
 		{
-			ExtractVisualType extractVisualType = new ExtractVisualType(component, access);
+			ExtractVisualType extractVisualType = new ExtractVisualType(getNeuroMLCell(component), access);
 			types.put(morphology.getDeclaredType() + morphology.getParent().getID() + "_" + morphology.getID(), extractVisualType.createTypeFromCellMorphology());
 
 			cellSegmentMap.put(component, extractVisualType.getVisualObjectsSegments());
 		}
 		compositeType.setVisualType((VisualType) types.get(morphology.getDeclaredType() + morphology.getParent().getID() + "_" + morphology.getID()));
+	}
+
+	/**
+	 * @param component
+	 * @return the NeuroML cell corresponding to a given LEMS component
+	 */
+	private Cell getNeuroMLCell(Component component)
+	{
+		String lemsId=component.getID();
+		for(Cell c:neuroMLDocument.getCell())
+		{
+			if(c.getId().equals(lemsId)){
+				return c;
+			}
+		}
+		return null;
 	}
 
 	public void createPopulationTypeVariable(Component populationComponent) throws GeppettoVisitingException, LEMSException, NeuroMLException, NumberFormatException, ModelInterpreterException
@@ -361,8 +389,5 @@ public class PopulateTypes
 	{
 		return types;
 	}
-	
-	
 
-	
 }

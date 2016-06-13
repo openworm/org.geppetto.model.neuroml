@@ -12,9 +12,11 @@ import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Connection;
 import org.geppetto.model.values.Connectivity;
+import org.geppetto.model.values.ValuesFactory;
+import org.geppetto.model.values.VisualReference;
 import org.geppetto.model.variables.Variable;
+import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
-import org.lemsml.jlems.core.type.Attribute;
 import org.lemsml.jlems.core.type.Component;
 import org.neuroml.model.util.NeuroMLException;
 
@@ -32,7 +34,7 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 			NumberFormatException, ModelInterpreterException
 	{
 		super.createConnectionTypeVariablesFromProjection(projection, compositeType);
-		
+
 		// Create synapse type
 		createSynapseType(projection, projectionType);
 
@@ -57,9 +59,9 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 		}
 
 	}
-	
+
 	protected Variable extractConnection(Component projectionChild, ArrayType prePopulationType, Variable prePopulationVariable, ArrayType postPopulationType, Variable postPopulationVariable)
-			throws GeppettoVisitingException
+			throws GeppettoVisitingException, ModelInterpreterException
 	{
 		ConnectionType connectionType = (ConnectionType) populateTypes.getTypeFactory().getType(ResourcesDomainType.CONNECTION.getId());
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(connectionType, projectionChild);
@@ -67,23 +69,48 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 		Connection connection = valuesFactory.createConnection();
 		connection.setConnectivity(Connectivity.DIRECTIONAL);
 
-		for(Attribute attribute : projectionChild.getAttributes())
+		try
 		{
-			if(attribute.getName().equals("preCellId"))
+			String preCell = ModelInterpreterUtils.parseCellRefStringForCellNum(projectionChild.getAttributeValue("preCellId"));
+			String postCell = ModelInterpreterUtils.parseCellRefStringForCellNum(projectionChild.getAttributeValue("postCellId"));
+			String preSegmentId = projectionChild.getAttributeValue("preSegmentId");
+			String preFractionAlong = projectionChild.getAttributeValue("preFractionAlong");
+			String postSegmentId = projectionChild.getAttributeValue("postSegmentId");
+			String postFractionAlong = projectionChild.getAttributeValue("postFractionAlong");
+			if(preCell != null)
 			{
-				String preCellId = ModelInterpreterUtils.parseCellRefStringForCellNum(attribute.getValue());
-				connection.getA().add(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCellId)));
+				connection.setA(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCell)));
+				if(preSegmentId != null)
+				{
+					VisualReference visualReference = ValuesFactory.eINSTANCE.createVisualReference();
+					connection.getA().setVisualReference(visualReference);
+					Variable targetVisualVariable = NeuroMLModelInterpreterUtils.getVisualVariable(preSegmentId);
+					visualReference.setVisualVariable(targetVisualVariable);
+					if(preFractionAlong != null)
+					{
+						visualReference.setFraction(Float.parseFloat(preFractionAlong));
+					}
+				}
 			}
-			else if(attribute.getName().equals("postCellId"))
+			if(postCell != null)
 			{
-				String postCellId = ModelInterpreterUtils.parseCellRefStringForCellNum(attribute.getValue());
-				connection.getB().add(PointerUtility.getPointer(postPopulationVariable, postPopulationType, Integer.parseInt(postCellId)));
+				connection.setA(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(postCell)));
+				if(postSegmentId != null)
+				{
+					VisualReference visualReference = ValuesFactory.eINSTANCE.createVisualReference();
+					connection.getA().setVisualReference(visualReference);
+					Variable targetVisualVariable = NeuroMLModelInterpreterUtils.getVisualVariable(postSegmentId);
+					visualReference.setVisualVariable(targetVisualVariable);
+					if(postFractionAlong != null)
+					{
+						visualReference.setFraction(Float.parseFloat(postFractionAlong));
+					}
+				}
 			}
-			else
-			{
-				// preSegmentId, preFractionAlong, postSegmentId, postFractionAlong
-				connectionType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(attribute.getName(), attribute.getValue(), access));
-			}
+		}
+		catch(ContentError e)
+		{
+			throw new ModelInterpreterException(e);
 		}
 
 		Variable variable = variablesFactory.createVariable();

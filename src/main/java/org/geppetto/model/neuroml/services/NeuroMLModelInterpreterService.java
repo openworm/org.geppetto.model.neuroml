@@ -120,7 +120,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			reader.readAllFormats(url);
 
 			// Extract Types from the lems/neuroml files
-			extractTypes(url, typeId, library, access, reader.getLEMSDocument());
+			extractTypes(url, typeId, library, access, reader.getLEMSDocument(),reader.getNeuroMLDocument());
 		}
 		catch(IOException | NumberFormatException | GeppettoVisitingException e)
 		{
@@ -155,11 +155,13 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return type;
 	}
 
-	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument) throws NeuroMLException, LEMSException,
+	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument, NeuroMLDocument neuroMLDocument) throws NeuroMLException, LEMSException,
 			GeppettoVisitingException, ContentError, ModelInterpreterException
 	{
 		try
 		{
+			long start = System.currentTimeMillis();
+			
 			//Init variables
 			types = new HashMap<String, Type>();
 			type = null;
@@ -168,7 +170,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			Lems lems = ((Lems) lemsDocument);
 			lems.resolve();
 
-			PopulateTypes populateTypes = new PopulateTypes(types, access);
+			_logger.info("Resolved LEMS model, took " + (System.currentTimeMillis() - start) + "ms");
+
+			start = System.currentTimeMillis();
+			
+			PopulateTypes populateTypes = new PopulateTypes(types, access, neuroMLDocument);
 			// If we have a typeId let's get the type for this component
 			// Otherwise let's iterate through all the components
 			if(typeId != null && !typeId.isEmpty())
@@ -193,6 +199,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				getUniqueType();
 
 			}
+			
+			_logger.info("Extracted info from component, took " + (System.currentTimeMillis() - start) + "ms");
+
+			start = System.currentTimeMillis();
 
 			// Add all the types to the library
 			library.getTypes().addAll(types.values());
@@ -200,6 +210,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			// Extract Summary and Description nodes from type
 			PopulateSummaryNodesUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesUtils(populateTypes.getTypesMap(), type, url, access);
 			((CompositeType) type).getVariables().add(populateSummaryNodesModelTreeUtils.getSummaryVariable());
+
+			_logger.info("Extracted summaries, took " + (System.currentTimeMillis() - start) + "ms");
 
 			return type;
 		}

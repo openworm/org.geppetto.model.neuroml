@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.githubusercontent.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd" id="network_t3">
+
+    <notes>
+
+Network structure (NeuroML 2beta4) for project: t3 saved with neuroConstruct v1.7.1 on: 12:36:38, 20-Oct-15
+
+Cell Group: CG3D_L23PyrFRB contains 5 cells
+Cell Group: CG3D_SupLTS contains 9 cells
+
+Network connection: NC3D_L23PyrFRB_SupLTS contains 45 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_L23PyrFRB contains 25 individual synaptic connections
+
+
+    </notes>
+
+
+    <include href="cal.channel.nml"/>
+    <include href="cat.channel.nml"/>
+    <include href="cat_a.channel.nml"/>
+    <include href="k2.channel.nml"/>
+    <include href="ka.channel.nml"/>
+    <include href="kahp.channel.nml"/>
+    <include href="kahp_slower.channel.nml"/>
+    <include href="kc.channel.nml"/>
+    <include href="kc_fast.channel.nml"/>
+    <include href="kdr.channel.nml"/>
+    <include href="kdr_fs.channel.nml"/>
+    <include href="km.channel.nml"/>
+    <include href="L23PyrFRB_varInit.cell.nml"/>
+    <include href="naf.channel.nml"/>
+    <include href="naf2.channel.nml"/>
+    <include href="naf2__a0__b0__c0__d0__fastNa_shiftmin2_5.channel.nml"/>
+    <include href="naf__a0__b0__c0__d0__fastNa_shiftmin3_5.channel.nml"/>
+    <include href="nap.channel.nml"/>
+    <include href="pas.channel.nml"/>
+    <include href="SupLTSInter.cell.nml"/>
+    <include href="Syn_AMPA_SupPyr_SupLTS.synapse.nml"/>
+    <include href="Syn_AMPA_SupPyr_SupPyr.synapse.nml"/>
+    <include href="Syn_NMDA_FRBPyr_SupLTS.synapse.nml"/>
+    <include href="Syn_NMDA_SupPyr_SupPyr.synapse.nml"/>
+    <pulseGenerator id="DepCurr_L23FRB" delay="0.0s" duration="20.0s" amplitude="3.0E-10A"/>
+    
+    <pulseGenerator id="DepCurr_L23FRB__0" delay="0.0s" duration="20.0s" amplitude="3.37936E-10A"/>
+    
+    <pulseGenerator id="DepCurr_L23FRB__1" delay="0.0s" duration="20.0s" amplitude="3.397182E-10A"/>
+    
+    <pulseGenerator id="DepCurr_L23FRB__2" delay="0.0s" duration="20.0s" amplitude="2.888099E-10A"/>
+    
+    <pulseGenerator id="DepCurr_L23FRB__3" delay="0.0s" duration="20.0s" amplitude="3.240274E-10A"/>
+    
+    <pulseGenerator id="DepCurr_L23FRB__4" delay="0.0s" duration="20.0s" amplitude="2.783019E-10A"/>
+    
+    <network id="network_t3" type="networkWithTemperature" temperature="6.3 degC">
+
+        
+
+        <population id="CG3D_L23PyrFRB" component="L23PyrFRB_varInit" type="populationList" size="5">
+           <annotation>
+                <property tag="color" value="0.59765625 0.59765625 0.0"/>
+            </annotation>
+            <instance id="0">
+                <location x="100.319305" y="-176.91832" z="-0.47833252"/>
+            </instance>
+            <instance id="1">
+                <location x="-51.709503" y="-346.80432" z="209.91559"/>
+            </instance>
+            <instance id="2">
+                <location x="7.999054" y="-209.40753" z="-178.45229"/>
+            </instance>
+            <instance id="3">
+                <location x="210.03497" y="-163.65475" z="32.07022"/>
+            </instance>
+            <instance id="4">
+                <location x="153.54877" y="-149.15341" z="-71.77197"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_SupLTS" component="SupLTSInter" type="populationList" size="9">
+           <annotation>
+                <property tag="color" value="0.99609375 0.99609375 0.99609375"/>
+            </annotation>
+            <instance id="0">
+                <location x="120.72101" y="-284.24158" z="-15.682098"/>
+            </instance>
+            <instance id="1">
+                <location x="160.65488" y="-320.52972" z="-65.86623"/>
+            </instance>
+            <instance id="2">
+                <location x="166.9787" y="-361.16846" z="-139.3796"/>
+            </instance>
+            <instance id="3">
+                <location x="-105.56862" y="-250.98953" z="140.93411"/>
+            </instance>
+            <instance id="4">
+                <location x="53.875244" y="-233.21768" z="-165.96582"/>
+            </instance>
+            <instance id="5">
+                <location x="-123.17142" y="-343.86533" z="-19.149567"/>
+            </instance>
+            <instance id="6">
+                <location x="152.30325" y="-198.23259" z="-182.94597"/>
+            </instance>
+            <instance id="7">
+                <location x="-91.062546" y="-333.71695" z="-193.37054"/>
+            </instance>
+            <instance id="8">
+                <location x="128.23978" y="-251.26753" z="-8.151978"/>
+            </instance>
+        </population>
+
+
+
+        <projection id="NC3D_L23PyrFRB_SupLTS" presynapticPopulation="CG3D_L23PyrFRB" postsynapticPopulation="CG3D_SupLTS" synapse="Syn_AMPA_SupPyr_SupLTS">
+            <connection id="0" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/0/SupLTSInter" preSegmentId="139" preFractionAlong="0.8224869" postSegmentId="18" postFractionAlong="0.53949004"/>
+            <connection id="1" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/0/SupLTSInter" preSegmentId="140" preFractionAlong="0.21008386" postSegmentId="35" postFractionAlong="0.8068402"/>
+            <connection id="2" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/0/SupLTSInter" preSegmentId="138" preFractionAlong="0.42335922" postSegmentId="41" postFractionAlong="0.40412763"/>
+            <connection id="3" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/0/SupLTSInter" preSegmentId="142" preFractionAlong="0.3465386" postSegmentId="11" postFractionAlong="0.72322774"/>
+            <connection id="4" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/0/SupLTSInter" preSegmentId="140" preFractionAlong="0.8674619" postSegmentId="90" postFractionAlong="0.6865878"/>
+            <connection id="5" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/1/SupLTSInter" preSegmentId="138" preFractionAlong="0.75554657" postSegmentId="41" postFractionAlong="0.8006838"/>
+            <connection id="6" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/1/SupLTSInter" preSegmentId="147" preFractionAlong="0.6046103" postSegmentId="34" postFractionAlong="0.35912323"/>
+            <connection id="7" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/1/SupLTSInter" preSegmentId="138" preFractionAlong="0.16482505" postSegmentId="61" postFractionAlong="0.5723893"/>
+            <connection id="8" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/1/SupLTSInter" preSegmentId="138" preFractionAlong="0.20605828" postSegmentId="68" postFractionAlong="0.4305126"/>
+            <connection id="9" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/1/SupLTSInter" preSegmentId="138" preFractionAlong="0.38003448" postSegmentId="65" postFractionAlong="0.16335352"/>
+            <connection id="10" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/2/SupLTSInter" preSegmentId="139" preFractionAlong="0.7658832" postSegmentId="43" postFractionAlong="0.14591604"/>
+            <connection id="11" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/2/SupLTSInter" preSegmentId="138" preFractionAlong="0.8590227" postSegmentId="8" postFractionAlong="0.26575318"/>
+            <connection id="12" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/2/SupLTSInter" preSegmentId="143" preFractionAlong="0.7238226" postSegmentId="86" postFractionAlong="0.16924973"/>
+            <connection id="13" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/2/SupLTSInter" preSegmentId="146" preFractionAlong="0.2586703" postSegmentId="44" postFractionAlong="0.9025277"/>
+            <connection id="14" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/2/SupLTSInter" preSegmentId="147" preFractionAlong="0.34993818" postSegmentId="19" postFractionAlong="0.56006134"/>
+            <connection id="15" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/3/SupLTSInter" preSegmentId="137" preFractionAlong="0.8528503" postSegmentId="62" postFractionAlong="0.2786804"/>
+            <connection id="16" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/3/SupLTSInter" preSegmentId="142" preFractionAlong="0.16904606" postSegmentId="62" postFractionAlong="0.91521376"/>
+            <connection id="17" preCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/3/SupLTSInter" preSegmentId="136" preFractionAlong="0.93288994" postSegmentId="8" postFractionAlong="0.12901764"/>
+            <connection id="18" preCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/3/SupLTSInter" preSegmentId="140" preFractionAlong="0.84010166" postSegmentId="40" postFractionAlong="0.30490527"/>
+            <connection id="19" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/3/SupLTSInter" preSegmentId="144" preFractionAlong="0.27934992" postSegmentId="39" postFractionAlong="0.31211394"/>
+            <connection id="20" preCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/4/SupLTSInter" preSegmentId="141" preFractionAlong="0.29856464" postSegmentId="61" postFractionAlong="0.6782461"/>
+            <connection id="21" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/4/SupLTSInter" preSegmentId="140" preFractionAlong="0.66024244" postSegmentId="15" postFractionAlong="0.25355047"/>
+            <connection id="22" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/4/SupLTSInter" preSegmentId="147" preFractionAlong="0.17016737" postSegmentId="8" postFractionAlong="0.095025636"/>
+            <connection id="23" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/4/SupLTSInter" preSegmentId="146" preFractionAlong="0.45077014" postSegmentId="8" postFractionAlong="0.12981263"/>
+            <connection id="24" preCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/4/SupLTSInter" preSegmentId="140" preFractionAlong="0.7610934" postSegmentId="34" postFractionAlong="0.2790512"/>
+            <connection id="25" preCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/5/SupLTSInter" preSegmentId="143" preFractionAlong="0.06387519" postSegmentId="42" postFractionAlong="0.96748006"/>
+            <connection id="26" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/5/SupLTSInter" preSegmentId="145" preFractionAlong="0.877954" postSegmentId="19" postFractionAlong="0.74883074"/>
+            <connection id="27" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/5/SupLTSInter" preSegmentId="144" preFractionAlong="0.7326212" postSegmentId="87" postFractionAlong="0.6049655"/>
+            <connection id="28" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/5/SupLTSInter" preSegmentId="143" preFractionAlong="0.3740536" postSegmentId="95" postFractionAlong="0.27264035"/>
+            <connection id="29" preCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/5/SupLTSInter" preSegmentId="140" preFractionAlong="0.23974514" postSegmentId="65" postFractionAlong="0.8276327"/>
+            <connection id="30" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/6/SupLTSInter" preSegmentId="142" preFractionAlong="0.7658286" postSegmentId="15" postFractionAlong="0.2944346"/>
+            <connection id="31" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/6/SupLTSInter" preSegmentId="143" preFractionAlong="0.7892256" postSegmentId="91" postFractionAlong="0.06493759"/>
+            <connection id="32" preCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/6/SupLTSInter" preSegmentId="142" preFractionAlong="0.9535389" postSegmentId="40" postFractionAlong="0.2842692"/>
+            <connection id="33" preCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/6/SupLTSInter" preSegmentId="147" preFractionAlong="0.3512767" postSegmentId="87" postFractionAlong="0.079663165"/>
+            <connection id="34" preCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/6/SupLTSInter" preSegmentId="144" preFractionAlong="0.39348608" postSegmentId="88" postFractionAlong="0.63313085"/>
+            <connection id="35" preCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/7/SupLTSInter" preSegmentId="140" preFractionAlong="0.29815647" postSegmentId="40" postFractionAlong="0.6907129"/>
+            <connection id="36" preCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/7/SupLTSInter" preSegmentId="141" preFractionAlong="0.3331484" postSegmentId="69" postFractionAlong="0.3027023"/>
+            <connection id="37" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/7/SupLTSInter" preSegmentId="138" preFractionAlong="0.67205673" postSegmentId="15" postFractionAlong="0.05567283"/>
+            <connection id="38" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/7/SupLTSInter" preSegmentId="138" preFractionAlong="0.60454756" postSegmentId="65" postFractionAlong="0.49642888"/>
+            <connection id="39" preCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/7/SupLTSInter" preSegmentId="141" preFractionAlong="0.99377805" postSegmentId="88" postFractionAlong="0.18118477"/>
+            <connection id="40" preCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/8/SupLTSInter" preSegmentId="139" preFractionAlong="0.5847433" postSegmentId="86" postFractionAlong="0.0023551942"/>
+            <connection id="41" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/8/SupLTSInter" preSegmentId="142" preFractionAlong="0.07383718" postSegmentId="19" postFractionAlong="0.6846767"/>
+            <connection id="42" preCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/8/SupLTSInter" preSegmentId="146" preFractionAlong="0.98491526" postSegmentId="44" postFractionAlong="0.5946406"/>
+            <connection id="43" preCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/8/SupLTSInter" preSegmentId="142" preFractionAlong="0.4499932" postSegmentId="69" postFractionAlong="0.8668491"/>
+            <connection id="44" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_SupLTS/8/SupLTSInter" preSegmentId="144" preFractionAlong="0.23980948" postSegmentId="97" postFractionAlong="0.9126971"/>
+        </projection>
+
+        <projection id="NC3D_L23PyrFRB_L23PyrFRB" presynapticPopulation="CG3D_L23PyrFRB" postsynapticPopulation="CG3D_L23PyrFRB" synapse="Syn_AMPA_SupPyr_SupPyr">
+            <connection id="0" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" preSegmentId="146" preFractionAlong="0.008297581" postSegmentId="18" postFractionAlong="0.828479"/>
+            <connection id="1" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" preSegmentId="147" preFractionAlong="0.94968635" postSegmentId="21" postFractionAlong="0.46206298"/>
+            <connection id="2" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" preSegmentId="143" preFractionAlong="0.734012" postSegmentId="10" postFractionAlong="0.38333985"/>
+            <connection id="3" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" preSegmentId="146" preFractionAlong="0.44316104" postSegmentId="28" postFractionAlong="0.8877592"/>
+            <connection id="4" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" preSegmentId="140" preFractionAlong="0.57772344" postSegmentId="34" postFractionAlong="0.93394285"/>
+            <connection id="5" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" preSegmentId="146" preFractionAlong="0.0127518475" postSegmentId="19" postFractionAlong="0.59556395"/>
+            <connection id="6" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" preSegmentId="143" preFractionAlong="0.5010093" postSegmentId="50" postFractionAlong="0.8502088"/>
+            <connection id="7" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" preSegmentId="139" preFractionAlong="0.18574646" postSegmentId="31" postFractionAlong="0.49493036"/>
+            <connection id="8" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" preSegmentId="142" preFractionAlong="0.2592312" postSegmentId="19" postFractionAlong="0.38197023"/>
+            <connection id="9" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" preSegmentId="137" preFractionAlong="0.35621476" postSegmentId="29" postFractionAlong="0.97425896"/>
+            <connection id="10" preCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" preSegmentId="146" preFractionAlong="0.100976594" postSegmentId="66" postFractionAlong="0.74172854"/>
+            <connection id="11" preCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" preSegmentId="145" preFractionAlong="0.91600883" postSegmentId="49" postFractionAlong="0.19919921"/>
+            <connection id="12" preCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" preSegmentId="139" preFractionAlong="0.5686255" postSegmentId="47" postFractionAlong="0.956084"/>
+            <connection id="13" preCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" preSegmentId="141" preFractionAlong="0.24011245" postSegmentId="40" postFractionAlong="0.018220214"/>
+            <connection id="14" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" preSegmentId="143" preFractionAlong="0.44089943" postSegmentId="61" postFractionAlong="0.62162596"/>
+            <connection id="15" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" preSegmentId="141" preFractionAlong="0.4962393" postSegmentId="43" postFractionAlong="0.33860838"/>
+            <connection id="16" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" preSegmentId="137" preFractionAlong="0.019536743" postSegmentId="28" postFractionAlong="0.2516798"/>
+            <connection id="17" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" preSegmentId="139" preFractionAlong="0.60711485" postSegmentId="60" postFractionAlong="0.640459"/>
+            <connection id="18" preCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" preSegmentId="138" preFractionAlong="0.8679028" postSegmentId="61" postFractionAlong="0.77876467"/>
+            <connection id="19" preCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/3/L23PyrFRB_varInit" preSegmentId="136" preFractionAlong="0.9935809" postSegmentId="25" postFractionAlong="0.5635205"/>
+            <connection id="20" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" preSegmentId="146" preFractionAlong="0.34183228" postSegmentId="71" postFractionAlong="0.16407715"/>
+            <connection id="21" preCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" preSegmentId="147" preFractionAlong="0.94980353" postSegmentId="20" postFractionAlong="0.4551306"/>
+            <connection id="22" preCellId="../CG3D_L23PyrFRB/1/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" preSegmentId="146" preFractionAlong="0.44112188" postSegmentId="66" postFractionAlong="0.23191895"/>
+            <connection id="23" preCellId="../CG3D_L23PyrFRB/2/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" preSegmentId="144" preFractionAlong="0.9274761" postSegmentId="26" postFractionAlong="0.9944484"/>
+            <connection id="24" preCellId="../CG3D_L23PyrFRB/0/L23PyrFRB_varInit" postCellId="../CG3D_L23PyrFRB/4/L23PyrFRB_varInit" preSegmentId="138" preFractionAlong="0.25944787" postSegmentId="65" postFractionAlong="0.67518556"/>
+        </projection>
+
+
+
+
+
+    </network>
+
+</neuroml>

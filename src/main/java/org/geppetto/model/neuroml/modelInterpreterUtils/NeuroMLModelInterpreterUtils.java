@@ -112,4 +112,10 @@ public class NeuroMLModelInterpreterUtils
 	{
 		return (segment.getName() != null && !segment.getName().equals("")) ? (segment.getName() + "_" + segment.getId()) : "vo" + segment.getId();
 	}
+
+	public static Variable getVisualVariable(String preSegmentId)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

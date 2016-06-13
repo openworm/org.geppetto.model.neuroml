@@ -2,7 +2,6 @@ package org.geppetto.model.neuroml.modelInterpreterUtils;
 
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.geppetto.model.types.ArrayType;
@@ -12,9 +11,11 @@ import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Connection;
 import org.geppetto.model.values.Connectivity;
+import org.geppetto.model.values.ValuesFactory;
+import org.geppetto.model.values.VisualReference;
 import org.geppetto.model.variables.Variable;
+import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
-import org.lemsml.jlems.core.type.Attribute;
 import org.lemsml.jlems.core.type.Component;
 import org.neuroml.model.util.NeuroMLException;
 
@@ -32,9 +33,9 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 			NumberFormatException, ModelInterpreterException
 	{
 		super.createConnectionTypeVariablesFromProjection(projection, compositeType);
-		
-//		// Create synapse type
-//		createSynapseType(projection, projectionType);
+
+		// // Create synapse type
+		// createSynapseType(projection, projectionType);
 
 		// Iterate over all the children. Most of them are connections
 		for(Component projectionChild : projection.getStrictChildren())
@@ -57,9 +58,9 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 		}
 
 	}
-	
+
 	protected Variable extractConnection(Component projectionChild, ArrayType prePopulationType, Variable prePopulationVariable, ArrayType postPopulationType, Variable postPopulationVariable)
-			throws GeppettoVisitingException
+			throws GeppettoVisitingException, ModelInterpreterException
 	{
 		ConnectionType connectionType = (ConnectionType) populateTypes.getTypeFactory().getType(ResourcesDomainType.CONNECTION.getId());
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(connectionType, projectionChild);
@@ -67,20 +68,48 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 		Connection connection = valuesFactory.createConnection();
 		connection.setConnectivity(Connectivity.DIRECTIONAL);
 
-		for(Attribute attribute : projectionChild.getAttributes())
+		try
 		{
-			if (attribute.getName().equals("preCell")){
-				connection.getA().add(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(attribute.getValue())));
-			}
-			else if(attribute.getName().equals("postCell"))
+			String preCell = projectionChild.getAttributeValue("preCellId");
+			String postCell = projectionChild.getAttributeValue("postCellId");
+			String preSegmentId = projectionChild.getAttributeValue("preSegmentId");
+			String preFractionAlong = projectionChild.getAttributeValue("preFractionAlong");
+			String postSegmentId = projectionChild.getAttributeValue("postSegmentId");
+			String postFractionAlong = projectionChild.getAttributeValue("postFractionAlong");
+			if(preCell != null)
 			{
-				connection.getB().add(PointerUtility.getPointer(postPopulationVariable, postPopulationType, Integer.parseInt(attribute.getValue())));
+				connection.setA(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCell)));
+				if(preSegmentId != null)
+				{
+					VisualReference visualReference = ValuesFactory.eINSTANCE.createVisualReference();
+					connection.getA().setVisualReference(visualReference);
+					Variable targetVisualVariable = NeuroMLModelInterpreterUtils.getVisualVariable(preSegmentId);
+					visualReference.setVisualVariable(targetVisualVariable);
+					if(preFractionAlong != null)
+					{
+						visualReference.setFraction(Float.parseFloat(preFractionAlong));
+					}
+				}
 			}
-			else
+			if(postCell != null)
 			{
-				// preSegmentId, preFractionAlong, postSegmentId, postFractionAlong
-				connectionType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(attribute.getName(), attribute.getValue(), access));
+				connection.setA(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(postCell)));
+				if(postSegmentId != null)
+				{
+					VisualReference visualReference = ValuesFactory.eINSTANCE.createVisualReference();
+					connection.getA().setVisualReference(visualReference);
+					Variable targetVisualVariable = NeuroMLModelInterpreterUtils.getVisualVariable(postSegmentId);
+					visualReference.setVisualVariable(targetVisualVariable);
+					if(postFractionAlong != null)
+					{
+						visualReference.setFraction(Float.parseFloat(postFractionAlong));
+					}
+				}
 			}
+		}
+		catch(ContentError e)
+		{
+			throw new ModelInterpreterException(e);
 		}
 
 		Variable variable = variablesFactory.createVariable();
@@ -90,4 +119,6 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 		return variable;
 
 	}
+
+
 }
