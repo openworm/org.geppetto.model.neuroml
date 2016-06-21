@@ -17,6 +17,7 @@ import org.geppetto.model.neuroml.visualUtils.ExtractVisualType;
 import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.CompositeVisualType;
+import org.geppetto.model.types.ImportType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
@@ -56,9 +57,7 @@ public class PopulateTypes
 
 	private GeppettoModelAccess access;
 
-	private PopulateProjectionTypes populateProjectionTypes;
-	private PopulateElectricalProjectionTypes populateElectricalProjectionTypes;
-	private PopulateContinuousProjectionTypes populateContinuousProjectionTypes;
+	private Map<String, Component> projections = new HashMap<String, Component>();
 
 	private NeuroMLDocument neuroMLDocument;
 
@@ -69,10 +68,6 @@ public class PopulateTypes
 		this.typeFactory = new TypeFactory(types);
 		this.access = access;
 		this.neuroMLDocument = neuroMLDocument;
-
-		populateProjectionTypes = new PopulateProjectionTypes(this, access);
-		populateElectricalProjectionTypes = new PopulateElectricalProjectionTypes(this, access);
-		populateContinuousProjectionTypes = new PopulateContinuousProjectionTypes(this, access);
 	}
 
 	/*
@@ -84,7 +79,7 @@ public class PopulateTypes
 		long start = System.currentTimeMillis();
 
 		// Create composite type depending on type of component and initialise it
-		CompositeType compositeType = (CompositeType) typeFactory.getType((domainType == null) ? ResourcesDomainType.getValueByComponentType(component.getComponentType()) : domainType);
+		CompositeType compositeType = (CompositeType) typeFactory.createType((domainType == null) ? ResourcesDomainType.getValueByComponentType(component.getComponentType()) : domainType);
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
 
 		List<String> attributes = new ArrayList<String>();
@@ -152,15 +147,15 @@ public class PopulateTypes
 		// Extracting projection and connections
 		for(Component projection : component.getChildrenAL("projections"))
 		{
-			populateProjectionTypes.createConnectionTypeVariablesFromProjection(projection, compositeType);
+			createProjectionImportType(projection, compositeType);
 		}
 		for(Component projection : component.getChildrenAL("electricalProjection"))
 		{
-			populateElectricalProjectionTypes.createConnectionTypeVariablesFromProjection(projection, compositeType);
+			createProjectionImportType(projection, compositeType);
 		}
 		for(Component projection : component.getChildrenAL("continuousProjection"))
 		{
-			populateContinuousProjectionTypes.createConnectionTypeVariablesFromProjection(projection, compositeType);
+			createProjectionImportType(projection, compositeType);
 		}
 
 		// Extracting the rest of the child
@@ -222,7 +217,7 @@ public class PopulateTypes
 
 					if(!types.containsKey("compartment"))
 					{
-						CompositeType compartmentCompositeType = (CompositeType) typeFactory.getType(null);
+						CompositeType compartmentCompositeType = (CompositeType) typeFactory.createType(null);
 						NeuroMLModelInterpreterUtils.initialiseNodeFromString(compartmentCompositeType, "compartment");
 						types.put("compartment", compartmentCompositeType);
 					}
@@ -274,15 +269,51 @@ public class PopulateTypes
 	}
 
 	/**
+	 * @param projection
+	 * @param compositeType
+	 * @return
+	 */
+	public ImportType createProjectionImportType(Component projection, CompositeType compositeType)
+	{
+		// get/create the projection type and variable
+		ImportType projectionType = null;
+		if(!getTypesMap().containsKey(projection.getDeclaredType() + projection.getID()))
+		{
+			projectionType = getTypeFactory().createImportType(ResourcesDomainType.PROJECTION.getId());
+			NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(projectionType, projection);
+			getTypes().put(projection.getDeclaredType() + projection.getID(), projectionType);
+		}
+		else
+		{
+			projectionType = (ImportType) getTypes().get(projection.getDeclaredType() + projection.getID());
+		}
+
+		Variable projectionVariable = variablesFactory.createVariable();
+		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(projectionVariable, projection);
+		projectionVariable.getTypes().add(getTypes().get(projection.getDeclaredType() + projection.getID()));
+		compositeType.getVariables().add(projectionVariable);
+		projections.put(projection.id, projection);
+		return projectionType;
+	}
+
+	/**
 	 * @param component
 	 * @return the NeuroML cell corresponding to a given LEMS component
 	 */
 	private Cell getNeuroMLCell(Component component)
 	{
-		String lemsId=component.getID();
-		for(Cell c:neuroMLDocument.getCell())
+		String lemsId = component.getID();
+		for(Cell c : neuroMLDocument.getCell())
 		{
-			if(c.getId().equals(lemsId)){
+			if(c.getId().equals(lemsId))
+			{
+				return c;
+			}
+		}
+		for(Cell c : neuroMLDocument.getCell2CaPools())
+		{
+			if(c.getId().equals(lemsId))
+			{
 				return c;
 			}
 		}
@@ -298,7 +329,7 @@ public class PopulateTypes
 		}
 		CompositeType refCompositeType = (CompositeType) types.get(refComponent.getDeclaredType() + refComponent.getID());
 
-		ArrayType arrayType = (ArrayType) typeFactory.getType(ResourcesDomainType.POPULATION.getId());
+		ArrayType arrayType = (ArrayType) typeFactory.createType(ResourcesDomainType.POPULATION.getId());
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(arrayType, populationComponent);
 
 		// If it is not of type cell, it won't have morphology and we can assume an sphere in the
@@ -388,6 +419,26 @@ public class PopulateTypes
 	public Map<String, Type> getTypes()
 	{
 		return types;
+	}
+
+	public Type resolveType(String typeId) throws ModelInterpreterException
+	{
+
+		Component projection = projections.get(typeId);
+		ImportType importType=(ImportType) getTypes().get(projection.getDeclaredType() + projection.getID());
+		switch(projection.getDeclaredType())
+		{
+			case "projection":
+				PopulateProjectionTypes populateProjectionTypes = new PopulateProjectionTypes(this, access);
+				return populateProjectionTypes.resolveProjectionImportType(projection, importType);
+			case "electricalProjection":
+				PopulateElectricalProjectionTypes populateElectricalProjectionTypes = new PopulateElectricalProjectionTypes(this, access);
+				return populateElectricalProjectionTypes.resolveProjectionImportType(projection, importType);
+			case "continuousProjection":
+				PopulateContinuousProjectionTypes populateContinuousProjectionTypes = new PopulateContinuousProjectionTypes(this, access);
+				return populateContinuousProjectionTypes.resolveProjectionImportType(projection, importType);
+		}
+		throw new ModelInterpreterException("Can't resolve the type " + typeId);
 	}
 
 }
