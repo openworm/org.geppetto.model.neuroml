@@ -2,6 +2,7 @@ package org.geppetto.model.neuroml.modelInterpreterUtils;
 
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.geppetto.model.types.ArrayType;
@@ -24,9 +25,9 @@ import org.neuroml.model.util.NeuroMLException;
 public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 {
 
-	public PopulateContinuousProjectionTypes(PopulateTypes populateTypes, GeppettoModelAccess access)
+	public PopulateContinuousProjectionTypes(PopulateTypes populateTypes, GeppettoModelAccess access, GeppettoLibrary library)
 	{
-		super(populateTypes, access);
+		super(populateTypes, access, library);
 	}
 
 	/* (non-Javadoc)

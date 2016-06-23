@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
@@ -421,7 +422,7 @@ public class PopulateTypes
 		return types;
 	}
 
-	public Type resolveType(String typeId) throws ModelInterpreterException
+	public Type resolveType(String typeId, GeppettoLibrary library) throws ModelInterpreterException
 	{
 
 		Component projection = projections.get(typeId);
@@ -429,13 +430,13 @@ public class PopulateTypes
 		switch(projection.getDeclaredType())
 		{
 			case "projection":
-				PopulateProjectionTypes populateProjectionTypes = new PopulateProjectionTypes(this, access);
+				PopulateProjectionTypes populateProjectionTypes = new PopulateProjectionTypes(this, access, library);
 				return populateProjectionTypes.resolveProjectionImportType(projection, importType);
 			case "electricalProjection":
-				PopulateElectricalProjectionTypes populateElectricalProjectionTypes = new PopulateElectricalProjectionTypes(this, access);
+				PopulateElectricalProjectionTypes populateElectricalProjectionTypes = new PopulateElectricalProjectionTypes(this, access, library);
 				return populateElectricalProjectionTypes.resolveProjectionImportType(projection, importType);
 			case "continuousProjection":
-				PopulateContinuousProjectionTypes populateContinuousProjectionTypes = new PopulateContinuousProjectionTypes(this, access);
+				PopulateContinuousProjectionTypes populateContinuousProjectionTypes = new PopulateContinuousProjectionTypes(this, access, library);
 				return populateContinuousProjectionTypes.resolveProjectionImportType(projection, importType);
 		}
 		throw new ModelInterpreterException("Can't resolve the type " + typeId);

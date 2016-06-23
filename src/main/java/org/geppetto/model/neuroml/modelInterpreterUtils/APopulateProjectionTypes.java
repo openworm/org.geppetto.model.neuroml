@@ -34,11 +34,14 @@ public abstract class APopulateProjectionTypes
 	protected ArrayType postPopulationType;
 	protected Variable postPopulationVariable;
 
-	public APopulateProjectionTypes(PopulateTypes populateTypes, GeppettoModelAccess access)
+	private GeppettoLibrary library;
+
+	public APopulateProjectionTypes(PopulateTypes populateTypes, GeppettoModelAccess access, GeppettoLibrary library)
 	{
 		super();
 		this.populateTypes = populateTypes;
 		this.geppettoModelAccess = access;
+		this.library = library;
 	}
 
 	/**
@@ -67,7 +70,7 @@ public abstract class APopulateProjectionTypes
 
 			projectionType = createProjectionType(projection, parent);
 			geppettoModelAccess.swapType(importType, projectionType, (GeppettoLibrary) importType.eContainer());
-			geppettoModelAccess.delete(importType);
+			geppettoModelAccess.removeType(importType);
 
 			// Create pre synaptic population
 			prePopulationType = (ArrayType) populateTypes.getTypes().get(Resources.POPULATION.getId() + projection.getAttributeValue(Resources.PRE_SYNAPTIC_POPULATION.getId()));
@@ -139,8 +142,9 @@ public abstract class APopulateProjectionTypes
 		Component synapse = projection.getRefComponents().get(Resources.SYNAPSE.getId());
 		if(!populateTypes.getTypes().containsKey(synapse.getDeclaredType() + synapse.getID()))
 		{
-			populateTypes.getTypes().put(synapse.getDeclaredType() + synapse.getID(),
-					populateTypes.extractInfoFromComponent(projection.getRefComponents().get(Resources.SYNAPSE.getId()), ResourcesDomainType.SYNAPSE.getId()));
+			Type synapseType = populateTypes.extractInfoFromComponent(projection.getRefComponents().get(Resources.SYNAPSE.getId()), ResourcesDomainType.SYNAPSE.getId());
+			populateTypes.getTypes().put(synapse.getDeclaredType() + synapse.getID(), synapseType);
+			geppettoModelAccess.addTypeToLibrary(synapseType, library);
 		}
 		Variable synapsesVariable = variablesFactory.createVariable();
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(synapsesVariable, synapse);

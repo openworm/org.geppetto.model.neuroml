@@ -2,6 +2,7 @@ package org.geppetto.model.neuroml.modelInterpreterUtils;
 
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
@@ -25,9 +26,9 @@ import org.neuroml.model.util.NeuroMLException;
 public class PopulateElectricalProjectionTypes extends APopulateProjectionTypes
 {
 
-	public PopulateElectricalProjectionTypes(PopulateTypes populateTypes, GeppettoModelAccess access)
+	public PopulateElectricalProjectionTypes(PopulateTypes populateTypes, GeppettoModelAccess access, GeppettoLibrary library)
 	{
-		super(populateTypes, access);
+		super(populateTypes, access, library);
 	}
 
 	@Override

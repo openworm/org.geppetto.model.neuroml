@@ -96,7 +96,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private ModelInterpreterConfig neuroMLModelInterpreterConfig;
 
 	private Map<String, Type> types;
-	private PopulateTypes populateTypes=null; 
+	private PopulateTypes populateTypes = null;
 
 	private GeppettoModelAccess access;
 	private OptimizedLEMSReader reader = null;
@@ -162,8 +162,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 		else
 		{
-			_logger.info("Import Type reusing the same model interpreter");
-			Type resolvedType=populateTypes.resolveType(typeId);
+			long start = System.currentTimeMillis();
+			Type resolvedType = populateTypes.resolveType(typeId, library);
+			_logger.info("Import Type took " + (System.currentTimeMillis() - start) + " milliseconds for type " + typeId);
 			return resolvedType;
 		}
 
@@ -194,8 +195,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			if(typeId != null && !typeId.isEmpty())
 			{
 				Component mainComponent = lems.getComponent(typeId);
-				types.put(mainComponent.getDeclaredType() + typeId, populateTypes.extractInfoFromComponent(mainComponent, null));
-				type = types.get(mainComponent.getDeclaredType() + typeId);
+				type = populateTypes.extractInfoFromComponent(mainComponent, null);
 			}
 			else
 			{
@@ -209,16 +209,25 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					}
 				}
 
-				// Get a single type
-				type = getUniqueType(type);
-
+				// Get a single type and remove it from types
+				type = getUniqueType();
+				String main = null;
+				for(String s : types.keySet())
+				{
+					if(types.get(s).equals(type))
+					{
+						main = s;
+					}
+				}
+				types.remove(main);
+				
 			}
 
 			_logger.info("Extracted info from component, took " + (System.currentTimeMillis() - start) + "ms");
 
 			start = System.currentTimeMillis();
 
-			// Add all the types to the library
+			// Add all the types to the library bar the main one (which will be swapped by Geppetto
 			library.getTypes().addAll(types.values());
 
 			// Extract Summary and Description nodes from type
@@ -242,10 +251,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	// If there is not a network we visualise the cell (as far as there is just a single cell)
 	// If there is just a single component we return the single cell
 	// Otherwise we throw an exception
-	private Type getUniqueType(Type typeP) throws ModelInterpreterException
+	private Type getUniqueType() throws ModelInterpreterException
 	{
 		boolean multipleTypes = false;
-		Type type=typeP;
+		Type type = null;
 		for(Type currentType : types.values())
 		{
 			if(currentType.getDomainModel() != null)
