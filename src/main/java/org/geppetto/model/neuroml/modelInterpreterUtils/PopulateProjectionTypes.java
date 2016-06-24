@@ -112,7 +112,7 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 			}
 			if(postCell != null)
 			{
-				connection.setB(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(postCell)));
+				connection.setB(PointerUtility.getPointer(postPopulationVariable, postPopulationType, Integer.parseInt(postCell)));
 				if(postSegmentId != null)
 				{
 					VisualReference visualReference = ValuesFactory.eINSTANCE.createVisualReference();
