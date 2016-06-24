@@ -59,8 +59,9 @@ public class ModelInterpreterTestUtils
 		Resource resourceAll = domain.createResource(URI.createURI(outputPath_all).toString());
 		resourceAll.getContents().add(gm);
 		
+		
 		Type type = modelInterpreter.importType(url, typeName, gl, geppettoModelAccess);
-
+		geppettoModelAccess.addTypeToLibrary(type,gl);
 		resourceAll.save(null);
 		long endTime = System.currentTimeMillis();
 		//_logger.info("Serialising " + (endTime - startTime) + " milliseconds for url " + url + " and  typename " + typeName);
