@@ -103,12 +103,32 @@ public class PopulateSummaryNodesUtils
 		this.type = type;
 	}
 
-	public CompositeType getSummaryVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
+	public CompositeType getHTMLVariables() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
 	{
-		return createDescriptionNode();
+		CompositeType htmlVariables = typeFactory.createCompositeType();
+		//Create HMLT Variable for General Model Description
+		htmlVariables.getVariables().add(createDescriptionNode());
+		
+		//Create HTML Variable for each cell
+		List<Type> cellComponents = typesMap.containsKey(ResourcesDomainType.CELL.get()) ? typesMap.get(ResourcesDomainType.CELL.get()) : null;
+		for(Type cell : cellComponents)
+		{
+			htmlVariables.getVariables().add(createCellHTMLVariable(cell));
+		}
+		
+		//Create HTML Variable for Ion Channels
+		htmlVariables.getVariables().add(this.createChannelsHTMLVariable());
+		//Create HTML Variable for Synapses
+		htmlVariables.getVariables().add(this.createSynapsesHTMLVariable());
+		//Create HTML Variable for Inputs
+		htmlVariables.getVariables().add(this.createInputsHTMLVariable());
+		//Create HTML Variable for Populations
+		htmlVariables.getVariables().add(this.createPopulationsHTMLVariable());
+
+		return htmlVariables;
 	}
 
-	private CompositeType createDescriptionNode() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
+	private Variable createDescriptionNode() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
 	{
 
 		List<Type> networkComponents = typesMap.containsKey(ResourcesDomainType.NETWORK.get()) ? typesMap.get(ResourcesDomainType.NETWORK.get()) : null;
@@ -118,129 +138,283 @@ public class PopulateSummaryNodesUtils
 		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
 		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
 
-		//create composite type to hold all variables for html description
-		CompositeType root = typeFactory.createCompositeType();
-		root.setId(Resources.MODEL_DESCRIPTION.getId());
-		root.setName(Resources.MODEL_DESCRIPTION.get());
-		
-		//stores combined HTML valued for storing in variable
-		StringBuilder html = new StringBuilder();
-		//Create Variable holding HTML for network description
+		StringBuilder modelDescription = new StringBuilder();
+
 		if(networkComponents != null && networkComponents.size() > 0)
 		{
-			html.append("Description: ");
+			modelDescription.append("Description: ");
 			for(Type network : networkComponents)
 			{
-				html.append("<a href=\"#\" instancePath=\"Model.neuroml." + network.getId() + "\">" + network.getName() + "</a><br/><br/>");
-			}	
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + network.getId() + "\">" + network.getName() + "</a><br/><br/>");
+			}
 		}
-		html.append("<a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/><br/>");
-		this.createHTML(html.toString(),"networks", root);
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\">NeuroML Source File</a><br/><br/>");
 
-		html = new StringBuilder();
-		//Create Variable holding HTML for all populations
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
-			html.append("<b>Populations</b><br/>");
+			modelDescription.append("<b>Populations</b><br/>");
 			for(Type population : populationComponents)
 			{
-				html.append("Population " + population.getName() + ": ");
-				html.append("<a href=\"#\" instancePath=\"Model.neuroml." + ((ArrayType) population).getArrayType().getId() + "\">" + ((ArrayType) population).getSize() + " "
+				modelDescription.append("Population " + population.getName() + ": ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ((ArrayType) population).getArrayType().getId() + "\">" + ((ArrayType) population).getSize() + " "
 						+ ((ArrayType) population).getArrayType().getName() + "</a><br/>");
 			}
-			html.append("<br/>");
-			this.createHTML(html.toString(),"populations", root);
+			modelDescription.append("<br/>");
 		}
 
-		html = new StringBuilder();
-		//Create Variable for HTML for all cells
 		if(cellComponents != null && cellComponents.size() > 0)
 		{
-			html.append("<b>Cells</b><br/>");
+			modelDescription.append("<b>Cells</b><br/>");
 			for(Type cell : cellComponents)
 			{
-				html.append("<a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">" + cell.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">" + cell.getName() + "</a> ");
 			}
-			html.append("<br/><br/>");
-			this.createHTML(html.toString(), "cells",root);
+			modelDescription.append("<br/><br/>");
 		}
 
-		html = new StringBuilder();
 		if(ionChannelComponents != null && ionChannelComponents.size() > 0)
 		{
-			html.append("<b>Channels</b><br/>");
+			modelDescription.append("<b>Channels</b><br/>");
 			for(Type ionChannel : ionChannelComponents)
 			{
-				html.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
 
 				// Add expresion nodes from the export library for the gate rates
 				addExpresionNodes((CompositeType) ionChannel);
 			}
-			html.append("<br/><br/>");
-			this.createHTML(html.toString(), "chanels",root);
+			modelDescription.append("<br/><br/>");
 		}
 
-		html = new StringBuilder();
 		if(synapseComponents != null && synapseComponents.size() > 0)
 		{
-			html.append("<b>Synapses</b><br/>");
+			modelDescription.append("<b>Synapses</b><br/>");
 			for(Type synapse : synapseComponents)
 			{
-				html.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
 			}
-			html.append("<br/><br/>");
-			this.createHTML(html.toString(), "synapses",root);
+			modelDescription.append("<br/><br/>");
 		}
 
-		html = new StringBuilder();
 		if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
 		{
 			// FIXME: Pulse generator? InputList? ExplicitList?
-			html.append("<b>Inputs</b><br/>");
+			modelDescription.append("<b>Inputs</b><br/>");
 			for(Type pulseGenerator : pulseGeneratorComponents)
 			{
-				html.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
 			}
-			html.append("<br/>");
-			this.createHTML(html.toString(), "inputs",root);
+			modelDescription.append("<br/>");
 		}
-
-		html = new StringBuilder();
+		
 		//If there is nothing at least show a link to open the whole model in a tree visualiser
 		if((networkComponents == null || networkComponents.size() == 0) && 
 				(populationComponents == null || populationComponents.size() == 0) && 
 				(cellComponents == null || cellComponents.size() == 0) &&
 				(synapseComponents == null || synapseComponents.size() == 0) && 
 				(pulseGeneratorComponents == null || pulseGeneratorComponents.size() == 0)){
-			html.append("Description: <a href=\"#\" instancePath=\"Model.neuroml." + type.getId() + "\">" + type.getName() + "</a><br/><br/>");
-			this.createHTML( html.toString(),"description", root);
+			modelDescription.insert(0, "Description: <a href=\"#\" instancePath=\"Model.neuroml." + type.getId() + "\">" + type.getName() + "</a><br/><br/>");
 		}
 
-		return root;
+		HTML html = valuesFactory.createHTML();
+		html.setHtml(modelDescription.toString());
+
+		Variable descriptionVariable = variablesFactory.createVariable();
+		descriptionVariable.setId(Resources.MODEL_DESCRIPTION.getId());
+		descriptionVariable.setName(Resources.MODEL_DESCRIPTION.get());
+		descriptionVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+		descriptionVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+
+		return descriptionVariable;
 	}
 	
 	/**
-	 * Creates a Variable Type, which holds an HTML value. 
-	 * 
-	 * @param text - HTML text
-	 * @param id - ID of variable to be created
-	 * @param container - Composite Type object used to hold all Variables
-	 * 
+	 * Create Variable with HTML value for a Cell
+	 * @param cell - Cell used to create this html element
+	 * @return
+	 * @throws ModelInterpreterException
 	 * @throws GeppettoVisitingException
+	 * @throws NeuroMLException
+	 * @throws LEMSException
 	 */
-	private void createHTML(String text, String id, CompositeType container) throws GeppettoVisitingException{
-		//Create Variable, and assign ID to it
-		Variable descriptionVariable = variablesFactory.createVariable();
-		NeuroMLModelInterpreterUtils.initialiseNodeFromString(descriptionVariable, id);
-		
+	private Variable createCellHTMLVariable(Type cell) throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
+	{
+		List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL.get()) ? typesMap.get(ResourcesDomainType.IONCHANNEL.get()) : null;
+		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
+		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
+
+		//stores combined HTML valued for storing in variable
+		StringBuilder htmlText = new StringBuilder();
+
+		if(ionChannelComponents != null && ionChannelComponents.size() > 0)
+		{
+			htmlText.append("<b>Channels</b><br/>");
+			for(Type ionChannel : ionChannelComponents)
+			{
+				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
+
+				// Add expresion nodes from the export library for the gate rates
+				addExpresionNodes((CompositeType) ionChannel);
+			}
+			htmlText.append("<br/><br/>");
+		}
+
+		if(synapseComponents != null && synapseComponents.size() > 0)
+		{
+			htmlText.append("<b>Synapses</b><br/>");
+			for(Type synapse : synapseComponents)
+			{
+				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
+			}
+			htmlText.append("<br/><br/>");
+		}
+
+		if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
+		{
+			// FIXME: Pulse generator? InputList? ExplicitList?
+			htmlText.append("<b>Inputs</b><br/>");
+			for(Type pulseGenerator : pulseGeneratorComponents)
+			{
+				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
+			}
+			htmlText.append("<br/>");
+		}
+
 		//Create HTML Value object and set HTML text
 		HTML html = valuesFactory.createHTML();
-		html.setHtml(text);
+		html.setHtml(htmlText.toString());
 		
-		//Add HTML Value to Variable, and Variable to parent 
-		descriptionVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
-		descriptionVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-		container.getVariables().add(descriptionVariable);
+		Variable htmlVariable = variablesFactory.createVariable();
+		htmlVariable.setId(cell.getId());
+		htmlVariable.setName(cell.getName());
+		htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+		htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+		
+		return htmlVariable;
+	}
+	
+	private Variable createChannelsHTMLVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
+	{
+		List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL.get()) ? typesMap.get(ResourcesDomainType.IONCHANNEL.get()) : null;
+
+		//stores combined HTML valued for storing in variable
+		StringBuilder htmlText = new StringBuilder();
+
+		if(ionChannelComponents != null && ionChannelComponents.size() > 0)
+		{
+			htmlText.append("<b>Channels</b><br/>");
+			for(Type ionChannel : ionChannelComponents)
+			{
+				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
+
+				// Add expresion nodes from the export library for the gate rates
+				addExpresionNodes((CompositeType) ionChannel);
+			}
+			htmlText.append("<br/><br/>");
+		}
+
+		//Create HTML Value object and set HTML text
+		HTML html = valuesFactory.createHTML();
+		html.setHtml(htmlText.toString());
+		
+		Variable htmlVariable = variablesFactory.createVariable();
+		htmlVariable.setId(Resources.ION_CHANNEL.getId());
+		htmlVariable.setName(Resources.ION_CHANNEL.get());
+		htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+		htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+		
+		return htmlVariable;
+	}
+	
+	private Variable createSynapsesHTMLVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
+	{
+		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
+
+		//stores combined HTML valued for storing in variable
+		StringBuilder htmlText = new StringBuilder();
+
+		if(synapseComponents != null && synapseComponents.size() > 0)
+		{
+			htmlText.append("<b>Synapses</b><br/>");
+			for(Type synapse : synapseComponents)
+			{
+				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
+			}
+			htmlText.append("<br/><br/>");
+		}
+
+		//Create HTML Value object and set HTML text
+		HTML html = valuesFactory.createHTML();
+		html.setHtml(htmlText.toString());
+		
+		Variable htmlVariable = variablesFactory.createVariable();
+		htmlVariable.setId(Resources.SYNAPSE.getId());
+		htmlVariable.setName(Resources.SYNAPSE.get());
+		htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+		htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+		
+		return htmlVariable;
+	}
+	
+	private Variable createInputsHTMLVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
+	{
+		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
+
+		//stores combined HTML valued for storing in variable
+		StringBuilder htmlText = new StringBuilder();
+
+		if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
+		{
+			// FIXME: Pulse generator? InputList? ExplicitList?
+			htmlText.append("<b>Inputs</b><br/>");
+			for(Type pulseGenerator : pulseGeneratorComponents)
+			{
+				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
+			}
+			htmlText.append("<br/>");
+		}
+
+		//Create HTML Value object and set HTML text
+		HTML html = valuesFactory.createHTML();
+		html.setHtml(htmlText.toString());
+		
+		Variable htmlVariable = variablesFactory.createVariable();
+		htmlVariable.setId(Resources.PULSE_GENERATOR.getId());
+		htmlVariable.setName(Resources.PULSE_GENERATOR.get());
+		htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+		htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+		
+		return htmlVariable;
+	}
+	
+	private Variable createPopulationsHTMLVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
+	{
+		List<Type> populationComponents = typesMap.containsKey(ResourcesDomainType.POPULATION.get()) ? typesMap.get(ResourcesDomainType.POPULATION.get()) : null;
+
+		//stores combined HTML valued for storing in variable
+		StringBuilder htmlText = new StringBuilder();
+
+		if(populationComponents != null && populationComponents.size() > 0)
+		{
+			htmlText.append("<b>Populations</b><br/>");
+			for(Type population : populationComponents)
+			{	htmlText.append("Population " + population.getName() + ": ");
+			htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ((ArrayType) population).getArrayType().getId() + "\">" + ((ArrayType) population).getSize() + " "
+					+ ((ArrayType) population).getArrayType().getName() + "</a><br/>");
+			}
+			htmlText.append("<br/><br/>");
+		}
+
+		//Create HTML Value object and set HTML text
+		HTML html = valuesFactory.createHTML();
+		html.setHtml(htmlText.toString());
+		
+		Variable htmlVariable = variablesFactory.createVariable();
+		htmlVariable.setId(Resources.POPULATION.get());
+		htmlVariable.setName(Resources.POPULATION.get());
+		htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+		htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+		
+		return htmlVariable;
 	}
 
 	private void addExpresionNodes(CompositeType ionChannel) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
