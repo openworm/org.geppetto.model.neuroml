@@ -42,7 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.model.neuroml.modelInterpreterUtils.NeuroMLModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
@@ -53,7 +52,6 @@ import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.Argument;
-import org.geppetto.model.values.Composite;
 import org.geppetto.model.values.Dynamics;
 import org.geppetto.model.values.Expression;
 import org.geppetto.model.values.Function;
@@ -70,7 +68,6 @@ import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.IonChannel;
-import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLException;
 
@@ -103,6 +100,9 @@ public class PopulateSummaryNodesUtils
 		this.type = type;
 	}
 
+	/**
+	 * Creates all HTML variables for objects in maps. 
+	 */
 	public void createHTMLVariables() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
 	{	
 		List<Type> cellComponents = typesMap.containsKey(ResourcesDomainType.CELL.get()) ? typesMap.get(ResourcesDomainType.CELL.get()) : null;
@@ -114,6 +114,14 @@ public class PopulateSummaryNodesUtils
 		this.createInputsHTMLVariable();
 	}
 
+	/**
+	 * Creates general Model description
+	 * @return
+	 * @throws ModelInterpreterException
+	 * @throws GeppettoVisitingException
+	 * @throws NeuroMLException
+	 * @throws LEMSException
+	 */
 	public Variable getDescriptionNode() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
 	{
 
@@ -142,7 +150,9 @@ public class PopulateSummaryNodesUtils
 			for(Type population : populationComponents)
 			{
 				modelDescription.append("Population " + population.getName() + ": ");
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ((ArrayType) population).getArrayType().getId() + "\">" + ((ArrayType) population).getSize() + " "
+				//get proper name of population cell with brackets and index # of population
+				String name = ((ArrayType) population).getArrayType().getId().trim() +"."+population.getId().trim()+"[" + populationComponents.indexOf(population)+"]";
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + name + "\">" + ((ArrayType) population).getSize() + " "
 						+ ((ArrayType) population).getArrayType().getName() + "</a><br/>");
 			}
 			modelDescription.append("<br/>");
@@ -229,30 +239,58 @@ public class PopulateSummaryNodesUtils
 		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
 		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
 
-		StringBuilder htmlText = new StringBuilder();
 
 		if(ionChannelComponents != null && ionChannelComponents.size() > 0)
 		{
+			StringBuilder htmlText = new StringBuilder();
+
 			htmlText.append("<b>Channels</b><br/>");
 			for(Type ionChannel : ionChannelComponents)
 			{
 				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
 			}
 			htmlText.append("<br/><br/>");
+			
+			Variable htmlVariable = variablesFactory.createVariable();
+			htmlVariable.setId(Resources.ION_CHANNEL.getId());
+			htmlVariable.setName(Resources.ION_CHANNEL.get());
+			
+			//Create HTML Value object and set HTML text
+			HTML html = valuesFactory.createHTML();
+			html.setHtml(htmlText.toString());
+			htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+			htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+
+			((CompositeType) cell).getVariables().add(htmlVariable);
 		}
 
 		if(synapseComponents != null && synapseComponents.size() > 0)
 		{
+			StringBuilder htmlText = new StringBuilder();
+
 			htmlText.append("<b>Synapses</b><br/>");
 			for(Type synapse : synapseComponents)
 			{
 				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
 			}
 			htmlText.append("<br/><br/>");
+			
+			Variable htmlVariable = variablesFactory.createVariable();
+			htmlVariable.setId(Resources.SYNAPSE.getId());
+			htmlVariable.setName(Resources.SYNAPSE.get());
+			
+			//Create HTML Value object and set HTML text
+			HTML html = valuesFactory.createHTML();
+			html.setHtml(htmlText.toString());
+			htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+			htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+
+			((CompositeType) cell).getVariables().add(htmlVariable);
 		}
 
 		if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
 		{
+			StringBuilder htmlText = new StringBuilder();
 			// FIXME: Pulse generator? InputList? ExplicitList?
 			htmlText.append("<b>Inputs</b><br/>");
 			for(Type pulseGenerator : pulseGeneratorComponents)
@@ -260,19 +298,19 @@ public class PopulateSummaryNodesUtils
 				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
 			}
 			htmlText.append("<br/>");
-		}
-		
-		Variable htmlVariable = variablesFactory.createVariable();
-		htmlVariable.setId(cell.getId());
-		htmlVariable.setName(cell.getName());
-		
-		//Create HTML Value object and set HTML text
-		HTML html = valuesFactory.createHTML();
-		html.setHtml(htmlText.toString());
-		htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-		htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+			
+			Variable htmlVariable = variablesFactory.createVariable();
+			htmlVariable.setId(Resources.PULSE_GENERATOR.getId());
+			htmlVariable.setName(Resources.PULSE_GENERATOR.get());
+			
+			//Create HTML Value object and set HTML text
+			HTML html = valuesFactory.createHTML();
+			html.setHtml(htmlText.toString());
+			htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+			htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 
-		((CompositeType) cell).getVariables().add(htmlVariable);
+			((CompositeType) cell).getVariables().add(htmlVariable);
+		}
 	}
 	
 	private void createChannelsHTMLVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
