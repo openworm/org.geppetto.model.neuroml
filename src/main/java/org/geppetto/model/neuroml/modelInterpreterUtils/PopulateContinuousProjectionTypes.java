@@ -80,8 +80,7 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 	private Variable extractConnection(Component projectionChild, ArrayType prePopulationType, Variable prePopulationVariable, ArrayType postPopulationType, Variable postPopulationVariable)
 			throws ModelInterpreterException
 	{
-		ConnectionType connectionType = (ConnectionType) populateTypes.getTypeFactory().createType(ResourcesDomainType.CONNECTION.getId());
-		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(connectionType, projectionChild);
+		ConnectionType connectionType = (ConnectionType) populateTypes.getTypeFactory().getSuperType(ResourcesDomainType.CONNECTION);
 
 		Connection connection = valuesFactory.createConnection();
 		connection.setConnectivity(Connectivity.DIRECTIONAL);
@@ -132,7 +131,7 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 
 		Variable variable = variablesFactory.createVariable();
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, projectionChild);
-		variable.getAnonymousTypes().add(connectionType);
+		variable.getTypes().add(connectionType);
 		variable.getInitialValues().put(connectionType, connection);
 		return variable;
 

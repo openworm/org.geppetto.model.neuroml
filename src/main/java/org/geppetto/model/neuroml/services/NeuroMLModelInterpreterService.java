@@ -165,6 +165,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			long start = System.currentTimeMillis();
 			Type resolvedType = populateTypes.resolveType(typeId, library);
 			_logger.info("Import Type took " + (System.currentTimeMillis() - start) + " milliseconds for type " + typeId);
+			addTypesToLibrary(library);
 			return resolvedType;
 		}
 
@@ -227,8 +228,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 			start = System.currentTimeMillis();
 
-			// Add all the types to the library bar the main one (which will be swapped by Geppetto
-			library.getTypes().addAll(types.values());
+			addTypesToLibrary(library);
 
 			// Extract Summary and Description nodes from type
 			PopulateSummaryNodesUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesUtils(populateTypes.getTypesMap(), type, url, access);
@@ -243,6 +243,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			_logger.warn("Error resolving lems file");
 			throw new ModelInterpreterException(e);
 		}
+	}
+
+	private void addTypesToLibrary(GeppettoLibrary library)
+	{
+		// Add all the types to the library bar the main one (which will be swapped by Geppetto
+		library.getTypes().addAll(types.values());
 	}
 
 	// Business rule: 1) If there is a network in the NeuroML file we don't visualise spurious cells which

@@ -79,14 +79,20 @@ public class TypeFactory
 		return newType;
 	}
 
-	private Type getSuperType(ResourcesDomainType resourcesDomainType)
+	public Type getSuperType(ResourcesDomainType resourcesDomainType)
 	{
 		// Create super type
 		if(!types.containsKey(resourcesDomainType.get()))
 		{
 			typesMap.put(resourcesDomainType.get(), new ArrayList<Type>());
-
-			Type domainType = typeFactory.createCompositeType();
+			Type domainType = null;
+			if(resourcesDomainType.equals(ResourcesDomainType.CONNECTION)){
+				domainType=typeFactory.createConnectionType();
+			}
+			else{
+				domainType=typeFactory.createSimpleType();
+			}
+			
 			domainType.setId(resourcesDomainType.get());
 			domainType.setName(resourcesDomainType.get());
 			types.put(resourcesDomainType.get(), domainType);
