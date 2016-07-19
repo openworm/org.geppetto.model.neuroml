@@ -34,9 +34,12 @@
 package org.gepppetto.model.neuroml.summaryUtils;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +53,7 @@ import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
+import org.geppetto.model.types.VisualType;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.values.Argument;
 import org.geppetto.model.values.Dynamics;
@@ -68,6 +72,7 @@ import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.IonChannel;
+import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLException;
 
@@ -88,6 +93,8 @@ public class PopulateSummaryNodesUtils
 
 	GeppettoModelAccess access;
 	Map<String, List<Type>> typesMap;
+	Map<String, List<Variable>> expressionVariables = new HashMap<String,List<Variable>>();
+	
 	Type type;
 	
 	URL url;
@@ -242,7 +249,6 @@ public class PopulateSummaryNodesUtils
 				List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
 				List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
 
-
 				if(ionChannelComponents != null && ionChannelComponents.size() > 0)
 				{
 					StringBuilder htmlText = new StringBuilder();
@@ -291,6 +297,29 @@ public class PopulateSummaryNodesUtils
 					((CompositeType) cell).getVariables().add(htmlVariable);
 				}
 
+				//Add Visual Group to model cell description
+				VisualType visualType = cell.getVisualType();
+				if(visualType != null)
+				{
+					StringBuilder htmlText = new StringBuilder();
+
+					htmlText.append("<b>Show Visual Group:</b><br/>");
+					htmlText.append("<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + ".Cell_Regions\">" + visualType.getName() + " Cell Regions</a> ");
+					htmlText.append("<br/><br/>");
+
+					Variable htmlVariable = variablesFactory.createVariable();
+					htmlVariable.setId(Resources.SYNAPSE.getId());
+					htmlVariable.setName(Resources.SYNAPSE.get());
+
+					//Create HTML Value object and set HTML text
+					HTML html = valuesFactory.createHTML();
+					html.setHtml(htmlText.toString());
+					htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+					htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+
+					((CompositeType) cell).getVariables().add(htmlVariable);
+				}
+				
 				if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
 				{
 					StringBuilder htmlText = new StringBuilder();
@@ -336,6 +365,20 @@ public class PopulateSummaryNodesUtils
 				HTML html = valuesFactory.createHTML();
 				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
 				htmlText.append("<br/><br/>");
+				
+				//Adds plot activation variables
+				List<Variable> variables = this.expressionVariables.get(ionChannel.getName());
+				if(variables!=null){
+					htmlText.append("<b>Plot Activation Variables</b><br/>");
+					for(Variable v : variables){
+						String[] split = v.getPath().split("\\.");
+						String shortLabel = v.getPath();
+	                    if (split.length > 5) {
+	                        shortLabel = split[1] + "." + split[2] + "..." + split[split.length - 1];
+	                    }
+						htmlText.append("<a href=\"#\" type=\"variable\" instancePath=\"Model." +v.getPath()+ "\">" + shortLabel+ "</a><br/>");
+					}
+				}
 				html.setHtml(htmlText.toString());
 				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
 				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
@@ -402,9 +445,9 @@ public class PopulateSummaryNodesUtils
 	{
 		// Get lems component and convert to neuroml
 		Component component = ((Component) ionChannel.getDomainModel().getDomainModel());
-		LinkedHashMap<String, Standalone> ionChannelMap = Utils.convertLemsComponentToNeuroML(component);
-		if (ionChannelMap.get(component.getID()) instanceof IonChannel){
-			IonChannel neuromlIonChannel = (IonChannel) ionChannelMap.get(component.getID());
+		LinkedHashMap<String, Standalone> componentsMap = Utils.convertLemsComponentToNeuroML(component);
+		if (componentsMap.get(component.getID()) instanceof IonChannel){
+			IonChannel neuromlIonChannel = (IonChannel) componentsMap.get(component.getID());
 			if(neuromlIonChannel != null)
 			{
 				//Create channel info extractor from export library
@@ -433,7 +476,12 @@ public class PopulateSummaryNodesUtils
 											{
 												CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
 												// Create expression node
-												rateType.getVariables().add(getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue()));
+												Variable variable = getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue());
+												rateType.getVariables().add(variable);
+												List<Variable> variables = this.expressionVariables.get(ionChannel.getName());
+												if(variables==null)variables = new ArrayList<Variable>();
+												variables.add(variable);
+												this.expressionVariables.put(ionChannel.getName(), variables);
 											}
 										}
 	
@@ -448,9 +496,17 @@ public class PopulateSummaryNodesUtils
 	
 				}
 			}
+		}
+		
+		else if (componentsMap.get(component.getID()) instanceof PulseGenerator){
+			PulseGenerator neuromlIonChannel = (PulseGenerator) componentsMap.get(component.getID());
+			if(neuromlIonChannel != null)
+			{
+				
+			}
 		}	
 	}
-
+	
 	private Variable getExpressionVariable(String expressionNodeId, ExpressionNode expressionNode) throws GeppettoVisitingException
 	{
 
