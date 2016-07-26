@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.githubusercontent.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd" id="TestSeg_all">
+
+    <include href="ar__m00_25.channel.nml"/>
+
+    <include href="cad__beta0_03__phi300000.nml"/>
+
+    <include href="cal.channel.nml"/>
+
+    <include href="cat.channel.nml"/>
+
+    <include href="cat_a.channel.nml"/>
+
+    <include href="k2.channel.nml"/>
+
+    <include href="ka.channel.nml"/>
+
+    <include href="ka_ib.channel.nml"/>
+
+    <include href="kahp.channel.nml"/>
+
+    <include href="kahp_deeppyr.channel.nml"/>
+
+    <include href="kahp_slower.channel.nml"/>
+
+    <include href="kc.channel.nml"/>
+
+    <include href="kc_fast.channel.nml"/>
+
+    <include href="kdr.channel.nml"/>
+
+    <include href="kdr_fs.channel.nml"/>
+
+    <include href="km.channel.nml"/>
+
+    <include href="naf.channel.nml"/>
+
+    <include href="naf2.channel.nml"/>
+
+    <include href="naf_tcr.channel.nml"/>
+
+    <include href="nap.channel.nml"/>
+
+    <include href="napf.channel.nml"/>
+
+    <include href="napf_spinstell.channel.nml"/>
+
+    <include href="napf_tcr.channel.nml"/>
+
+    <include href="pas.channel.nml"/>
+
+    <cell id="TestSeg_all">
+
+        <notes>A single segment/compartment cell, with almost all of the ChannelML mechanisms. Used for comparison with original mod file implementations. Note: when comparing the ChannelML files to the original mod files, DESELECT the Force correct ChannelML initialisation checkbox, as most of the mod file channel implementations are initialised incorrectly (i.e. m!=minf at t=0). This is probably due to those files attempting to replicate the original Fortran. When using this cell to compare NEURON and GENESIS ChannelML mappings, SELECT the Force correct ChannelML initialisation checkbox, as GENESIS initialises the channels correctly.</notes>
+
+        <morphology id="morphology_TestSeg_all">
+
+            <segment id="0" name="Soma">
+                <proximal x="0.0" y="0.0" z="0.0" diameter="20.0"/>
+                <distal x="0.0" y="0.0" z="0.0" diameter="20.0"/>
+            </segment>
+
+            <segmentGroup id="Soma" neuroLexId="sao864921383">    <!--
+                This group contains an unbranched set of segments, and all of the segmentGroups marked with
+                neuroLexId = sao864921383 form a non-overlapping set of all of the segments. 
+                These segmentGroups correspond to the 'cables' of NeuroML v1.8.1. -->
+
+                <member segment="0"/>
+            </segmentGroup>
+
+            <segmentGroup id="all">
+                <include segmentGroup="Soma"/>
+            </segmentGroup>
+
+            <segmentGroup id="soma_group" neuroLexId="GO:0043025">    <!--Soma group-->
+
+                <include segmentGroup="Soma"/>
+            </segmentGroup>
+
+            
+        </morphology>
+
+            <!--Adding the biophysical parameters-->
+
+        <biophysicalProperties id="biophys">
+
+            <membraneProperties>
+                
+                <channelDensity condDensity="0.25 mS_per_cm2" id="ar_all" ionChannel="ar__m00_25" ion="ar" erev="-35.0 mV"/>
+                
+                <channelDensity condDensity="0.5 mS_per_cm2" id="cal_all" ionChannel="cal" ion="ca" erev="125.0 mV"/>
+                
+                <channelDensity condDensity="0.05 mS_per_cm2" id="cat_all" ionChannel="cat" ion="cat" erev="125.0 mV"/>
+                
+                <channelDensity condDensity="0.05 mS_per_cm2" id="cat_a_all" ionChannel="cat_a" ion="cat_a" erev="125.0 mV"/>
+                
+                <channelDensity condDensity="0.1 mS_per_cm2" id="k2_all" ionChannel="k2" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="15.0 mS_per_cm2" id="ka_all" ionChannel="ka" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="15.0 mS_per_cm2" id="ka_ib_all" ionChannel="ka_ib" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="0.033 mS_per_cm2" id="kahp_all" ionChannel="kahp" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="0.033 mS_per_cm2" id="kahp_deeppyr_all" ionChannel="kahp_deeppyr" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="0.033 mS_per_cm2" id="kahp_slower_all" ionChannel="kahp_slower" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="2.0 mS_per_cm2" id="kc_all" ionChannel="kc" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="2.0 mS_per_cm2" id="kc_fast_all" ionChannel="kc_fast" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="62.5 mS_per_cm2" id="kdr_all" ionChannel="kdr" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="62.5 mS_per_cm2" id="kdr_fs_all" ionChannel="kdr_fs" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="1.5 mS_per_cm2" id="km_all" ionChannel="km" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="0.033 mS_per_cm2" id="naf_all" ionChannel="naf" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.033 mS_per_cm2" id="naf2_all" ionChannel="naf2" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.033 mS_per_cm2" id="naf_tcr_all" ionChannel="naf_tcr" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.05 mS_per_cm2" id="nap_all" ionChannel="nap" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="15.0 mS_per_cm2" id="napf_all" ionChannel="napf" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.05 mS_per_cm2" id="napf_spinstell_all" ionChannel="napf_spinstell" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.05 mS_per_cm2" id="napf_tcr_all" ionChannel="napf_tcr" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.3 mS_per_cm2" id="pas_all" ionChannel="pas" erev="-66.6 mV" ion="non_specific"/>
+                
+
+                <spikeThresh value="0 mV"/>
+
+                <specificCapacitance value="1.0 uF_per_cm2"/>
+
+                <initMembPotential value="-60.0 mV"/>
+
+            </membraneProperties>
+
+            <intracellularProperties>
+
+                <species id="ca" ion="ca" concentrationModel="cad__beta0_03__phi300000" initialConcentration="1.0E-8 mol_per_cm3" initialExtConcentration="2.0E-6 mol_per_cm3"/>
+
+                <resistivity value="0.03 kohm_cm"/>
+
+            </intracellularProperties>
+
+        </biophysicalProperties>
+
+    </cell>
+    
+</neuroml>

@@ -1,0 +1,64 @@
+<Lems xmlns="http://www.neuroml.org/lems/0.7.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/lems/0.7.2  https://raw.githubusercontent.com/LEMS/LEMS/development/Schemas/LEMS/LEMS_v0.7.2.xsd">
+
+    <Target component="sim1" reportFile="simulator.props" timesFile="time.dat"/>
+
+        <!--Include standard NeuroML 2 ComponentType definitions-->
+
+    <Include file="Cells.xml"/>
+    <Include file="Networks.xml"/>
+    <Include file="Simulation.xml"/>
+
+    
+
+        <!--Include the generated NeuroML 2 files-->
+
+
+        <!--   Channel/synapse files-->
+    <Include file="ar.channel.nml"/>
+    <Include file="ar__m00_25.channel.nml"/>
+    <Include file="cad.nml"/>
+    <Include file="cad__beta0_02__phi260000.nml"/>
+    <Include file="cad__beta0_05__phi520000.nml"/>
+    <Include file="cal.channel.nml"/>
+    <Include file="cat.channel.nml"/>
+    <Include file="k2.channel.nml"/>
+    <Include file="ka.channel.nml"/>
+    <Include file="kahp_slower.channel.nml"/>
+    <Include file="kc_fast.channel.nml"/>
+    <Include file="kdr_fs.channel.nml"/>
+    <Include file="km.channel.nml"/>
+    <Include file="naf2.channel.nml"/>
+    <Include file="naf2__a0__b0__c0__d0__fastNa_shiftmin2_5.channel.nml"/>
+    <Include file="naf2__a0__b0__c0__d0__fastNa_shiftmin2_5.channel.nml"/>
+    <Include file="naf2__a0__b0__c0__d0__fastNa_shiftmin2_5.channel.nml"/>
+    <Include file="nap.channel.nml"/>
+    <Include file="pas.channel.nml"/>
+        <!--   Cell files-->
+    <Include file="SupAxAx.cell.nml"/>
+        <!--   Network file-->
+    <Include file="SupAxAx.net.nml"/>
+    
+
+        <!--Note: this could be: Simulation id="sim1" ... , but Component type="Simulation" ... 
+        is used to allow validation of this file according to the LEMS schema specified above...-->
+    <Component type="Simulation" id="sim1" length="300.0ms" step="0.005ms" target="network_Thalamocortical">
+        
+        <Display id="CGsupaxax_v" title="Thalamocortical: Cell4-supaxax-FigA2a, CGsupaxax, VOLTAGE" xmin="-0.030000001" xmax="0.33" ymin="-0.09200001" ymax="0.052" timeScale="1s">
+            <Line id="v" timeScale="1s" quantity="CGsupaxax/0/SupAxAx/0/v" scale="1 V" color="#000000"/>
+        </Display>
+    
+        <Display id="GraphWin_7" title="Thalamocortical: Cell4-supaxax-FigA2a, CGsupaxax, VOLTAGE" xmin="-0.030000001" xmax="0.33" ymin="-0.09200001" ymax="0.052" timeScale="1s">
+            <Line id="v" timeScale="1s" quantity="CGsupaxax/0/SupAxAx/117/v" scale="1 V" color="#000000"/>
+        </Display>
+    
+        <OutputFile id="CGsupaxax_v_0_0_OF" fileName="CGsupaxax_0.0.dat">
+            <OutputColumn id="v" quantity="CGsupaxax/0/SupAxAx/0/v"/>
+        </OutputFile>
+    
+        <OutputFile id="Var_12_0_117_OF" fileName="CGsupaxax_0.117.dat">
+            <OutputColumn id="v" quantity="CGsupaxax/0/SupAxAx/117/v"/>
+        </OutputFile>
+    </Component>
+
+
+</Lems>
