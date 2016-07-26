@@ -93,7 +93,7 @@ public class PopulateSummaryNodesUtils
 
 	GeppettoModelAccess access;
 	Map<String, List<Type>> typesMap;
-	Map<String, List<Variable>> expressionVariables = new HashMap<String,List<Variable>>();
+	Map<String, List<Variable>> plottableVariables = new HashMap<String,List<Variable>>();
 	
 	Type type;
 	
@@ -367,7 +367,7 @@ public class PopulateSummaryNodesUtils
 				htmlText.append("<br/><br/>");
 				
 				//Adds plot activation variables
-				List<Variable> variables = this.expressionVariables.get(ionChannel.getName());
+				List<Variable> variables = this.plottableVariables.get(ionChannel.getName());
 				if(variables!=null){
 					htmlText.append("<b>Plot Activation Variables</b><br/>");
 					for(Variable v : variables){
@@ -384,7 +384,7 @@ public class PopulateSummaryNodesUtils
 				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 				((CompositeType) ionChannel).getVariables().add(htmlVariable);
 				// Add expresion nodes from the export library for the gate rates
-				addExpresionNodes((CompositeType) ionChannel);
+				//addExpresionNodes((CompositeType) ionChannel);
 			}
 		}
 	}
@@ -478,10 +478,13 @@ public class PopulateSummaryNodesUtils
 												// Create expression node
 												Variable variable = getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue());
 												rateType.getVariables().add(variable);
-												List<Variable> variables = this.expressionVariables.get(ionChannel.getName());
-												if(variables==null)variables = new ArrayList<Variable>();
-												variables.add(variable);
-												this.expressionVariables.put(ionChannel.getName(), variables);
+												
+												if(!((ExpressionNode) gateProperties.getValue()).getExpression().startsWith("org.neuroml.export")){
+													List<Variable> variables = this.plottableVariables.get(ionChannel.getName());
+													if(variables==null)variables = new ArrayList<Variable>();
+													variables.add(variable);
+													this.plottableVariables.put(ionChannel.getName(), variables);
+												}
 											}
 										}
 	
