@@ -43,6 +43,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.emf.common.util.EList;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
@@ -61,6 +62,8 @@ import org.geppetto.model.values.Expression;
 import org.geppetto.model.values.Function;
 import org.geppetto.model.values.FunctionPlot;
 import org.geppetto.model.values.HTML;
+import org.geppetto.model.values.Text;
+import org.geppetto.model.values.Value;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
@@ -86,7 +89,7 @@ import org.neuroml.model.util.NeuroMLException;
 public class PopulateSummaryNodesUtils
 {
 	private static Log logger = LogFactory.getLog(PopulateSummaryNodesUtils.class);
-
+	private static String NOTES = "Notes";
 	TypesFactory typeFactory = TypesFactory.eINSTANCE;
 	VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
 	ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
@@ -245,10 +248,43 @@ public class PopulateSummaryNodesUtils
 		{
 			for(Type cell : cellComponents)
 			{
+				List<Variable> notesComponents = new ArrayList<Variable>();
 				List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL.get()) ? typesMap.get(ResourcesDomainType.IONCHANNEL.get()) : null;
 				List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
 				List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
 
+				EList<Variable> cellVariables = ((CompositeType) cell).getVariables();
+				for(Variable v : cellVariables){
+					if(v.getId().equals(NOTES)){
+						notesComponents.add(v);
+					}
+				}
+				
+				if(notesComponents != null && notesComponents.size() > 0)
+				{
+					StringBuilder htmlText = new StringBuilder();
+
+					htmlText.append("<b>Notes</b><br/>");
+					for(Variable note : notesComponents)
+					{
+						Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
+						htmlText.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + about.getText() + "</p> ");
+					}
+					htmlText.append("<br/>");
+
+					Variable htmlVariable = variablesFactory.createVariable();
+					htmlVariable.setId(Resources.NOTES.getId());
+					htmlVariable.setName(Resources.NOTES.get());
+
+					//Create HTML Value object and set HTML text
+					HTML html = valuesFactory.createHTML();
+					html.setHtml(htmlText.toString());
+					htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+					htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+
+					((CompositeType) cell).getVariables().add(htmlVariable);
+				}
+				
 				if(ionChannelComponents != null && ionChannelComponents.size() > 0)
 				{
 					StringBuilder htmlText = new StringBuilder();
@@ -355,8 +391,40 @@ public class PopulateSummaryNodesUtils
 		{
 			for(Type ionChannel : ionChannelComponents)
 			{
+				List<Variable> notesComponents = new ArrayList<Variable>();
+
+				EList<Variable> cellVariables = ((CompositeType) ionChannel).getVariables();
+				for(Variable v : cellVariables){
+					if(v.getId().equals(NOTES)){
+						notesComponents.add(v);
+					}
+				}
+				
 				StringBuilder htmlText = new StringBuilder();
 
+				if(notesComponents != null && notesComponents.size() > 0)
+				{
+					htmlText.append("<b>Notes</b><br/>");
+					for(Variable note : notesComponents)
+					{
+						Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
+						htmlText.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + about.getText() + "</p> ");
+					}
+					htmlText.append("<br/>");
+
+					Variable htmlVariable = variablesFactory.createVariable();
+					htmlVariable.setId(Resources.NOTES.getId());
+					htmlVariable.setName(Resources.NOTES.get());
+
+					//Create HTML Value object and set HTML text
+					HTML html = valuesFactory.createHTML();
+					html.setHtml(htmlText.toString());
+					htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+					htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+
+					((CompositeType) ionChannel).getVariables().add(htmlVariable);
+				}
+				
 				Variable htmlVariable = variablesFactory.createVariable();
 				htmlVariable.setId(ionChannel.getId());
 				htmlVariable.setName(ionChannel.getName());
