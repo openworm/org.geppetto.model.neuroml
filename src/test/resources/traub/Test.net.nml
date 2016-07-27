@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.githubusercontent.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd" id="network_Thalamocortical">
+
+    <notes>
+
+Network structure (NeuroML 2beta4) for project: Thalamocortical saved with neuroConstruct v1.7.1 on: 18:26:04, 23-Sep-15
+
+Cell Group: CG_tester contains 1 cells
+
+
+
+    </notes>
+
+
+    <include href="k2.channel.nml"/>
+    <include href="ka.channel.nml"/>
+    <include href="ka_ib.channel.nml"/>
+    <include href="kdr.channel.nml"/>
+    <include href="kdr_fs.channel.nml"/>
+    <include href="km.channel.nml"/>
+    <include href="naf.channel.nml"/>
+    <include href="naf2.channel.nml"/>
+    <include href="naf_tcr.channel.nml"/>
+    <include href="nap.channel.nml"/>
+    <include href="napf.channel.nml"/>
+    <include href="napf_spinstell.channel.nml"/>
+    <include href="napf_tcr.channel.nml"/>
+    <include href="pas.channel.nml"/>
+    <include href="TestSeg_test2.cell.nml"/>
+    <pulseGenerator id="Input_22" delay="0.02s" duration="0.06s" amplitude="8.0E-11A"/>
+    
+    <network id="network_Thalamocortical" type="networkWithTemperature" temperature="6.3 degC">
+
+        
+
+        <population id="CG_tester" component="TestSeg_test2" type="populationList" size="1">
+           <annotation>
+                <property tag="color" value="0.7109375 0.3046875 0.4765625"/>
+            </annotation>
+            <instance id="0">
+                <location x="35.981018" y="28.97716" z="61.61133"/>
+            </instance>
+        </population>
+
+
+
+            <!--There are no synaptic connections present in the network-->
+
+
+        <inputList id="Input_22" component="Input_22" population="CG_tester">
+            <input id="0" target="../CG_tester/0/TestSeg_test2" destination="synapses"/>
+        </inputList>
+
+
+
+
+
+    </network>
+
+</neuroml>
