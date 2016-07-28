@@ -426,18 +426,21 @@ public class PopulateTypes
 	{
 
 		Component projection = projections.get(typeId);
-		ImportType importType=(ImportType) getTypes().get(projection.getDeclaredType() + projection.getID());
-		switch(projection.getDeclaredType())
+		if(projection != null)
 		{
-			case "projection":
-				PopulateProjectionTypes populateProjectionTypes = new PopulateProjectionTypes(this, access, library);
-				return populateProjectionTypes.resolveProjectionImportType(projection, importType);
-			case "electricalProjection":
-				PopulateElectricalProjectionTypes populateElectricalProjectionTypes = new PopulateElectricalProjectionTypes(this, access, library);
-				return populateElectricalProjectionTypes.resolveProjectionImportType(projection, importType);
-			case "continuousProjection":
-				PopulateContinuousProjectionTypes populateContinuousProjectionTypes = new PopulateContinuousProjectionTypes(this, access, library);
-				return populateContinuousProjectionTypes.resolveProjectionImportType(projection, importType);
+			ImportType importType = (ImportType) getTypes().get(projection.getDeclaredType() + projection.getID());
+			switch(projection.getDeclaredType())
+			{
+				case "projection":
+					PopulateProjectionTypes populateProjectionTypes = new PopulateProjectionTypes(this, access, library);
+					return populateProjectionTypes.resolveProjectionImportType(projection, importType);
+				case "electricalProjection":
+					PopulateElectricalProjectionTypes populateElectricalProjectionTypes = new PopulateElectricalProjectionTypes(this, access, library);
+					return populateElectricalProjectionTypes.resolveProjectionImportType(projection, importType);
+				case "continuousProjection":
+					PopulateContinuousProjectionTypes populateContinuousProjectionTypes = new PopulateContinuousProjectionTypes(this, access, library);
+					return populateContinuousProjectionTypes.resolveProjectionImportType(projection, importType);
+			}
 		}
 		throw new ModelInterpreterException("Can't resolve the type " + typeId);
 	}

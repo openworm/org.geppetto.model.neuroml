@@ -45,7 +45,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.emf.common.util.EList;
 import org.geppetto.core.beans.ModelInterpreterConfig;
 import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.conversion.ConversionException;
@@ -65,11 +64,9 @@ import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.Type;
-import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Pointer;
-import org.geppetto.model.variables.Variable;
 import org.gepppetto.model.neuroml.summaryUtils.PopulateSummaryNodesUtils;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -234,7 +231,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			addTypesToLibrary(library);
 
 			// Extract Summary and Description nodes from type
-			PopulateSummaryNodesUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesUtils(populateTypes.getTypesMap(), type, url, access);
+			PopulateSummaryNodesUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesUtils(populateTypes.getTypesMap(), type, url, access, neuroMLDocument);
 
 			((CompositeType) type).getVariables().add(populateSummaryNodesModelTreeUtils.getDescriptionNode());
 			populateSummaryNodesModelTreeUtils.createHTMLVariables();
