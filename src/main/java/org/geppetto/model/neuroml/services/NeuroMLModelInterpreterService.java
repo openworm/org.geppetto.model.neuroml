@@ -231,9 +231,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			addTypesToLibrary(library);
 
 			// Extract Summary and Description nodes from type
-			PopulateSummaryNodesUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesUtils(populateTypes.getTypesMap(), type, url, access);
-			((CompositeType) type).getVariables().add(populateSummaryNodesModelTreeUtils.getSummaryVariable());
+			PopulateSummaryNodesUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesUtils(populateTypes.getTypesMap(), type, url, access, neuroMLDocument);
 
+			((CompositeType) type).getVariables().add(populateSummaryNodesModelTreeUtils.getDescriptionNode());
+			populateSummaryNodesModelTreeUtils.createHTMLVariables();
 			_logger.info("Extracted summaries, took " + (System.currentTimeMillis() - start) + "ms");
 
 			return type;
