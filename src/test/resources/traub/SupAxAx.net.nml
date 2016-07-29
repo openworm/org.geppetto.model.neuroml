@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.githubusercontent.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd" id="network_Thalamocortical">
+
+    <notes>
+
+Network structure (NeuroML 2beta4) for project: Thalamocortical saved with neuroConstruct v1.7.1 on: 09:57:53, 07-Jan-16
+
+Cell Group: CGsupaxax contains 1 cells
+
+
+
+    </notes>
+
+
+    <include href="ar.channel.nml"/>
+    <include href="ar__m00_25.channel.nml"/>
+    <include href="cad.nml"/>
+    <include href="cad__beta0_02__phi260000.nml"/>
+    <include href="cad__beta0_05__phi520000.nml"/>
+    <include href="cal.channel.nml"/>
+    <include href="cat.channel.nml"/>
+    <include href="k2.channel.nml"/>
+    <include href="ka.channel.nml"/>
+    <include href="kahp_slower.channel.nml"/>
+    <include href="kc_fast.channel.nml"/>
+    <include href="kdr_fs.channel.nml"/>
+    <include href="km.channel.nml"/>
+    <include href="naf2.channel.nml"/>
+    <include href="naf2__a0__b0__c0__d0__fastNa_shiftmin2_5.channel.nml"/>
+    <include href="naf2__a0__b0__c0__d0__fastNa_shiftmin2_5.channel.nml"/>
+    <include href="naf2__a0__b0__c0__d0__fastNa_shiftmin2_5.channel.nml"/>
+    <include href="nap.channel.nml"/>
+    <include href="pas.channel.nml"/>
+    <include href="SupAxAx.cell.nml"/>
+    <pulseGenerator id="Input_17" delay="0.1s" duration="0.1s" amplitude="4.0E-10A"/>
+    
+    <pulseGenerator id="Input_16" delay="0.0s" duration="0.1s" amplitude="-1.0E-10A"/>
+    
+    <network id="network_Thalamocortical" type="networkWithTemperature" temperature="6.3 degC">
+
+        
+
+        <population id="CGsupaxax" component="SupAxAx" type="populationList" size="1">
+           <annotation>
+                <property tag="color" value="0.12109375 0.9453125 0.7578125"/>
+            </annotation>
+            <instance id="0">
+                <location x="45.60766" y="10.713717" z="54.76482"/>
+            </instance>
+        </population>
+
+
+
+            <!--There are no synaptic connections present in the network-->
+
+
+        <inputList id="Input_17" component="Input_17" population="CGsupaxax">
+            <input id="0" target="../CGsupaxax/0/SupAxAx" destination="synapses"/>
+        </inputList>
+
+
+
+        <inputList id="Input_16" component="Input_16" population="CGsupaxax">
+            <input id="0" target="../CGsupaxax/0/SupAxAx" destination="synapses"/>
+        </inputList>
+
+
+
+
+
+    </network>
+
+</neuroml>

@@ -2,92 +2,139 @@ package org.geppetto.model.neuroml.modelInterpreterUtils;
 
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
-import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
+import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.ConnectionType;
+import org.geppetto.model.types.ImportType;
+import org.geppetto.model.types.Type;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Connection;
 import org.geppetto.model.values.Connectivity;
+import org.geppetto.model.values.ValuesFactory;
+import org.geppetto.model.values.VisualReference;
 import org.geppetto.model.variables.Variable;
+import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
-import org.lemsml.jlems.core.type.Attribute;
 import org.lemsml.jlems.core.type.Component;
 import org.neuroml.model.util.NeuroMLException;
 
 public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 {
 
-	public PopulateContinuousProjectionTypes(PopulateTypes populateTypes, GeppettoModelAccess access)
+	public PopulateContinuousProjectionTypes(PopulateTypes populateTypes, GeppettoModelAccess access, GeppettoLibrary library)
 	{
-		super(populateTypes, access);
-		// TODO Auto-generated constructor stub
+		super(populateTypes, access, library);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.geppetto.model.neuroml.modelInterpreterUtils.APopulateProjectionTypes#resolveProjectionImportType(org.lemsml.jlems.core.type.Component, org.geppetto.model.types.ImportType)
+	 */
 	@Override
-	public void createConnectionTypeVariablesFromProjection(Component projection, CompositeType compositeType) throws GeppettoVisitingException, LEMSException, NeuroMLException,
-			NumberFormatException, ModelInterpreterException
+	public Type resolveProjectionImportType(Component projection, ImportType importType) throws ModelInterpreterException
 	{
-		super.createConnectionTypeVariablesFromProjection(projection, compositeType);
-		
-//		// Create synapse type
-//		createSynapseType(projection, projectionType);
-
-		// Iterate over all the children. Most of them are connections
-		for(Component projectionChild : projection.getStrictChildren())
+		try
 		{
-			if(projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION.getId()))
+			super.resolveProjectionImportType(projection, importType);
+
+			// Iterate over all the children. Most of them are connections
+			for(Component projectionChild : projection.getStrictChildren())
 			{
-				projectionType.getVariables().add(extractConnection(projectionChild, prePopulationType, prePopulationVariable, postPopulationType, postPopulationVariable));
-			}
-			else
-			{
-				CompositeType anonymousCompositeType = populateTypes.extractInfoFromComponent(projectionChild, null);
-				if(anonymousCompositeType != null)
+				if(projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION.getId()))
 				{
-					Variable variable = variablesFactory.createVariable();
-					NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, projectionChild);
-					variable.getAnonymousTypes().add(anonymousCompositeType);
-					projectionType.getVariables().add(variable);
+					projectionType.getVariables().add(extractConnection(projectionChild, prePopulationType, prePopulationVariable, postPopulationType, postPopulationVariable));
+				}
+				else
+				{
+					CompositeType anonymousCompositeType = populateTypes.extractInfoFromComponent(projectionChild, null);
+					if(anonymousCompositeType != null)
+					{
+						Variable variable = variablesFactory.createVariable();
+						NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, projectionChild);
+						variable.getAnonymousTypes().add(anonymousCompositeType);
+						projectionType.getVariables().add(variable);
+					}
 				}
 			}
-		}
 
+			return projectionType;
+		}
+		catch(NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
+		{
+			throw new ModelInterpreterException(e);
+		}
 	}
-	
-	protected Variable extractConnection(Component projectionChild, ArrayType prePopulationType, Variable prePopulationVariable, ArrayType postPopulationType, Variable postPopulationVariable)
-			throws GeppettoVisitingException
+
+	/**
+	 * @param projectionChild
+	 * @param prePopulationType
+	 * @param prePopulationVariable
+	 * @param postPopulationType
+	 * @param postPopulationVariable
+	 * @return
+	 * @throws ModelInterpreterException
+	 */
+	private Variable extractConnection(Component projectionChild, ArrayType prePopulationType, Variable prePopulationVariable, ArrayType postPopulationType, Variable postPopulationVariable)
+			throws ModelInterpreterException
 	{
-		ConnectionType connectionType = (ConnectionType) populateTypes.getTypeFactory().getType(ResourcesDomainType.CONNECTION.getId());
-		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(connectionType, projectionChild);
+		ConnectionType connectionType = (ConnectionType) populateTypes.getTypeFactory().getSuperType(ResourcesDomainType.CONNECTION);
 
 		Connection connection = valuesFactory.createConnection();
 		connection.setConnectivity(Connectivity.DIRECTIONAL);
 
-		for(Attribute attribute : projectionChild.getAttributes())
+		try
 		{
-			if (attribute.getName().equals("preCell")){
-				connection.getA().add(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(attribute.getValue())));
-			}
-			else if(attribute.getName().equals("postCell"))
+			String preCell = projectionChild.getAttributeValue("preCellId");
+			String postCell = projectionChild.getAttributeValue("postCellId");
+			String preSegmentId = projectionChild.getAttributeValue("preSegmentId");
+			String preFractionAlong = projectionChild.getAttributeValue("preFractionAlong");
+			String postSegmentId = projectionChild.getAttributeValue("postSegmentId");
+			String postFractionAlong = projectionChild.getAttributeValue("postFractionAlong");
+			if(preCell != null)
 			{
-				connection.getB().add(PointerUtility.getPointer(postPopulationVariable, postPopulationType, Integer.parseInt(attribute.getValue())));
+				connection.setA(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCell)));
+				if(preSegmentId != null)
+				{
+					VisualReference visualReference = ValuesFactory.eINSTANCE.createVisualReference();
+					connection.getA().setVisualReference(visualReference);
+					Variable targetVisualVariable = NeuroMLModelInterpreterUtils.getVisualVariable(preSegmentId);
+					visualReference.setVisualVariable(targetVisualVariable);
+					if(preFractionAlong != null)
+					{
+						visualReference.setFraction(Float.parseFloat(preFractionAlong));
+					}
+				}
 			}
-			else
+			if(postCell != null)
 			{
-				// preSegmentId, preFractionAlong, postSegmentId, postFractionAlong
-				connectionType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(attribute.getName(), attribute.getValue(), access));
+				connection.setB(PointerUtility.getPointer(postPopulationVariable, postPopulationType, Integer.parseInt(postCell)));
+				if(postSegmentId != null)
+				{
+					VisualReference visualReference = ValuesFactory.eINSTANCE.createVisualReference();
+					connection.getB().setVisualReference(visualReference);
+					Variable targetVisualVariable = NeuroMLModelInterpreterUtils.getVisualVariable(postSegmentId);
+					visualReference.setVisualVariable(targetVisualVariable);
+					if(postFractionAlong != null)
+					{
+						visualReference.setFraction(Float.parseFloat(postFractionAlong));
+					}
+				}
 			}
+		}
+		catch(ContentError e)
+		{
+			throw new ModelInterpreterException(e);
 		}
 
 		Variable variable = variablesFactory.createVariable();
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, projectionChild);
-		variable.getAnonymousTypes().add(connectionType);
+		variable.getTypes().add(connectionType);
 		variable.getInitialValues().put(connectionType, connection);
 		return variable;
 
 	}
+
 }

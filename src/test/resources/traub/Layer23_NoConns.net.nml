@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.githubusercontent.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd" id="network_Thalamocortical6">
+
+    <notes>
+
+
+Cell Group: CG_C04_FRB_sm contains 6 cells
+Cell Group: CG_C04_LTS_sm contains 10 cells
+Cell Group: CG_C04_AxAx_sm contains 10 cells
+Cell Group: CG_C04_RS_sm contains 20 cells
+Cell Group: CG_C04_Bask_sm contains 10 cells
+
+    </notes>
+
+
+    <include href="L23PyrFRB_varInit.cell.nml"/>
+    <include href="L23PyrRS.cell.nml"/>
+
+    <include href="SupAxAx.cell.nml"/>
+    <include href="SupBasket.cell.nml"/>
+    <include href="SupLTSInter.cell.nml"/>
+
+
+    
+    <network id="network_Thalamocortical6" type="networkWithTemperature" temperature="6.3 degC">
+
+        
+
+        <population id="CG_C04_FRB_sm" component="L23PyrFRB_varInit" type="populationList" size="6">
+           <annotation>
+                <property tag="color" value="0.0 0.0 0.0"/>
+            </annotation>
+            <instance id="0">
+                <location x="7.7558594" y="-817.10846" z="-243.32056"/>
+            </instance>
+            <instance id="1">
+                <location x="-161.86707" y="-704.16754" z="-239.35767"/>
+            </instance>
+            <instance id="2">
+                <location x="-1272.9304" y="-822.48535" z="-165.52747"/>
+            </instance>
+            <instance id="3">
+                <location x="899.3889" y="-781.71344" z="749.47"/>
+            </instance>
+            <instance id="4">
+                <location x="279.72388" y="-622.57654" z="409.5404"/>
+            </instance>
+            <instance id="5">
+                <location x="92.74182" y="-697.46484" z="-1248.9435"/>
+            </instance>
+        </population>
+
+        <population id="CG_C04_LTS_sm" component="SupLTSInter" type="populationList" size="10">
+           <annotation>
+                <property tag="color" value="0.99609375 0.0 0.0"/>
+            </annotation>
+            <instance id="0">
+                <location x="1237.2773" y="-715.6221" z="319.58032"/>
+            </instance>
+            <instance id="1">
+                <location x="1182.2478" y="-780.2685" z="350.1372"/>
+            </instance>
+            <instance id="2">
+                <location x="-494.55054" y="-734.9332" z="-49.518555"/>
+            </instance>
+            <instance id="3">
+                <location x="-61.64453" y="-861.87573" z="1311.2793"/>
+            </instance>
+            <instance id="4">
+                <location x="721.8777" y="-721.37177" z="542.7262"/>
+            </instance>
+            <instance id="5">
+                <location x="985.88965" y="-777.03864" z="-645.69696"/>
+            </instance>
+            <instance id="6">
+                <location x="69.9762" y="-824.74805" z="363.51013"/>
+            </instance>
+            <instance id="7">
+                <location x="1168.4573" y="-808.82513" z="-823.32623"/>
+            </instance>
+            <instance id="8">
+                <location x="309.0421" y="-749.2266" z="-1118.1182"/>
+            </instance>
+            <instance id="9">
+                <location x="-1230.6252" y="-775.9869" z="742.5769"/>
+            </instance>
+        </population>
+
+        <population id="CG_C04_AxAx_sm" component="SupAxAx" type="populationList" size="10">
+           <annotation>
+                <property tag="color" value="0.94140625 0.7890625 0.015625"/>
+            </annotation>
+            <instance id="0">
+                <location x="899.3928" y="-670.7247" z="949.5244"/>
+            </instance>
+            <instance id="1">
+                <location x="405.78064" y="-690.85706" z="1351.7029"/>
+            </instance>
+            <instance id="2">
+                <location x="-562.5327" y="-780.27856" z="-230.78638"/>
+            </instance>
+            <instance id="3">
+                <location x="-175.1001" y="-852.0051" z="-874.73883"/>
+            </instance>
+            <instance id="4">
+                <location x="97.01514" y="-654.0222" z="668.6743"/>
+            </instance>
+            <instance id="5">
+                <location x="-808.1244" y="-835.3667" z="1146.6768"/>
+            </instance>
+            <instance id="6">
+                <location x="428.21985" y="-789.4384" z="9.779541"/>
+            </instance>
+            <instance id="7">
+                <location x="112.277466" y="-761.1008" z="-1124.7664"/>
+            </instance>
+            <instance id="8">
+                <location x="-268.0238" y="-721.6417" z="533.29724"/>
+            </instance>
+            <instance id="9">
+                <location x="-1079.9836" y="-669.65576" z="-404.76318"/>
+            </instance>
+        </population>
+
+        <population id="CG_C04_RS_sm" component="L23PyrRS" type="populationList" size="20">
+           <annotation>
+                <property tag="color" value="0.0 0.0 0.99609375"/>
+            </annotation>
+            <instance id="0">
+                <location x="-818.1918" y="-830.4027" z="-715.3004"/>
+            </instance>
+            <instance id="1">
+                <location x="-454.14722" y="-783.69275" z="886.1692"/>
+            </instance>
+            <instance id="2">
+                <location x="1175.9143" y="-696.81586" z="139.32239"/>
+            </instance>
+            <instance id="3">
+                <location x="543.3185" y="-878.47943" z="-1239.684"/>
+            </instance>
+            <instance id="4">
+                <location x="639.4136" y="-880.3519" z="-136.06921"/>
+            </instance>
+            <instance id="5">
+                <location x="-1060.0553" y="-722.97314" z="-308.62695"/>
+            </instance>
+            <instance id="6">
+                <location x="945.21655" y="-754.2905" z="-1053.0583"/>
+            </instance>
+            <instance id="7">
+                <location x="-394.5631" y="-751.72833" z="553.3032"/>
+            </instance>
+            <instance id="8">
+                <location x="636.05444" y="-888.63336" z="-153.15723"/>
+            </instance>
+            <instance id="9">
+                <location x="97.03735" y="-730.80994" z="-1102.9233"/>
+            </instance>
+            <instance id="10">
+                <location x="113.80493" y="-644.166" z="142.45996"/>
+            </instance>
+            <instance id="11">
+                <location x="153.69116" y="-892.5773" z="22.421509"/>
+            </instance>
+            <instance id="12">
+                <location x="1290.8967" y="-686.79364" z="-330.06262"/>
+            </instance>
+            <instance id="13">
+                <location x="-774.0233" y="-760.183" z="425.72278"/>
+            </instance>
+            <instance id="14">
+                <location x="760.13184" y="-651.18256" z="-1268.0297"/>
+            </instance>
+            <instance id="15">
+                <location x="1296.623" y="-621.6141" z="305.6007"/>
+            </instance>
+            <instance id="16">
+                <location x="288.48926" y="-771.59985" z="822.8218"/>
+            </instance>
+            <instance id="17">
+                <location x="-262.60645" y="-729.3492" z="-764.5175"/>
+            </instance>
+            <instance id="18">
+                <location x="-126.90857" y="-883.4979" z="1233.4746"/>
+            </instance>
+            <instance id="19">
+                <location x="-645.54694" y="-723.90656" z="709.82324"/>
+            </instance>
+        </population>
+
+        <population id="CG_C04_Bask_sm" component="SupBasket" type="populationList" size="10">
+           <annotation>
+                <property tag="color" value="0.4375 0.30078125 0.140625"/>
+            </annotation>
+            <instance id="0">
+                <location x="-507.80762" y="-691.1363" z="434.56165"/>
+            </instance>
+            <instance id="1">
+                <location x="824.9719" y="-694.5928" z="-767.5629"/>
+            </instance>
+            <instance id="2">
+                <location x="-124.373535" y="-626.3623" z="-636.50806"/>
+            </instance>
+            <instance id="3">
+                <location x="-1351.124" y="-683.2543" z="-340.61243"/>
+            </instance>
+            <instance id="4">
+                <location x="482.71558" y="-690.77386" z="1081.5015"/>
+            </instance>
+            <instance id="5">
+                <location x="2.1530762" y="-842.7814" z="-512.34143"/>
+            </instance>
+            <instance id="6">
+                <location x="1353.7227" y="-786.8362" z="-146.05774"/>
+            </instance>
+            <instance id="7">
+                <location x="-453.17883" y="-888.4331" z="-917.9662"/>
+            </instance>
+            <instance id="8">
+                <location x="118.58569" y="-808.0434" z="874.50586"/>
+            </instance>
+            <instance id="9">
+                <location x="-816.35156" y="-837.13135" z="-559.8677"/>
+            </instance>
+        </population>
+
+
+
+
+    </network>
+
+</neuroml>
