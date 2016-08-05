@@ -72,7 +72,6 @@ import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
-import org.neuroml.model.IonChannelKS;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLException;
@@ -171,7 +170,7 @@ public class PopulateSummaryNodesUtils
 			modelDescription.append("<b>Cells</b><br/>");
 			for(Type cell : cellComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">" + cell.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">" + cell.getName() + "</a> | ");
 			}
 			modelDescription.append("<br/><br/>");
 		}
@@ -182,7 +181,7 @@ public class PopulateSummaryNodesUtils
 			for(Type ionChannel : ionChannelComponents)
 			{
 
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> | ");
 
 				// Add expresion nodes from the export library for the gate rates
 				addExpresionNodes((CompositeType) ionChannel);
@@ -195,7 +194,7 @@ public class PopulateSummaryNodesUtils
 			modelDescription.append("<b>Synapses</b><br/>");
 			for(Type synapse : synapseComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> | ");
 			}
 			modelDescription.append("<br/><br/>");
 		}
@@ -206,7 +205,7 @@ public class PopulateSummaryNodesUtils
 			modelDescription.append("<b>Inputs</b><br/>");
 			for(Type pulseGenerator : pulseGeneratorComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> | ");
 			}
 			modelDescription.append("<br/>");
 		}
@@ -267,7 +266,7 @@ public class PopulateSummaryNodesUtils
 				{
 					StringBuilder htmlText = new StringBuilder();
 
-					htmlText.append("<b>Notes</b><br/>");
+					htmlText.append("<b>Description</b><br/>");
 					for(Variable note : notesComponents)
 					{
 						Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
@@ -295,7 +294,7 @@ public class PopulateSummaryNodesUtils
 					htmlText.append("<b>Channels</b><br/>");
 					for(Type ionChannel : ionChannelComponents)
 					{
-						htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
+						htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> | ");
 					}
 					htmlText.append("<br/><br/>");
 
@@ -319,7 +318,7 @@ public class PopulateSummaryNodesUtils
 					htmlText.append("<b>Synapses</b><br/>");
 					for(Type synapse : synapseComponents)
 					{
-						htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
+						htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> | ");
 					}
 					htmlText.append("<br/><br/>");
 
@@ -409,7 +408,7 @@ public class PopulateSummaryNodesUtils
 
 				if(notesComponents != null && notesComponents.size() > 0)
 				{
-					htmlText.append("<b>Notes</b><br/>");
+					htmlText.append("<b>Description</b><br/>");
 					for(Variable note : notesComponents)
 					{
 						Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
@@ -443,7 +442,7 @@ public class PopulateSummaryNodesUtils
 				List<Variable> variables = this.plottableVariables.get(ionChannel.getName());
 				if(variables != null)
 				{
-					htmlText.append("<b>Plot Activation Variables</b><br/>");
+					htmlText.append("<b>Plot activation variables</b><br/>");
 					for(Variable v : variables)
 					{
 						String[] split = v.getPath().split("\\.");

@@ -94,7 +94,7 @@ public class NeuroMLModelInterpreterUtils
 			domainModel.setFormat(ServicesRegistry.getModelFormat("LEMS"));
 			((Type) node).setDomainModel(domainModel);
 		}
-		node.setName(Resources.getValueById(component.getDeclaredType()) + ((component.getID() != null) ? " - " + ModelInterpreterUtils.parseId(component.getID()) : ""));
+		node.setName(((component.getID() != null) ? ModelInterpreterUtils.parseId(component.getID()) : ""));
 		node.setId(ModelInterpreterUtils.parseId((component.getID() != null) ? component.getID() : component.getDeclaredType()));
 	}
 
