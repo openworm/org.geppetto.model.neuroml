@@ -101,13 +101,15 @@ public class PopulateSummaryNodesUtils
 	private NeuroMLDocument neuroMLDocument;
 
 	PopulateDynamicsGate populateDynamicsGate;
-	public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, Type type, URL url, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument)
+	public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, Type type, URL url, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument, String neuromlContent)  throws Throwable
 	{
 		this.access = access;
 		this.typesMap = typesMap;
 		this.url = url;
 		this.type = type;
 		this.neuroMLDocument = neuroMLDocument;
+		
+		populateDynamicsGate =new PopulateDynamicsGate(neuromlContent, access);
 	}
 
 	/**
@@ -125,12 +127,9 @@ public class PopulateSummaryNodesUtils
 	 * Creates general Model description
 	 * 
 	 * @return
-	 * @throws ModelInterpreterException
-	 * @throws GeppettoVisitingException
-	 * @throws NeuroMLException
-	 * @throws LEMSException
+	 * @throws Throwable 
 	 */
-	public Variable getDescriptionNode() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
+	public Variable getDescriptionNode() throws Throwable
 	{
 
 		List<Type> networkComponents = typesMap.containsKey(ResourcesDomainType.NETWORK.get()) ? typesMap.get(ResourcesDomainType.NETWORK.get()) : null;
@@ -597,9 +596,10 @@ public class PopulateSummaryNodesUtils
 										}
 	
 									}
-									else{
-										throw new ModelInterpreterException("No node matches summary gate rate");
-									}
+									
+								}
+								else{
+									throw new ModelInterpreterException("No node matches summary gate rate");
 								}
 							}
 						}

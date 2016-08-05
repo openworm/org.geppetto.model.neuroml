@@ -231,7 +231,16 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			addTypesToLibrary(library);
 
 			// Extract Summary and Description nodes from type
-			PopulateSummaryNodesUtils populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesUtils(populateTypes.getTypesMap(), type, url, access, neuroMLDocument);
+			PopulateSummaryNodesUtils populateSummaryNodesModelTreeUtils = null;
+			try
+			{
+				populateSummaryNodesModelTreeUtils = new PopulateSummaryNodesUtils(populateTypes.getTypesMap(), type, url, access, neuroMLDocument, reader.getNeuroML2String());
+			}
+			catch(Throwable e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 			((CompositeType) type).getVariables().add(populateSummaryNodesModelTreeUtils.getDescriptionNode());
 			populateSummaryNodesModelTreeUtils.createHTMLVariables();
@@ -239,11 +248,12 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 			return type;
 		}
-		catch(NumberFormatException | LEMSException e)
+		catch(Throwable e)
 		{
 			_logger.warn("Error resolving lems file");
 			throw new ModelInterpreterException(e);
 		}
+
 	}
 
 	private void addTypesToLibrary(GeppettoLibrary library)
