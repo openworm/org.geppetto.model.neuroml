@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.githubusercontent.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd" id="network_Thalamocortical">
+
+    <notes>
+
+Network structure (NeuroML 2beta4) for project: Thalamocortical saved with neuroConstruct v1.7.1 on: 10:03:37, 06-Jan-16
+
+Cell Group: CGsuppyrFRB contains 1 cells
+
+
+
+    </notes>
+
+
+    <include href="ar.channel.nml"/>
+    <include href="ar__m00_25.channel.nml"/>
+    <include href="ar__m00_25.channel.nml"/>
+    <include href="cad.nml"/>
+    <include href="cad__beta0_01__phi26000.nml"/>
+    <include href="cad__beta0_05__phi52000.nml"/>
+    <include href="cal.channel.nml"/>
+    <include href="cat.channel.nml"/>
+    <include href="k2.channel.nml"/>
+    <include href="ka.channel.nml"/>
+    <include href="kahp.channel.nml"/>
+    <include href="kc.channel.nml"/>
+    <include href="kdr.channel.nml"/>
+    <include href="km.channel.nml"/>
+    <include href="L23PyrFRB.cell.nml"/>
+    <include href="naf.channel.nml"/>
+    <include href="naf__a0__b0__c0__d0__fastNa_shiftmin3_5.channel.nml"/>
+    <include href="nap.channel.nml"/>
+    <include href="pas.channel.nml"/>
+    <pulseGenerator id="Input_11" delay="0.4s" duration="0.3s" amplitude="4.0E-10A"/>
+    
+    <pulseGenerator id="Input_10" delay="0.0s" duration="0.4s" amplitude="-6.0E-10A"/>
+    
+    <network id="network_Thalamocortical" type="networkWithTemperature" temperature="6.3 degC">
+
+        
+
+        <population id="CGsuppyrFRB" component="L23PyrFRB" type="populationList" size="1">
+           <annotation>
+                <property tag="color" value="0.13671875 0.2421875 0.6171875"/>
+            </annotation>
+            <instance id="0">
+                <location x="61.56476" y="9.303167" z="18.81792"/>
+            </instance>
+        </population>
+
+
+
+            <!--There are no synaptic connections present in the network-->
+
+
+        <inputList id="Input_11" component="Input_11" population="CGsuppyrFRB">
+            <input id="0" target="../CGsuppyrFRB/0/L23PyrFRB" destination="synapses"/>
+        </inputList>
+
+
+
+        <inputList id="Input_10" component="Input_10" population="CGsuppyrFRB">
+            <input id="0" target="../CGsuppyrFRB/0/L23PyrFRB" destination="synapses"/>
+        </inputList>
+
+
+
+
+
+    </network>
+
+</neuroml>

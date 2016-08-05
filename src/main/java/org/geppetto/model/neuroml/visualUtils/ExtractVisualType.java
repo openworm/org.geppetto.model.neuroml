@@ -38,11 +38,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.neuroml.modelInterpreterUtils.NeuroMLModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.CellUtils;
-import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.TypesFactory;
@@ -59,16 +60,12 @@ import org.geppetto.model.values.VisualValue;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
 import org.lemsml.jlems.core.sim.LEMSException;
-import org.lemsml.jlems.core.type.Component;
-import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Cell;
 import org.neuroml.model.Include;
-import org.neuroml.model.Member;
 import org.neuroml.model.Morphology;
 import org.neuroml.model.Point3DWithDiam;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
-import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLException;
 
 /**
@@ -78,30 +75,29 @@ import org.neuroml.model.util.NeuroMLException;
 public class ExtractVisualType
 {
 
-	Component cellComponent;
-	Cell cell;
+	private static Log _logger = LogFactory.getLog(ExtractVisualType.class);
 
-	TypesFactory typeFactory = TypesFactory.eINSTANCE;
-	ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
-	VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
+	private Cell cell;
 
-	Map<String, List<VisualGroupElement>> segmentsMap = new HashMap<String, List<VisualGroupElement>>();
-	GeppettoModelAccess access;
+	private TypesFactory typeFactory = TypesFactory.eINSTANCE;
+	private ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
+	private VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
 
-	LinkedHashMap<SegmentGroup, List<Segment>> segmentGroupSegMap;
+	private Map<String, List<VisualGroupElement>> segmentsMap = new HashMap<String, List<VisualGroupElement>>();
+	private GeppettoModelAccess access;
 
-	List<Variable> visualObjectsSegments;
+	private LinkedHashMap<String, List<Segment>> segmentGroupSegMap;
 
-	public ExtractVisualType(Component cellComponent, GeppettoModelAccess access) throws LEMSException, NeuroMLException
+	private List<Variable> visualObjectsSegments;
+
+	private Map<String, List<Variable>> segmentGeometries = new HashMap<String, List<Variable>>();
+
+	public ExtractVisualType(Cell cell, GeppettoModelAccess access) throws LEMSException, NeuroMLException
 	{
 		super();
 
-		this.cellComponent = cellComponent;
 		this.access = access;
-
-		LinkedHashMap<String, Standalone> cellMap = Utils.convertLemsComponentToNeuroML(cellComponent);
-		this.cell = (Cell) cellMap.get(cellComponent.getID());
-		
+		this.cell = cell;
 
 		// AQP Maybe we can initialise cellutils here and pass this variable to the create density class
 		CellUtils cellUtils = new CellUtils(cell);
@@ -110,11 +106,19 @@ public class ExtractVisualType
 
 	public VisualType createTypeFromCellMorphology() throws GeppettoVisitingException, LEMSException, NeuroMLException, ModelInterpreterException
 	{
+		long start = System.currentTimeMillis();
+
 		CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
 		NeuroMLModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, cell.getMorphology().getId());
-		visualCompositeType.getVisualGroups().add(createCellPartsVisualGroups());
 
-		visualObjectsSegments = getVisualObjectsFromListOfSegments();
+		VisualGroup visualGroupCellParts = createCellPartsVisualGroups();
+		if(visualGroupCellParts != null)
+		{
+			visualCompositeType.getVisualGroups().add(visualGroupCellParts);
+		}
+
+		Map<Integer, Variable> segmentIdsvisualObjectsSegments = getVisualObjectsFromListOfSegments();
+		visualObjectsSegments = new ArrayList<Variable>(segmentIdsvisualObjectsSegments.values());
 
 		if(cell.getMorphology().getSegmentGroup().isEmpty())
 		{
@@ -125,11 +129,13 @@ public class ExtractVisualType
 			visualCompositeType.getVariables().addAll(createNodesFromMorphologyBySegmentGroup());
 
 			// create density groups for each cell, if it has some
-			PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(cell);
+			PopulateChannelDensityVisualGroups populateChannelDensityVisualGroups = new PopulateChannelDensityVisualGroups(cell, segmentGroupSegMap, segmentIdsvisualObjectsSegments, this.access);
 			visualCompositeType.getVisualGroups().addAll(populateChannelDensityVisualGroups.createChannelDensities());
 
 			if(populateChannelDensityVisualGroups.getChannelDensityTag() != null) access.addTag(populateChannelDensityVisualGroups.getChannelDensityTag());
 		}
+
+		_logger.info("Creating morphology for " + cell.getMorphology().getId() + ", took " + (System.currentTimeMillis() - start) + "ms");
 
 		return visualCompositeType;
 	}
@@ -142,9 +148,10 @@ public class ExtractVisualType
 	 * @return
 	 * @throws GeppettoVisitingException
 	 */
-	private List<Variable> getVisualObjectsFromListOfSegments() throws GeppettoVisitingException
+	private Map<Integer, Variable> getVisualObjectsFromListOfSegments() throws GeppettoVisitingException
 	{
-		List<Variable> visualObjectVariables = new ArrayList<Variable>();
+		// List<Variable> visualObjectVariables = new ArrayList<Variable>();
+		Map<Integer, Variable> visualObjectVariables = new HashMap<Integer, Variable>();
 
 		Map<String, Point3DWithDiam> distalPoints = new HashMap<String, Point3DWithDiam>();
 		for(Segment segment : cell.getMorphology().getSegment())
@@ -171,10 +178,11 @@ public class ExtractVisualType
 				// get groups list for segment and put it in visual objects
 				visualObject.getGroupElements().addAll(segmentsMap.get(variable.getId()));
 			}
+
 			variable.getInitialValues().put(this.access.getType(TypesPackage.Literals.VISUAL_TYPE), visualObject);
 
 			distalPoints.put(segment.getId().toString(), segment.getDistal());
-			visualObjectVariables.add(variable);
+			visualObjectVariables.put(segment.getId(), variable);
 		}
 
 		return visualObjectVariables;
@@ -190,8 +198,6 @@ public class ExtractVisualType
 	private List<Variable> createNodesFromMorphologyBySegmentGroup() throws GeppettoVisitingException
 	{
 		List<Variable> visualObjectVariables = new ArrayList<Variable>();
-
-		Map<String, List<Variable>> segmentGeometries = new HashMap<String, List<Variable>>();
 
 		Morphology morphology = cell.getMorphology();
 		if(!morphology.getSegmentGroup().isEmpty())
@@ -210,7 +216,7 @@ public class ExtractVisualType
 				}
 				if(!sg.getMember().isEmpty())
 				{
-					segmentGeometries.put(sg.getId(), getVisualObjectsForGroup(sg, visualObjectsSegments));
+					segmentGeometries.put(sg.getId(), getVisualObjectsForGroup(sg.getId(), visualObjectsSegments));
 				}
 			}
 
@@ -263,7 +269,7 @@ public class ExtractVisualType
 				}
 				cellParts.getVisualGroupElements().add(visualGroupElement);
 
-				for(Segment segment : segmentGroupSegMap.get(segmentGroup))
+				for(Segment segment : segmentGroupSegMap.get(segmentGroup.getId()))
 				{
 					String segmentID = NeuroMLModelInterpreterUtils.getVisualObjectIdentifier(segment);
 					List<VisualGroupElement> groups;
@@ -284,6 +290,12 @@ public class ExtractVisualType
 					segmentsMap.put(segmentID, groups);
 				}
 			}
+
+		}
+
+		if(cellParts.getVisualGroupElements().size() == 0)
+		{
+			cellParts = null;
 		}
 
 		return cellParts;
@@ -294,11 +306,12 @@ public class ExtractVisualType
 	 * @param allSegments
 	 * @return
 	 */
-	private List<Variable> getVisualObjectsForGroup(SegmentGroup sg, List<Variable> allSegments)
+	private List<Variable> getVisualObjectsForGroup(String sg, List<Variable> allSegments)
 	{
 		List<Variable> geometries = new ArrayList<Variable>();
-		
-		for (Segment segment : segmentGroupSegMap.get(sg)){
+
+		for(Segment segment : segmentGroupSegMap.get(sg))
+		{
 			for(Variable g : allSegments)
 			{
 				if(g.getId().equals(NeuroMLModelInterpreterUtils.getVisualObjectIdentifier(segment)))
@@ -307,7 +320,7 @@ public class ExtractVisualType
 				}
 			}
 		}
-		
+
 		return geometries;
 	}
 

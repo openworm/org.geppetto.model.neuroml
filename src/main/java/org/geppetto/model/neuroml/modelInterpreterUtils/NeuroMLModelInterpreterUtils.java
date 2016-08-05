@@ -94,7 +94,7 @@ public class NeuroMLModelInterpreterUtils
 			domainModel.setFormat(ServicesRegistry.getModelFormat("LEMS"));
 			((Type) node).setDomainModel(domainModel);
 		}
-		node.setName(Resources.getValueById(component.getDeclaredType()) + ((component.getID() != null) ? " - " + ModelInterpreterUtils.parseId(component.getID()) : ""));
+		node.setName(((component.getID() != null) ? ModelInterpreterUtils.parseId(component.getID()) : ""));
 		node.setId(ModelInterpreterUtils.parseId((component.getID() != null) ? component.getID() : component.getDeclaredType()));
 	}
 
@@ -111,5 +111,11 @@ public class NeuroMLModelInterpreterUtils
 	public static String getVisualObjectIdentifier(Segment segment)
 	{
 		return (segment.getName() != null && !segment.getName().equals("")) ? (segment.getName() + "_" + segment.getId()) : "vo" + segment.getId();
+	}
+
+	public static Variable getVisualVariable(String preSegmentId)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

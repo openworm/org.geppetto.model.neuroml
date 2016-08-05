@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.githubusercontent.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd" id="network_Thalamocortical">
+
+    <notes>
+
+Network structure (NeuroML 2beta4) for project: Thalamocortical saved with neuroConstruct v1.7.1 on: 19:30:42, 23-Oct-15
+
+Cell Group: CG_CML contains 1 cells
+
+
+
+    </notes>
+
+
+    <include href="ar.channel.nml"/>
+    <include href="ar__m00_25.channel.nml"/>
+    <include href="cad.nml"/>
+    <include href="cad__beta0_03__phi300000.nml"/>
+    <include href="cal.channel.nml"/>
+    <include href="cat.channel.nml"/>
+    <include href="cat_a.channel.nml"/>
+    <include href="k2.channel.nml"/>
+    <include href="ka.channel.nml"/>
+    <include href="ka_ib.channel.nml"/>
+    <include href="kahp.channel.nml"/>
+    <include href="kahp_deeppyr.channel.nml"/>
+    <include href="kahp_slower.channel.nml"/>
+    <include href="kc.channel.nml"/>
+    <include href="kc_fast.channel.nml"/>
+    <include href="kdr.channel.nml"/>
+    <include href="kdr_fs.channel.nml"/>
+    <include href="km.channel.nml"/>
+    <include href="naf.channel.nml"/>
+    <include href="naf2.channel.nml"/>
+    <include href="naf_tcr.channel.nml"/>
+    <include href="nap.channel.nml"/>
+    <include href="napf.channel.nml"/>
+    <include href="napf_spinstell.channel.nml"/>
+    <include href="napf_tcr.channel.nml"/>
+    <include href="pas.channel.nml"/>
+    <include href="TestSeg_all.cell.nml"/>
+    <pulseGenerator id="Input_4" delay="0.02s" duration="0.06s" amplitude="8.0E-11A"/>
+    
+    <network id="network_Thalamocortical" type="networkWithTemperature" temperature="6.3 degC">
+
+        
+
+        <population id="CG_CML" component="TestSeg_all" type="populationList" size="1">
+           <annotation>
+                <property tag="color" value="0.85546875 0.6875 0.27734375"/>
+            </annotation>
+            <instance id="0">
+                <location x="97.22775" y="16.977047" z="57.349842"/>
+            </instance>
+        </population>
+
+
+
+            <!--There are no synaptic connections present in the network-->
+
+
+        <inputList id="Input_4" component="Input_4" population="CG_CML">
+            <input id="0" target="../CG_CML/0/TestSeg_all" destination="synapses"/>
+        </inputList>
+
+
+
+
+
+    </network>
+
+</neuroml>

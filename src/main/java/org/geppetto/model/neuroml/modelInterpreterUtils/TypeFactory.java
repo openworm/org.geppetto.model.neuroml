@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
+import org.geppetto.model.types.ImportType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 
@@ -24,10 +25,26 @@ public class TypeFactory
 		this.types = types;
 	}
 
-	/*
-	 * Return a regular composite type if domainType is null. Otherwise return a composite type with supertype equal to the domaintype or an array type
+	/**
+	 * @param domainName
+	 * @return
 	 */
-	public Type getType(String domainName)
+	public ImportType createImportType(String domainName)
+	{
+		ResourcesDomainType resourcesDomainType = ResourcesDomainType.getValueById(domainName);
+		ImportType importType=typeFactory.createImportType();
+		importType.getSuperType().add(getSuperType(resourcesDomainType));
+
+		// Add new type to typesMap. It will be used later on to generate description node
+		List<Type> typeList = typesMap.get(resourcesDomainType.get());
+		typeList.add(importType);
+		return importType;
+	}
+	
+	/*
+	 * Returns a regular composite type if domainType is null. Otherwise return a composite type with supertype equal to the domaintype or an array type
+	 */
+	public Type createType(String domainName)
 	{
 		Type newType;
 		
@@ -53,7 +70,7 @@ public class TypeFactory
 			{
 				newType = typeFactory.createCompositeType();
 			}
-			newType.setSuperType(getSuperType(resourcesDomainType));
+			newType.getSuperType().add(getSuperType(resourcesDomainType));
 
 			// Add new type to typesMap. It will be used later on to generate description node
 			List<Type> typeList = typesMap.get(resourcesDomainType.get());
@@ -62,14 +79,20 @@ public class TypeFactory
 		return newType;
 	}
 
-	private Type getSuperType(ResourcesDomainType resourcesDomainType)
+	public Type getSuperType(ResourcesDomainType resourcesDomainType)
 	{
 		// Create super type
 		if(!types.containsKey(resourcesDomainType.get()))
 		{
 			typesMap.put(resourcesDomainType.get(), new ArrayList<Type>());
-
-			Type domainType = typeFactory.createCompositeType();
+			Type domainType = null;
+			if(resourcesDomainType.equals(ResourcesDomainType.CONNECTION)){
+				domainType=typeFactory.createConnectionType();
+			}
+			else{
+				domainType=typeFactory.createSimpleType();
+			}
+			
 			domainType.setId(resourcesDomainType.get());
 			domainType.setName(resourcesDomainType.get());
 			types.put(resourcesDomainType.get(), domainType);

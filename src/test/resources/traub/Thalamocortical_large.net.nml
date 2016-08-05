@@ -1,0 +1,2446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.github.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta1.xsd" id="network_Thalamocortical">
+
+<notes>
+
+Network structure (NeuroML 2beta1) for project: Thalamocortical saved with neuroConstruct v1.7.0 on: 14:35:19, 29-Oct-13
+
+Cell Group: CG3D_nRT contains 10 cells
+Cell Group: CG3D_DeepBask contains 10 cells
+Cell Group: CG3D_DeepAxAx contains 10 cells
+Cell Group: CG3D_L5TuftIB contains 80 cells
+Cell Group: CG3D_SupBask contains 9 cells
+Cell Group: CG3D_L23PyrRS contains 100 cells
+Cell Group: CG3D_SupAxAx contains 9 cells
+Cell Group: CG3D_L5TuftRS contains 20 cells
+Cell Group: CG3D_DeepLTS contains 10 cells
+Cell Group: CG3D_L6NonTuftRS contains 50 cells
+Cell Group: CG3D_L23PyrFRB contains 5 cells
+Cell Group: CG3D_TCR contains 10 cells
+Cell Group: CG3D_SupLTS contains 9 cells
+Cell Group: CG3D_L4SpinStell contains 24 cells
+
+Network connection: NC3D_SupLTS_SupLTS_Gap contains 21 individual synaptic connections
+Network connection: NC3D_DeepAxAx_L23PyrFRB contains 25 individual synaptic connections
+Network connection: NC3D_DeepBask_L5TuftIB contains 1600 individual synaptic connections
+Network connection: NC3D_DeepBask_L4SpinStell contains 480 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_DeepLTS contains 30 individual synaptic connections
+Network connection: NC3D_SupAxAx_L5TuftIB contains 400 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_SupAxAx contains 45 individual synaptic connections
+Network connection: NC3D_L5TuftRS_DeepAxAx contains 100 individual synaptic connections
+Network connection: NC3D_L23PyrRS_SupBask contains 810 individual synaptic connections
+Network connection: NC3D_DeepAxAx_L4SpinStell contains 120 individual synaptic connections
+Network connection: NC3D_SupLTS_SupLTS contains 180 individual synaptic connections
+Network connection: NC3D_SupLTS_L23PyrFRB contains 100 individual synaptic connections
+Network connection: NC3D_L4SpinStell_DeepLTS contains 200 individual synaptic connections
+Network connection: NC3D_DeepLTS_DeepBask contains 200 individual synaptic connections
+Network connection: NC3D_DeepLTS_SupBask contains 90 individual synaptic connections
+Network connection: NC3D_SupAxAx_L6NonTuftRS contains 250 individual synaptic connections
+Network connection: NC3D_L5TuftIB_L4SpinStell contains 480 individual synaptic connections
+Network connection: NC3D_nRT_TCR contains 300 individual synaptic connections
+Network connection: NC3D_DeepLTS_L5TuftIB contains 1600 individual synaptic connections
+Network connection: NC3D_L4SpinStell_L4SpinStell_Gap contains 24 individual synaptic connections
+Network connection: NC3D_DeepAxAx_L5TuftIB contains 400 individual synaptic connections
+Network connection: NC3D_L6NonTuftRS_L23PyrRS contains 1000 individual synaptic connections
+Network connection: NC3D_L5TuftIB_DeepBask contains 200 individual synaptic connections
+Network connection: NC3D_L23PyrRS_L23PyrFRB contains 250 individual synaptic connections
+Network connection: NC3D_DeepLTS_SupLTS contains 90 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_L23PyrFRB contains 25 individual synaptic connections
+Network connection: NC3D_SupBask_L23PyrRS contains 2000 individual synaptic connections
+Network connection: NC3D_L4SpinStell_SupAxAx contains 180 individual synaptic connections
+Network connection: NC3D_DeepBask_DeepAxAx contains 200 individual synaptic connections
+Network connection: NC3D_L4SpinStell_L23PyrRS contains 2000 individual synaptic connections
+Network connection: NC3D_TCR_SupBask contains 90 individual synaptic connections
+Network connection: NC3D_L23PyrRS_SupLTS contains 810 individual synaptic connections
+Network connection: NC3D_L4SpinStell_L5TuftRS contains 400 individual synaptic connections
+Network connection: NC3D_SupLTS_DeepAxAx contains 200 individual synaptic connections
+Network connection: NC3D_TCR_L4SpinStell contains 480 individual synaptic connections
+Network connection: NC3D_TCR_DeepBask contains 200 individual synaptic connections
+Network connection: NC3D_L5TuftRS_L23PyrRS contains 200 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_DeepBask contains 30 individual synaptic connections
+Network connection: NC3D_TCR_L5TuftIB contains 800 individual synaptic connections
+Network connection: NC3D_DeepLTS_L23PyrFRB contains 50 individual synaptic connections
+Network connection: NC3D_L5TuftRS_SupBask contains 90 individual synaptic connections
+Network connection: NC3D_L5TuftRS_L5TuftRS contains 200 individual synaptic connections
+Network connection: NC3D_L23PyrRS_L6NonTuftRS contains 150 individual synaptic connections
+Network connection: NC3D_L6NonTuftRS_L5TuftRS contains 200 individual synaptic connections
+Network connection: NC3D_L5TuftIB_L5TuftIB contains 4000 individual synaptic connections
+Network connection: NC3D_L6NonTuftRS_L23PyrFRB contains 50 individual synaptic connections
+Network connection: NC3D_SupLTS_SupBask contains 180 individual synaptic connections
+Network connection: NC3D_DeepLTS_L6NonTuftRS contains 1000 individual synaptic connections
+Network connection: NC3D_L6NonTuftRS_L4SpinStell contains 240 individual synaptic connections
+Network connection: NC3D_L5TuftRS_L23PyrFRB contains 10 individual synaptic connections
+Network connection: NC3D_L23PyrRS_DeepBask contains 300 individual synaptic connections
+Network connection: NC3D_L23PyrRS_DeepLTS contains 300 individual synaptic connections
+Network connection: NC3D_L4SpinStell_SupLTS contains 180 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_L4SpinStell contains 24 individual synaptic connections
+Network connection: NC3D_DeepLTS_DeepLTS_Gap contains 26 individual synaptic connections
+Network connection: NC3D_SupLTS_L23PyrRS contains 2000 individual synaptic connections
+Network connection: NC3D_SupLTS_L6NonTuftRS contains 1000 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_SupLTS contains 45 individual synaptic connections
+Network connection: NC3D_SupLTS_L5TuftRS contains 400 individual synaptic connections
+Network connection: NC3D_SupAxAx_L23PyrFRB contains 100 individual synaptic connections
+Network connection: NC3D_L23PyrRS_SupAxAx contains 810 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_L5TuftIB contains 240 individual synaptic connections
+Network connection: NC3D_SupAxAx_L23PyrRS contains 2000 individual synaptic connections
+Network connection: NC3D_L5TuftIB_L23PyrFRB contains 10 individual synaptic connections
+Network connection: NC3D_DeepLTS_DeepAxAx contains 200 individual synaptic connections
+Network connection: NC3D_DeepLTS_SupAxAx contains 90 individual synaptic connections
+Network connection: NC3D_SupBask_SupBask contains 180 individual synaptic connections
+Network connection: NC3D_SupBask_SupLTS contains 180 individual synaptic connections
+Network connection: NC3D_L6NonTuftRS_nRT contains 200 individual synaptic connections
+Network connection: NC3D_L4SpinStell_L4SpinStell contains 720 individual synaptic connections
+Network connection: NC3D_L6NonTuftRS_L6NonTuftRS_Gap contains 50 individual synaptic connections
+Network connection: NC3D_DeepBask_L6NonTuftRS contains 1000 individual synaptic connections
+Network connection: NC3D_L5TuftIB_DeepAxAx contains 200 individual synaptic connections
+Network connection: NC3D_DeepLTS_DeepLTS contains 200 individual synaptic connections
+Network connection: NC3D_L23PyrRS_L5TuftIB contains 4800 individual synaptic connections
+Network connection: NC3D_DeepBask_DeepBask_Gap contains 22 individual synaptic connections
+Network connection: NC3D_DeepBask_L5TuftRS contains 400 individual synaptic connections
+Network connection: NC3D_TCR_SupAxAx contains 90 individual synaptic connections
+Network connection: NC3D_L5TuftIB_SupLTS contains 180 individual synaptic connections
+Network connection: NC3D_DeepAxAx_L6NonTuftRS contains 250 individual synaptic connections
+Network connection: NC3D_L5TuftRS_L5TuftRS_Gap contains 34 individual synaptic connections
+Network connection: NC3D_L5TuftRS_L4SpinStell contains 480 individual synaptic connections
+Network connection: NC3D_TCR_DeepAxAx contains 100 individual synaptic connections
+Network connection: NC3D_SupLTS_DeepLTS contains 200 individual synaptic connections
+Network connection: NC3D_SupBask_L4SpinStell contains 480 individual synaptic connections
+Network connection: NC3D_L5TuftIB_L6NonTuftRS contains 1000 individual synaptic connections
+Network connection: NC3D_SupAxAx_L5TuftRS contains 100 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_DeepAxAx contains 30 individual synaptic connections
+Network connection: NC3D_DeepLTS_L23PyrRS contains 1000 individual synaptic connections
+Network connection: NC3D_L5TuftIB_SupBask contains 180 individual synaptic connections
+Network connection: NC3D_TCR_nRT contains 400 individual synaptic connections
+Network connection: NC3D_DeepAxAx_L23PyrRS contains 500 individual synaptic connections
+Network connection: NC3D_L5TuftRS_SupAxAx contains 90 individual synaptic connections
+Network connection: NC3D_DeepLTS_L5TuftRS contains 400 individual synaptic connections
+Network connection: NC3D_DeepAxAx_L5TuftRS contains 100 individual synaptic connections
+Network connection: NC3D_SupLTS_SupAxAx contains 180 individual synaptic connections
+Network connection: NC3D_L4SpinStell_DeepBask contains 200 individual synaptic connections
+Network connection: NC3D_SupBask_L23PyrFRB contains 100 individual synaptic connections
+Network connection: NC3D_L23PyrRS_DeepAxAx contains 300 individual synaptic connections
+Network connection: NC3D_TCR_L6NonTuftRS contains 500 individual synaptic connections
+Network connection: NC3D_L5TuftRS_DeepLTS contains 100 individual synaptic connections
+Network connection: NC3D_SupBask_SupBask_Gap contains 21 individual synaptic connections
+Network connection: NC3D_L6NonTuftRS_TCR contains 200 individual synaptic connections
+Network connection: NC3D_TCR_L23PyrRS contains 1000 individual synaptic connections
+Network connection: NC3D_L5TuftRS_SupLTS contains 90 individual synaptic connections
+Network connection: NC3D_L5TuftIB_L5TuftIB_Gap contains 42 individual synaptic connections
+Network connection: NC3D_L4SpinStell_L23PyrFRB contains 100 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_L23PyrRS contains 500 individual synaptic connections
+Network connection: NC3D_TCR_L5TuftRS contains 200 individual synaptic connections
+Network connection: NC3D_SupBask_SupAxAx contains 180 individual synaptic connections
+Network connection: NC3D_L6NonTuftRS_L6NonTuftRS contains 1000 individual synaptic connections
+Network connection: NC3D_L5TuftIB_L23PyrRS contains 200 individual synaptic connections
+Network connection: NC3D_SupAxAx_L4SpinStell contains 120 individual synaptic connections
+Network connection: NC3D_L23PyrRS_L23PyrFRB_Gap contains 2 individual synaptic connections
+Network connection: NC3D_L5TuftIB_L5TuftRS contains 400 individual synaptic connections
+Network connection: NC3D_L4SpinStell_L5TuftIB contains 1600 individual synaptic connections
+Network connection: NC3D_L23PyrRS_L23PyrRS contains 5000 individual synaptic connections
+Network connection: NC3D_nRT_nRT_Gap contains 25 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_SupBask contains 45 individual synaptic connections
+Network connection: NC3D_L5TuftRS_DeepBask contains 100 individual synaptic connections
+Network connection: NC3D_L5TuftRS_L5TuftIB contains 1600 individual synaptic connections
+Network connection: NC3D_L4SpinStell_L6NonTuftRS contains 1000 individual synaptic connections
+Network connection: NC3D_L6NonTuftRS_L5TuftIB contains 800 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_L5TuftRS contains 60 individual synaptic connections
+Network connection: NC3D_L5TuftIB_SupAxAx contains 180 individual synaptic connections
+Network connection: NC3D_L23PyrFRB_L6NonTuftRS contains 50 individual synaptic connections
+Network connection: NC3D_L4SpinStell_SupBask contains 180 individual synaptic connections
+Network connection: NC3D_nRT_nRT contains 100 individual synaptic connections
+Network connection: NC3D_DeepBask_DeepBask contains 200 individual synaptic connections
+Network connection: NC3D_L23PyrRS_L4SpinStell contains 72 individual synaptic connections
+Network connection: NC3D_TCR_L23PyrFRB contains 50 individual synaptic connections
+Network connection: NC3D_DeepLTS_L4SpinStell contains 480 individual synaptic connections
+Network connection: NC3D_L4SpinStell_DeepAxAx contains 200 individual synaptic connections
+Network connection: NC3D_L5TuftIB_DeepLTS contains 200 individual synaptic connections
+Network connection: NC3D_L23PyrRS_L5TuftRS contains 1200 individual synaptic connections
+Network connection: NC3D_SupLTS_DeepBask contains 200 individual synaptic connections
+Network connection: NC3D_L5TuftRS_L6NonTuftRS contains 1000 individual synaptic connections
+Network connection: NC3D_SupLTS_L5TuftIB contains 1600 individual synaptic connections
+Network connection: NC3D_L23PyrRS_L23PyrRS_Gap contains 75 individual synaptic connections
+Network connection: NC3D_DeepBask_DeepLTS contains 200 individual synaptic connections
+Network connection: NC3D_SupLTS_L4SpinStell contains 480 individual synaptic connections
+
+</notes>
+
+
+    <include href="L23PyrRS.cell.nml"/>
+    <include href="SupLTSInter.cell.nml"/>
+    <include href="DeepAxAx.cell.nml"/>
+    <include href="DeepLTSInter.cell.nml"/>
+    <include href="L5TuftedPyrIB.cell.nml"/>
+    <include href="L6NonTuftedPyrRS.cell.nml"/>
+    <include href="SupBasket.cell.nml"/>
+    <include href="TCR.cell.nml"/>
+    <include href="DeepBasket.cell.nml"/>
+    <include href="L4SpinyStellate.cell.nml"/>
+    <include href="L5TuftedPyrRS.cell.nml"/>
+    <include href="SupAxAx.cell.nml"/>
+    <include href="L23PyrFRB_varInit.cell.nml"/>
+    <include href="nRT.cell.nml"/>
+     
+    
+    
+
+    <pulseGenerator id="DepCurr_L6NT" delay="0.0s" duration="20.0s" amplitude="7.5E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__0" delay="0.0s" duration="20.0s" amplitude="5.406968E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__1" delay="0.0s" duration="20.0s" amplitude="8.650319E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__2" delay="0.0s" duration="20.0s" amplitude="7.023539E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__3" delay="0.0s" duration="20.0s" amplitude="5.749755E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__4" delay="0.0s" duration="20.0s" amplitude="5.681847E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__5" delay="0.0s" duration="20.0s" amplitude="7.677676E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__6" delay="0.0s" duration="20.0s" amplitude="6.336422E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__7" delay="0.0s" duration="20.0s" amplitude="8.336291E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__8" delay="0.0s" duration="20.0s" amplitude="5.756858E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__9" delay="0.0s" duration="20.0s" amplitude="9.150648E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__10" delay="0.0s" duration="20.0s" amplitude="7.097663E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__11" delay="0.0s" duration="20.0s" amplitude="9.626248E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__12" delay="0.0s" duration="20.0s" amplitude="5.152515E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__13" delay="0.0s" duration="20.0s" amplitude="7.046888E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__14" delay="0.0s" duration="20.0s" amplitude="7.09638E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__15" delay="0.0s" duration="20.0s" amplitude="6.913917E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__16" delay="0.0s" duration="20.0s" amplitude="6.813456E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__17" delay="0.0s" duration="20.0s" amplitude="7.072148E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__18" delay="0.0s" duration="20.0s" amplitude="6.940183E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__19" delay="0.0s" duration="20.0s" amplitude="9.534229E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__20" delay="0.0s" duration="20.0s" amplitude="5.909677E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__21" delay="0.0s" duration="20.0s" amplitude="9.428971E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__22" delay="0.0s" duration="20.0s" amplitude="9.620315E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__23" delay="0.0s" duration="20.0s" amplitude="9.718404E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__24" delay="0.0s" duration="20.0s" amplitude="6.073652E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__25" delay="0.0s" duration="20.0s" amplitude="5.074881E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__26" delay="0.0s" duration="20.0s" amplitude="7.830662E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__27" delay="0.0s" duration="20.0s" amplitude="7.197918E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__28" delay="0.0s" duration="20.0s" amplitude="9.556585E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__29" delay="0.0s" duration="20.0s" amplitude="9.235952E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__30" delay="0.0s" duration="20.0s" amplitude="9.340633E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__31" delay="0.0s" duration="20.0s" amplitude="6.075819E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__32" delay="0.0s" duration="20.0s" amplitude="8.287127E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__33" delay="0.0s" duration="20.0s" amplitude="7.867417E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__34" delay="0.0s" duration="20.0s" amplitude="8.557388E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__35" delay="0.0s" duration="20.0s" amplitude="9.823601E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__36" delay="0.0s" duration="20.0s" amplitude="9.379594E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__37" delay="0.0s" duration="20.0s" amplitude="6.698221E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__38" delay="0.0s" duration="20.0s" amplitude="9.576063E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__39" delay="0.0s" duration="20.0s" amplitude="9.163849E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__40" delay="0.0s" duration="20.0s" amplitude="8.516862E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__41" delay="0.0s" duration="20.0s" amplitude="6.317329E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__42" delay="0.0s" duration="20.0s" amplitude="6.360081E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__43" delay="0.0s" duration="20.0s" amplitude="5.490417E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__44" delay="0.0s" duration="20.0s" amplitude="9.84244E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__45" delay="0.0s" duration="20.0s" amplitude="7.765998E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__46" delay="0.0s" duration="20.0s" amplitude="8.460444E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__47" delay="0.0s" duration="20.0s" amplitude="9.363926E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__48" delay="0.0s" duration="20.0s" amplitude="9.568836E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L6NT__49" delay="0.0s" duration="20.0s" amplitude="9.304562E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23FRB" delay="0.0s" duration="20.0s" amplitude="3.0E-10A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23FRB__0" delay="0.0s" duration="20.0s" amplitude="2.539487E-10A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23FRB__1" delay="0.0s" duration="20.0s" amplitude="2.857115E-10A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23FRB__2" delay="0.0s" duration="20.0s" amplitude="2.951434E-10A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23FRB__3" delay="0.0s" duration="20.0s" amplitude="2.761244E-10A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23FRB__4" delay="0.0s" duration="20.0s" amplitude="3.293416E-10A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB" delay="0.0s" duration="20.0s" amplitude="7.5E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__0" delay="0.0s" duration="20.0s" amplitude="5.191776E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__1" delay="0.0s" duration="20.0s" amplitude="6.879376E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__2" delay="0.0s" duration="20.0s" amplitude="7.230023E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__3" delay="0.0s" duration="20.0s" amplitude="9.01812E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__4" delay="0.0s" duration="20.0s" amplitude="5.65304E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__5" delay="0.0s" duration="20.0s" amplitude="9.020586E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__6" delay="0.0s" duration="20.0s" amplitude="8.352385E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__7" delay="0.0s" duration="20.0s" amplitude="8.658865E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__8" delay="0.0s" duration="20.0s" amplitude="7.679065E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__9" delay="0.0s" duration="20.0s" amplitude="9.537829E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__10" delay="0.0s" duration="20.0s" amplitude="5.608446E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__11" delay="0.0s" duration="20.0s" amplitude="7.669763E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__12" delay="0.0s" duration="20.0s" amplitude="5.998027E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__13" delay="0.0s" duration="20.0s" amplitude="7.137679E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__14" delay="0.0s" duration="20.0s" amplitude="8.700871E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__15" delay="0.0s" duration="20.0s" amplitude="7.999616E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__16" delay="0.0s" duration="20.0s" amplitude="6.877435E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__17" delay="0.0s" duration="20.0s" amplitude="5.324809E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__18" delay="0.0s" duration="20.0s" amplitude="7.976256E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__19" delay="0.0s" duration="20.0s" amplitude="6.404486E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__20" delay="0.0s" duration="20.0s" amplitude="6.653564E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__21" delay="0.0s" duration="20.0s" amplitude="8.319662E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__22" delay="0.0s" duration="20.0s" amplitude="9.796505E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__23" delay="0.0s" duration="20.0s" amplitude="9.376005E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__24" delay="0.0s" duration="20.0s" amplitude="8.007783E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__25" delay="0.0s" duration="20.0s" amplitude="9.229212E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__26" delay="0.0s" duration="20.0s" amplitude="5.995892E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__27" delay="0.0s" duration="20.0s" amplitude="9.256373E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__28" delay="0.0s" duration="20.0s" amplitude="6.935015E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__29" delay="0.0s" duration="20.0s" amplitude="6.260876E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__30" delay="0.0s" duration="20.0s" amplitude="8.958605E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__31" delay="0.0s" duration="20.0s" amplitude="9.583776E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__32" delay="0.0s" duration="20.0s" amplitude="8.125502E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__33" delay="0.0s" duration="20.0s" amplitude="5.915888E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__34" delay="0.0s" duration="20.0s" amplitude="6.741659E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__35" delay="0.0s" duration="20.0s" amplitude="7.411594E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__36" delay="0.0s" duration="20.0s" amplitude="8.624235E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__37" delay="0.0s" duration="20.0s" amplitude="6.8685E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__38" delay="0.0s" duration="20.0s" amplitude="9.275554E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__39" delay="0.0s" duration="20.0s" amplitude="7.579079E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__40" delay="0.0s" duration="20.0s" amplitude="8.503207E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__41" delay="0.0s" duration="20.0s" amplitude="7.409607E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__42" delay="0.0s" duration="20.0s" amplitude="7.336735E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__43" delay="0.0s" duration="20.0s" amplitude="7.903409E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__44" delay="0.0s" duration="20.0s" amplitude="5.756021E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__45" delay="0.0s" duration="20.0s" amplitude="8.889247E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__46" delay="0.0s" duration="20.0s" amplitude="5.17947E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__47" delay="0.0s" duration="20.0s" amplitude="5.565318E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__48" delay="0.0s" duration="20.0s" amplitude="8.343923E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__49" delay="0.0s" duration="20.0s" amplitude="7.966405E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__50" delay="0.0s" duration="20.0s" amplitude="5.308184E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__51" delay="0.0s" duration="20.0s" amplitude="6.702399E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__52" delay="0.0s" duration="20.0s" amplitude="7.94428E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__53" delay="0.0s" duration="20.0s" amplitude="7.804464E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__54" delay="0.0s" duration="20.0s" amplitude="6.373578E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__55" delay="0.0s" duration="20.0s" amplitude="5.363956E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__56" delay="0.0s" duration="20.0s" amplitude="8.399747E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__57" delay="0.0s" duration="20.0s" amplitude="5.727208E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__58" delay="0.0s" duration="20.0s" amplitude="6.986216E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__59" delay="0.0s" duration="20.0s" amplitude="6.554851E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__60" delay="0.0s" duration="20.0s" amplitude="6.577293E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__61" delay="0.0s" duration="20.0s" amplitude="8.567502E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__62" delay="0.0s" duration="20.0s" amplitude="7.89989E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__63" delay="0.0s" duration="20.0s" amplitude="9.467649E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__64" delay="0.0s" duration="20.0s" amplitude="8.525036E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__65" delay="0.0s" duration="20.0s" amplitude="7.745671E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__66" delay="0.0s" duration="20.0s" amplitude="6.454534E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__67" delay="0.0s" duration="20.0s" amplitude="7.114617E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__68" delay="0.0s" duration="20.0s" amplitude="9.681178E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__69" delay="0.0s" duration="20.0s" amplitude="5.457468E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__70" delay="0.0s" duration="20.0s" amplitude="5.956109E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__71" delay="0.0s" duration="20.0s" amplitude="7.194547E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__72" delay="0.0s" duration="20.0s" amplitude="6.928578E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__73" delay="0.0s" duration="20.0s" amplitude="9.635511E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__74" delay="0.0s" duration="20.0s" amplitude="7.270551E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__75" delay="0.0s" duration="20.0s" amplitude="6.012414E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__76" delay="0.0s" duration="20.0s" amplitude="8.501633E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__77" delay="0.0s" duration="20.0s" amplitude="5.17984E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__78" delay="0.0s" duration="20.0s" amplitude="7.923231E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5IB__79" delay="0.0s" duration="20.0s" amplitude="8.789372E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS" delay="0.0s" duration="20.0s" amplitude="7.5E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__0" delay="0.0s" duration="20.0s" amplitude="5.905778E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__1" delay="0.0s" duration="20.0s" amplitude="8.392157E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__2" delay="0.0s" duration="20.0s" amplitude="8.417439E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__3" delay="0.0s" duration="20.0s" amplitude="9.511374E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__4" delay="0.0s" duration="20.0s" amplitude="6.886258E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__5" delay="0.0s" duration="20.0s" amplitude="7.357201E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__6" delay="0.0s" duration="20.0s" amplitude="5.949073E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__7" delay="0.0s" duration="20.0s" amplitude="9.149905E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__8" delay="0.0s" duration="20.0s" amplitude="9.129734E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__9" delay="0.0s" duration="20.0s" amplitude="6.909404E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__10" delay="0.0s" duration="20.0s" amplitude="9.72435E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__11" delay="0.0s" duration="20.0s" amplitude="5.308829E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__12" delay="0.0s" duration="20.0s" amplitude="8.363251E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__13" delay="0.0s" duration="20.0s" amplitude="9.722228E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__14" delay="0.0s" duration="20.0s" amplitude="6.348015E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__15" delay="0.0s" duration="20.0s" amplitude="8.09675E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__16" delay="0.0s" duration="20.0s" amplitude="9.159212E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__17" delay="0.0s" duration="20.0s" amplitude="6.333779E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__18" delay="0.0s" duration="20.0s" amplitude="5.296839E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L5RS__19" delay="0.0s" duration="20.0s" amplitude="7.861672E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS" delay="0.0s" duration="20.0s" amplitude="7.5E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__0" delay="0.0s" duration="20.0s" amplitude="7.259627E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__1" delay="0.0s" duration="20.0s" amplitude="7.190504E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__2" delay="0.0s" duration="20.0s" amplitude="5.694686E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__3" delay="0.0s" duration="20.0s" amplitude="8.718977E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__4" delay="0.0s" duration="20.0s" amplitude="9.035932E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__5" delay="0.0s" duration="20.0s" amplitude="7.230663E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__6" delay="0.0s" duration="20.0s" amplitude="9.773265E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__7" delay="0.0s" duration="20.0s" amplitude="5.167294E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__8" delay="0.0s" duration="20.0s" amplitude="8.369637E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__9" delay="0.0s" duration="20.0s" amplitude="9.487139E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__10" delay="0.0s" duration="20.0s" amplitude="7.648128E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__11" delay="0.0s" duration="20.0s" amplitude="6.156205E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__12" delay="0.0s" duration="20.0s" amplitude="8.930328E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__13" delay="0.0s" duration="20.0s" amplitude="7.169574E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__14" delay="0.0s" duration="20.0s" amplitude="6.537005E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__15" delay="0.0s" duration="20.0s" amplitude="8.392031E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__16" delay="0.0s" duration="20.0s" amplitude="8.491054E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__17" delay="0.0s" duration="20.0s" amplitude="7.030605E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__18" delay="0.0s" duration="20.0s" amplitude="7.440936E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__19" delay="0.0s" duration="20.0s" amplitude="6.900902E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__20" delay="0.0s" duration="20.0s" amplitude="5.707793E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__21" delay="0.0s" duration="20.0s" amplitude="8.279246E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__22" delay="0.0s" duration="20.0s" amplitude="5.487154E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__23" delay="0.0s" duration="20.0s" amplitude="5.287038E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__24" delay="0.0s" duration="20.0s" amplitude="7.792899E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__25" delay="0.0s" duration="20.0s" amplitude="5.619573E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__26" delay="0.0s" duration="20.0s" amplitude="8.7844E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__27" delay="0.0s" duration="20.0s" amplitude="9.058365E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__28" delay="0.0s" duration="20.0s" amplitude="8.675635E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__29" delay="0.0s" duration="20.0s" amplitude="9.705821E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__30" delay="0.0s" duration="20.0s" amplitude="8.957646E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__31" delay="0.0s" duration="20.0s" amplitude="5.460518E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__32" delay="0.0s" duration="20.0s" amplitude="5.118515E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__33" delay="0.0s" duration="20.0s" amplitude="7.909137E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__34" delay="0.0s" duration="20.0s" amplitude="5.04094E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__35" delay="0.0s" duration="20.0s" amplitude="8.062843E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__36" delay="0.0s" duration="20.0s" amplitude="7.080186E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__37" delay="0.0s" duration="20.0s" amplitude="7.141148E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__38" delay="0.0s" duration="20.0s" amplitude="7.941863E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__39" delay="0.0s" duration="20.0s" amplitude="9.494466E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__40" delay="0.0s" duration="20.0s" amplitude="8.759801E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__41" delay="0.0s" duration="20.0s" amplitude="7.056851E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__42" delay="0.0s" duration="20.0s" amplitude="7.226387E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__43" delay="0.0s" duration="20.0s" amplitude="9.28653E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__44" delay="0.0s" duration="20.0s" amplitude="8.366127E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__45" delay="0.0s" duration="20.0s" amplitude="9.198571E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__46" delay="0.0s" duration="20.0s" amplitude="7.876965E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__47" delay="0.0s" duration="20.0s" amplitude="6.36832E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__48" delay="0.0s" duration="20.0s" amplitude="8.883949E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__49" delay="0.0s" duration="20.0s" amplitude="9.181587E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__50" delay="0.0s" duration="20.0s" amplitude="5.958201E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__51" delay="0.0s" duration="20.0s" amplitude="6.848036E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__52" delay="0.0s" duration="20.0s" amplitude="7.383745E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__53" delay="0.0s" duration="20.0s" amplitude="5.451366E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__54" delay="0.0s" duration="20.0s" amplitude="5.682894E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__55" delay="0.0s" duration="20.0s" amplitude="6.819732E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__56" delay="0.0s" duration="20.0s" amplitude="8.676451E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__57" delay="0.0s" duration="20.0s" amplitude="8.255996E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__58" delay="0.0s" duration="20.0s" amplitude="7.246654E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__59" delay="0.0s" duration="20.0s" amplitude="7.940597E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__60" delay="0.0s" duration="20.0s" amplitude="7.057595E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__61" delay="0.0s" duration="20.0s" amplitude="9.522634E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__62" delay="0.0s" duration="20.0s" amplitude="6.422307E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__63" delay="0.0s" duration="20.0s" amplitude="8.859654E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__64" delay="0.0s" duration="20.0s" amplitude="5.233836E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__65" delay="0.0s" duration="20.0s" amplitude="7.253499E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__66" delay="0.0s" duration="20.0s" amplitude="6.34724E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__67" delay="0.0s" duration="20.0s" amplitude="5.520714E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__68" delay="0.0s" duration="20.0s" amplitude="7.265357E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__69" delay="0.0s" duration="20.0s" amplitude="7.768814E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__70" delay="0.0s" duration="20.0s" amplitude="5.159572E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__71" delay="0.0s" duration="20.0s" amplitude="5.257568E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__72" delay="0.0s" duration="20.0s" amplitude="5.990621E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__73" delay="0.0s" duration="20.0s" amplitude="9.727234E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__74" delay="0.0s" duration="20.0s" amplitude="5.245171E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__75" delay="0.0s" duration="20.0s" amplitude="7.12474E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__76" delay="0.0s" duration="20.0s" amplitude="8.192326E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__77" delay="0.0s" duration="20.0s" amplitude="8.908513E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__78" delay="0.0s" duration="20.0s" amplitude="6.340168E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__79" delay="0.0s" duration="20.0s" amplitude="5.317574E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__80" delay="0.0s" duration="20.0s" amplitude="6.99712E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__81" delay="0.0s" duration="20.0s" amplitude="6.511033E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__82" delay="0.0s" duration="20.0s" amplitude="7.72656E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__83" delay="0.0s" duration="20.0s" amplitude="8.913888E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__84" delay="0.0s" duration="20.0s" amplitude="7.224767E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__85" delay="0.0s" duration="20.0s" amplitude="7.414195E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__86" delay="0.0s" duration="20.0s" amplitude="9.286208E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__87" delay="0.0s" duration="20.0s" amplitude="9.677166E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__88" delay="0.0s" duration="20.0s" amplitude="5.678301E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__89" delay="0.0s" duration="20.0s" amplitude="7.901476E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__90" delay="0.0s" duration="20.0s" amplitude="6.405953E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__91" delay="0.0s" duration="20.0s" amplitude="6.787425E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__92" delay="0.0s" duration="20.0s" amplitude="9.524523E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__93" delay="0.0s" duration="20.0s" amplitude="8.606347E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__94" delay="0.0s" duration="20.0s" amplitude="9.209485E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__95" delay="0.0s" duration="20.0s" amplitude="7.17793E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__96" delay="0.0s" duration="20.0s" amplitude="7.798552E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__97" delay="0.0s" duration="20.0s" amplitude="7.505257E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__98" delay="0.0s" duration="20.0s" amplitude="8.526178E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L23RS__99" delay="0.0s" duration="20.0s" amplitude="5.549307E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS" delay="0.0s" duration="20.0s" amplitude="7.5E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__0" delay="0.0s" duration="20.0s" amplitude="6.787579E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__1" delay="0.0s" duration="20.0s" amplitude="6.168026E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__2" delay="0.0s" duration="20.0s" amplitude="8.480367E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__3" delay="0.0s" duration="20.0s" amplitude="7.08102E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__4" delay="0.0s" duration="20.0s" amplitude="6.233233E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__5" delay="0.0s" duration="20.0s" amplitude="9.917541E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__6" delay="0.0s" duration="20.0s" amplitude="6.823961E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__7" delay="0.0s" duration="20.0s" amplitude="7.665265E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__8" delay="0.0s" duration="20.0s" amplitude="6.330916E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__9" delay="0.0s" duration="20.0s" amplitude="8.232296E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__10" delay="0.0s" duration="20.0s" amplitude="7.758988E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__11" delay="0.0s" duration="20.0s" amplitude="8.030148E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__12" delay="0.0s" duration="20.0s" amplitude="7.80509E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__13" delay="0.0s" duration="20.0s" amplitude="5.534682E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__14" delay="0.0s" duration="20.0s" amplitude="8.263632E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__15" delay="0.0s" duration="20.0s" amplitude="5.105386E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__16" delay="0.0s" duration="20.0s" amplitude="8.574796E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__17" delay="0.0s" duration="20.0s" amplitude="6.285876E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__18" delay="0.0s" duration="20.0s" amplitude="5.994659E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__19" delay="0.0s" duration="20.0s" amplitude="7.200971E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__20" delay="0.0s" duration="20.0s" amplitude="8.882101E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__21" delay="0.0s" duration="20.0s" amplitude="7.098641E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__22" delay="0.0s" duration="20.0s" amplitude="6.981194E-11A"/>
+
+    
+
+    <pulseGenerator id="DepCurr_L4SS__23" delay="0.0s" duration="20.0s" amplitude="6.131456E-11A"/>
+
+    
+    <network id="network_Thalamocortical" type="networkWithTemperature" temperature="6.3 degC">
+
+        
+
+        <population id="CG3D_nRT" component="nRT" type="populationList">
+            <instance id="0">
+                <location x="135.88455" y="-1635.5895" z="-93.3412"/>
+            </instance>
+            <instance id="1">
+                <location x="215.081" y="-1562.1854" z="23.43991"/>
+            </instance>
+            <instance id="2">
+                <location x="-85.4212" y="-1586.6226" z="-101.52838"/>
+            </instance>
+            <instance id="3">
+                <location x="139.12198" y="-1591.6631" z="-161.72073"/>
+            </instance>
+            <instance id="4">
+                <location x="-52.163956" y="-1618.8173" z="-43.1678"/>
+            </instance>
+            <instance id="5">
+                <location x="-103.00398" y="-1622.575" z="90.592316"/>
+            </instance>
+            <instance id="6">
+                <location x="-132.71945" y="-1648.3538" z="75.7634"/>
+            </instance>
+            <instance id="7">
+                <location x="-34.973923" y="-1646.9719" z="-115.982086"/>
+            </instance>
+            <instance id="8">
+                <location x="-175.02785" y="-1614.2098" z="76.43408"/>
+            </instance>
+            <instance id="9">
+                <location x="-211.10075" y="-1654.4812" z="-19.68193"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_DeepBask" component="DeepBasket" type="populationList">
+            <instance id="0">
+                <location x="190.98865" y="-751.1779" z="92.852264"/>
+            </instance>
+            <instance id="1">
+                <location x="-47.617706" y="-1016.4988" z="167.09631"/>
+            </instance>
+            <instance id="2">
+                <location x="36.11905" y="-1082.2998" z="-55.12532"/>
+            </instance>
+            <instance id="3">
+                <location x="-88.17232" y="-745.24567" z="146.75995"/>
+            </instance>
+            <instance id="4">
+                <location x="-6.574066" y="-1137.1914" z="-120.93059"/>
+            </instance>
+            <instance id="5">
+                <location x="-160.53966" y="-1072.6475" z="-5.9363556"/>
+            </instance>
+            <instance id="6">
+                <location x="-29.457123" y="-833.2902" z="139.42935"/>
+            </instance>
+            <instance id="7">
+                <location x="17.177795" y="-818.0526" z="-89.73503"/>
+            </instance>
+            <instance id="8">
+                <location x="84.52585" y="-871.13416" z="49.41687"/>
+            </instance>
+            <instance id="9">
+                <location x="177.03973" y="-1111.6654" z="1.5418549"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_DeepAxAx" component="DeepAxAx" type="populationList">
+            <instance id="0">
+                <location x="79.12482" y="-1004.525" z="-55.7034"/>
+            </instance>
+            <instance id="1">
+                <location x="-128.44336" y="-895.7594" z="98.46518"/>
+            </instance>
+            <instance id="2">
+                <location x="27.3956" y="-710.89325" z="-9.146301"/>
+            </instance>
+            <instance id="3">
+                <location x="165.60083" y="-1113.4841" z="158.9849"/>
+            </instance>
+            <instance id="4">
+                <location x="8.325104" y="-639.9237" z="48.45047"/>
+            </instance>
+            <instance id="5">
+                <location x="-229.10637" y="-1105.3956" z="5.1113434"/>
+            </instance>
+            <instance id="6">
+                <location x="-191.37373" y="-1070.1617" z="-132.79837"/>
+            </instance>
+            <instance id="7">
+                <location x="-132.96277" y="-1086.5922" z="-97.32097"/>
+            </instance>
+            <instance id="8">
+                <location x="162.69675" y="-812.96295" z="52.426758"/>
+            </instance>
+            <instance id="9">
+                <location x="102.38196" y="-969.643" z="50.394745"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_L5TuftIB" component="L5TuftedPyrIB" type="populationList">
+            <instance id="0">
+                <location x="-181.46822" y="-791.05396" z="50.370117"/>
+            </instance>
+            <instance id="1">
+                <location x="15.772125" y="-743.831" z="158.30157"/>
+            </instance>
+            <instance id="2">
+                <location x="-209.91557" y="-652.6914" z="89.21527"/>
+            </instance>
+            <instance id="3">
+                <location x="97.50156" y="-835.4336" z="61.7789"/>
+            </instance>
+            <instance id="4">
+                <location x="20.497894" y="-883.2258" z="100.86682"/>
+            </instance>
+            <instance id="5">
+                <location x="130.65024" y="-851.6051" z="87.134094"/>
+            </instance>
+            <instance id="6">
+                <location x="64.22031" y="-779.8375" z="131.24283"/>
+            </instance>
+            <instance id="7">
+                <location x="134.94989" y="-760.72485" z="-14.222229"/>
+            </instance>
+            <instance id="8">
+                <location x="89.21182" y="-667.8651" z="-38.78766"/>
+            </instance>
+            <instance id="9">
+                <location x="-133.46469" y="-683.4387" z="117.31506"/>
+            </instance>
+            <instance id="10">
+                <location x="-61.276672" y="-803.32446" z="-228.84009"/>
+            </instance>
+            <instance id="11">
+                <location x="137.31949" y="-724.67346" z="75.18533"/>
+            </instance>
+            <instance id="12">
+                <location x="18.381317" y="-883.9401" z="-102.37631"/>
+            </instance>
+            <instance id="13">
+                <location x="23.467072" y="-737.68414" z="191.7402"/>
+            </instance>
+            <instance id="14">
+                <location x="-9.553726" y="-852.167" z="-77.50612"/>
+            </instance>
+            <instance id="15">
+                <location x="19.820526" y="-691.27203" z="-18.691635"/>
+            </instance>
+            <instance id="16">
+                <location x="70.972626" y="-695.3131" z="189.71045"/>
+            </instance>
+            <instance id="17">
+                <location x="20.63742" y="-617.85175" z="63.749664"/>
+            </instance>
+            <instance id="18">
+                <location x="-80.2641" y="-750.5129" z="-61.311447"/>
+            </instance>
+            <instance id="19">
+                <location x="182.51202" y="-818.0421" z="-98.65808"/>
+            </instance>
+            <instance id="20">
+                <location x="-141.02133" y="-803.9474" z="64.3533"/>
+            </instance>
+            <instance id="21">
+                <location x="-129.04065" y="-671.88074" z="39.33554"/>
+            </instance>
+            <instance id="22">
+                <location x="68.34842" y="-690.9075" z="-113.26134"/>
+            </instance>
+            <instance id="23">
+                <location x="156.19128" y="-658.9351" z="-57.556274"/>
+            </instance>
+            <instance id="24">
+                <location x="-28.81166" y="-847.4929" z="-219.94937"/>
+            </instance>
+            <instance id="25">
+                <location x="234.59213" y="-873.2178" z="33.648407"/>
+            </instance>
+            <instance id="26">
+                <location x="-26.357086" y="-806.27106" z="-174.05609"/>
+            </instance>
+            <instance id="27">
+                <location x="165.3009" y="-796.6555" z="-44.423904"/>
+            </instance>
+            <instance id="28">
+                <location x="67.509705" y="-750.50525" z="154.96823"/>
+            </instance>
+            <instance id="29">
+                <location x="193.56714" y="-845.56134" z="-13.664307"/>
+            </instance>
+            <instance id="30">
+                <location x="-135.85757" y="-671.9826" z="-151.07668"/>
+            </instance>
+            <instance id="31">
+                <location x="-103.49324" y="-620.31256" z="164.3646"/>
+            </instance>
+            <instance id="32">
+                <location x="-221.8385" y="-783.61176" z="3.145813"/>
+            </instance>
+            <instance id="33">
+                <location x="117.75351" y="-791.914" z="175.84644"/>
+            </instance>
+            <instance id="34">
+                <location x="-134.01866" y="-872.07513" z="-107.55446"/>
+            </instance>
+            <instance id="35">
+                <location x="-80.13109" y="-651.5206" z="217.04236"/>
+            </instance>
+            <instance id="36">
+                <location x="-114.19949" y="-775.9353" z="-190.82901"/>
+            </instance>
+            <instance id="37">
+                <location x="-86.00816" y="-620.37067" z="-12.123611"/>
+            </instance>
+            <instance id="38">
+                <location x="62.14746" y="-884.0237" z="-160.45067"/>
+            </instance>
+            <instance id="39">
+                <location x="-160.73167" y="-643.9225" z="69.33658"/>
+            </instance>
+            <instance id="40">
+                <location x="66.96274" y="-650.4098" z="98.967224"/>
+            </instance>
+            <instance id="41">
+                <location x="-213.02948" y="-658.4813" z="-77.04523"/>
+            </instance>
+            <instance id="42">
+                <location x="-141.28131" y="-750.1986" z="117.57004"/>
+            </instance>
+            <instance id="43">
+                <location x="178.66592" y="-862.987" z="-91.299835"/>
+            </instance>
+            <instance id="44">
+                <location x="207.59866" y="-734.82214" z="-23.313995"/>
+            </instance>
+            <instance id="45">
+                <location x="-39.179504" y="-875.75446" z="101.85123"/>
+            </instance>
+            <instance id="46">
+                <location x="-16.604446" y="-813.3545" z="-51.66913"/>
+            </instance>
+            <instance id="47">
+                <location x="-3.54216" y="-634.02527" z="108.5072"/>
+            </instance>
+            <instance id="48">
+                <location x="70.57214" y="-731.60974" z="-207.14972"/>
+            </instance>
+            <instance id="49">
+                <location x="-22.2323" y="-839.0479" z="60.943634"/>
+            </instance>
+            <instance id="50">
+                <location x="99.13034" y="-621.79767" z="-4.2459106"/>
+            </instance>
+            <instance id="51">
+                <location x="98.75061" y="-852.80554" z="149.62994"/>
+            </instance>
+            <instance id="52">
+                <location x="65.83957" y="-695.74524" z="59.11075"/>
+            </instance>
+            <instance id="53">
+                <location x="-178.92784" y="-721.2495" z="-32.15715"/>
+            </instance>
+            <instance id="54">
+                <location x="-99.90782" y="-798.33014" z="-50.193787"/>
+            </instance>
+            <instance id="55">
+                <location x="23.649994" y="-748.1748" z="-212.79309"/>
+            </instance>
+            <instance id="56">
+                <location x="29.580566" y="-622.7565" z="199.44308"/>
+            </instance>
+            <instance id="57">
+                <location x="139.80585" y="-687.97363" z="-12.764221"/>
+            </instance>
+            <instance id="58">
+                <location x="-223.11542" y="-746.42206" z="-46.65715"/>
+            </instance>
+            <instance id="59">
+                <location x="36.04547" y="-858.0002" z="-179.89825"/>
+            </instance>
+            <instance id="60">
+                <location x="-89.40346" y="-636.9439" z="68.819275"/>
+            </instance>
+            <instance id="61">
+                <location x="100.43649" y="-631.6384" z="18.265564"/>
+            </instance>
+            <instance id="62">
+                <location x="-73.69774" y="-753.4312" z="-119.91382"/>
+            </instance>
+            <instance id="63">
+                <location x="-71.237656" y="-742.1152" z="118.0354"/>
+            </instance>
+            <instance id="64">
+                <location x="-100.25763" y="-749.506" z="169.29309"/>
+            </instance>
+            <instance id="65">
+                <location x="32.27591" y="-652.43" z="-129.57132"/>
+            </instance>
+            <instance id="66">
+                <location x="194.66452" y="-624.554" z="-138.22237"/>
+            </instance>
+            <instance id="67">
+                <location x="224.76413" y="-706.9459" z="-69.21643"/>
+            </instance>
+            <instance id="68">
+                <location x="-155.68092" y="-820.48987" z="-14.546249"/>
+            </instance>
+            <instance id="69">
+                <location x="36.869476" y="-764.4507" z="94.16754"/>
+            </instance>
+            <instance id="70">
+                <location x="18.854523" y="-727.60046" z="-132.362"/>
+            </instance>
+            <instance id="71">
+                <location x="32.01825" y="-720.19916" z="166.18732"/>
+            </instance>
+            <instance id="72">
+                <location x="154.98541" y="-847.19995" z="21.803528"/>
+            </instance>
+            <instance id="73">
+                <location x="-135.15552" y="-629.09766" z="39.87433"/>
+            </instance>
+            <instance id="74">
+                <location x="193.52786" y="-830.8527" z="-122.8123"/>
+            </instance>
+            <instance id="75">
+                <location x="-55.105453" y="-656.90314" z="-201.54997"/>
+            </instance>
+            <instance id="76">
+                <location x="51.99649" y="-734.06604" z="110.589355"/>
+            </instance>
+            <instance id="77">
+                <location x="-228.98271" y="-726.6818" z="54.33484"/>
+            </instance>
+            <instance id="78">
+                <location x="33.950684" y="-664.55334" z="-169.06216"/>
+            </instance>
+            <instance id="79">
+                <location x="-27.788376" y="-694.285" z="23.574951"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_SupBask" component="SupBasket" type="populationList">
+            <instance id="0">
+                <location x="-105.829834" y="-386.82385" z="51.034546"/>
+            </instance>
+            <instance id="1">
+                <location x="223.72418" y="-217.60205" z="80.4061"/>
+            </instance>
+            <instance id="2">
+                <location x="162.68454" y="-337.06003" z="43.50418"/>
+            </instance>
+            <instance id="3">
+                <location x="-57.011124" y="-231.72687" z="160.52942"/>
+            </instance>
+            <instance id="4">
+                <location x="14.526794" y="-367.59445" z="206.72089"/>
+            </instance>
+            <instance id="5">
+                <location x="217.63477" y="-194.92805" z="-15.809357"/>
+            </instance>
+            <instance id="6">
+                <location x="91.24521" y="-191.44968" z="-50.523163"/>
+            </instance>
+            <instance id="7">
+                <location x="92.200836" y="-199.57295" z="11.697205"/>
+            </instance>
+            <instance id="8">
+                <location x="-36.33734" y="-212.3789" z="78.50174"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_L23PyrRS" component="L23PyrRS" type="populationList">
+            <instance id="0">
+                <location x="-218.87949" y="-231.30733" z="-40.1969"/>
+            </instance>
+            <instance id="1">
+                <location x="-123.60382" y="-241.4049" z="64.74957"/>
+            </instance>
+            <instance id="2">
+                <location x="59.300995" y="-260.88312" z="51.993164"/>
+            </instance>
+            <instance id="3">
+                <location x="72.27164" y="-386.56372" z="199.59738"/>
+            </instance>
+            <instance id="4">
+                <location x="79.62225" y="-343.6985" z="51.563477"/>
+            </instance>
+            <instance id="5">
+                <location x="-207.04813" y="-338.25293" z="60.09079"/>
+            </instance>
+            <instance id="6">
+                <location x="83.5119" y="-218.07657" z="-52.437042"/>
+            </instance>
+            <instance id="7">
+                <location x="-128.17839" y="-199.80307" z="-109.73274"/>
+            </instance>
+            <instance id="8">
+                <location x="-75.4442" y="-392.422" z="-132.44044"/>
+            </instance>
+            <instance id="9">
+                <location x="-74.649216" y="-328.7338" z="3.9885101"/>
+            </instance>
+            <instance id="10">
+                <location x="-163.62071" y="-173.2406" z="-59.819077"/>
+            </instance>
+            <instance id="11">
+                <location x="83.18344" y="-285.10822" z="56.32553"/>
+            </instance>
+            <instance id="12">
+                <location x="118.35693" y="-162.76186" z="-63.546448"/>
+            </instance>
+            <instance id="13">
+                <location x="-49.570557" y="-321.36456" z="173.3093"/>
+            </instance>
+            <instance id="14">
+                <location x="-215.20718" y="-203.71585" z="62.560364"/>
+            </instance>
+            <instance id="15">
+                <location x="-75.379135" y="-364.5667" z="179.05826"/>
+            </instance>
+            <instance id="16">
+                <location x="-74.85846" y="-391.32236" z="102.81207"/>
+            </instance>
+            <instance id="17">
+                <location x="-15.902344" y="-185.03584" z="-132.88385"/>
+            </instance>
+            <instance id="18">
+                <location x="43.36212" y="-187.61385" z="-24.668304"/>
+            </instance>
+            <instance id="19">
+                <location x="205.67752" y="-279.91534" z="77.01532"/>
+            </instance>
+            <instance id="20">
+                <location x="83.021515" y="-154.84323" z="175.5285"/>
+            </instance>
+            <instance id="21">
+                <location x="-9.061539" y="-156.21399" z="-135.20232"/>
+            </instance>
+            <instance id="22">
+                <location x="-127.70003" y="-198.96143" z="-62.200104"/>
+            </instance>
+            <instance id="23">
+                <location x="181.59174" y="-323.44003" z="14.453552"/>
+            </instance>
+            <instance id="24">
+                <location x="-223.69022" y="-197.63084" z="-48.314392"/>
+            </instance>
+            <instance id="25">
+                <location x="102.94403" y="-154.81174" z="-172.15497"/>
+            </instance>
+            <instance id="26">
+                <location x="-148.1463" y="-263.22156" z="-81.72447"/>
+            </instance>
+            <instance id="27">
+                <location x="49.259888" y="-320.7492" z="-63.73793"/>
+            </instance>
+            <instance id="28">
+                <location x="-125.51233" y="-340.24847" z="157.64047"/>
+            </instance>
+            <instance id="29">
+                <location x="80.325226" y="-213.18234" z="-193.27698"/>
+            </instance>
+            <instance id="30">
+                <location x="153.7991" y="-254.71777" z="-11.365768"/>
+            </instance>
+            <instance id="31">
+                <location x="97.97534" y="-149.7851" z="-170.16714"/>
+            </instance>
+            <instance id="32">
+                <location x="-45.323547" y="-315.2805" z="-63.79187"/>
+            </instance>
+            <instance id="33">
+                <location x="-42.632645" y="-190.31592" z="31.552002"/>
+            </instance>
+            <instance id="34">
+                <location x="87.4982" y="-386.16504" z="79.6499"/>
+            </instance>
+            <instance id="35">
+                <location x="17.268616" y="-248.42366" z="185.90918"/>
+            </instance>
+            <instance id="36">
+                <location x="-131.77994" y="-347.1814" z="-27.266983"/>
+            </instance>
+            <instance id="37">
+                <location x="81.8107" y="-305.3566" z="44.306793"/>
+            </instance>
+            <instance id="38">
+                <location x="-2.2051086" y="-222.13962" z="-35.935104"/>
+            </instance>
+            <instance id="39">
+                <location x="-131.41519" y="-347.19092" z="-115.14798"/>
+            </instance>
+            <instance id="40">
+                <location x="-137.78505" y="-349.20013" z="-165.30374"/>
+            </instance>
+            <instance id="41">
+                <location x="-46.21068" y="-275.3725" z="-144.78656"/>
+            </instance>
+            <instance id="42">
+                <location x="-50.313324" y="-177.93457" z="199.93997"/>
+            </instance>
+            <instance id="43">
+                <location x="141.7745" y="-353.13547" z="15.253967"/>
+            </instance>
+            <instance id="44">
+                <location x="202.54391" y="-358.67807" z="58.70337"/>
+            </instance>
+            <instance id="45">
+                <location x="-155.98685" y="-362.18518" z="-71.953384"/>
+            </instance>
+            <instance id="46">
+                <location x="-20.168243" y="-286.63824" z="166.14087"/>
+            </instance>
+            <instance id="47">
+                <location x="53.701355" y="-328.20648" z="-206.93613"/>
+            </instance>
+            <instance id="48">
+                <location x="126.24103" y="-240.1478" z="66.088715"/>
+            </instance>
+            <instance id="49">
+                <location x="-109.169815" y="-386.08673" z="-9.933685"/>
+            </instance>
+            <instance id="50">
+                <location x="8.597107" y="-377.23563" z="30.814545"/>
+            </instance>
+            <instance id="51">
+                <location x="-91.92085" y="-319.01068" z="170.11816"/>
+            </instance>
+            <instance id="52">
+                <location x="135.20578" y="-263.7845" z="-121.739334"/>
+            </instance>
+            <instance id="53">
+                <location x="118.6853" y="-229.17175" z="28.120514"/>
+            </instance>
+            <instance id="54">
+                <location x="-7.442566" y="-190.26117" z="-32.437378"/>
+            </instance>
+            <instance id="55">
+                <location x="-85.54796" y="-179.29085" z="206.20926"/>
+            </instance>
+            <instance id="56">
+                <location x="9.669128" y="-160.13354" z="-18.126724"/>
+            </instance>
+            <instance id="57">
+                <location x="-171.49054" y="-330.8225" z="-4.3572235"/>
+            </instance>
+            <instance id="58">
+                <location x="-133.58047" y="-215.03603" z="3.6828766"/>
+            </instance>
+            <instance id="59">
+                <location x="-67.24933" y="-165.12498" z="42.152283"/>
+            </instance>
+            <instance id="60">
+                <location x="39.40622" y="-251.4629" z="81.30789"/>
+            </instance>
+            <instance id="61">
+                <location x="-70.45889" y="-400.0798" z="223.25336"/>
+            </instance>
+            <instance id="62">
+                <location x="31.4747" y="-356.30737" z="-235.85254"/>
+            </instance>
+            <instance id="63">
+                <location x="57.549347" y="-259.82407" z="176.1517"/>
+            </instance>
+            <instance id="64">
+                <location x="-98.595764" y="-176.75047" z="39.22516"/>
+            </instance>
+            <instance id="65">
+                <location x="156.31638" y="-216.33511" z="-125.130325"/>
+            </instance>
+            <instance id="66">
+                <location x="-5.8729095" y="-237.26112" z="92.62155"/>
+            </instance>
+            <instance id="67">
+                <location x="-119.80841" y="-210.52565" z="-126.29834"/>
+            </instance>
+            <instance id="68">
+                <location x="160.29843" y="-336.1659" z="44.141724"/>
+            </instance>
+            <instance id="69">
+                <location x="69.16324" y="-341.2618" z="-178.93744"/>
+            </instance>
+            <instance id="70">
+                <location x="29.841797" y="-285.59875" z="-180.05988"/>
+            </instance>
+            <instance id="71">
+                <location x="-26.675308" y="-387.05374" z="235.96753"/>
+            </instance>
+            <instance id="72">
+                <location x="-152.01137" y="-210.29068" z="-35.260803"/>
+            </instance>
+            <instance id="73">
+                <location x="76.66293" y="-344.00717" z="213.46216"/>
+            </instance>
+            <instance id="74">
+                <location x="127.044556" y="-247.31577" z="22.702148"/>
+            </instance>
+            <instance id="75">
+                <location x="79.26602" y="-220.98175" z="39.642883"/>
+            </instance>
+            <instance id="76">
+                <location x="172.9003" y="-206.58496" z="54.389008"/>
+            </instance>
+            <instance id="77">
+                <location x="9.110565" y="-331.47107" z="-184.9702"/>
+            </instance>
+            <instance id="78">
+                <location x="47.08969" y="-288.1216" z="181.41559"/>
+            </instance>
+            <instance id="79">
+                <location x="-229.25436" y="-331.63177" z="52.21646"/>
+            </instance>
+            <instance id="80">
+                <location x="-31.427795" y="-375.7195" z="-156.55974"/>
+            </instance>
+            <instance id="81">
+                <location x="139.16653" y="-359.13495" z="123.88977"/>
+            </instance>
+            <instance id="82">
+                <location x="55.25717" y="-209.59409" z="-166.87444"/>
+            </instance>
+            <instance id="83">
+                <location x="-214.3459" y="-188.67355" z="36.277588"/>
+            </instance>
+            <instance id="84">
+                <location x="-66.84837" y="-157.94495" z="184.20953"/>
+            </instance>
+            <instance id="85">
+                <location x="-85.391495" y="-192.89664" z="203.71136"/>
+            </instance>
+            <instance id="86">
+                <location x="-118.213745" y="-325.4884" z="-95.95293"/>
+            </instance>
+            <instance id="87">
+                <location x="-86.10487" y="-262.71875" z="63.644745"/>
+            </instance>
+            <instance id="88">
+                <location x="-197.0484" y="-205.05571" z="-17.56778"/>
+            </instance>
+            <instance id="89">
+                <location x="-218.45445" y="-242.12355" z="-83.41768"/>
+            </instance>
+            <instance id="90">
+                <location x="-120.29344" y="-203.46321" z="77.36554"/>
+            </instance>
+            <instance id="91">
+                <location x="111.160736" y="-214.36131" z="-70.835464"/>
+            </instance>
+            <instance id="92">
+                <location x="-169.11612" y="-155.24307" z="79.21741"/>
+            </instance>
+            <instance id="93">
+                <location x="-21.98935" y="-198.97768" z="-174.21082"/>
+            </instance>
+            <instance id="94">
+                <location x="189.6059" y="-164.85233" z="88.30847"/>
+            </instance>
+            <instance id="95">
+                <location x="65.71686" y="-227.44402" z="-70.29837"/>
+            </instance>
+            <instance id="96">
+                <location x="-51.23976" y="-379.47583" z="-4.7898254"/>
+            </instance>
+            <instance id="97">
+                <location x="88.2146" y="-305.23227" z="202.29645"/>
+            </instance>
+            <instance id="98">
+                <location x="-143.85907" y="-157.53311" z="-99.21611"/>
+            </instance>
+            <instance id="99">
+                <location x="-41.464508" y="-402.54874" z="57.657288"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_SupAxAx" component="SupAxAx" type="populationList">
+            <instance id="0">
+                <location x="-150.20808" y="-291.95404" z="-166.50693"/>
+            </instance>
+            <instance id="1">
+                <location x="38.68866" y="-170.64915" z="219.67188"/>
+            </instance>
+            <instance id="2">
+                <location x="-28.799835" y="-393.84204" z="-130.3898"/>
+            </instance>
+            <instance id="3">
+                <location x="-54.5336" y="-322.97995" z="-53.243546"/>
+            </instance>
+            <instance id="4">
+                <location x="115.146545" y="-381.09683" z="150.70285"/>
+            </instance>
+            <instance id="5">
+                <location x="134.48633" y="-261.5119" z="72.037445"/>
+            </instance>
+            <instance id="6">
+                <location x="59.80011" y="-186.17899" z="34.25409"/>
+            </instance>
+            <instance id="7">
+                <location x="54.912964" y="-378.44455" z="-188.71527"/>
+            </instance>
+            <instance id="8">
+                <location x="-10.995361" y="-233.20161" z="-109.82114"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_L5TuftRS" component="L5TuftedPyrRS" type="populationList">
+            <instance id="0">
+                <location x="139.2149" y="-805.65857" z="51.003326"/>
+            </instance>
+            <instance id="1">
+                <location x="-52.253937" y="-846.98706" z="220.88501"/>
+            </instance>
+            <instance id="2">
+                <location x="93.11841" y="-883.88074" z="161.01062"/>
+            </instance>
+            <instance id="3">
+                <location x="-83.71335" y="-839.9499" z="96.34787"/>
+            </instance>
+            <instance id="4">
+                <location x="51.269196" y="-691.4953" z="223.60913"/>
+            </instance>
+            <instance id="5">
+                <location x="-40.793" y="-718.3251" z="-229.62767"/>
+            </instance>
+            <instance id="6">
+                <location x="180.93027" y="-811.94775" z="5.2230377"/>
+            </instance>
+            <instance id="7">
+                <location x="4.002243" y="-646.52155" z="76.22769"/>
+            </instance>
+            <instance id="8">
+                <location x="30.722504" y="-638.1692" z="100.17618"/>
+            </instance>
+            <instance id="9">
+                <location x="159.62317" y="-746.112" z="-52.382492"/>
+            </instance>
+            <instance id="10">
+                <location x="54.156555" y="-788.8423" z="-180.27684"/>
+            </instance>
+            <instance id="11">
+                <location x="34.130432" y="-762.1667" z="-9.409012"/>
+            </instance>
+            <instance id="12">
+                <location x="-97.087616" y="-705.0138" z="106.03543"/>
+            </instance>
+            <instance id="13">
+                <location x="127.07895" y="-860.3975" z="-99.4314"/>
+            </instance>
+            <instance id="14">
+                <location x="-153.21457" y="-780.37494" z="132.18243"/>
+            </instance>
+            <instance id="15">
+                <location x="124.47485" y="-848.5369" z="-166.17548"/>
+            </instance>
+            <instance id="16">
+                <location x="141.45761" y="-743.4595" z="128.90323"/>
+            </instance>
+            <instance id="17">
+                <location x="-147.3166" y="-700.3603" z="-90.77344"/>
+            </instance>
+            <instance id="18">
+                <location x="71.321655" y="-628.1744" z="18.27829"/>
+            </instance>
+            <instance id="19">
+                <location x="198.69748" y="-852.13086" z="-60.384003"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_DeepLTS" component="DeepLTSInter" type="populationList">
+            <instance id="0">
+                <location x="-125.65389" y="-905.85657" z="-11.883026"/>
+            </instance>
+            <instance id="1">
+                <location x="-169.19434" y="-715.8437" z="-152.9155"/>
+            </instance>
+            <instance id="2">
+                <location x="40.6279" y="-1080.6361" z="-47.064865"/>
+            </instance>
+            <instance id="3">
+                <location x="-35.71698" y="-773.4719" z="-193.52304"/>
+            </instance>
+            <instance id="4">
+                <location x="-105.48648" y="-654.34436" z="-32.009125"/>
+            </instance>
+            <instance id="5">
+                <location x="116.6749" y="-952.36273" z="138.00552"/>
+            </instance>
+            <instance id="6">
+                <location x="27.840546" y="-1099.1586" z="-70.6082"/>
+            </instance>
+            <instance id="7">
+                <location x="-26.923828" y="-817.3127" z="10.299225"/>
+            </instance>
+            <instance id="8">
+                <location x="76.46924" y="-966.07935" z="105.89432"/>
+            </instance>
+            <instance id="9">
+                <location x="139.49564" y="-1142.8643" z="166.7427"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_L6NonTuftRS" component="L6NonTuftedPyrRS" type="populationList">
+            <instance id="0">
+                <location x="-17.580032" y="-1016.63617" z="207.90872"/>
+            </instance>
+            <instance id="1">
+                <location x="7.9193726" y="-915.1053" z="-175.36386"/>
+            </instance>
+            <instance id="2">
+                <location x="-0.2911377" y="-940.6807" z="79.67209"/>
+            </instance>
+            <instance id="3">
+                <location x="-40.653854" y="-1092.0034" z="97.989075"/>
+            </instance>
+            <instance id="4">
+                <location x="-191.21114" y="-940.7019" z="7.1858215"/>
+            </instance>
+            <instance id="5">
+                <location x="-64.37195" y="-1116.1085" z="201.00507"/>
+            </instance>
+            <instance id="6">
+                <location x="-121.340515" y="-981.309" z="113.40195"/>
+            </instance>
+            <instance id="7">
+                <location x="35.49164" y="-965.4122" z="-74.33795"/>
+            </instance>
+            <instance id="8">
+                <location x="100.63788" y="-1105.8711" z="62.479706"/>
+            </instance>
+            <instance id="9">
+                <location x="-88.2679" y="-925.5226" z="35.98169"/>
+            </instance>
+            <instance id="10">
+                <location x="154.79858" y="-942.389" z="-98.23149"/>
+            </instance>
+            <instance id="11">
+                <location x="143.3265" y="-1070.3016" z="-157.323"/>
+            </instance>
+            <instance id="12">
+                <location x="216.02463" y="-915.3014" z="-43.071777"/>
+            </instance>
+            <instance id="13">
+                <location x="-14.809937" y="-1123.166" z="46.56845"/>
+            </instance>
+            <instance id="14">
+                <location x="-51.10034" y="-936.81335" z="-212.40344"/>
+            </instance>
+            <instance id="15">
+                <location x="111.570465" y="-1081.1677" z="-93.78859"/>
+            </instance>
+            <instance id="16">
+                <location x="97.70236" y="-1021.3288" z="-127.92766"/>
+            </instance>
+            <instance id="17">
+                <location x="-39.496567" y="-1033.0376" z="-115.62482"/>
+            </instance>
+            <instance id="18">
+                <location x="126.622284" y="-1015.7997" z="5.4023285"/>
+            </instance>
+            <instance id="19">
+                <location x="-35.642715" y="-941.52" z="-189.49878"/>
+            </instance>
+            <instance id="20">
+                <location x="89.81531" y="-985.2506" z="170.23892"/>
+            </instance>
+            <instance id="21">
+                <location x="-72.361176" y="-997.7542" z="49.724274"/>
+            </instance>
+            <instance id="22">
+                <location x="156.22522" y="-1086.0607" z="70.80643"/>
+            </instance>
+            <instance id="23">
+                <location x="-62.32643" y="-1044.1844" z="97.02228"/>
+            </instance>
+            <instance id="24">
+                <location x="92.154175" y="-1073.2622" z="200.53815"/>
+            </instance>
+            <instance id="25">
+                <location x="-34.420822" y="-951.82104" z="10.306641"/>
+            </instance>
+            <instance id="26">
+                <location x="-143.00487" y="-1097.1676" z="139.26932"/>
+            </instance>
+            <instance id="27">
+                <location x="89.378265" y="-1003.73224" z="-30.122452"/>
+            </instance>
+            <instance id="28">
+                <location x="-122.24075" y="-987.20483" z="-108.28772"/>
+            </instance>
+            <instance id="29">
+                <location x="21.813965" y="-1114.9348" z="83.35617"/>
+            </instance>
+            <instance id="30">
+                <location x="-173.6719" y="-938.66516" z="-102.87004"/>
+            </instance>
+            <instance id="31">
+                <location x="181.37473" y="-978.0808" z="-79.247055"/>
+            </instance>
+            <instance id="32">
+                <location x="191.47614" y="-920.1993" z="31.275208"/>
+            </instance>
+            <instance id="33">
+                <location x="-43.107086" y="-955.03186" z="-12.347488"/>
+            </instance>
+            <instance id="34">
+                <location x="71.39633" y="-924.7053" z="16.514832"/>
+            </instance>
+            <instance id="35">
+                <location x="75.28934" y="-1060.2449" z="-21.478302"/>
+            </instance>
+            <instance id="36">
+                <location x="123.63782" y="-1044.0223" z="-154.6256"/>
+            </instance>
+            <instance id="37">
+                <location x="-116.61902" y="-1089.1509" z="109.440765"/>
+            </instance>
+            <instance id="38">
+                <location x="-125.185814" y="-1060.5208" z="179.09781"/>
+            </instance>
+            <instance id="39">
+                <location x="-42.59616" y="-972.95435" z="52.10434"/>
+            </instance>
+            <instance id="40">
+                <location x="-40.18953" y="-987.77563" z="-167.482"/>
+            </instance>
+            <instance id="41">
+                <location x="117.0574" y="-986.6174" z="-97.55713"/>
+            </instance>
+            <instance id="42">
+                <location x="49.274414" y="-1044.02" z="217.34436"/>
+            </instance>
+            <instance id="43">
+                <location x="-3.35643" y="-1148.9188" z="166.85721"/>
+            </instance>
+            <instance id="44">
+                <location x="-113.207016" y="-1093.0935" z="-96.77171"/>
+            </instance>
+            <instance id="45">
+                <location x="-28.268494" y="-1132.3242" z="180.77307"/>
+            </instance>
+            <instance id="46">
+                <location x="28.525238" y="-1117.8711" z="-139.23871"/>
+            </instance>
+            <instance id="47">
+                <location x="-222.38478" y="-1058.0275" z="-57.79901"/>
+            </instance>
+            <instance id="48">
+                <location x="-60.30777" y="-1018.9835" z="140.2149"/>
+            </instance>
+            <instance id="49">
+                <location x="-200.00061" y="-1125.8977" z="-39.293472"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_L23PyrFRB" component="L23PyrFRB_varInit" type="populationList">
+            <instance id="0">
+                <location x="-41.37767" y="-222.45537" z="-109.353516"/>
+            </instance>
+            <instance id="1">
+                <location x="94.21716" y="-228.34894" z="185.86145"/>
+            </instance>
+            <instance id="2">
+                <location x="-115.50566" y="-297.9537" z="37.045532"/>
+            </instance>
+            <instance id="3">
+                <location x="31.4794" y="-176.9412" z="-59.970352"/>
+            </instance>
+            <instance id="4">
+                <location x="70.47064" y="-407.77448" z="-226.74483"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_TCR" component="TCR" type="populationList">
+            <instance id="0">
+                <location x="-25.949158" y="-1632.2085" z="229.67874"/>
+            </instance>
+            <instance id="1">
+                <location x="111.93945" y="-1609.5972" z="7.480011"/>
+            </instance>
+            <instance id="2">
+                <location x="-149.78722" y="-1616.4391" z="148.49997"/>
+            </instance>
+            <instance id="3">
+                <location x="-148.68259" y="-1603.0391" z="-3.572281"/>
+            </instance>
+            <instance id="4">
+                <location x="-91.246124" y="-1586.9454" z="-171.2797"/>
+            </instance>
+            <instance id="5">
+                <location x="-33.627533" y="-1652.7201" z="-6.181061"/>
+            </instance>
+            <instance id="6">
+                <location x="187.54953" y="-1611.7603" z="95.76712"/>
+            </instance>
+            <instance id="7">
+                <location x="-154.92276" y="-1679.3383" z="174.7839"/>
+            </instance>
+            <instance id="8">
+                <location x="146.4342" y="-1684.768" z="-99.79346"/>
+            </instance>
+            <instance id="9">
+                <location x="163.24042" y="-1590.1133" z="157.94714"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_SupLTS" component="SupLTSInter" type="populationList">
+            <instance id="0">
+                <location x="-104.74205" y="-191.58937" z="9.96463"/>
+            </instance>
+            <instance id="1">
+                <location x="218.78622" y="-165.00409" z="74.62363"/>
+            </instance>
+            <instance id="2">
+                <location x="-90.55954" y="-163.8873" z="-206.41486"/>
+            </instance>
+            <instance id="3">
+                <location x="167.82675" y="-284.25006" z="16.46698"/>
+            </instance>
+            <instance id="4">
+                <location x="21.383972" y="-400.83194" z="67.871704"/>
+            </instance>
+            <instance id="5">
+                <location x="-77.12921" y="-210.68658" z="-60.313828"/>
+            </instance>
+            <instance id="6">
+                <location x="-35.845963" y="-287.0337" z="-193.14789"/>
+            </instance>
+            <instance id="7">
+                <location x="-104.87637" y="-269.2951" z="25.648468"/>
+            </instance>
+            <instance id="8">
+                <location x="173.61017" y="-310.26224" z="-160.53558"/>
+            </instance>
+        </population>
+
+        <population id="CG3D_L4SpinStell" component="L4SpinyStellate" type="populationList">
+            <instance id="0">
+                <location x="135.8631" y="-537.9688" z="132.25333"/>
+            </instance>
+            <instance id="1">
+                <location x="-103.857635" y="-530.7053" z="79.05069"/>
+            </instance>
+            <instance id="2">
+                <location x="42.725098" y="-465.013" z="-43.809708"/>
+            </instance>
+            <instance id="3">
+                <location x="75.51007" y="-493.9495" z="69.34674"/>
+            </instance>
+            <instance id="4">
+                <location x="189.89072" y="-482.41187" z="12.505981"/>
+            </instance>
+            <instance id="5">
+                <location x="14.766052" y="-491.13812" z="121.74399"/>
+            </instance>
+            <instance id="6">
+                <location x="130.62692" y="-530.67914" z="-30.258926"/>
+            </instance>
+            <instance id="7">
+                <location x="182.7143" y="-514.1506" z="43.786316"/>
+            </instance>
+            <instance id="8">
+                <location x="-172.58025" y="-507.48932" z="-62.19542"/>
+            </instance>
+            <instance id="9">
+                <location x="117.45285" y="-466.19324" z="10.336639"/>
+            </instance>
+            <instance id="10">
+                <location x="-218.82785" y="-561.1733" z="17.49292"/>
+            </instance>
+            <instance id="11">
+                <location x="-68.14041" y="-562.5139" z="215.48245"/>
+            </instance>
+            <instance id="12">
+                <location x="217.86737" y="-516.7632" z="-14.004852"/>
+            </instance>
+            <instance id="13">
+                <location x="-197.8105" y="-516.3522" z="-79.46474"/>
+            </instance>
+            <instance id="14">
+                <location x="182.16049" y="-576.5683" z="13.782654"/>
+            </instance>
+            <instance id="15">
+                <location x="124.80917" y="-444.99286" z="156.62039"/>
+            </instance>
+            <instance id="16">
+                <location x="21.072113" y="-579.8021" z="151.49878"/>
+            </instance>
+            <instance id="17">
+                <location x="-51.481552" y="-575.152" z="197.6713"/>
+            </instance>
+            <instance id="18">
+                <location x="41.13202" y="-549.8989" z="-198.1897"/>
+            </instance>
+            <instance id="19">
+                <location x="4.9279633" y="-456.7738" z="-3.6735535"/>
+            </instance>
+            <instance id="20">
+                <location x="-64.37778" y="-497.0413" z="-1.7266235"/>
+            </instance>
+            <instance id="21">
+                <location x="-81.229294" y="-510.1696" z="-206.31596"/>
+            </instance>
+            <instance id="22">
+                <location x="145.56592" y="-508.884" z="-11.161026"/>
+            </instance>
+            <instance id="23">
+                <location x="208.73282" y="-571.63995" z="-75.659454"/>
+            </instance>
+        </population>
+
+
+
+
+
+
+    </network>
+
+</neuroml>
