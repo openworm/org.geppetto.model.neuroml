@@ -49,6 +49,7 @@ import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
+import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
@@ -62,6 +63,7 @@ import org.geppetto.model.values.FunctionPlot;
 import org.geppetto.model.values.HTML;
 import org.geppetto.model.values.Text;
 import org.geppetto.model.values.ValuesFactory;
+import org.geppetto.model.values.VisualGroup;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -337,17 +339,21 @@ public class PopulateSummaryNodesUtils
 
 				// Add Visual Group to model cell description
 				VisualType visualType = cell.getVisualType();
-				if(visualType != null)
+				List<VisualGroup> visualGroups = ((CompositeVisualType) visualType).getVisualGroups();
+				if(visualGroups != null && visualGroups.size()>0)
 				{
 					StringBuilder htmlText = new StringBuilder();
 
 					htmlText.append("<b>Click to apply colouring to the cell morphology</b><br/>");
-					htmlText.append("<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + ".Cell_Regions\">" + visualType.getName() + " Cell Regions</a> ");
+					for(VisualGroup visualGroup : visualGroups)
+					{
+						htmlText.append("<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "."+ visualGroup.getId()+"\">" + visualGroup.getName() + " Cell Regions</a> | ");
+					}
 					htmlText.append("<br/><br/>");
 
 					Variable htmlVariable = variablesFactory.createVariable();
-					htmlVariable.setId(Resources.SYNAPSE.getId());
-					htmlVariable.setName(Resources.SYNAPSE.get());
+					htmlVariable.setId(visualType.getId());
+					htmlVariable.setName(visualType.getName());
 
 					// Create HTML Value object and set HTML text
 					HTML html = valuesFactory.createHTML();
@@ -415,27 +421,10 @@ public class PopulateSummaryNodesUtils
 						htmlText.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + about.getText() + "</p> ");
 					}
 					htmlText.append("<br/>");
-
-					Variable htmlVariable = variablesFactory.createVariable();
-					htmlVariable.setId(Resources.NOTES.getId());
-					htmlVariable.setName(Resources.NOTES.get());
-
-					// Create HTML Value object and set HTML text
-					HTML html = valuesFactory.createHTML();
-					html.setHtml(htmlText.toString());
-					htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-					htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
-
-					((CompositeType) ionChannel).getVariables().add(htmlVariable);
 				}
-
-				Variable htmlVariable = variablesFactory.createVariable();
-				htmlVariable.setId(ionChannel.getId());
-				htmlVariable.setName(ionChannel.getName());
-
+				
 				// Create HTML Value object and set HTML text
-				HTML html = valuesFactory.createHTML();
-				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
+				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a>");
 				htmlText.append("<br/><br/>");
 
 				// Adds plot activation variables
@@ -454,12 +443,15 @@ public class PopulateSummaryNodesUtils
 						htmlText.append("<a href=\"#\" type=\"variable\" instancePath=\"Model." + v.getPath() + "\">" + shortLabel + "</a><br/>");
 					}
 				}
+				Variable htmlVariable = variablesFactory.createVariable();
+				htmlVariable.setId(ionChannel.getId());
+				htmlVariable.setName(ionChannel.getName());
+				
+				HTML html = valuesFactory.createHTML();
 				html.setHtml(htmlText.toString());
 				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
 				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 				((CompositeType) ionChannel).getVariables().add(htmlVariable);
-				// Add expresion nodes from the export library for the gate rates
-				// addExpresionNodes((CompositeType) ionChannel);
 			}
 		}
 	}
