@@ -341,7 +341,7 @@ public class PopulateSummaryNodesUtils
 				{
 					StringBuilder htmlText = new StringBuilder();
 
-					htmlText.append("<b>Show Visual Group:</b><br/>");
+					htmlText.append("<b>Click to apply colouring to the cell morphology</b><br/>");
 					htmlText.append("<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + ".Cell_Regions\">" + visualType.getName() + " Cell Regions</a> ");
 					htmlText.append("<br/><br/>");
 
