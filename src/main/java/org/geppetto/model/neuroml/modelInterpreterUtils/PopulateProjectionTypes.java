@@ -90,10 +90,22 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 		{
 			String preCell = ModelInterpreterUtils.parseCellRefStringForCellNum(projectionChild.getAttributeValue("preCellId"));
 			String postCell = ModelInterpreterUtils.parseCellRefStringForCellNum(projectionChild.getAttributeValue("postCellId"));
-			String preSegmentId = projectionChild.getAttributeValue("preSegmentId");
-			String preFractionAlong = projectionChild.getAttributeValue("preFractionAlong");
-			String postSegmentId = projectionChild.getAttributeValue("postSegmentId");
-			String postFractionAlong = projectionChild.getAttributeValue("postFractionAlong");
+			String preSegmentId = null ;
+			if(projectionChild.hasAttribute("preSegmentId")){
+				preSegmentId=projectionChild.getAttributeValue("preSegmentId");
+			}
+			String preFractionAlong = null;
+			if(projectionChild.hasAttribute("preFractionAlong")){
+				preFractionAlong=projectionChild.getAttributeValue("preFractionAlong");
+			}
+			String postSegmentId = null;
+			if(projectionChild.hasAttribute("postSegmentId")){
+				postSegmentId=projectionChild.getAttributeValue("postSegmentId");
+			}
+			String postFractionAlong = null;
+			if(projectionChild.hasAttribute("postFractionAlong")){
+				postFractionAlong=projectionChild.getAttributeValue("postFractionAlong");
+			}
 			if(preCell != null)
 			{
 				connection.setA(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCell)));
