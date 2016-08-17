@@ -1,0 +1,71 @@
+<Lems xmlns="http://www.neuroml.org/lems/0.7.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/lems/0.7.2  https://raw.githubusercontent.com/LEMS/LEMS/development/Schemas/LEMS/LEMS_v0.7.2.xsd">
+
+    <Target component="sim1" reportFile="simulator.props" timesFile="time.dat"/>
+
+        <!--Include standard NeuroML 2 ComponentType definitions-->
+
+    <Include file="Cells.xml"/>
+    <Include file="Networks.xml"/>
+    <Include file="Simulation.xml"/>
+
+    
+
+        <!--Include the generated NeuroML 2 files-->
+
+
+        <!--   Channel/synapse files-->
+    <Include file="ar.channel.nml"/>
+    <Include file="ar__m00_25.channel.nml"/>
+    <Include file="ar__m00_25.channel.nml"/>
+    <Include file="cad.nml"/>
+    <Include file="cad__beta0_01__phi26000.nml"/>
+    <Include file="cad__beta0_05__phi52000.nml"/>
+    <Include file="cal.channel.nml"/>
+    <Include file="cat.channel.nml"/>
+    <Include file="k2.channel.nml"/>
+    <Include file="ka.channel.nml"/>
+    <Include file="kahp.channel.nml"/>
+    <Include file="kc.channel.nml"/>
+    <Include file="kdr.channel.nml"/>
+    <Include file="km.channel.nml"/>
+    <Include file="naf.channel.nml"/>
+    <Include file="naf__a0__b0__c0__d0__fastNa_shiftmin3_5.channel.nml"/>
+    <Include file="nap.channel.nml"/>
+    <Include file="pas.channel.nml"/>
+        <!--   Cell files-->
+    <Include file="L23PyrFRB.cell.nml"/>
+        <!--   Network file-->
+    <Include file="L23PyrFRB.net.nml"/>
+    
+
+        <!--Note: this could be: Simulation id="sim1" ... , but Component type="Simulation" ... 
+        is used to allow validation of this file according to the LEMS schema specified above...-->
+    <Component type="Simulation" id="sim1" length="800.0ms" step="0.005ms" target="network_Thalamocortical">
+        
+        <Display id="CGsuppyrFRB_v" title="Thalamocortical: Cell2-suppyrFRB-FigA1FRB, CGsuppyrFRB, VOLTAGE" xmin="-0.080000006" xmax="0.88000005" ymin="-0.09200001" ymax="0.052" timeScale="1s">
+            <Line id="v" timeScale="1s" quantity="CGsuppyrFRB/0/L23PyrFRB/0/v" scale="1 V" color="#000000"/>
+        </Display>
+    
+        <Display id="GraphWin_53" title="Thalamocortical: Cell2-suppyrFRB-FigA1FRB, CGsuppyrFRB, cad:CONC:ca" xmin="-0.080000006" xmax="0.88000005" ymin="-299.99997" ymax="3299.9998" timeScale="1s">
+            <Line id="cad_CONC_ca" timeScale="1s" quantity="CGsuppyrFRB/0/L23PyrFRB/0/caConc" scale="1 mol_per_m3" color="#000000"/>
+        </Display>
+    
+        <Display id="GraphWin_5" title="Thalamocortical: Cell2-suppyrFRB-FigA1FRB, CGsuppyrFRB, VOLTAGE" xmin="-0.080000006" xmax="0.88000005" ymin="-0.09200001" ymax="0.052" timeScale="1s">
+            <Line id="v" timeScale="1s" quantity="CGsuppyrFRB/0/L23PyrFRB/142/v" scale="1 V" color="#000000"/>
+        </Display>
+    
+        <OutputFile id="CGsuppyrFRB_v_0_0_OF" fileName="CGsuppyrFRB_0.0.dat">
+            <OutputColumn id="v" quantity="CGsuppyrFRB/0/L23PyrFRB/0/v"/>
+        </OutputFile>
+    
+        <OutputFile id="CGsuppyrFRB_v_1_0_0_OF" fileName="CGsuppyrFRB_0.0.cad_CONC_ca.dat">
+            <OutputColumn id="caConc" quantity="CGsuppyrFRB/0/L23PyrFRB/0/caConc"/>
+        </OutputFile>
+    
+        <OutputFile id="Var_10_0_142_OF" fileName="CGsuppyrFRB_0.142.dat">
+            <OutputColumn id="v" quantity="CGsuppyrFRB/0/L23PyrFRB/142/v"/>
+        </OutputFile>
+    </Component>
+
+
+</Lems>

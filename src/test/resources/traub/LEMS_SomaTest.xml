@@ -1,0 +1,52 @@
+<Lems xmlns="http://www.neuroml.org/lems/0.7.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+      xsi:schemaLocation="http://www.neuroml.org/lems/0.7.2  https://raw.githubusercontent.com/LEMS/LEMS/development/Schemas/LEMS/LEMS_v0.7.2.xsd">
+
+    <Target component="sim1" reportFile="simulator.props" timesFile="time.dat"/>
+
+        <!--Include standard NeuroML 2 ComponentType definitions-->
+
+    <Include file="Cells.xml"/>
+    <Include file="Networks.xml"/>
+    <Include file="Simulation.xml"/>
+
+    
+
+        <!--Include the generated NeuroML 2 files-->
+
+
+        <!--   Channel/synapse files-->
+    <Include file="k2.channel.nml"/>
+    <Include file="ka.channel.nml"/>
+    <Include file="ka_ib.channel.nml"/>
+    <Include file="kdr.channel.nml"/>
+    <Include file="kdr_fs.channel.nml"/>
+    <Include file="km.channel.nml"/>
+    <Include file="naf.channel.nml"/>
+    <Include file="naf2.channel.nml"/>
+    <Include file="naf_tcr.channel.nml"/>
+    <Include file="nap.channel.nml"/>
+    <Include file="napf.channel.nml"/>
+    <Include file="napf_spinstell.channel.nml"/>
+    <Include file="napf_tcr.channel.nml"/>
+    <Include file="pas.channel.nml"/>
+        <!--   Cell files-->
+    <Include file="TestSeg_test2.cell.nml"/>
+        <!--   Network file-->
+    <Include file="Test.net.nml"/>
+    
+
+        <!--Note: this could be: Simulation id="sim1" ... , but Component type="Simulation" ... 
+        is used to allow validation of this file according to the LEMS schema specified above...-->
+    <Component type="Simulation" id="sim1" length="100.0ms" step="0.001ms" target="network_Thalamocortical">
+        
+        <Display id="CG_tester_v" title="Thalamocortical: TestNML2, CG_tester, VOLTAGE" xmin="-0.010000001" xmax="0.11000001" ymin="-0.104" ymax="0.064" timeScale="1s">
+            <Line id="v" timeScale="1s" quantity="CG_tester/0/TestSeg_test2/v" scale="1 V" color="#000000"/>
+        </Display>
+    
+        <OutputFile id="CG_tester_v_0_0_OF" fileName="CG_tester_0.0.dat">
+            <OutputColumn id="v" quantity="CG_tester/0/TestSeg_test2/v"/>
+        </OutputFile>
+    </Component>
+
+
+</Lems>

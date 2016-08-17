@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.githubusercontent.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd" id="TestSeg_test2">
+
+    <include href="k2.channel.nml"/>
+
+    <include href="ka.channel.nml"/>
+
+    <include href="ka_ib.channel.nml"/>
+
+    <include href="kdr.channel.nml"/>
+
+    <include href="kdr_fs.channel.nml"/>
+
+    <include href="km.channel.nml"/>
+
+    <include href="naf.channel.nml"/>
+
+    <include href="naf2.channel.nml"/>
+
+    <include href="naf_tcr.channel.nml"/>
+
+    <include href="nap.channel.nml"/>
+
+    <include href="napf.channel.nml"/>
+
+    <include href="napf_spinstell.channel.nml"/>
+
+    <include href="napf_tcr.channel.nml"/>
+
+    <include href="pas.channel.nml"/>
+
+    <cell id="TestSeg_test2">
+
+        <notes>Test cell2</notes>
+
+        <morphology id="morphology_TestSeg_test2">
+
+            <segment id="0" name="Soma">
+                <proximal x="0.0" y="0.0" z="0.0" diameter="20.0"/>
+                <distal x="0.0" y="0.0" z="0.0" diameter="20.0"/>
+            </segment>
+
+            <segmentGroup id="Soma" neuroLexId="sao864921383">    <!--
+                This group contains an unbranched set of segments, and all of the segmentGroups marked with
+                neuroLexId = sao864921383 form a non-overlapping set of all of the segments. 
+                These segmentGroups correspond to the 'cables' of NeuroML v1.8.1. -->
+
+                <member segment="0"/>
+            </segmentGroup>
+
+            <segmentGroup id="all">
+                <include segmentGroup="Soma"/>
+            </segmentGroup>
+
+            <segmentGroup id="soma_group" neuroLexId="GO:0043025">    <!--Soma group-->
+
+                <include segmentGroup="Soma"/>
+            </segmentGroup>
+
+            
+        </morphology>
+
+            <!--Adding the biophysical parameters-->
+
+        <biophysicalProperties id="biophys">
+
+            <membraneProperties>
+                
+                <channelDensity condDensity="0.1 mS_per_cm2" id="k2_all" ionChannel="k2" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="15.0 mS_per_cm2" id="ka_all" ionChannel="ka" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="15.0 mS_per_cm2" id="ka_ib_all" ionChannel="ka_ib" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="62.5 mS_per_cm2" id="kdr_all" ionChannel="kdr" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="62.5 mS_per_cm2" id="kdr_fs_all" ionChannel="kdr_fs" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="1.5 mS_per_cm2" id="km_all" ionChannel="km" ion="k" erev="-95.0 mV"/>
+                
+                <channelDensity condDensity="0.033 mS_per_cm2" id="naf_all" ionChannel="naf" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.033 mS_per_cm2" id="naf2_all" ionChannel="naf2" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.033 mS_per_cm2" id="naf_tcr_all" ionChannel="naf_tcr" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.05 mS_per_cm2" id="nap_all" ionChannel="nap" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="15.0 mS_per_cm2" id="napf_all" ionChannel="napf" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.05 mS_per_cm2" id="napf_spinstell_all" ionChannel="napf_spinstell" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.05 mS_per_cm2" id="napf_tcr_all" ionChannel="napf_tcr" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.3 mS_per_cm2" id="pas_all" ionChannel="pas" erev="-66.6 mV" ion="non_specific"/>
+                
+
+                <spikeThresh value="0 mV"/>
+
+                <specificCapacitance value="1.0 uF_per_cm2"/>
+
+                <initMembPotential value="-60.0 mV"/>
+
+            </membraneProperties>
+
+            <intracellularProperties>
+
+                <resistivity value="0.03 kohm_cm"/>
+
+            </intracellularProperties>
+
+        </biophysicalProperties>
+
+    </cell>
+    
+</neuroml>
