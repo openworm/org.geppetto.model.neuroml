@@ -31,7 +31,7 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
 
-package org.gepppetto.model.neuroml.summaryUtils;
+package org.geppetto.model.neuroml.summaryUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
