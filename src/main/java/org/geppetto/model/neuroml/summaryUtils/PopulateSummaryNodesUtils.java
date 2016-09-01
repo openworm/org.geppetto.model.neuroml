@@ -31,7 +31,7 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
 
-package org.gepppetto.model.neuroml.summaryUtils;
+package org.geppetto.model.neuroml.summaryUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -49,6 +49,7 @@ import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
+import org.geppetto.model.types.CompositeVisualType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
@@ -62,6 +63,7 @@ import org.geppetto.model.values.FunctionPlot;
 import org.geppetto.model.values.HTML;
 import org.geppetto.model.values.Text;
 import org.geppetto.model.values.ValuesFactory;
+import org.geppetto.model.values.VisualGroup;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -72,7 +74,6 @@ import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
-import org.neuroml.model.IonChannelKS;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.util.NeuroMLException;
@@ -171,7 +172,7 @@ public class PopulateSummaryNodesUtils
 			modelDescription.append("<b>Cells</b><br/>");
 			for(Type cell : cellComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">" + cell.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">" + cell.getName() + "</a> | ");
 			}
 			modelDescription.append("<br/><br/>");
 		}
@@ -182,7 +183,7 @@ public class PopulateSummaryNodesUtils
 			for(Type ionChannel : ionChannelComponents)
 			{
 
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> | ");
 
 				// Add expresion nodes from the export library for the gate rates
 				addExpresionNodes((CompositeType) ionChannel);
@@ -195,7 +196,7 @@ public class PopulateSummaryNodesUtils
 			modelDescription.append("<b>Synapses</b><br/>");
 			for(Type synapse : synapseComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> | ");
 			}
 			modelDescription.append("<br/><br/>");
 		}
@@ -206,7 +207,7 @@ public class PopulateSummaryNodesUtils
 			modelDescription.append("<b>Inputs</b><br/>");
 			for(Type pulseGenerator : pulseGeneratorComponents)
 			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> | ");
 			}
 			modelDescription.append("<br/>");
 		}
@@ -267,7 +268,7 @@ public class PopulateSummaryNodesUtils
 				{
 					StringBuilder htmlText = new StringBuilder();
 
-					htmlText.append("<b>Notes</b><br/>");
+					htmlText.append("<b>Description</b><br/>");
 					for(Variable note : notesComponents)
 					{
 						Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
@@ -295,7 +296,7 @@ public class PopulateSummaryNodesUtils
 					htmlText.append("<b>Channels</b><br/>");
 					for(Type ionChannel : ionChannelComponents)
 					{
-						htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
+						htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> | ");
 					}
 					htmlText.append("<br/><br/>");
 
@@ -319,7 +320,7 @@ public class PopulateSummaryNodesUtils
 					htmlText.append("<b>Synapses</b><br/>");
 					for(Type synapse : synapseComponents)
 					{
-						htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
+						htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> | ");
 					}
 					htmlText.append("<br/><br/>");
 
@@ -338,17 +339,21 @@ public class PopulateSummaryNodesUtils
 
 				// Add Visual Group to model cell description
 				VisualType visualType = cell.getVisualType();
-				if(visualType != null)
+				List<VisualGroup> visualGroups = ((CompositeVisualType) visualType).getVisualGroups();
+				if(visualGroups != null && visualGroups.size()>0)
 				{
 					StringBuilder htmlText = new StringBuilder();
 
-					htmlText.append("<b>Show Visual Group:</b><br/>");
-					htmlText.append("<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + ".Cell_Regions\">" + visualType.getName() + " Cell Regions</a> ");
+					htmlText.append("<b>Click to apply colouring to the cell morphology</b><br/>");
+					for(VisualGroup visualGroup : visualGroups)
+					{
+						htmlText.append("<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "."+ visualGroup.getId()+"\">" + visualGroup.getName() + " Cell Regions</a> | ");
+					}
 					htmlText.append("<br/><br/>");
 
 					Variable htmlVariable = variablesFactory.createVariable();
-					htmlVariable.setId(Resources.SYNAPSE.getId());
-					htmlVariable.setName(Resources.SYNAPSE.get());
+					htmlVariable.setId(visualType.getId());
+					htmlVariable.setName(visualType.getName());
 
 					// Create HTML Value object and set HTML text
 					HTML html = valuesFactory.createHTML();
@@ -409,41 +414,24 @@ public class PopulateSummaryNodesUtils
 
 				if(notesComponents != null && notesComponents.size() > 0)
 				{
-					htmlText.append("<b>Notes</b><br/>");
+					htmlText.append("<b>Description</b><br/>");
 					for(Variable note : notesComponents)
 					{
 						Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
 						htmlText.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + about.getText() + "</p> ");
 					}
 					htmlText.append("<br/>");
-
-					Variable htmlVariable = variablesFactory.createVariable();
-					htmlVariable.setId(Resources.NOTES.getId());
-					htmlVariable.setName(Resources.NOTES.get());
-
-					// Create HTML Value object and set HTML text
-					HTML html = valuesFactory.createHTML();
-					html.setHtml(htmlText.toString());
-					htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-					htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
-
-					((CompositeType) ionChannel).getVariables().add(htmlVariable);
 				}
-
-				Variable htmlVariable = variablesFactory.createVariable();
-				htmlVariable.setId(ionChannel.getId());
-				htmlVariable.setName(ionChannel.getName());
-
+				
 				// Create HTML Value object and set HTML text
-				HTML html = valuesFactory.createHTML();
-				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> ");
+				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a>");
 				htmlText.append("<br/><br/>");
 
 				// Adds plot activation variables
 				List<Variable> variables = this.plottableVariables.get(ionChannel.getName());
 				if(variables != null)
 				{
-					htmlText.append("<b>Plot Activation Variables</b><br/>");
+					htmlText.append("<b>Plot activation variables</b><br/>");
 					for(Variable v : variables)
 					{
 						String[] split = v.getPath().split("\\.");
@@ -455,12 +443,15 @@ public class PopulateSummaryNodesUtils
 						htmlText.append("<a href=\"#\" type=\"variable\" instancePath=\"Model." + v.getPath() + "\">" + shortLabel + "</a><br/>");
 					}
 				}
+				Variable htmlVariable = variablesFactory.createVariable();
+				htmlVariable.setId(ionChannel.getId());
+				htmlVariable.setName(ionChannel.getName());
+				
+				HTML html = valuesFactory.createHTML();
 				html.setHtml(htmlText.toString());
 				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
 				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 				((CompositeType) ionChannel).getVariables().add(htmlVariable);
-				// Add expresion nodes from the export library for the gate rates
-				// addExpresionNodes((CompositeType) ionChannel);
 			}
 		}
 	}
