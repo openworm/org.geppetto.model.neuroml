@@ -72,78 +72,78 @@ public class PopulateSummaryNodesUtilsTest
        This is really just a helper class to allow update/testing of generated HTML in
        PopulateSummaryNodesUtils without deploying every time to Geppetto
     */
-    
-	public static void testSummary(String modelPath, String typeName, IModelInterpreter modelInterpreter) throws Exception
-	{
-		GeppettoFactory geppettoFactory = GeppettoFactory.eINSTANCE;
-		GeppettoLibrary gl = geppettoFactory.createGeppettoLibrary();
-		GeppettoModel gm = geppettoFactory.createGeppettoModel();
-		
-		gm.getLibraries().add(gl);
 
-		URL url = ModelInterpreterTestUtils.class.getResource(modelPath);
+    public static void testSummary(String modelPath, String typeName, IModelInterpreter modelInterpreter) throws Exception
+    {
+        GeppettoFactory geppettoFactory = GeppettoFactory.eINSTANCE;
+        GeppettoLibrary gl = geppettoFactory.createGeppettoLibrary();
+        GeppettoModel gm = geppettoFactory.createGeppettoModel();
 
-		gm.getLibraries().add(EcoreUtil.copy(SharedLibraryManager.getSharedCommonLibrary()));
-		GeppettoModelAccess geppettoModelAccess = new GeppettoModelAccess(gm);
+        gm.getLibraries().add(gl);
+
+        URL url = ModelInterpreterTestUtils.class.getResource(modelPath);
+
+        gm.getLibraries().add(EcoreUtil.copy(SharedLibraryManager.getSharedCommonLibrary()));
+        GeppettoModelAccess geppettoModelAccess = new GeppettoModelAccess(gm);
 
 
-		// Initialize the factory and the resource set
-		GeppettoPackage.eINSTANCE.eClass();
-		Resource.Factory.Registry reg = Resource.Factory.Registry.INSTANCE;
-		Map<String, Object> m = reg.getExtensionToFactoryMap();
-		m.put("json", new JsonResourceFactory()); // sets the factory for the JSON type
-		m.put("xmi", new XMIResourceFactoryImpl()); // sets the factory for the XMI typ
+        // Initialize the factory and the resource set
+        GeppettoPackage.eINSTANCE.eClass();
+        Resource.Factory.Registry reg = Resource.Factory.Registry.INSTANCE;
+        Map<String, Object> m = reg.getExtensionToFactoryMap();
+        m.put("json", new JsonResourceFactory()); // sets the factory for the JSON type
+        m.put("xmi", new XMIResourceFactoryImpl()); // sets the factory for the XMI typ
 
-		// How to save to JSON
-		String baseOutputPath = "./src/test/resources/" + modelPath.substring(modelPath.lastIndexOf("/"));
-		String outputPath_all = baseOutputPath + ".xmi";
+        // How to save to JSON
+        String baseOutputPath = "./src/test/resources/" + modelPath.substring(modelPath.lastIndexOf("/"));
+        String outputPath_all = baseOutputPath + ".xmi";
 
-		AdapterFactoryEditingDomain domain = new AdapterFactoryEditingDomain(new ComposedAdapterFactory(), new BasicCommandStack());
-		Resource resourceAll = domain.createResource(URI.createURI(outputPath_all).toString());
-		resourceAll.getContents().add(gm);
-		
-		
-		Type type = modelInterpreter.importType(url, typeName, gl, geppettoModelAccess);
-		geppettoModelAccess.addTypeToLibrary(type,gl);
-		resourceAll.save(null);
-        
+        AdapterFactoryEditingDomain domain = new AdapterFactoryEditingDomain(new ComposedAdapterFactory(), new BasicCommandStack());
+        Resource resourceAll = domain.createResource(URI.createURI(outputPath_all).toString());
+        resourceAll.getContents().add(gm);
+
+
+        Type type = modelInterpreter.importType(url, typeName, gl, geppettoModelAccess);
+        geppettoModelAccess.addTypeToLibrary(type,gl);
+        resourceAll.save(null);
+
         Map<String, List<Type>> typesMap =  new HashMap<String, List<Type>>();
         typesMap.put(typeName, Arrays.asList(type));
         NeuroMLDocument neuroMLDocument = null;
         PopulateSummaryNodesUtils psnu = new PopulateSummaryNodesUtils(typesMap, type, url, geppettoModelAccess, neuroMLDocument);
-        
+
         psnu.createHTMLVariables();
-        
-	}
 
-	@Test
-	public void testModelACnet() throws Exception
-	{
-		ModelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", null, new NeuroMLModelInterpreterService());
-	}
+    }
+
+    @Test
+    public void testModelACnet() throws Exception
+    {
+        ModelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", null, new NeuroMLModelInterpreterService());
+    }
 
 
-	/*@Test
-	public void testCA1() throws Exception
-	{
-		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
+    /*@Test
+    public void testCA1() throws Exception
+    {
+        ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
 //		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", null, new NeuroMLModelInterpreterService());
-	}*/
+    }*/
 
 
-	@AfterClass
-	public static void doYourOneTimeTeardown()
-	{
-		File acnet2 = new File("./src/test/resources/MediumNet.net.nml.xmi");
-		acnet2.delete();
+    @AfterClass
+    public static void doYourOneTimeTeardown()
+    {
+        File acnet2 = new File("./src/test/resources/MediumNet.net.nml.xmi");
+        acnet2.delete();
 //		File bask = new File("./src/test/resources/bask.cell.nml.xmi");
 //		bask.delete();
 
 //		File pvdr = new File("./src/test/resources/PVDR.nml.xmi");
 //		pvdr.delete();
 
-		File ca1 = new File("./src/test/resources/BigCA1.net.nml.xmi");
-		ca1.delete();
-	}
+        File ca1 = new File("./src/test/resources/BigCA1.net.nml.xmi");
+        ca1.delete();
+    }
 
 }

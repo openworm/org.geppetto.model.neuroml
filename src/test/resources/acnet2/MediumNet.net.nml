@@ -33,7 +33,7 @@ Network connection: SmallNet_pyr_bask contains 252 individual synaptic connectio
     <include href="Na_pyr.channel.nml"/>
     <include href="pyr_4_sym.cell.nml"/>
 
-    <pulseGenerator id="BackgroundRandomIClamps" delay="0.0s" duration="100.0s" amplitude="6.0E-10A"/>
+    <pulseGenerator id="BackgroundIClamps" delay="0.0s" duration="100.0s" amplitude="6.0E-10A"/>
 
     
     <network id="network_ACnet2" type="networkWithTemperature" temperature="6.3 degC">
@@ -1231,7 +1231,7 @@ Network connection: SmallNet_pyr_bask contains 252 individual synaptic connectio
             <connection id="251" preCellId="../pyramidals_48/14/pyr_4_sym" postCellId="../baskets_12/11/bask" preSegmentId="0" preFractionAlong="0.50471133" postSegmentId="1" postFractionAlong="0.49733055"/>
         </projection>
 
-        <inputList id="BackgroundRandomIClamps" component="BackgroundRandomIClamps" population="pyramidals_48">
+        <inputList id="BackgroundIClamps" component="BackgroundIClamps" population="pyramidals_48">
             <input id="0" target="../pyramidals_48/37/pyr_4_sym" destination="synapses"/>
             <input id="1" target="../pyramidals_48/35/pyr_4_sym" destination="synapses"/>
             <input id="2" target="../pyramidals_48/28/pyr_4_sym" destination="synapses"/>
