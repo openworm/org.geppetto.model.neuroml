@@ -39,7 +39,6 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 		// Create synapse type
 		try
 		{
-			createSynapseType(projection, projectionType);
 
 			// Iterate over all the children. Most of them are connections
 			for(Component projectionChild : projection.getStrictChildren())
