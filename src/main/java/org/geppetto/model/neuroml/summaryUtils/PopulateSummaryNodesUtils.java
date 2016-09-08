@@ -486,6 +486,7 @@ public class PopulateSummaryNodesUtils
 						{
 							shortLabel = split[1] + "." + split[2] + "..." + split[split.length - 1];
                             info = "Gate: " + split[2] + " "+ split[split.length - 1].replace("_", " ");
+                            info+= (info.indexOf("forward")>0 ? ", alpha<sub>" + split[2] + "</sub>":", beta<sub>" + split[2] + "</sub>");
 						}
 						htmlText.append("<a href=\"#\" type=\"variable\" instancePath=\"Model." + v.getPath() + "\">" + info + "</a><br/>\n");
 					}
@@ -508,16 +509,29 @@ public class PopulateSummaryNodesUtils
     private String createIonChannelExpression(IonChannel chan) 
     {
 		StringBuilder htmlText = new StringBuilder();
+		StringBuilder postText = new StringBuilder();
         htmlText.append("G<sub>"+chan.getId()+"</sub>(v,t) = G<sub>max</sub> ");
+        //neuroMLDocument.
         //ArrayList<String> gates = new ArrayList<>();
-        for (GateHHUndetermined g: chan.getGate()) htmlText.append(" * "+g.getId()+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
-        for (GateHHInstantaneous g: chan.getGateHHInstantaneous()) htmlText.append(" * "+g.getId()+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
-        for (GateHHRates g: chan.getGateHHrates()) htmlText.append(" * "+g.getId()+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
-        for (GateHHRatesInf g: chan.getGateHHratesInf()) htmlText.append(" * "+g.getId()+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
-        for (GateHHRatesTau g: chan.getGateHHratesTau()) htmlText.append(" * "+g.getId()+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
-        for (GateHHRatesTauInf g: chan.getGateHHratesTauInf()) htmlText.append(" * "+g.getId()+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
-        for (GateHHTauInf g: chan.getGateHHtauInf()) htmlText.append(" * "+g.getId()+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
-        return htmlText.toString();
+        for (GateHHUndetermined g: chan.getGate())
+        {
+            htmlText.append(" * "+g.getId()+"(v,t)"+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
+            //postText.append("  d"+g.getId()+"/dt = alpha<sub>"+g.getId()+"</sub>(v) * (1 - "+g.getId()+") + beta<sub>"+g.getId()+"</sub>(v) * "+g.getId()+"");
+        }
+        for (GateHHInstantaneous g: chan.getGateHHInstantaneous()) htmlText.append(" * "+g.getId()+"(v,t)"+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
+        
+        for (GateHHRates g: chan.getGateHHrates())
+        {
+            htmlText.append(" * "+g.getId()+"(v,t)"+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
+            //postText.append("d"+g.getId()+"/dt = alpha(v) * (1 - "+g.getId()+") + beta(v) * "+g.getId()+"");
+        }
+
+        for (GateHHRatesInf g: chan.getGateHHratesInf()) htmlText.append(" * "+g.getId()+"(v,t)"+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
+        for (GateHHRatesTau g: chan.getGateHHratesTau()) htmlText.append(" * "+g.getId()+"(v,t)"+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
+        for (GateHHRatesTauInf g: chan.getGateHHratesTauInf()) htmlText.append(" * "+g.getId()+"(v,t)"+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
+        for (GateHHTauInf g: chan.getGateHHtauInf()) htmlText.append(" * "+g.getId()+"(v,t)"+( g.getInstances()!=1 ? ("<sup>"+g.getInstances()+"</sup>")  : ""));
+        
+        return htmlText.toString()+"<br/>\n"+postText.toString();
     }
 
 	private void createSynapsesHTMLVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
