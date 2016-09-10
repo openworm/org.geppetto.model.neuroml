@@ -148,7 +148,7 @@ public class PopulateTypes
 		// Extracting projection and connections
 		for(Component projection : component.getChildrenAL("projections"))
 		{
-			createSynapseType(projection, compositeType);
+			createSynapseType(projection);
 			createProjectionImportType(projection, compositeType);
 		}
 		for(Component projection : component.getChildrenAL("electricalProjection"))
@@ -267,7 +267,7 @@ public class PopulateTypes
 	 * @throws GeppettoVisitingException
 	 * @throws ModelInterpreterException
 	 */
-	protected void createSynapseType(Component projection, CompositeType projectionType) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
+	protected void createSynapseType(Component projection) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
 	{
 		Component synapse = projection.getRefComponents().get(Resources.SYNAPSE.getId());
 		if(!types.containsKey(synapse.getDeclaredType() + synapse.getID()))
@@ -275,10 +275,6 @@ public class PopulateTypes
 			Type synapseType = extractInfoFromComponent(projection.getRefComponents().get(Resources.SYNAPSE.getId()), ResourcesDomainType.SYNAPSE.getId());
 			types.put(synapse.getDeclaredType() + synapse.getID(), synapseType);
 		}
-		Variable synapsesVariable = variablesFactory.createVariable();
-		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(synapsesVariable, synapse);
-		synapsesVariable.getTypes().add(types.get(synapse.getDeclaredType() + synapse.getID()));
-		projectionType.getVariables().add(synapsesVariable);
 	}
 	
 	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component morphology) throws GeppettoVisitingException, LEMSException, NeuroMLException,
