@@ -129,28 +129,7 @@ public abstract class APopulateProjectionTypes
 		return populationVariable;
 	}
 
-	/**
-	 * @param projection
-	 * @param projectionType
-	 * @throws NeuroMLException
-	 * @throws LEMSException
-	 * @throws GeppettoVisitingException
-	 * @throws ModelInterpreterException
-	 */
-	protected void createSynapseType(Component projection, CompositeType projectionType) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
-	{
-		Component synapse = projection.getRefComponents().get(Resources.SYNAPSE.getId());
-		if(!populateTypes.getTypes().containsKey(synapse.getDeclaredType() + synapse.getID()))
-		{
-			Type synapseType = populateTypes.extractInfoFromComponent(projection.getRefComponents().get(Resources.SYNAPSE.getId()), ResourcesDomainType.SYNAPSE.getId());
-			populateTypes.getTypes().put(synapse.getDeclaredType() + synapse.getID(), synapseType);
-			geppettoModelAccess.addTypeToLibrary(synapseType, library);
-		}
-		Variable synapsesVariable = variablesFactory.createVariable();
-		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(synapsesVariable, synapse);
-		synapsesVariable.getTypes().add(populateTypes.getTypes().get(synapse.getDeclaredType() + synapse.getID()));
-		projectionType.getVariables().add(synapsesVariable);
-	}
+
 
 	/**
 	 * @param projection
