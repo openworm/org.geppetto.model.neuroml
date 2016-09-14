@@ -72,6 +72,9 @@ import org.neuroml.export.info.model.ChannelInfoExtractor;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
+import org.neuroml.model.Cell;
+import org.neuroml.model.ExpOneSynapse;
+import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.GateHHInstantaneous;
 import org.neuroml.model.GateHHRates;
 import org.neuroml.model.GateHHRatesInf;
@@ -81,6 +84,8 @@ import org.neuroml.model.GateHHTauInf;
 import org.neuroml.model.GateHHUndetermined;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
+import org.neuroml.model.Izhikevich2007Cell;
+import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Standalone;
@@ -171,13 +176,13 @@ public class PopulateSummaryNodesUtils
                 for (Variable note : notesComponents)
                 {
                     Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
-                    modelDescription.append("<b>Description</b><br/>\n<p instancePath=\"Model.neuroml." + note.getId() + "\">" + about.getText() + "</p>\n ");
+                    modelDescription.append("<b>Description</b><br/>\n<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(about.getText()) + "</p>\n ");
                 }
             }
 
 
 		}
-		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\">View NeuroML source file</a><br/><br/>\n");
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"></i>View NeuroML 2 source file</i></a><br/><br/>\n");
 
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
@@ -285,42 +290,83 @@ public class PopulateSummaryNodesUtils
 					List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
 					List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
 
-					EList<Variable> cellVariables = ((CompositeType) cell).getVariables();
-					for(Variable v : cellVariables)
-					{
-						if(v.getId().equals(NOTES))
-						{
-							notesComponents.add(v);
-						}
-					}
-
-					if(notesComponents != null && notesComponents.size() > 0)
-					{
-						StringBuilder htmlText = new StringBuilder();
-                    
-                    htmlText.append("<b>Cell: </b> <a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">"+cell.getId()+"</a><br/><br/>\n");
-
-					htmlText.append("<b>Description</b><br/>\n");
-                    for(Variable note : notesComponents)
+			        EList<Variable> cellVariables = ((CompositeType) cell).getVariables();
+                    for (Variable v : cellVariables)
                     {
-                        Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
-                    htmlText.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + about.getText() + "</p>\n ");
+                        if (v.getId().equals(NOTES))
+                        {
+                            notesComponents.add(v);
+                        }
                     }
-					htmlText.append("<br/>\n");
 
-                    Variable htmlVariable = variablesFactory.createVariable();
-                    htmlVariable.setId(Resources.NOTES.getId());
-                    htmlVariable.setName(Resources.NOTES.get());
+                    StringBuilder htmlText0 = new StringBuilder();
+                    htmlText0.append("<b>Cell: </b> <a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">" + cell.getId() + "</a><br/><br/>\n");
+
+                    if (notesComponents != null && notesComponents.size() > 0)
+                    {
+
+                        htmlText0.append("<b>Description</b><br/>\n");
+                        for (Variable note : notesComponents)
+                        {
+                            Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
+                            htmlText0.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(about.getText()) + "</p>\n ");
+                        }
+                        htmlText0.append("<br/>\n");
+                    }
+
+                    Variable htmlVariable0 = variablesFactory.createVariable();
+                    htmlVariable0.setId(Resources.NOTES.getId());
+                    htmlVariable0.setName(Resources.NOTES.get());
+
+                    // TODO: replace this hard coding!!
+                    for (Izhikevich2007Cell c : neuroMLDocument.getIzhikevich2007Cell())
+                    {
+                        if (c.getId().equals(cell.getId()))
+                        {
+                            htmlText0.append("a: " + c.getA() + "<br/>\n");
+                            htmlText0.append("b: " + c.getB() + "<br/>\n");
+                            htmlText0.append("c: " + c.getC() + "<br/>\n");
+                            htmlText0.append("d: " + c.getD() + "<br/>\n");
+                            htmlText0.append("k: " + c.getK() + "<br/>\n");
+                            htmlText0.append("v0: " + c.getV0() + "<br/>\n");
+                            htmlText0.append("v peak: " + c.getVpeak() + "<br/>\n");
+                            htmlText0.append("v reset: " + c.getVr() + "<br/>\n");
+                            htmlText0.append("v threshold: " + c.getVt() + "<br/>\n");
+                        }
+                    }
+                    for (IzhikevichCell c : neuroMLDocument.getIzhikevichCell())
+                    {
+                        if (c.getId().equals(cell.getId()))
+                        {
+                            htmlText0.append("a: " + c.getA() + "<br/>\n");
+                            htmlText0.append("b: " + c.getB() + "<br/>\n");
+                            htmlText0.append("c: " + c.getC() + "<br/>\n");
+                            htmlText0.append("d: " + c.getD() + "<br/>\n");
+                            htmlText0.append("v0: " + c.getV0() + "<br/>\n");
+                            htmlText0.append("v threshold: " + c.getThresh() + "<br/>\n");
+                        }
+                    }
+                    for (Cell c : neuroMLDocument.getCell())
+                    {
+                        if (c.getId().equals(cell.getId()))
+                        {
+                            htmlText0.append("Number of segments: " + c.getMorphology().getSegment().size() + "<br/>\n");
+                            htmlText0.append("Number of segment groups: " + c.getMorphology().getSegmentGroup().size() + "<br/><br/>\n");
+                        }
+                    }
 
                     // Create HTML Value object and set HTML text
-                    HTML html = valuesFactory.createHTML();
-                    if (verbose) System.out.println("========== Cell ============\n"+htmlText.toString());
-						html.setHtml(htmlText.toString());
-						htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-						htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+                    HTML html0 = valuesFactory.createHTML();
+                    if (verbose)
+                    {
+                        System.out.println("========== Cell ============\n" + htmlText0.toString());
+                    }
+                    html0.setHtml(htmlText0.toString());
+                    htmlVariable0.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+                    htmlVariable0.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html0);
 
-						((CompositeType) cell).getVariables().add(htmlVariable);
-					}
+                    ((CompositeType) cell).getVariables().add(htmlVariable0);
+                    
 
 					if(ionChannelComponents != null && ionChannelComponents.size() > 0)
 					{
@@ -432,6 +478,77 @@ public class PopulateSummaryNodesUtils
 			throw new ModelInterpreterException(e);
 		}
 	}
+    
+    private String formatDescription(String desc) 
+    {
+        desc = desc.replaceAll("\n", "<br/>\n");
+        return parseForHyperlinks(desc);
+    }
+    
+    private static String replaceToken(String line, String oldToken, String newToken, int fromIndex)
+    {
+        StringBuffer sb = new StringBuffer(line);
+        sb.replace(line.indexOf(oldToken, fromIndex), line.indexOf(oldToken, fromIndex)+oldToken.length(), newToken);
+        return sb.toString();
+    }
+    
+    private static String parseForHyperlinks(String text)
+    {
+        String[] prefixes ={"http://","https://"};
+        int checkpoint = 0;
+        
+        for (String prefix: prefixes) 
+        {
+            while(text.indexOf(prefix, checkpoint)>=0)
+            {
+                int start = text.indexOf(prefix, checkpoint);
+                int end = text.length();
+                if (text.indexOf(" ", start)>0)
+                    end = text.indexOf(" ", start);
+                if (text.indexOf("\n", start)>0)
+                    end = Math.min(end,text.indexOf("\n", start));
+                if (text.indexOf(")", start)>0)
+                    end = Math.min(end,text.indexOf(")", start));
+
+                String url = text.substring(start, end);
+                if (url.endsWith("."))
+                {
+                    url=url.substring(0,url.length()-1);
+                }
+
+                String link = "<a href=\""+url+"\"  target=\"_blank\">"+url+"</a>";
+
+                text = replaceToken(text, url, link, start);
+
+                checkpoint = start+link.length();
+            }
+        }
+        return text;
+    }
+    
+    private void extractDescription(Type t, StringBuilder htmlText) throws GeppettoVisitingException
+    {
+        List<Variable> notesComponents = new ArrayList<Variable>();
+
+        EList<Variable> channelVariables = ((CompositeType) t).getVariables();
+        for(Variable v : channelVariables)
+        {
+            if(v.getId().equals(NOTES))
+            {
+                notesComponents.add(v);
+            }
+        }
+        if(notesComponents.size() > 0)
+        {
+            htmlText.append("<b>Description</b><br/>\n");
+            for(Variable note : notesComponents)
+            {
+                Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
+                htmlText.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(about.getText()) + "</p> ");
+            }
+            htmlText.append("<br/>\n");
+        }
+    }
 
 	private void createChannelsHTMLVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
 	{
@@ -441,36 +558,21 @@ public class PopulateSummaryNodesUtils
 		{
 			for(Type ionChannel : ionChannelComponents)
 			{
-				List<Variable> notesComponents = new ArrayList<Variable>();
-
-				EList<Variable> channelVariables = ((CompositeType) ionChannel).getVariables();
-				for(Variable v : channelVariables)
-				{
-					if(v.getId().equals(NOTES))
-					{
-						notesComponents.add(v);
-					}
-				}
+				
 
 				StringBuilder htmlText = new StringBuilder();
                 
 			    htmlText.append("<b>Ion channel: </b> <a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">"+ionChannel.getId()+"</a><br/><br/>\n");
 
-				if(notesComponents != null && notesComponents.size() > 0)
-				{
-					htmlText.append("<b>Description</b><br/>\n");
-					for(Variable note : notesComponents)
-					{
-						Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
-						htmlText.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + about.getText() + "</p> ");
-					}
-					htmlText.append("<br/>\n");
-				}
+                extractDescription(ionChannel, htmlText);
+				
                 Component component = ((Component) ionChannel.getDomainModel().getDomainModel());
                 IonChannel chan = (IonChannel)getNeuroMLIonChannel(component);
-					
-                htmlText.append("<b>Ion:</b> <a href=\"#\">"+(chan.getSpecies()!=null ? chan.getSpecies() : "Non specific")+"</a><br/><br/>\n");
-                htmlText.append("<b>Conductance:</b> <a href=\"#\">"+createIonChannelExpression(chan)+"</a><br/><br/>\n");
+				
+                if (chan!=null) {
+                    htmlText.append("<b>Ion:</b> <a href=\"#\">"+(chan.getSpecies()!=null ? chan.getSpecies() : "Non specific")+"</a><br/><br/>\n");
+                    htmlText.append("<b>Conductance:</b> <a href=\"#\">"+createIonChannelExpression(chan)+"</a><br/><br/>\n");
+                }
 
 				// Adds plot activation variables
 				List<Variable> variables = this.plottableVariables.get(ionChannel.getName());
@@ -543,16 +645,37 @@ public class PopulateSummaryNodesUtils
 			for(Type synapse : synapseComponents)
 			{
 				StringBuilder htmlText = new StringBuilder();
-
+                
 				Variable htmlVariable = variablesFactory.createVariable();
 				htmlVariable.setId(synapse.getId());
 				htmlVariable.setName(synapse.getName());
+            
+			    htmlText.append("<b>Synapse: </b> <a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">"+synapse.getId()+"</a><br/><br/>\n");
+                
+                extractDescription(synapse, htmlText);
 
 				// Create HTML Value object and set HTML text
 				HTML html = valuesFactory.createHTML();
-				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> ");
-				htmlText.append("<br/><br/>");
+                //BaseConductanceBasedSynapse syn = null;
+                for (ExpOneSynapse syn : neuroMLDocument.getExpOneSynapse()){
+                    if (syn.getId().equals(synapse.getId()))
+                    {
+                        htmlText.append("Base conductance: "+syn.getGbase()+"<br/>\n");
+                        htmlText.append("Decay time: "+syn.getTauDecay()+"<br/>\n");
+                        htmlText.append("Reversal potential: "+syn.getErev()+"<br/>\n");
+                    }
+                }
+                for (ExpTwoSynapse syn : neuroMLDocument.getExpTwoSynapse()){
+                    if (syn.getId().equals(synapse.getId()))
+                    {
+                        htmlText.append("Base conductance: "+syn.getGbase()+"<br/>\n");
+                        htmlText.append("Rise time: "+syn.getTauRise()+"<br/>\n");
+                        htmlText.append("Decay time: "+syn.getTauDecay()+"<br/>\n");
+                        htmlText.append("Reversal potential: "+syn.getErev()+"<br/>\n");
+                    }
+                }
 				html.setHtml(htmlText.toString());
+                if (verbose) System.out.println("======= Synapse ===============\n"+htmlText.toString());
 				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
 				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 				((CompositeType) synapse).getVariables().add(htmlVariable);

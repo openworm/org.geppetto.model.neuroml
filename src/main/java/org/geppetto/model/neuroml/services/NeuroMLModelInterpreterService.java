@@ -140,7 +140,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					neuroML2Validator.validateWithTests(reader.getNeuroMLDocument());
 					if(neuroML2Validator.hasWarnings() || !neuroML2Validator.isValid())
 					{
-						throw new ModelInterpreterException("Validity: " + neuroML2Validator.getValidity() + " Warnings: " + neuroML2Validator.getWarnings());
+						throw new ModelInterpreterException("Validity: " + neuroML2Validator.getValidity() + "\nWarnings: " + neuroML2Validator.getWarnings()+"\nOriginal error: "+e.toString());
 					}
 					throw new ModelInterpreterException(e);
 				}
