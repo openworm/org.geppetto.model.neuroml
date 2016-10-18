@@ -143,9 +143,11 @@ public class LEMSConversionService extends AConversion
 			// Get supported outputs and add them to the model formats list
 			for(Format format : SupportedFormats.getSupportedOutputs(lems))
 			{
-				// Convert from export formats to Geppetto formats
-				ModelFormat modelFormat = ServicesRegistry.getModelFormat(ModelFormatMapping.fromExportValue(format.toString()).name());
-				if(modelFormat != null) modelFormats.add(modelFormat);
+				if (ModelFormatMapping.fromExportValue(format.toString()) != null){
+					// Convert from export formats to Geppetto formats
+					ModelFormat modelFormat = ServicesRegistry.getModelFormat(ModelFormatMapping.fromExportValue(format.toString()).name());
+					if(modelFormat != null) modelFormats.add(modelFormat);
+				}
 			}
 		}
 		catch(NeuroMLException | LEMSException e)
@@ -250,7 +252,7 @@ public class LEMSConversionService extends AConversion
 				outputFileName = "main_script.py";
 
 				// Convert model
-				IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormatMapping.valueOf(output.getModelFormat()).getExportValue());
+				IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormatMapping.valueOf(output.getModelFormat()).toString());
 				List<File> outputFiles = exportWriter.convert();
 			}
 
