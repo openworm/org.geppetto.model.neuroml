@@ -130,7 +130,7 @@
 		</repository>
 		<repository>
 			<id>org.geppetto-mvn-repo</id>
-			<url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo</url>
+			<url>https://raw.github.com/openworm/org.geppetto.maven/mvn-revo-pg</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
