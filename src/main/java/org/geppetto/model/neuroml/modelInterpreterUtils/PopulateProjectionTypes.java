@@ -36,10 +36,15 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 
 		super.resolveProjectionImportType(projection, importType);
 
-		// Create synapse type
+		// Add synapse variable to projection to projection type
+		Component synapse = projection.getRefComponents().get(Resources.SYNAPSE.getId());
+		Variable synapsesVariable = variablesFactory.createVariable();
+		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(synapsesVariable, synapse);
+		synapsesVariable.getTypes().add(populateTypes.getTypes().get(synapse.getDeclaredType() + synapse.getID()));
+		projectionType.getVariables().add(synapsesVariable);
+
 		try
 		{
-			createSynapseType(projection, projectionType);
 
 			// Iterate over all the children. Most of them are connections
 			for(Component projectionChild : projection.getStrictChildren())

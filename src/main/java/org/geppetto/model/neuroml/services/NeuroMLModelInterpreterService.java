@@ -60,6 +60,7 @@ import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateTypes;
+import org.geppetto.model.neuroml.summaryUtils.PopulateSummaryNodesUtils;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.CompositeType;
@@ -67,7 +68,6 @@ import org.geppetto.model.types.Type;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Pointer;
-import org.gepppetto.model.neuroml.summaryUtils.PopulateSummaryNodesUtils;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -140,7 +140,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					neuroML2Validator.validateWithTests(reader.getNeuroMLDocument());
 					if(neuroML2Validator.hasWarnings() || !neuroML2Validator.isValid())
 					{
-						throw new ModelInterpreterException("Validity: " + neuroML2Validator.getValidity() + " Warnings: " + neuroML2Validator.getWarnings());
+						throw new ModelInterpreterException("Validity: " + neuroML2Validator.getValidity() + "\nWarnings: " + neuroML2Validator.getWarnings()+"\nOriginal error: "+e.toString());
 					}
 					throw new ModelInterpreterException(e);
 				}
