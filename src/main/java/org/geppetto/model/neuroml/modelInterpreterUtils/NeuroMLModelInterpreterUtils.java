@@ -14,6 +14,7 @@ import org.geppetto.model.types.Type;
 import org.geppetto.model.types.TypesFactory;
 import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;
+import org.geppetto.model.values.Point;
 import org.geppetto.model.values.Text;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
@@ -21,7 +22,10 @@ import org.geppetto.model.variables.VariablesFactory;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Attribute;
 import org.lemsml.jlems.core.type.Component;
+import org.neuroml.model.Cell;
+import org.neuroml.model.Point3DWithDiam;
 import org.neuroml.model.Segment;
+import org.neuroml.model.util.CellUtils;
 import org.neuroml.model.util.NeuroMLException;
 
 public class NeuroMLModelInterpreterUtils
@@ -31,9 +35,9 @@ public class NeuroMLModelInterpreterUtils
 	static TypesFactory typesFactory = TypesFactory.eINSTANCE;
 	static ValuesFactory valuesFactory = ValuesFactory.eINSTANCE;
 	static VariablesFactory variablesFactory = VariablesFactory.eINSTANCE;
-	
-	
-	public static void createCompositeTypeFromAnnotation(CompositeType compositeType, Component annotation, GeppettoModelAccess access) throws LEMSException, NeuroMLException, GeppettoVisitingException
+
+	public static void createCompositeTypeFromAnnotation(CompositeType compositeType, Component annotation, GeppettoModelAccess access) throws LEMSException, NeuroMLException,
+			GeppettoVisitingException
 	{
 		CompositeType annotationType = typesFactory.createCompositeType();
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(annotationType, annotation);
@@ -84,7 +88,7 @@ public class NeuroMLModelInterpreterUtils
 		variable.getAnonymousTypes().add(annotationType);
 		compositeType.getVariables().add(variable);
 	}
-	
+
 	public static void initialiseNodeFromComponent(Node node, Component component)
 	{
 		if(node instanceof Type)
@@ -94,12 +98,14 @@ public class NeuroMLModelInterpreterUtils
 			domainModel.setFormat(ServicesRegistry.getModelFormat("LEMS"));
 			((Type) node).setDomainModel(domainModel);
 		}
-		
-		if(component.getID() != null){
-			node.setName(ModelInterpreterUtils.parseId(component.getID()));	
+
+		if(component.getID() != null)
+		{
+			node.setName(ModelInterpreterUtils.parseId(component.getID()));
 		}
-		else{
-			node.setName(Resources.getValueById(component.getDeclaredType())); 
+		else
+		{
+			node.setName(Resources.getValueById(component.getDeclaredType()));
 		}
 		node.setId(ModelInterpreterUtils.parseId((component.getID() != null) ? component.getID() : component.getDeclaredType()));
 	}
@@ -119,9 +125,41 @@ public class NeuroMLModelInterpreterUtils
 		return (segment.getName() != null && !segment.getName().equals("")) ? (segment.getName() + "_" + segment.getId()) : "vo" + segment.getId();
 	}
 
-	public static Variable getVisualVariable(String preSegmentId)
+	/**
+	 * @param neruoMLCell
+	 * @param segmentId
+	 * @param fractionAlong
+	 * @return
+	 * @throws NeuroMLException
+	 * @throws NumberFormatException
+	 */
+	public static Point getPointAtFractionAlong(Cell neuroMLCell, String segmentId, String fractionAlong) throws NumberFormatException, NeuroMLException
 	{
-		// TODO Auto-generated method stub
+		if(fractionAlong != null)
+		{
+			Point point = ValuesFactory.eINSTANCE.createPoint();
+			Segment segment = CellUtils.getSegmentWithId(neuroMLCell, Integer.parseInt(segmentId));
+			Point3DWithDiam proximal = getProximal(segment, neuroMLCell);
+			Point3DWithDiam distal = segment.getDistal();
+			double fraction = Double.parseDouble(fractionAlong);
+			point.setX((proximal.getX() + distal.getX()) * fraction);
+			point.setY((proximal.getY() + distal.getY()) * fraction);
+			point.setZ((proximal.getZ() + distal.getZ()) * fraction);
+			return point;
+		}
 		return null;
+	}
+
+	private static Point3DWithDiam getProximal(Segment segment, Cell neuroMLCell) throws NeuroMLException
+	{
+		if(segment.getProximal() != null)
+		{
+			return segment.getProximal();
+		}
+		else if(segment.getParent() != null)
+		{
+			return getProximal(CellUtils.getSegmentWithId(neuroMLCell, segment.getParent().getSegment()), neuroMLCell);
+		}
+		else return null;
 	}
 }
