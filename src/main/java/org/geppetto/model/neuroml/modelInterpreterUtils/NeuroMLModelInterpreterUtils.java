@@ -142,9 +142,9 @@ public class NeuroMLModelInterpreterUtils
 			Point3DWithDiam proximal = getProximal(segment, neuroMLCell);
 			Point3DWithDiam distal = segment.getDistal();
 			double fraction = Double.parseDouble(fractionAlong);
-			point.setX((proximal.getX() + distal.getX()) * fraction);
-			point.setY((proximal.getY() + distal.getY()) * fraction);
-			point.setZ((proximal.getZ() + distal.getZ()) * fraction);
+			point.setX((proximal.getX() + distal.getX()) * fraction/2);
+			point.setY((proximal.getY() + distal.getY()) * fraction/2);
+			point.setZ((proximal.getZ() + distal.getZ()) * fraction/2);
 			return point;
 		}
 		return null;
