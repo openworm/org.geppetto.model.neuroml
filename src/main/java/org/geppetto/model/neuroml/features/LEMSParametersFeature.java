@@ -13,6 +13,8 @@ import org.geppetto.model.values.Quantity;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Lems;
+import org.lemsml.jlems.core.type.ParamValue;
+import org.lemsml.jlems.core.xml.XMLAttribute;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.util.NeuroMLConverter;
 
@@ -62,7 +64,16 @@ public class LEMSParametersFeature implements ISetParameterFeature
 
 			if(matcher.find())
 			{
-				component.getParamValue(paramName).setValue(value + matcher.group(2), lems.getUnits());
+				String unit = matcher.group(2);
+				ParamValue paramValue = component.getParamValue(paramName);
+				paramValue.setValue(value + unit, lems.getUnits());
+				
+				//create attribute object with new value and unit
+				XMLAttribute xml = new XMLAttribute(paramName,value.toString()+unit);
+				
+				//replace old xmlattribute with new one that has updated value/unit
+				component.getAttributes().remove(paramName);
+				component.getAttributes().add(xml);
 			}
 			else{
 				throw new ModelInterpreterException("Problem setting value");
