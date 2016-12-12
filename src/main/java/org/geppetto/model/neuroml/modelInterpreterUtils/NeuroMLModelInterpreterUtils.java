@@ -142,9 +142,9 @@ public class NeuroMLModelInterpreterUtils
 			Point3DWithDiam proximal = getProximal(segment, neuroMLCell);
 			Point3DWithDiam distal = segment.getDistal();
 			double fraction = Double.parseDouble(fractionAlong);
-			point.setX((proximal.getX() + distal.getX()) * fraction/2);
-			point.setY((proximal.getY() + distal.getY()) * fraction/2);
-			point.setZ((proximal.getZ() + distal.getZ()) * fraction/2);
+			point.setX(((distal.getX() - proximal.getX()) * fraction) + proximal.getX());
+			point.setY(((distal.getY() - proximal.getY()) * fraction) + proximal.getY());
+			point.setZ(((distal.getZ() - proximal.getZ()) * fraction) + proximal.getZ());
 			return point;
 		}
 		return null;
@@ -158,7 +158,7 @@ public class NeuroMLModelInterpreterUtils
 		}
 		else if(segment.getParent() != null)
 		{
-			return getProximal(CellUtils.getSegmentWithId(neuroMLCell, segment.getParent().getSegment()), neuroMLCell);
+			return CellUtils.getSegmentWithId(neuroMLCell, segment.getParent().getSegment()).getDistal();
 		}
 		else return null;
 	}
