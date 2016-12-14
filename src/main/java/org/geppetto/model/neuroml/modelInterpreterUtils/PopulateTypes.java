@@ -62,6 +62,8 @@ public class PopulateTypes
 
 	private NeuroMLDocument neuroMLDocument;
 
+	private Map<Type, Cell> geppettoCellTypesMap = new HashMap<Type, Cell>();
+
 	public PopulateTypes(Map<String, Type> types, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument)
 	{
 		super();
@@ -159,8 +161,7 @@ public class PopulateTypes
 		{
 			createProjectionImportType(projection, compositeType);
 		}
-		
-		
+
 		// Extracting the rest of the child
 		for(Component componentChild : component.getChildHM().values())
 		{
@@ -258,7 +259,6 @@ public class PopulateTypes
 
 	}
 
-	
 	/**
 	 * @param projection
 	 * @param projectionType
@@ -276,18 +276,21 @@ public class PopulateTypes
 			types.put(synapse.getDeclaredType() + synapse.getID(), synapseType);
 		}
 	}
-	
+
 	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component morphology) throws GeppettoVisitingException, LEMSException, NeuroMLException,
 			ModelInterpreterException
 	{
 		if(!types.containsKey(morphology.getDeclaredType() + morphology.getParent().getID() + "_" + morphology.getID()))
 		{
-			ExtractVisualType extractVisualType = new ExtractVisualType(getNeuroMLCell(component), access);
+			Cell neuroMLCell = getNeuroMLCell(component);
+			ExtractVisualType extractVisualType = new ExtractVisualType(neuroMLCell, access);
 			types.put(morphology.getDeclaredType() + morphology.getParent().getID() + "_" + morphology.getID(), extractVisualType.createTypeFromCellMorphology());
 
 			cellSegmentMap.put(component, extractVisualType.getVisualObjectsSegments());
+			geppettoCellTypesMap.put(compositeType, neuroMLCell);
 		}
 		compositeType.setVisualType((VisualType) types.get(morphology.getDeclaredType() + morphology.getParent().getID() + "_" + morphology.getID()));
+
 	}
 
 	/**
@@ -464,6 +467,11 @@ public class PopulateTypes
 			}
 		}
 		throw new ModelInterpreterException("Can't resolve the type " + typeId);
+	}
+
+	public Map<Type, Cell> getGeppettoCellTypesMap()
+	{
+		return this.geppettoCellTypesMap;
 	}
 
 }

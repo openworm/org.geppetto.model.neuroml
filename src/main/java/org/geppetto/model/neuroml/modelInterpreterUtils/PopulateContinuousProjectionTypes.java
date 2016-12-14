@@ -14,12 +14,11 @@ import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Connection;
 import org.geppetto.model.values.Connectivity;
-import org.geppetto.model.values.ValuesFactory;
-import org.geppetto.model.values.VisualReference;
 import org.geppetto.model.variables.Variable;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
+import org.neuroml.model.Cell;
 import org.neuroml.model.util.NeuroMLException;
 
 public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
@@ -98,14 +97,8 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 				connection.setA(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCell)));
 				if(preSegmentId != null)
 				{
-					VisualReference visualReference = ValuesFactory.eINSTANCE.createVisualReference();
-					connection.getA().setVisualReference(visualReference);
-					Variable targetVisualVariable = NeuroMLModelInterpreterUtils.getVisualVariable(preSegmentId);
-					visualReference.setVisualVariable(targetVisualVariable);
-					if(preFractionAlong != null)
-					{
-						visualReference.setFraction(Float.parseFloat(preFractionAlong));
-					}
+					Cell neuroMLCell = this.populateTypes.getGeppettoCellTypesMap().get(prePopulationType.getArrayType());
+					connection.getA().setPoint(NeuroMLModelInterpreterUtils.getPointAtFractionAlong(neuroMLCell, preSegmentId,preFractionAlong));
 				}
 			}
 			if(postCell != null)
@@ -113,18 +106,12 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 				connection.setB(PointerUtility.getPointer(postPopulationVariable, postPopulationType, Integer.parseInt(postCell)));
 				if(postSegmentId != null)
 				{
-					VisualReference visualReference = ValuesFactory.eINSTANCE.createVisualReference();
-					connection.getB().setVisualReference(visualReference);
-					Variable targetVisualVariable = NeuroMLModelInterpreterUtils.getVisualVariable(postSegmentId);
-					visualReference.setVisualVariable(targetVisualVariable);
-					if(postFractionAlong != null)
-					{
-						visualReference.setFraction(Float.parseFloat(postFractionAlong));
-					}
+					Cell neuroMLCell = this.populateTypes.getGeppettoCellTypesMap().get(postPopulationType.getArrayType());
+					connection.getB().setPoint(NeuroMLModelInterpreterUtils.getPointAtFractionAlong(neuroMLCell,postSegmentId,postFractionAlong));
 				}
 			}
 		}
-		catch(ContentError e)
+		catch(ContentError | NumberFormatException | NeuroMLException e)
 		{
 			throw new ModelInterpreterException(e);
 		}
