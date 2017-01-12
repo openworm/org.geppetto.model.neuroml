@@ -172,7 +172,14 @@ public class OptimizedLEMSReader
 
 			if(!_inclusions.contains(new URI(urlPath).normalize().toString()))
 			{
-				URL url = new URL(urlPath);
+				URL urlToProcess = new URL(urlPath);
+				String domain=urlToProcess.getProtocol()+"://";
+				if(urlToProcess.getAuthority()!=null){
+					domain+=urlToProcess.getAuthority()+"/";
+				}
+				
+				URL url = new URL(new URL(domain),urlToProcess.getPath().substring(1));
+				
 
 				// Check if it's the inclusion of some NML standard component types
 				if(!isNeuroMLInclusion(url.toExternalForm()) && !url.toExternalForm().equals(simulationInclusion) && !url.toExternalForm().endsWith("/" + simulationInclusion))
