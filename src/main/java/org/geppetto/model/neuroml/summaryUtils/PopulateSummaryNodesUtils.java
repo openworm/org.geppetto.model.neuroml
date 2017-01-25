@@ -47,6 +47,7 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
+import org.geppetto.model.neuroml.visualUtils.ModelInterpreterVisualConstants;
 import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.CompositeVisualType;
@@ -72,7 +73,13 @@ import org.neuroml.export.info.model.ChannelInfoExtractor;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
+import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Cell;
+import org.neuroml.model.ChannelDensity;
+import org.neuroml.model.ChannelDensityGHK;
+import org.neuroml.model.ChannelDensityNernst;
+import org.neuroml.model.ChannelDensityNonUniform;
+import org.neuroml.model.ChannelDensityNonUniformNernst;
 import org.neuroml.model.ExpOneSynapse;
 import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.GateHHInstantaneous;
@@ -136,6 +143,17 @@ public class PopulateSummaryNodesUtils
 		this.createChannelsHTMLVariable();
 		this.createInputsHTMLVariable();
 	}
+    
+    private void addList(List<Type> list, StringBuilder desc)
+    {
+        for(Type el : list)
+        {
+            desc.append("<a href=\"#\" instancePath=\"Model.neuroml." + el.getId() + "\">" + el.getName() + "</a>");
+            if (el!=list.get(list.size()-1))
+                desc.append(" | ");
+            desc.append("\n");
+        }
+    }
 
 	/**
 	 * Creates general Model description
@@ -182,7 +200,7 @@ public class PopulateSummaryNodesUtils
 
 
 		}
-		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"></i>View NeuroML 2 source file</i></a><br/><br/>\n");
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View NeuroML 2 source file</i></a><br/><br/>\n");
 
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
@@ -191,8 +209,9 @@ public class PopulateSummaryNodesUtils
 			{
 				modelDescription.append("" + population.getName() + ": ");
 				// get proper name of population cell with brackets and index # of population
+                int size = ((ArrayType) population).getSize();
 				String name = ((ArrayType) population).getArrayType().getId().trim() + "." + population.getId().trim() + "[" + populationComponents.indexOf(population) + "]";
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + name + "\">" + ((ArrayType) population).getSize() + " cells of type " + ((ArrayType) population).getArrayType().getName()
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + name + "\">" + size + " cell"+(size==1?"s":"")+" of type " + ((ArrayType) population).getArrayType().getName()
 						+ "</a><br/>\n");
 			}
 			modelDescription.append("<br/>\n");
@@ -201,10 +220,7 @@ public class PopulateSummaryNodesUtils
 		if(cellComponents != null && cellComponents.size() > 0)
 		{
 			modelDescription.append("<b>Cells</b><br/>  \n");
-			for(Type cell : cellComponents)
-			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">" + cell.getName() + "</a> | \n");
-			}
+            addList(cellComponents, modelDescription);
 			modelDescription.append("<br/><br/>\n");
 		}
 
@@ -213,8 +229,10 @@ public class PopulateSummaryNodesUtils
 			modelDescription.append("<b>Ion channels</b><br/>\n");
 			for(Type ionChannel : ionChannelComponents)
 			{
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a>");
 
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> | ");
+                if (ionChannel!=ionChannelComponents.get(ionChannelComponents.size()-1))
+                    modelDescription.append(" | \n");
 
 				// Add expresion nodes from the export library for the gate rates
 				addExpresionNodes((CompositeType) ionChannel);
@@ -225,10 +243,7 @@ public class PopulateSummaryNodesUtils
 		if(synapseComponents != null && synapseComponents.size() > 0)
 		{
 			modelDescription.append("<b>Synapses</b><br/>\n");
-			for(Type synapse : synapseComponents)
-			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> | ");
-			}
+            addList(synapseComponents, modelDescription);
 			modelDescription.append("<br/><br/>\n");
 		}
 
@@ -236,10 +251,7 @@ public class PopulateSummaryNodesUtils
 		{
 			// FIXME: Pulse generator? InputList? ExplicitList?
 			modelDescription.append("<b>Inputs</b><br/>\n");
-			for(Type pulseGenerator : pulseGeneratorComponents)
-			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> | ");
-			}
+            addList(pulseGeneratorComponents, modelDescription);
 			modelDescription.append("<br/>\n");
 		}
 
@@ -263,6 +275,56 @@ public class PopulateSummaryNodesUtils
 
 		return descriptionVariable;
 	}
+    
+    
+    /**
+    * Gets the ion channels in a cell
+    * TODO: replace with call to method in org.neuroml.model.util.CellUtils
+    * 
+    * @returns HashMap with channel id vs [min, max] of channel density in SI units
+    */
+    public HashMap<String, Float[]> getIonChannelsInCell(Cell cell) throws NeuroMLException
+    {
+        HashMap<String, Float[]> ic = new HashMap<>();
+        
+        if (cell==null)
+            return ic;
+        
+        for (ChannelDensity cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
+        {
+            if (!ic.containsKey(cd.getIonChannel())) {ic.put(cd.getIonChannel(), new Float[]{Float.MAX_VALUE,Float.MIN_VALUE});}
+            float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
+            if (densSi<ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0]=densSi;
+            if (densSi>ic.get(cd.getIonChannel())[1]) ic.get(cd.getIonChannel())[1]=densSi;
+        }
+        
+        for (ChannelDensityGHK cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityGHK())
+        {
+            if (ic.containsKey(cd.getIonChannel())) {ic.put(cd.getIonChannel(), new Float[]{-1f,-1f});}
+            //float densSi = cd.getCondDensity();
+        }
+        /*for (ChannelDensityGHK2 cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityGHK2())
+            ic.add(cd.getIonChannel());*/
+        for (ChannelDensityNernst cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
+        {
+            if (ic.containsKey(cd.getIonChannel())) {ic.put(cd.getIonChannel(), new Float[]{-1f,-1f});}
+            //float densSi = cd.getCondDensity();
+        }
+        for (ChannelDensityNonUniform cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniform())
+        {
+            if (ic.containsKey(cd.getIonChannel())) {ic.put(cd.getIonChannel(), new Float[]{-1f,-1f});}
+            //float densSi = cd.getCondDensity();
+        }
+        /*for (ChannelDensityNonUniformGHK cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformGHK())
+            ic.add(cd.getIonChannel());*/
+        for (ChannelDensityNonUniformNernst cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformNernst())
+        {
+            if (ic.containsKey(cd.getIonChannel())) {ic.put(cd.getIonChannel(), new Float[]{-1f,-1f});}
+            //float densSi = cd.getCondDensity();
+        }
+        
+        return ic;
+    }
 
 	/**
 	 * Create Variable with HTML value for a Cell
@@ -287,8 +349,8 @@ public class PopulateSummaryNodesUtils
 				{
 					List<Variable> notesComponents = new ArrayList<Variable>();
 					List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL.get()) ? typesMap.get(ResourcesDomainType.IONCHANNEL.get()) : null;
-					List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
-					List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
+					//List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
+					//List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
 
 			        EList<Variable> cellVariables = ((CompositeType) cell).getVariables();
                     for (Variable v : cellVariables)
@@ -317,6 +379,7 @@ public class PopulateSummaryNodesUtils
                     Variable htmlVariable0 = variablesFactory.createVariable();
                     htmlVariable0.setId(Resources.NOTES.getId());
                     htmlVariable0.setName(Resources.NOTES.get());
+                    Cell nmlCell = null;
 
                     // TODO: replace this hard coding!!
                     for (Izhikevich2007Cell c : neuroMLDocument.getIzhikevich2007Cell())
@@ -350,48 +413,31 @@ public class PopulateSummaryNodesUtils
                     {
                         if (c.getId().equals(cell.getId()))
                         {
+                            nmlCell = c;
                             htmlText0.append("Number of segments: " + c.getMorphology().getSegment().size() + "<br/>\n");
                             htmlText0.append("Number of segment groups: " + c.getMorphology().getSegmentGroup().size() + "<br/><br/>\n");
                         }
                     }
+                    HashMap<String, Float[]> ionChannelInfo = getIonChannelsInCell(nmlCell);
 
-                    // Create HTML Value object and set HTML text
-                    HTML html0 = valuesFactory.createHTML();
-                    if (verbose)
-                    {
-                        System.out.println("========== Cell ============\n" + htmlText0.toString());
-                    }
-                    html0.setHtml(htmlText0.toString());
-                    htmlVariable0.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-                    htmlVariable0.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html0);
-
-                    ((CompositeType) cell).getVariables().add(htmlVariable0);
                     
-
 					if(ionChannelComponents != null && ionChannelComponents.size() > 0)
-					{
-						StringBuilder htmlText = new StringBuilder();
-
-						htmlText.append("<b>Ion channels</b><br/>");
+                    {
+						htmlText0.append("<b>Ion channels..</b><br/>\n");
 						for(Type ionChannel : ionChannelComponents)
 						{
-							htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> | ");
-						}
-						htmlText.append("<br/><br/>");
-
-						Variable htmlVariable = variablesFactory.createVariable();
-						htmlVariable.setId(Resources.ION_CHANNEL.getId());
-						htmlVariable.setName(Resources.ION_CHANNEL.get());
-
-						// Create HTML Value object and set HTML text
-						HTML html = valuesFactory.createHTML();
-						html.setHtml(htmlText.toString());
-						htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-						htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
-
-						((CompositeType) cell).getVariables().add(htmlVariable);
+                            if (ionChannelInfo.keySet().contains(ionChannel.getId())) 
+                            {
+                                htmlText0.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a>");
+                                if (!ionChannel.getId().equals(ionChannelComponents.get(ionChannelComponents.size()-1).getId()))
+                                    htmlText0.append(" |\n");
+                            }
+                        }
+						htmlText0.append("<br/><br/>\n");
 					}
 
+                    
+                    /* Doesn't make sense to add this to cell...
 					if(synapseComponents != null && synapseComponents.size() > 0)
 					{
 						StringBuilder htmlText = new StringBuilder();
@@ -414,7 +460,7 @@ public class PopulateSummaryNodesUtils
 						htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 
 						((CompositeType) cell).getVariables().add(htmlVariable);
-					}
+					}*/
 
 					// Add Visual Group to model cell description
 					VisualType visualType = cell.getVisualType();
@@ -423,30 +469,37 @@ public class PopulateSummaryNodesUtils
 						List<VisualGroup> visualGroups = ((CompositeVisualType) visualType).getVisualGroups();
 						if(visualGroups != null && visualGroups.size() > 0)
 						{
-							StringBuilder htmlText = new StringBuilder();
-
-							htmlText.append("<b>Click to apply colouring to the cell morphology</b><br/>");
+							htmlText0.append("\n<b>Click to apply colouring to the cell morphology</b><br/>\n");
 							for(VisualGroup visualGroup : visualGroups)
 							{
-								htmlText.append("<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">Highlight " + visualGroup.getName()
-										+ "</a> | ");
+								htmlText0.append("<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() 
+                                    + "\">Highlight " + visualGroup.getName()+ "</a> ");
+                                if(visualGroup.getName().equals("Cell Regions"))
+                                {
+                                    htmlText0.append("(<b><span style=\"color:#"+ModelInterpreterVisualConstants.SOMA_COLOR.substring(2)+"\">soma</span>, "+
+                                        "<span style=\"color:#"+ModelInterpreterVisualConstants.DENDRITES_COLOR.substring(2)+"\">dendrites</span>, "
+                                        +"<span style=\"color:#"+ModelInterpreterVisualConstants.AXONS_COLOR.substring(2)+"\">axon</span></b>)\n");
+                                }
+                                else 
+                                {
+                                    Float[] minMax = ionChannelInfo.get(visualGroup.getName());
+                                    if (minMax==null) {minMax = new Float[]{-2f,-1f};};
+                                    String min = minMax[0].intValue()!=minMax[0].floatValue() ? minMax[0].toString() : minMax[0].intValue()+"";
+                                    String max = minMax[1].intValue()!=minMax[1].floatValue() ? minMax[1].toString() : minMax[1].intValue()+"";
+                                    String info = "(";
+                                    info+="<span style=\"color:#"+ModelInterpreterVisualConstants.HIGH_SPECTRUM.substring(2)+"\">"+min+" S/m2</span>";
+                                    if (!min.equals(max))
+                                        info+= " -> <span style=\"color:#"+ModelInterpreterVisualConstants.LOW_SPECTRUM.substring(2)+"\">"+max+" S/m2</span>";
+                                    info+= ", <span style=\"color:#FFFFFF\">none</span>)";
+                                    
+                                    htmlText0.append(info+"\n");
+                                }
+                                htmlText0.append("<br/>\n");
 							}
-							htmlText.append("<br/><br/>");
-
-							Variable htmlVariable = variablesFactory.createVariable();
-							htmlVariable.setId(visualType.getId());
-							htmlVariable.setName(visualType.getName());
-
-							// Create HTML Value object and set HTML text
-							HTML html = valuesFactory.createHTML();
-							html.setHtml(htmlText.toString());
-							htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-							htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
-
-							((CompositeType) cell).getVariables().add(htmlVariable);
+							htmlText0.append("<br/><br/>");
 						}
 					}
-
+                    /* Doesn't make sense to add this to cell...
 					if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
 					{
 						StringBuilder htmlText = new StringBuilder();
@@ -469,7 +522,20 @@ public class PopulateSummaryNodesUtils
 						htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 
 						((CompositeType) cell).getVariables().add(htmlVariable);
-					}
+					}*/
+                    
+                    // Create HTML Value object and set HTML text
+                    HTML html0 = valuesFactory.createHTML();
+                    if (verbose)
+                    {
+                        System.out.println("========== Cell ============\n" + htmlText0.toString());
+                    }
+                    
+                    html0.setHtml(htmlText0.toString());
+                    htmlVariable0.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+                    htmlVariable0.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html0);
+
+                    ((CompositeType) cell).getVariables().add(htmlVariable0);
 				}
 			}
 		}
@@ -487,7 +553,7 @@ public class PopulateSummaryNodesUtils
     
     private static String replaceToken(String line, String oldToken, String newToken, int fromIndex)
     {
-        StringBuffer sb = new StringBuffer(line);
+        StringBuilder sb = new StringBuilder(line);
         sb.replace(line.indexOf(oldToken, fromIndex), line.indexOf(oldToken, fromIndex)+oldToken.length(), newToken);
         return sb.toString();
     }

@@ -120,6 +120,8 @@ public class PopulateSummaryNodesUtilsTest
     public void testModelACnet() throws Exception
     {
         ModelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", null, new NeuroMLModelInterpreterService());
+        System.out.println("============================================");
+        ModelInterpreterTestUtils.serialise("/acnet2/pyr_4_sym.cell.nml", null, new NeuroMLModelInterpreterService());
     }
 
 
@@ -127,7 +129,7 @@ public class PopulateSummaryNodesUtilsTest
     public void testCA1() throws Exception
     {
         ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
-//		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", null, new NeuroMLModelInterpreterService());
+//		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", null, new NeuroMLModelInterpreterService());  
     }*/
 
 
