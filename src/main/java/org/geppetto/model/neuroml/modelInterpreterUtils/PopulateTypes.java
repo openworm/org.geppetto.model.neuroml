@@ -73,23 +73,29 @@ public class PopulateTypes
 		this.neuroMLDocument = neuroMLDocument;
 	}
 
+        public CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException,
+			ModelInterpreterException
+        {
+            return extractInfoFromComponent(component, ResourcesDomainType.getValueByComponentType(component.getComponentType()));
+        }
+
 	/*
 	 * Generic method to extract info from any component
 	 */
-	public CompositeType extractInfoFromComponent(Component component, String domainType) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException,
+        public CompositeType extractInfoFromComponent(Component component, String domainType) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException,
 			ModelInterpreterException
 	{
 		long start = System.currentTimeMillis();
 
 		// Create composite type depending on type of component and initialise it
-		CompositeType compositeType = (CompositeType) typeFactory.createType((domainType == null) ? ResourcesDomainType.getValueByComponentType(component.getComponentType()) : domainType);
+		CompositeType compositeType = (CompositeType) typeFactory.createType(domainType);
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
 
 		List<String> attributes = new ArrayList<String>();
 		// Parameter types
 		for(ParamValue pv : component.getParamValues())
 		{
-			if(component.hasAttribute(pv.getName()))
+		        if(component.hasAttribute(pv.getName()))
 			{
 				attributes.add(pv.getName());
 				compositeType.getVariables().add(ModelInterpreterUtils.createParameterTypeVariable(pv.getName(), component.getStringValue(pv.getName()), this.access));
@@ -110,7 +116,7 @@ public class PopulateTypes
 			attributes.add(refComponent.getID());
 			if(!types.containsKey(refComponent.getDeclaredType() + refComponent.getID()))
 			{
-				types.put(refComponent.getDeclaredType() + refComponent.getID(), extractInfoFromComponent(refComponent, null));
+				types.put(refComponent.getDeclaredType() + refComponent.getID(), extractInfoFromComponent(refComponent));
 			}
 			Variable variable = variablesFactory.createVariable();
 			NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, refComponent);
@@ -180,7 +186,7 @@ public class PopulateTypes
 			else
 			{
 				// For the moment all the child are extracted as anonymous types
-				CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild, null);
+				CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
 				if(anonymousCompositeType != null)
 				{
 					Variable variable = variablesFactory.createVariable();
@@ -199,7 +205,7 @@ public class PopulateTypes
 					&& !componentChild.getComponentType().isOrExtends(Resources.CONTINUOUS_PROJECTION.getId()))
 			{
 				// If it is not a population, a projection/connection or a morphology, let's deal with it in a generic way
-				CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild, null);
+				CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
 				if(anonymousCompositeType != null)
 				{
 					// For the moment all the children are extracted as anonymous types

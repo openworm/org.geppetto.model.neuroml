@@ -196,7 +196,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			if(typeId != null && !typeId.isEmpty())
 			{
 				Component mainComponent = lems.getComponent(typeId);
-				type = populateTypes.extractInfoFromComponent(mainComponent, null);
+				type = populateTypes.extractInfoFromComponent(mainComponent);
 			}
 			else
 			{
@@ -206,7 +206,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				{
 					if(!types.containsKey(component.getDeclaredType() + component.getID()) && component.getID() != null)
 					{
-						types.put(component.getDeclaredType() + component.getID(), populateTypes.extractInfoFromComponent(component, null));
+						types.put(component.getDeclaredType() + component.getID(), populateTypes.extractInfoFromComponent(component));
 					}
 				}
 
