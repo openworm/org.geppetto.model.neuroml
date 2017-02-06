@@ -392,7 +392,7 @@ public class PopulateSummaryNodesUtils
         float xmax = width*(lmax-start)/order;
         
         StringBuilder sb = new StringBuilder("<svg width=\""+width+"\" height=\""+height+"\">\n");
-        sb.append("<rect width=\""+width+"\" height=\""+height+"\" style=\"fill:rgb("+r+","+g+","+b+");stroke-width:2;stroke:rgb(10,10,10)\"/>\n");
+        sb.append("<rect width=\""+width+"\" height=\""+height+"\" style=\"fill:rgb("+r+","+g+","+b+");stroke-width:0;stroke:rgb(10,10,10)\"/>\n");
         for (int i=1;i<order;i++)
         {
             int x=width_o*i;
@@ -596,9 +596,9 @@ public class PopulateSummaryNodesUtils
                                 {
                                     htmlText0.append("<tr><td>\n<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() 
                                         + "\">Highlight " + visualGroup.getName()+ "</a> ");
-                                    htmlText0.append("(<b><span style=\"color:#"+ModelInterpreterVisualConstants.SOMA_COLOR.substring(2)+"\">soma</span>, "+
+                                    htmlText0.append("( <b><span style=\"color:#"+ModelInterpreterVisualConstants.SOMA_COLOR.substring(2)+"\">soma</span>, "+
                                         "<span style=\"color:#"+ModelInterpreterVisualConstants.DENDRITES_COLOR.substring(2)+"\">dendrites</span>, "
-                                        +"<span style=\"color:#"+ModelInterpreterVisualConstants.AXONS_COLOR.substring(2)+"\">axon</span></b>)\n");
+                                        +"<span style=\"color:#"+ModelInterpreterVisualConstants.AXONS_COLOR.substring(2)+"\">axon</span></b> )\n");
                                     
                                     htmlText0.append("<td/><tr/>\n");
                                 }
@@ -613,11 +613,11 @@ public class PopulateSummaryNodesUtils
                                     if (minMax==null) {minMax = new Float[]{-2f,-1f};};
                                     String min = minMax[0].intValue()!=minMax[0].floatValue() ? minMax[0].toString() : minMax[0].intValue()+"";
                                     String max = minMax[1].intValue()!=minMax[1].floatValue() ? minMax[1].toString() : minMax[1].intValue()+"";
-                                    info += "(";
+                                    info += "( ";
                                     info+="<span style=\"color:#"+ModelInterpreterVisualConstants.HIGH_SPECTRUM.substring(2)+"\">"+min+" S/m2</span>";
                                     if (!min.equals(max))
                                         info+= " -> <span style=\"color:#"+ModelInterpreterVisualConstants.LOW_SPECTRUM.substring(2)+"\">"+max+" S/m2</span>";
-                                    info+= ", <span style=\"color:#FFFFFF\">none</span>)";
+                                    info+= ", <span style=\"color:#FFFFFF\">none</span> )";
                                     info+= " <td/>\n<td>\n"+getSvgScale(minMax[0], minMax[1], ion);
                                     
                                     info += ("<td/><tr/>\n");
