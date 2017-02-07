@@ -44,6 +44,11 @@
 			<version>0.9.8.7</version>
 		</dependency>
 		<dependency>
+		    <groupId>org.lemsml.expr-parser</groupId>
+		    <artifactId>org.lemsml.expr-parser</artifactId>
+		    <version>0.0.3</version>
+		</dependency>
+		<dependency>
 			<groupId>org.geppetto</groupId>
 			<artifactId>core</artifactId>
 			<version>${project.version}</version>
