@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.githubusercontent.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd" id="TCR">
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.githubusercontent.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta5.xsd" id="TCR">
 
     <include href="ar__m00_25.channel.nml"/>
 
@@ -23,7 +23,7 @@
 
     <include href="km.channel.nml"/>
 
-    <include href="naf_tcr__shift_hnafmin7__shift_mnaf_initmin3__shift_mnaf_runmin2_5.channel.nml"/>
+    <include href="naf_tcr__sh_hmin7__sh_m_imin3__sh_m_rmin2_5.channel.nml"/>
 
     <include href="napf_tcr__a0__b0__c0__d0__fastNa_shift7.channel.nml"/>
 
@@ -31,7 +31,8 @@
 
     <cell id="TCR">
 
-        <notes>Cell: TCR_0 exported from NEURON ModelView</notes>
+        <notes>Cell: TCR_0 exported from NEURON ModelView. Note parameters were renamed from shift_mnaf_init etc. to sh_m_i etc. as these long names
+resulted in a very long file/mechanism name in NML2, causing trouble for NEURON</notes>
 
         <morphology id="morphology_TCR">
 
@@ -4597,11 +4598,11 @@
                 
                 <channelDensity condDensity="0.5 mS_per_cm2" id="km_ModelViewParmSubset_1" ionChannel="km" segmentGroup="ModelViewParmSubset_1" ion="k" erev="-95.0 mV"/>
                 
-                <channelDensity condDensity="100.0 mS_per_cm2" id="naf_tcr_soma_prox_dends" ionChannel="naf_tcr__shift_hnafmin7__shift_mnaf_initmin3__shift_mnaf_runmin2_5" segmentGroup="soma_prox_dends" ion="na" erev="50.0 mV"/>
+                <channelDensity condDensity="100.0 mS_per_cm2" id="naf_tcr_soma_prox_dends" ionChannel="naf_tcr__sh_hmin7__sh_m_imin3__sh_m_rmin2_5" segmentGroup="soma_prox_dends" ion="na" erev="50.0 mV"/>
                 
-                <channelDensity condDensity="400.0 mS_per_cm2" id="naf_tcr_ModelViewParmSubset_3" ionChannel="naf_tcr__shift_hnafmin7__shift_mnaf_initmin3__shift_mnaf_runmin2_5" segmentGroup="ModelViewParmSubset_3" ion="na" erev="50.0 mV"/>
+                <channelDensity condDensity="400.0 mS_per_cm2" id="naf_tcr_ModelViewParmSubset_3" ionChannel="naf_tcr__sh_hmin7__sh_m_imin3__sh_m_rmin2_5" segmentGroup="ModelViewParmSubset_3" ion="na" erev="50.0 mV"/>
                 
-                <channelDensity condDensity="5.0 mS_per_cm2" id="naf_tcr_ModelViewParmSubset_4" ionChannel="naf_tcr__shift_hnafmin7__shift_mnaf_initmin3__shift_mnaf_runmin2_5" segmentGroup="ModelViewParmSubset_4" ion="na" erev="50.0 mV"/>
+                <channelDensity condDensity="5.0 mS_per_cm2" id="naf_tcr_ModelViewParmSubset_4" ionChannel="naf_tcr__sh_hmin7__sh_m_imin3__sh_m_rmin2_5" segmentGroup="ModelViewParmSubset_4" ion="na" erev="50.0 mV"/>
                 
                 <channelDensity condDensity="0.01 mS_per_cm2" id="napf_tcr_ModelViewParmSubset_4" ionChannel="napf_tcr__a0__b0__c0__d0__fastNa_shift7" segmentGroup="ModelViewParmSubset_4" ion="na" erev="50.0 mV"/>
                 
