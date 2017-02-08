@@ -3,9 +3,9 @@ package org.geppetto.model.neuroml.summaryUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.lemsml.expr_parser.utils.SymbolExpander;
-import org.lemsml.expr_parser.visitors.AntlrExpressionParser;
-import org.lemsml.expr_parser.visitors.RenderLatex;
+import org.lemsml.exprparser.utils.SymbolExpander;
+import org.lemsml.exprparser.visitors.AntlrExpressionParser;
+import org.lemsml.exprparser.visitors.RenderLatex;
 
 public class FunctionNodeHelper {
 	private String name;

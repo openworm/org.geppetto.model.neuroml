@@ -44,9 +44,9 @@
 			<version>0.9.8.7</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.lemsml.expr-parser</groupId>
-		    <artifactId>org.lemsml.expr-parser</artifactId>
-		    <version>0.0.3</version>
+		    <groupId>org.lemsml.exprparser</groupId>
+		    <artifactId>org.lemsml.exprparser</artifactId>
+		    <version>0.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geppetto</groupId>
