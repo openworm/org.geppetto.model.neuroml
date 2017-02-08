@@ -89,6 +89,14 @@ public class FunctionNodeHelper {
 		return "f(" + independentVariable + ")="  + expandedContext.get(var);
 	}
 
+	public String getExpression(String var){
+		if(expandedContext == null){
+			expandedContext = new LinkedHashMap<String, String>(context);
+			SymbolExpander.expandSymbols(expandedContext);
+		}
+		return expandedContext.get(var);
+	}
+
 
 
 }

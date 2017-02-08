@@ -3,7 +3,14 @@
  */
 package org.geppetto.model.neuroml.summaryUtils;
 
+import com.google.common.base.Joiner;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.lemsml.exprparser.utils.ExpressionParser;
 import org.neuroml.export.info.model.*;
 import org.neuroml.model.Base;
 import org.neuroml.model.GateHHRates;
@@ -17,6 +24,30 @@ import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 
+import org.neuroml2.model.BaseGate;
+
+import org.lemsml.model.exceptions.LEMSCompilerException;
+
+import org.lemsml.exprparser.utils.UndefinedSymbolException;
+import org.lemsml.exprparser.visitors.ARenderAs;
+import org.lemsml.exprparser.visitors.AntlrExpressionParser;
+import org.lemsml.exprparser.visitors.RenderMathJS;
+import org.lemsml.jlems.core.type.ComponentType;
+import org.lemsml.model.Case;
+import org.lemsml.model.ConditionalDerivedVariable;
+import org.lemsml.model.extended.Component;
+import org.lemsml.model.extended.LemsNode;
+import org.lemsml.model.extended.Scope;
+import org.lemsml.model.extended.Symbol;
+import org.neuroml.model.IonChannelHH;
+import org.neuroml.model.IonChannelKS;
+import org.neuroml2.model.BaseVoltageDepRate;
+import org.neuroml2.model.BaseGate;
+import org.neuroml2.model.BaseVoltageDepTime;
+import org.neuroml2.model.BaseVoltageDepVariable;
+import org.neuroml2.model.NeuroML2ModelReader;
+import org.neuroml2.model.Neuroml2;
+
 /**
  * @author borismarin
  * 
@@ -24,12 +55,69 @@ import org.neuroml.model.util.NeuroMLException;
 public class ChannelInfoExtractor2
 {
 	private InfoNode gates = new InfoNode();
+    
+	private Neuroml2 nml2Doc;
+    NeuroMLConverter nmlConverter = new NeuroMLConverter();
 
-	public ChannelInfoExtractor2(IonChannel chan) throws NeuroMLException
+	public ChannelInfoExtractor2(IonChannel chan, NeuroMLDocument nmlDoc0) throws NeuroMLException
 	{
 		// TODO: use jlems to simulate channels and generate traces to plot
 		// Sim simchan = Utils.convertNeuroMLToSim(chan);
         
+        NeuroMLDocument nmlDoc = new NeuroMLDocument();
+        for (IonChannel ic: nmlDoc0.getIonChannel())
+            nmlDoc.getIonChannel().add(ic);
+        for (IonChannelHH ic: nmlDoc0.getIonChannelHH())
+            nmlDoc.getIonChannelHH().add(ic);
+        for (IonChannelKS ic: nmlDoc0.getIonChannelKS())
+            nmlDoc.getIonChannelKS().add(ic);
+        for (org.neuroml.model.ComponentType ct: nmlDoc0.getComponentType())
+            nmlDoc.getComponentType().add(ct);
+        
+        String xml = nmlConverter.neuroml2ToXml(nmlDoc);
+        try 
+        {
+            NeuroML2ModelReader nmlReader = new NeuroML2ModelReader();
+            nml2Doc = nmlReader.read(xml);
+        }
+        catch (Throwable t)
+        {
+            throw new NeuroMLException("Error reading ion channel with NeuroML/LEMS v2 libraries: "+t.getMessage(), t);
+        }
+        
+        for(BaseGate g: nml2Doc.getAllOfType(BaseGate.class))
+        {
+			InfoNode gate = new InfoNode();
+            gates.put("gate " + g.getId(), gate);
+			gate.put("instances", g.getInstances());
+            for(Component c: g.getChildren())
+            {
+                try 
+                {
+                    if (c.getId().equals("forwardRate"))
+                    {
+                        gate.put("forward rate", getExpressionNode(processExpression(c.getScope().resolve("r")),chan.getId(), g.getId()));
+                    }
+                    else if (c.getId().equals("reverseRate"))
+                    {
+                        gate.put("reverse rate", getExpressionNode(processExpression(c.getScope().resolve("r")),chan.getId(), g.getId()));
+                    }
+                    else if (c.getId().equals("timeCourse"))
+                    {
+                        gate.put("time constant", getExpressionNode(processExpression(c.getScope().resolve("t")),chan.getId(), g.getId()));
+                    }
+                    else if (c.getId().equals("steadyState"))
+                    {
+                        gate.put("steady state", getExpressionNode(processExpression(c.getScope().resolve("x")),chan.getId(), g.getId()));
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new NeuroMLException("Error reading ion channel with NeuroML/LEMS v2 libraries", e);
+                }
+            }
+        }
+        /*
 		for(GateHHUndetermined g : chan.getGate())
 		{
 			InfoNode gate = new InfoNode();
@@ -135,7 +223,7 @@ public class ChannelInfoExtractor2
 
 			gate.put("instances", g.getInstances());
 			gates.put("gate " + g.getId(), gate);
-		}
+		}*/
 	}
 
 	private void generateRatePlots(IonChannel chan, Base g, InfoNode gate, HHRateProcessor rateinfo)
@@ -171,6 +259,75 @@ public class ChannelInfoExtractor2
 	}
     
     
+    private ExpressionNode getExpressionNode(String f, String ionChannelId, String gateId)
+    {
+        return new ExpressionNode(f, ionChannelId + " - " + gateId + " - Forward Rate", "V", "ms-1", -0.08, 0.1, 0.005);
+    }
+    
+	private String processExpression(Symbol resolved)
+			throws LEMSCompilerException, UndefinedSymbolException {
+
+		LemsNode type = resolved.getType();
+		FunctionNodeHelper f = new FunctionNodeHelper();
+		f.setName(resolved.getName());
+		f.register(depsToMathJS(resolved));
+		f.setIndependentVariable("v");
+
+		if (type instanceof ConditionalDerivedVariable) {
+			ConditionalDerivedVariable cdv = (ConditionalDerivedVariable) resolved.getType();
+			f.register(f.getName(), conditionalDVToMathJS(cdv));
+		}
+
+		return f.getExpression(f.getName());
+	}
+    
+	public Set<String> findIndependentVariables(String expression,
+			Map<String, String> context) {
+		Set<String> vars = ExpressionParser.listSymbolsInExpression(expression);
+		vars.removeAll(context.keySet());
+		return vars;
+	}
+
+	private String conditionalDVToMathJS(ConditionalDerivedVariable cdv) {
+		List<String> condsVals = new ArrayList<String>();
+		String defaultCase = null;
+
+		for (Case c : cdv.getCase()) {
+			if (null == c.getCondition()) // undocumented LEMS feature: no
+											// condition, "catch-all" case
+				defaultCase = adaptToMathJS(c.getValueDefinition());
+			else
+				condsVals.add(adaptToMathJS(c.getCondition()) + " ? "
+						+ adaptToMathJS(c.getValueDefinition()));
+		}
+		if (null != defaultCase)
+			condsVals.add(defaultCase);
+		else
+			condsVals.add("null"); // no case satisfied, no default
+
+		return Joiner.on(" : ").join(condsVals);
+	}
+
+	private Map<String, String> depsToMathJS(Symbol resolved)
+			throws LEMSCompilerException, UndefinedSymbolException {
+		Map<String, String> ret = new LinkedHashMap<String, String>();
+		Scope scope = resolved.getScope();
+		Map<String, String> sortedContext = scope.buildTopoSortedContext(resolved);
+		for(Map.Entry<String, String> kv : sortedContext.entrySet()){
+			String var = kv.getKey();
+			String def = kv.getValue();
+			ret.put(var, adaptToMathJS(def));
+		}
+		return ret;
+	}
+
+	private String adaptToMathJS(String expression) {
+		ARenderAs adaptor = new RenderMathJS(nml2Doc.getSymbolToUnit());
+		AntlrExpressionParser p = new AntlrExpressionParser(expression);
+		return p.parseAndVisitWith(adaptor);
+	}
+    
+    
 	public static void main(String[] args) throws Exception 
     {
         
@@ -183,8 +340,8 @@ public class ChannelInfoExtractor2
             NeuroMLConverter nmlc = new NeuroMLConverter();
             NeuroMLDocument nmlDocument = nmlc.loadNeuroML(f);
             IonChannel ic = nmlDocument.getIonChannel().get(0);
-            ChannelInfoExtractor2 cie = new ChannelInfoExtractor2(ic);
-            System.out.println(cie.getGates().toString());
+            ChannelInfoExtractor2 cie = new ChannelInfoExtractor2(ic, nmlDocument);
+            System.out.println(cie.getGates().toDetailString("  "));
         }
     }
 

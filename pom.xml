@@ -49,6 +49,16 @@
 		    <version>0.0.4</version>
 		</dependency>
 		<dependency>
+		    <groupId>org.lemsml.model</groupId>
+		    <artifactId>org.lemsml.model</artifactId>
+		    <version>0.0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.neuroml.neuroml2-model</groupId>
+			<artifactId>org.neuroml.neuroml2-model</artifactId>
+			<version>0.0.4</version>
+		</dependency>
+		<dependency>
 			<groupId>org.geppetto</groupId>
 			<artifactId>core</artifactId>
 			<version>${project.version}</version>
