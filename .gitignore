@@ -7,3 +7,5 @@ src/main/java/META-INF/MANIFEST.MF
 bin/
 geppettoTmp/
 /bin/
+/src/test/resources/pyr_4_sym.cell.nml.xmi
+/src/test/resources/LargeConns.net.nml.xmi
