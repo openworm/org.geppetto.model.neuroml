@@ -33,8 +33,12 @@
 
 package org.geppetto.model.neuroml.summaryUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,9 +48,11 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.emf.common.util.EList;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.model.Node;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
+import org.geppetto.model.neuroml.visualUtils.ModelInterpreterVisualConstants;
 import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.CompositeVisualType;
@@ -72,7 +78,14 @@ import org.neuroml.export.info.model.ChannelInfoExtractor;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
+import org.neuroml.export.utils.Utils;
+
 import org.neuroml.model.Cell;
+import org.neuroml.model.ChannelDensity;
+import org.neuroml.model.ChannelDensityGHK;
+import org.neuroml.model.ChannelDensityNernst;
+import org.neuroml.model.ChannelDensityNonUniform;
+import org.neuroml.model.ChannelDensityNonUniformNernst;
 import org.neuroml.model.ExpOneSynapse;
 import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.GateHHInstantaneous;
@@ -136,6 +149,17 @@ public class PopulateSummaryNodesUtils
 		this.createChannelsHTMLVariable();
 		this.createInputsHTMLVariable();
 	}
+    
+    private void addList(List<Type> list, StringBuilder desc)
+    {
+        for(Type el : list)
+        {
+            desc.append("<a href=\"#\" instancePath=\"Model.neuroml." + el.getId() + "\">" + el.getName() + "</a>");
+            if (el!=list.get(list.size()-1))
+                desc.append(" | ");
+            desc.append("\n");
+        }
+    }
 
 	/**
 	 * Creates general Model description
@@ -151,10 +175,15 @@ public class PopulateSummaryNodesUtils
 
 		List<Type> networkComponents = typesMap.containsKey(ResourcesDomainType.NETWORK.get()) ? typesMap.get(ResourcesDomainType.NETWORK.get()) : null;
 		List<Type> populationComponents = typesMap.containsKey(ResourcesDomainType.POPULATION.get()) ? typesMap.get(ResourcesDomainType.POPULATION.get()) : null;
+        sortNodes(populationComponents);
 		List<Type> cellComponents = typesMap.containsKey(ResourcesDomainType.CELL.get()) ? typesMap.get(ResourcesDomainType.CELL.get()) : null;
+        sortNodes(cellComponents);
 		List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL.get()) ? typesMap.get(ResourcesDomainType.IONCHANNEL.get()) : null;
+        sortNodes(ionChannelComponents);
 		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
+        sortNodes(synapseComponents);
 		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
+        sortNodes(pulseGeneratorComponents);
 
 		StringBuilder modelDescription = new StringBuilder();
 
@@ -175,14 +204,14 @@ public class PopulateSummaryNodesUtils
                 }
                 for (Variable note : notesComponents)
                 {
-                    Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
-                    modelDescription.append("<b>Description</b><br/>\n<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(about.getText()) + "</p>\n ");
+                    Text notes = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
+                    modelDescription.append("<b>Description</b><br/>\n<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(notes.getText()) + "</p>\n ");
                 }
             }
 
 
 		}
-		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"></i>View NeuroML 2 source file</i></a><br/><br/>\n");
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View NeuroML 2 source file</i></a><br/><br/>\n");
 
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
@@ -191,8 +220,9 @@ public class PopulateSummaryNodesUtils
 			{
 				modelDescription.append("" + population.getName() + ": ");
 				// get proper name of population cell with brackets and index # of population
+                int size = ((ArrayType) population).getSize();
 				String name = ((ArrayType) population).getArrayType().getId().trim() + "." + population.getId().trim() + "[" + populationComponents.indexOf(population) + "]";
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + name + "\">" + ((ArrayType) population).getSize() + " cells of type " + ((ArrayType) population).getArrayType().getName()
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + name + "\">" + size + " cell"+(size==1?"s":"")+" of type " + ((ArrayType) population).getArrayType().getName()
 						+ "</a><br/>\n");
 			}
 			modelDescription.append("<br/>\n");
@@ -201,10 +231,7 @@ public class PopulateSummaryNodesUtils
 		if(cellComponents != null && cellComponents.size() > 0)
 		{
 			modelDescription.append("<b>Cells</b><br/>  \n");
-			for(Type cell : cellComponents)
-			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + cell.getId() + "\">" + cell.getName() + "</a> | \n");
-			}
+            addList(cellComponents, modelDescription);
 			modelDescription.append("<br/><br/>\n");
 		}
 
@@ -213,8 +240,10 @@ public class PopulateSummaryNodesUtils
 			modelDescription.append("<b>Ion channels</b><br/>\n");
 			for(Type ionChannel : ionChannelComponents)
 			{
+				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a>");
 
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> | ");
+                if (ionChannel!=ionChannelComponents.get(ionChannelComponents.size()-1))
+                    modelDescription.append(" | \n");
 
 				// Add expresion nodes from the export library for the gate rates
 				addExpresionNodes((CompositeType) ionChannel);
@@ -225,10 +254,7 @@ public class PopulateSummaryNodesUtils
 		if(synapseComponents != null && synapseComponents.size() > 0)
 		{
 			modelDescription.append("<b>Synapses</b><br/>\n");
-			for(Type synapse : synapseComponents)
-			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> | ");
-			}
+            addList(synapseComponents, modelDescription);
 			modelDescription.append("<br/><br/>\n");
 		}
 
@@ -236,10 +262,7 @@ public class PopulateSummaryNodesUtils
 		{
 			// FIXME: Pulse generator? InputList? ExplicitList?
 			modelDescription.append("<b>Inputs</b><br/>\n");
-			for(Type pulseGenerator : pulseGeneratorComponents)
-			{
-				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> | ");
-			}
+            addList(pulseGeneratorComponents, modelDescription);
 			modelDescription.append("<br/>\n");
 		}
 
@@ -263,6 +286,180 @@ public class PopulateSummaryNodesUtils
 
 		return descriptionVariable;
 	}
+    
+    
+    /**
+    * Gets the ion channels in a cell
+    * TODO: replace with call to method in org.neuroml.model.util.CellUtils
+    * 
+    * @returns HashMap with channel id vs [min, max] of channel density in SI units
+    */
+    public HashMap<String, Float[]> getIonChannelsInCell(Cell cell) throws NeuroMLException
+    {
+        HashMap<String, Float[]> ic = new HashMap<>();
+        
+        if (cell==null)
+            return ic;
+        
+        for (ChannelDensity cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
+        {
+            if (!ic.containsKey(cd.getIonChannel())) {ic.put(cd.getIonChannel(), new Float[]{Float.MAX_VALUE,Float.MIN_VALUE});}
+            float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
+            if (densSi<ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0]=densSi;
+            if (densSi>ic.get(cd.getIonChannel())[1]) ic.get(cd.getIonChannel())[1]=densSi;
+        }
+        
+        for (ChannelDensityGHK cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityGHK())
+        {
+            if (ic.containsKey(cd.getIonChannel())) {ic.put(cd.getIonChannel(), new Float[]{-1f,-1f});}
+            //float densSi = cd.getCondDensity();
+        }
+        /*for (ChannelDensityGHK2 cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityGHK2())
+            ic.add(cd.getIonChannel());*/
+        for (ChannelDensityNernst cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
+        {
+            if (!ic.containsKey(cd.getIonChannel())) {ic.put(cd.getIonChannel(), new Float[]{Float.MAX_VALUE,Float.MIN_VALUE});}
+            float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
+            if (densSi<ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0]=densSi;
+            if (densSi>ic.get(cd.getIonChannel())[1]) ic.get(cd.getIonChannel())[1]=densSi;
+        }
+        for (ChannelDensityNonUniform cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniform())
+        {
+            if (ic.containsKey(cd.getIonChannel())) {ic.put(cd.getIonChannel(), new Float[]{-1f,-1f});}
+            //float densSi = cd.getCondDensity();
+        }
+        /*for (ChannelDensityNonUniformGHK cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformGHK())
+            ic.add(cd.getIonChannel());*/
+        for (ChannelDensityNonUniformNernst cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformNernst())
+        {
+            if (ic.containsKey(cd.getIonChannel())) {ic.put(cd.getIonChannel(), new Float[]{-1f,-1f});}
+            //float densSi = cd.getCondDensity();
+        }
+        
+        return ic;
+    }
+    
+    
+    // Could be moved elsewhere...
+    /**
+    * Gets an RGB value for ion: Na, Ca, etc. for GUIs, traces etc.
+    * 
+    * @returns int[] with RGB value (3 x 0-255)
+    */
+    public static int[] getIonColor(String ion)
+    {
+        int[] col;
+        if (ion.toLowerCase().equals("na")) 
+            col=new int[]{30, 144, 255};
+        else if (ion.toLowerCase().equals("k")) 
+            col=new int[]{ 	205,	92,	92};
+        else if (ion.toLowerCase().equals("ca")) 
+            col=new int[]{ 	143,	188,	143};
+        else
+            col=new int[]{ 	169,	169,	169};
+            
+        return col;
+    }
+    
+    
+    /**
+    * Gets an image of a scalebar in SVG representing the conductance density of a named ion
+    * 
+    * @returns String with SVG
+    */
+    public static String getSvgScale(float min, float max, String ion)
+    {
+        int[] col = getIonColor(ion);
+        return getSvgScale(min, max, col[0], col[1], col[2]);
+    }
+    
+    /**
+    * Gets an image of a scalebar in SVG representing the conductance density of a named ion
+    * 
+    * @returns String with SVG
+    */
+    public static String getSvgScale(float min, float max, int r, int g, int b)
+    {
+        int height=18;
+        int width_o=18;
+        int order = 8;
+        int width=width_o*order;
+        float start = -2;
+        float stop = start+order;
+        float lmin = (float)Math.log10(min);
+        float lmax = (float)Math.log10(max);
+        float xmin = width*(lmin-start)/order;
+        float xmax = width*(lmax-start)/order;
+        
+        StringBuilder sb = new StringBuilder("<svg width=\""+width+"\" height=\""+height+"\">\n");
+        sb.append("<rect width=\""+width+"\" height=\""+height+"\" style=\"fill:rgb("+r+","+g+","+b+");stroke-width:0;stroke:rgb(10,10,10)\"/>\n");
+        for (int i=1;i<order;i++)
+        {
+            int x=width_o*i;
+            sb.append("<line x1=\""+x+"\" y1=\"0\" x2=\""+x+"\" y2=\""+height+"\" style=\"stroke:rgb(100,100,100);stroke-width:0.5\" />\n");
+        }
+        if(xmin==xmax)
+        {
+            sb.append("<circle cx=\""+xmin+"\" cy=\""+(height/2)+"\" r=\"2\" style=\"stroke:red;fill:red;stroke-width:2\" />\n");
+        }
+        else
+        {
+            sb.append("<line x1=\""+xmin+"\" y1=\""+(height/2)+"\" x2=\""+xmax+"\" y2=\""+(height/2)+"\" style=\"stroke:black;stroke-width:1\" />\n");
+            sb.append("<circle cx=\""+xmin+"\" cy=\""+(height/2)+"\" r=\"2\" style=\"stroke:yellow;fill:yellow;stroke-width:2\" />\n");
+            sb.append("<circle cx=\""+xmax+"\" cy=\""+(height/2)+"\" r=\"2\" style=\"stroke:red;fill:red;stroke-width:2\" />\n");
+        }
+        sb.append("</svg>\n");
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+    * Sorts a list of Nodes
+    * 
+    */
+    private static <T extends Node> void sortNodes(List<T> l) 
+    {
+        if (l!=null)
+        {
+            Collections.sort(l, new Comparator<T>(){
+                @Override
+                public int compare(T o1, T o2){
+                    if(o1.getId().equals(o2.getId()))
+                        return 0;
+                    return o1.getId().compareTo(o2.getId());
+                }
+           });
+        }
+    }
+    
+    /**
+    * Temporary method to guess at ion from name of ion channel
+    * It would be better to get ion attribute from channelDensity...
+    */
+    private String getIon(String ionChannel)
+    {
+        String ion = "";
+        if (ionChannel.startsWith("na"))
+            ion="na";
+        else if (ionChannel.startsWith("k"))
+            ion="k";
+        else if (ionChannel.startsWith("ca"))
+            ion="ca";
+        else if (ionChannel.startsWith("h"))
+            ion="h";
+        else if (ionChannel.indexOf("na")>0)
+            ion="na";
+        else if (ionChannel.indexOf("k")>0)
+            ion="k";
+        else if (ionChannel.indexOf("ca")>0)
+            ion="ca";
+        else if (ionChannel.indexOf("h")>0)
+            ion="h";
+        else
+            ion="o";
+        return ion;
+    }
 
 	/**
 	 * Create Variable with HTML value for a Cell
@@ -280,16 +477,16 @@ public class PopulateSummaryNodesUtils
 		try
 		{
 			List<Type> cellComponents = typesMap.containsKey(ResourcesDomainType.CELL.get()) ? typesMap.get(ResourcesDomainType.CELL.get()) : null;
+            sortNodes(cellComponents);
 
 			if(cellComponents != null && cellComponents.size() > 0)
 			{
 				for(Type cell : cellComponents)
 				{
-					List<Variable> notesComponents = new ArrayList<Variable>();
+					List<Variable> notesComponents = new ArrayList<>();
 					List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL.get()) ? typesMap.get(ResourcesDomainType.IONCHANNEL.get()) : null;
-					List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
-					List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
-
+                    sortNodes(ionChannelComponents);
+                    
 			        EList<Variable> cellVariables = ((CompositeType) cell).getVariables();
                     for (Variable v : cellVariables)
                     {
@@ -308,8 +505,8 @@ public class PopulateSummaryNodesUtils
                         htmlText0.append("<b>Description</b><br/>\n");
                         for (Variable note : notesComponents)
                         {
-                            Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
-                            htmlText0.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(about.getText()) + "</p>\n ");
+                            Text notes = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
+                            htmlText0.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(notes.getText()) + "</p>\n ");
                         }
                         htmlText0.append("<br/>\n");
                     }
@@ -317,6 +514,7 @@ public class PopulateSummaryNodesUtils
                     Variable htmlVariable0 = variablesFactory.createVariable();
                     htmlVariable0.setId(Resources.NOTES.getId());
                     htmlVariable0.setName(Resources.NOTES.get());
+                    Cell nmlCell = null;
 
                     // TODO: replace this hard coding!!
                     for (Izhikevich2007Cell c : neuroMLDocument.getIzhikevich2007Cell())
@@ -350,126 +548,105 @@ public class PopulateSummaryNodesUtils
                     {
                         if (c.getId().equals(cell.getId()))
                         {
+                            nmlCell = c;
                             htmlText0.append("Number of segments: " + c.getMorphology().getSegment().size() + "<br/>\n");
                             htmlText0.append("Number of segment groups: " + c.getMorphology().getSegmentGroup().size() + "<br/><br/>\n");
                         }
                     }
+                    HashMap<String, Float[]> ionChannelInfo = getIonChannelsInCell(nmlCell);
 
-                    // Create HTML Value object and set HTML text
-                    HTML html0 = valuesFactory.createHTML();
-                    if (verbose)
-                    {
-                        System.out.println("========== Cell ============\n" + htmlText0.toString());
-                    }
-                    html0.setHtml(htmlText0.toString());
-                    htmlVariable0.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-                    htmlVariable0.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html0);
-
-                    ((CompositeType) cell).getVariables().add(htmlVariable0);
                     
-
 					if(ionChannelComponents != null && ionChannelComponents.size() > 0)
-					{
-						StringBuilder htmlText = new StringBuilder();
-
-						htmlText.append("<b>Ion channels</b><br/>");
+                    {
+						htmlText0.append("<b>Ion channels</b><br/>\n");
 						for(Type ionChannel : ionChannelComponents)
 						{
-							htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a> | ");
-						}
-						htmlText.append("<br/><br/>");
-
-						Variable htmlVariable = variablesFactory.createVariable();
-						htmlVariable.setId(Resources.ION_CHANNEL.getId());
-						htmlVariable.setName(Resources.ION_CHANNEL.get());
-
-						// Create HTML Value object and set HTML text
-						HTML html = valuesFactory.createHTML();
-						html.setHtml(htmlText.toString());
-						htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-						htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
-
-						((CompositeType) cell).getVariables().add(htmlVariable);
+                            if (ionChannelInfo.keySet().contains(ionChannel.getId())) 
+                            {
+                                htmlText0.append("<a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">" + ionChannel.getName() + "</a>");
+                                if (!ionChannel.getId().equals(ionChannelComponents.get(ionChannelComponents.size()-1).getId()))
+                                    htmlText0.append(" |\n");
+                            }
+                        }
+						htmlText0.append("<br/><br/>\n");
 					}
 
-					if(synapseComponents != null && synapseComponents.size() > 0)
-					{
-						StringBuilder htmlText = new StringBuilder();
-
-						htmlText.append("<b>Synapses</b><br/>");
-						for(Type synapse : synapseComponents)
-						{
-							htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getName() + "</a> | ");
-						}
-						htmlText.append("<br/><br/>");
-
-						Variable htmlVariable = variablesFactory.createVariable();
-						htmlVariable.setId(Resources.SYNAPSE.getId());
-						htmlVariable.setName(Resources.SYNAPSE.get());
-
-						// Create HTML Value object and set HTML text
-						HTML html = valuesFactory.createHTML();
-						html.setHtml(htmlText.toString());
-						htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-						htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
-
-						((CompositeType) cell).getVariables().add(htmlVariable);
-					}
 
 					// Add Visual Group to model cell description
 					VisualType visualType = cell.getVisualType();
 					if(visualType != null)
 					{
 						List<VisualGroup> visualGroups = ((CompositeVisualType) visualType).getVisualGroups();
+                        //sortNodes(visualGroups);
 						if(visualGroups != null && visualGroups.size() > 0)
 						{
-							StringBuilder htmlText = new StringBuilder();
-
-							htmlText.append("<b>Click to apply colouring to the cell morphology</b><br/>");
+							htmlText0.append("\n<b>Click to apply colouring to the cell morphology</b><br/>\n");
+                            
+							htmlText0.append("\n<table>\n");
+                            HashMap<String, String> ionsVsHtml = new HashMap<>();
+                            ionsVsHtml.put("na", "");
+                            ionsVsHtml.put("k", "");
+                            ionsVsHtml.put("ca", "");
+                            ionsVsHtml.put("h", "");
+                            ionsVsHtml.put("o", "");
 							for(VisualGroup visualGroup : visualGroups)
 							{
-								htmlText.append("<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">Highlight " + visualGroup.getName()
-										+ "</a> | ");
+                                
+                                if(visualGroup.getName().equals("Cell Regions"))
+                                {
+                                    htmlText0.append("<tr><td>\n<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() 
+                                        + "\">Highlight " + visualGroup.getName()+ "</a> ");
+                                    htmlText0.append("( <b><span style=\"color:#"+ModelInterpreterVisualConstants.SOMA_COLOR.substring(2)+"\">soma</span>, "+
+                                        "<span style=\"color:#"+ModelInterpreterVisualConstants.DENDRITES_COLOR.substring(2)+"\">dendrites</span>, "
+                                        +"<span style=\"color:#"+ModelInterpreterVisualConstants.AXONS_COLOR.substring(2)+"\">axon</span></b> )\n");
+                                    
+                                    htmlText0.append("<td/><tr/>\n");
+                                }
+                                else 
+                                {
+                                    String ion = getIon(visualGroup.getName().toLowerCase());
+                                    
+                                    String info = ("<tr><td>\n<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() 
+                                        + "\">Highlight " + visualGroup.getName()+ "</a> \n");
+                                    
+                                    Float[] minMax = ionChannelInfo.get(visualGroup.getName());
+                                    if (minMax==null) {minMax = new Float[]{-2f,-1f};};
+                                    String min = minMax[0].intValue()!=minMax[0].floatValue() ? minMax[0].toString() : minMax[0].intValue()+"";
+                                    String max = minMax[1].intValue()!=minMax[1].floatValue() ? minMax[1].toString() : minMax[1].intValue()+"";
+                                    info += "( ";
+                                    info+="<span style=\"color:#"+ModelInterpreterVisualConstants.HIGH_SPECTRUM.substring(2)+"\">"+min+" S/m2</span>";
+                                    if (!min.equals(max))
+                                        info+= " -> <span style=\"color:#"+ModelInterpreterVisualConstants.LOW_SPECTRUM.substring(2)+"\">"+max+" S/m2</span>";
+                                    info+= ", <span style=\"color:#FFFFFF\">none</span> )";
+                                    info+= " <td/>\n<td>\n"+getSvgScale(minMax[0], minMax[1], ion);
+                                    
+                                    info += ("<td/><tr/>\n");
+                                    ionsVsHtml.put(ion, ionsVsHtml.get(ion)+ info);
+                                    
+                                }
 							}
-							htmlText.append("<br/><br/>");
-
-							Variable htmlVariable = variablesFactory.createVariable();
-							htmlVariable.setId(visualType.getId());
-							htmlVariable.setName(visualType.getName());
-
-							// Create HTML Value object and set HTML text
-							HTML html = valuesFactory.createHTML();
-							html.setHtml(htmlText.toString());
-							htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-							htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
-
-							((CompositeType) cell).getVariables().add(htmlVariable);
+                            htmlText0.append(ionsVsHtml.get("na"));
+                            htmlText0.append(ionsVsHtml.get("k"));
+                            htmlText0.append(ionsVsHtml.get("ca"));
+                            htmlText0.append(ionsVsHtml.get("h"));
+                            htmlText0.append(ionsVsHtml.get("o"));
+                            
+							htmlText0.append("</table><br/><br/>");
 						}
 					}
+                    
+                    // Create HTML Value object and set HTML text
+                    HTML html0 = valuesFactory.createHTML();
+                    if (verbose)
+                    {
+                        System.out.println("========== Cell ============\n" + htmlText0.toString());
+                    }
+                    
+                    html0.setHtml(htmlText0.toString());
+                    htmlVariable0.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+                    htmlVariable0.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html0);
 
-					if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
-					{
-						StringBuilder htmlText = new StringBuilder();
-						// FIXME: Pulse generator? InputList? ExplicitList?
-						htmlText.append("<b>Inputs</b><br/>");
-						for(Type pulseGenerator : pulseGeneratorComponents)
-						{
-							htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
-						}
-						htmlText.append("<br/>");
-
-						Variable htmlVariable = variablesFactory.createVariable();
-						htmlVariable.setId(Resources.PULSE_GENERATOR.getId());
-						htmlVariable.setName(Resources.PULSE_GENERATOR.get());
-
-						// Create HTML Value object and set HTML text
-						HTML html = valuesFactory.createHTML();
-						html.setHtml(htmlText.toString());
-						htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
-						htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
-
-						((CompositeType) cell).getVariables().add(htmlVariable);
-					}
+                    ((CompositeType) cell).getVariables().add(htmlVariable0);
 				}
 			}
 		}
@@ -481,13 +658,14 @@ public class PopulateSummaryNodesUtils
     
     private String formatDescription(String desc) 
     {
+        desc = parseForHyperlinks(desc);
         desc = desc.replaceAll("\n", "<br/>\n");
-        return parseForHyperlinks(desc);
+        return desc;
     }
     
     private static String replaceToken(String line, String oldToken, String newToken, int fromIndex)
     {
-        StringBuffer sb = new StringBuffer(line);
+        StringBuilder sb = new StringBuilder(line);
         sb.replace(line.indexOf(oldToken, fromIndex), line.indexOf(oldToken, fromIndex)+oldToken.length(), newToken);
         return sb.toString();
     }
@@ -516,7 +694,7 @@ public class PopulateSummaryNodesUtils
                     url=url.substring(0,url.length()-1);
                 }
 
-                String link = "<a href=\""+url+"\"  target=\"_blank\">"+url+"</a>";
+                String link = "<u><i><a href=\""+url+"\"  target=\"_blank\">"+url+"</a></i></u>";
 
                 text = replaceToken(text, url, link, start);
 
@@ -528,7 +706,7 @@ public class PopulateSummaryNodesUtils
     
     private void extractDescription(Type t, StringBuilder htmlText) throws GeppettoVisitingException
     {
-        List<Variable> notesComponents = new ArrayList<Variable>();
+        List<Variable> notesComponents = new ArrayList<>();
 
         EList<Variable> channelVariables = ((CompositeType) t).getVariables();
         for(Variable v : channelVariables)
@@ -543,8 +721,8 @@ public class PopulateSummaryNodesUtils
             htmlText.append("<b>Description</b><br/>\n");
             for(Variable note : notesComponents)
             {
-                Text about = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
-                htmlText.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(about.getText()) + "</p> ");
+                Text notes = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
+                htmlText.append("<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(notes.getText()) + "</p> ");
             }
             htmlText.append("<br/>\n");
         }
@@ -553,13 +731,12 @@ public class PopulateSummaryNodesUtils
 	private void createChannelsHTMLVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
 	{
 		List<Type> ionChannelComponents = typesMap.containsKey(ResourcesDomainType.IONCHANNEL.get()) ? typesMap.get(ResourcesDomainType.IONCHANNEL.get()) : null;
+        sortNodes(ionChannelComponents);
 
 		if(ionChannelComponents != null && ionChannelComponents.size() > 0)
 		{
 			for(Type ionChannel : ionChannelComponents)
 			{
-				
-
 				StringBuilder htmlText = new StringBuilder();
                 
 			    htmlText.append("<b>Ion channel: </b> <a href=\"#\" instancePath=\"Model.neuroml." + ionChannel.getId() + "\">"+ionChannel.getId()+"</a><br/><br/>\n");
@@ -639,6 +816,7 @@ public class PopulateSummaryNodesUtils
 	private void createSynapsesHTMLVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
 	{
 		List<Type> synapseComponents = typesMap.containsKey(ResourcesDomainType.SYNAPSE.get()) ? typesMap.get(ResourcesDomainType.SYNAPSE.get()) : null;
+        sortNodes(synapseComponents);
 
 		if(synapseComponents != null && synapseComponents.size() > 0)
 		{
@@ -686,6 +864,7 @@ public class PopulateSummaryNodesUtils
 	private void createInputsHTMLVariable() throws ModelInterpreterException, GeppettoVisitingException, NeuroMLException, LEMSException
 	{
 		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
+        sortNodes(pulseGeneratorComponents);
 
 		if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
 		{
@@ -849,5 +1028,27 @@ public class PopulateSummaryNodesUtils
 
 		return variable;
 	}
+    
+    
+	public static void main(String[] args) throws Exception {
+        
+        StringBuilder sb = new StringBuilder("<html>\n<body>\n");
+        sb.append(getSvgScale(0.1f,22,"na"));
+        sb.append("<br/><br/>\n");
+        sb.append(getSvgScale(3333,3333,"k"));
+        sb.append("<br/><br/>\n");
+        sb.append(getSvgScale(0,1,"ca"));
+        sb.append("<br/><br/>\n");
+        sb.append(getSvgScale(1e-1f,1e-2f,"h"));
+        sb.append("<body/>\n<html>\n");
+        System.out.println(sb);
+        String fn = "/tmp/test_svg.html";
+		File f = new File(fn);
+		FileOutputStream fos = new FileOutputStream(f);
+        fos.write(sb.toString().getBytes());
+        System.out.println("Written to: "+f.getAbsolutePath());
+		fos.close();
+        
+    }
 
 }

@@ -63,9 +63,9 @@ public class OptimizedLEMSReader
 		String urlBase = url.toString().substring(0, index + 1);
 		read(url, urlBase); // expand it to have all the inclusions
 
-		// Reading NEUROML file 
+		// Reading NEUROML file
 		// Let's extract first the neuroml file so that if we have an error resolving the lems object at least we have the neuroml doc to validate it against neuroml.model
-		// We will show warning and error instead of an incomprehensible exception 
+		// We will show warning and error instead of an incomprehensible exception
 		long start = System.currentTimeMillis();
 		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 		_neuroMLString = NMLHEADER + System.getProperty("line.separator") + trimOuterElement(getLEMSString()) + System.getProperty("line.separator") + "</neuroml>";
@@ -131,7 +131,7 @@ public class OptimizedLEMSReader
 	 * @throws IOException
 	 * @throws JAXBException
 	 * @throws NeuroMLException
-	 * @throws URISyntaxException 
+	 * @throws URISyntaxException
 	 */
 	private StringBuffer processLEMSInclusions(String documentString, String urlBase) throws IOException, JAXBException, NeuroMLException, URISyntaxException
 	{
@@ -172,7 +172,23 @@ public class OptimizedLEMSReader
 
 			if(!_inclusions.contains(new URI(urlPath).normalize().toString()))
 			{
-				URL url = new URL(urlPath);
+				URL urlToProcess = new URL(urlPath);
+				String domain = null;
+				if(urlToProcess.getProtocol().equals("file"))
+				{
+					domain = "file:///";
+				}
+				else
+				{
+					domain = urlToProcess.getProtocol() + "://";
+				}
+
+				if(urlToProcess.getAuthority() != null)
+				{
+					domain += urlToProcess.getAuthority() + "/";
+				}
+
+				URL url = new URL(new URL(domain), urlToProcess.getPath().substring(1));
 
 				// Check if it's the inclusion of some NML standard component types
 				if(!isNeuroMLInclusion(url.toExternalForm()) && !url.toExternalForm().equals(simulationInclusion) && !url.toExternalForm().endsWith("/" + simulationInclusion))
@@ -209,7 +225,6 @@ public class OptimizedLEMSReader
 			_logger.info("Inclusion iteration completed, took " + (System.currentTimeMillis() - start) + "ms");
 		}
 
-		
 		matcher.appendTail(processedLEMSString);
 		return processedLEMSString;
 	}
