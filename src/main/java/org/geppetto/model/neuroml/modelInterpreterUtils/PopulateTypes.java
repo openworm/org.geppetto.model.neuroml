@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoLibrary;
+import org.geppetto.model.neuroml.utils.CellUtils;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
@@ -38,6 +39,7 @@ import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.ParamValue;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Cell;
+import org.neuroml.model.Segment;
 import org.neuroml.model.Species;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLException;
@@ -225,20 +227,25 @@ public class PopulateTypes
 			{
                             if(!types.containsKey(Resources.COMPARTMENT.getId()) || ((CompositeType) types.get(Resources.COMPARTMENT.getId())).getVariables().size() == 1)
 				{
-
+                                    // we create two compartment types, one with v+spiking only, the other with caConc in addition
                                     if(!types.containsKey(Resources.COMPARTMENT.getId()))
 					{
 						CompositeType compartmentCompositeType = (CompositeType) typeFactory.createType(null);
 						NeuroMLModelInterpreterUtils.initialiseNodeFromString(compartmentCompositeType, Resources.COMPARTMENT.getId());
 						types.put(Resources.COMPARTMENT.getId(), compartmentCompositeType);
+
+                                                CompositeType ca_compartment = (CompositeType) typeFactory.createType(null);
+                                                NeuroMLModelInterpreterUtils.initialiseNodeFromString(ca_compartment, Resources.CA_COMPARTMENT.getId());
+                                                types.put(Resources.CA_COMPARTMENT.getId(), ca_compartment);
 					}
 
-					if(exposure.getName().equals(Resources.POTENTIAL.getId()) || exposure.getName().equals(Resources.SPIKING.getId()))
+                                    if(exposure.getName().equals(Resources.POTENTIAL.getId()) || exposure.getName().equals(Resources.SPIKING.getId()))
 					{
                                             CompositeType compartmentCompositeType = (CompositeType) types.get(Resources.COMPARTMENT.getId());
-						compartmentCompositeType.getVariables().add(
-								ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
+                                            compartmentCompositeType.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
 
+                                            CompositeType ca_compartment = (CompositeType) types.get(Resources.CA_COMPARTMENT.getId());
+                                            ca_compartment.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
 					}
 				}
 			}
@@ -250,7 +257,37 @@ public class PopulateTypes
                                 if (geppettoCellTypesMap.get(compositeType) != null){
                                     for(Species species : geppettoCellTypesMap.get(compositeType).getBiophysicalProperties().getIntracellularProperties().getSpecies()) {
                                         if (species.getId().equals(Resources.CALCIUM.getId())) {
-                                            compositeType.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
+
+                                            // if we have not yet added caConc exposure
+                                            if (((CompositeType) types.get(Resources.CA_COMPARTMENT.getId())).getVariables().size() <= 2)
+                                                {
+                                                    CompositeType ca_compartment = (CompositeType) types.get(Resources.CA_COMPARTMENT.getId());
+                                                    ca_compartment.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(),
+                                                                                                                                       Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
+
+                                                }
+
+                                            Cell cell = getNeuroMLCell(component);
+
+                                            CellUtils cellUtils = new CellUtils(cell);
+                                            List<Segment> ca_segments = cellUtils.getSegmentsInGroup(species.getSegmentGroup());
+
+                                            for (Segment seg : ca_segments)
+                                                {
+                                                    for (Variable compartment : cellSegmentMap.get(component))
+                                                        {
+                                                            if (species.getSegmentGroup() == "all" || (compartment.getId().equals(seg.getName() + "_" + seg.getId())))
+                                                                {
+                                                                    Variable variable = variablesFactory.createVariable();
+                                                                    variable.setName(Resources.getValueById(compartment.getName()));
+                                                                    variable.setId(compartment.getId());
+                                                                    variable.getTypes().add(types.get(Resources.CA_COMPARTMENT.getId()));
+                                                                    compositeType.getVariables().add(variable);
+                                                                }
+                                                        }
+                                                }
+                                            //CompositeType compartmentCompositeType = (CompositeType) types.get(Resources.COMPARTMENT.getId());
+                                            //compartmentCompositeType.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));}
                                         }
                                     }
                                 }

@@ -214,6 +214,7 @@ public enum Resources
 	AXONS("Axons", "axon_group"),
 	DENDRITES("Dendrites", "dendrite_group"),
         COMPARTMENT("Compartment", "compartment"),
+        CA_COMPARTMENT("Compartment with Calcium", "ca_compartment"),
         SPIKING("Spiking", "spiking"),
         POTENTIAL("Potential", "v"),
 	
