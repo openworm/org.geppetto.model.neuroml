@@ -215,6 +215,8 @@ public enum Resources
 	DENDRITES("Dendrites", "dendrite_group"),
         COMPARTMENT("Compartment", "compartment"),
         CA_COMPARTMENT("Compartment with Calcium", "ca_compartment"),
+        ROOT_COMPARTMENT("Root compartment", "root_compartment"),
+        CA_ROOT_COMPARTMENT("Root compartment with Calcium", "ca_root_compartment"),
         SPIKING("Spiking", "spiking"),
         POTENTIAL("Potential", "v"),
 	
