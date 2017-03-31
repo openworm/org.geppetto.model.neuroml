@@ -34,10 +34,28 @@
 package org.geppetto.model.neuroml.test;
 
 import java.io.File;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map.Entry;
 
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.AfterClass;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
+import org.geppetto.model.types.Type;
+import org.geppetto.model.types.ArrayType;
+import org.neuroml.model.util.NeuroMLConverter;
+import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.Population;
+import org.neuroml.model.Projection;
+import org.geppetto.model.DomainModel;
+import org.geppetto.model.types.impl.ArrayTypeImpl;
+
+import org.lemsml.jlems.core.type.Component;
+
 
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
@@ -54,10 +72,51 @@ public class NeuroMLModelInterpreterServiceTest
 	@Test
 	public void testReadModelACnet() throws Exception
 	{
-//		ModelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", "network_ACnet2", new NeuroMLModelInterpreterService());
-		ModelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", null, new NeuroMLModelInterpreterService());
-//		ModelInterpreterTestUtils.serialise("/acnet2/bask.cell.nml", "bask", new NeuroMLModelInterpreterService());
-//		ModelInterpreterTestUtils.serialise("/acnet2/bask.cell.nml", null, new NeuroMLModelInterpreterService());
+                NeuroMLModelInterpreterService nmlModelInterpreter = new NeuroMLModelInterpreterService();
+
+		ModelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", null, nmlModelInterpreter);
+
+                NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+                NeuroMLDocument nmlDoc = neuromlConverter.loadNeuroML(new File("./src/test/resources/acnet2/MediumNet.net.nml"));
+                Type geppettoModel = ModelInterpreterTestUtils.readModel("/acnet2/MediumNet.net.nml", "network_ACnet2", new NeuroMLModelInterpreterService());
+
+                // Make some comparisons between read Geppetto model and NeuroML document as read by org.neuroml.model
+                assertEquals(nmlDoc.getId(), geppettoModel.getId());
+
+                // Populations (compare id and size)
+                List<Population> docPopulations = nmlDoc.getNetwork().get(0).getPopulation();
+                Set<Entry<String, Integer>> docPopSummary = new HashSet<Entry<String, Integer>>();
+                for (Population pop : docPopulations) {
+                    docPopSummary.add(new SimpleEntry<String,Integer>(pop.getId(), pop.getSize()));
+                }
+
+                List<Type> modelPopulations = nmlModelInterpreter.getPopulateTypes().getTypesMap().get("population");
+                Set<Entry<String, Integer>> modelPopSummary = new HashSet<Entry<String, Integer>>();
+                for (Type pop : modelPopulations) {
+                    ArrayType popArray = (ArrayType) pop;
+                    modelPopSummary.add(new SimpleEntry<String,Integer>(popArray.getId(), popArray.getSize()));
+                }
+
+                assertEquals(modelPopSummary, docPopSummary);
+
+                // Projections (compare id and size of connections list)
+                List<Projection> docProjections = nmlDoc.getNetwork().get(0).getProjection();
+                Set<Entry<String, Integer>> docProjSummary = new HashSet<Entry<String, Integer>>();
+                for (Projection proj : docProjections) {
+                    docProjSummary.add(new SimpleEntry<String,Integer>(proj.getId(), proj.getConnection().size()));
+                }
+
+                List<Type> modelProjections = nmlModelInterpreter.getPopulateTypes().getTypesMap().get("projection");
+                Set<Entry<String, Integer>> modelProjSummary = new HashSet<Entry<String, Integer>>();
+                for (Type proj : modelProjections) {
+                    Component projComponent = (Component) proj.getDomainModel().getDomainModel();
+                    modelProjSummary.add(new SimpleEntry<String,Integer>(projComponent.getID(), projComponent.getStrictChildren().size()));
+                }
+
+                assertEquals(modelProjSummary, docProjSummary);
+
+                // Compare to model read from HDF5
+                // ...
 	}
 
 	/**
@@ -77,22 +136,6 @@ public class NeuroMLModelInterpreterServiceTest
 	{
 		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
 //		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", null, new NeuroMLModelInterpreterService());
-	}
-
-
-	@AfterClass
-	public static void doYourOneTimeTeardown()
-	{
-		File acnet2 = new File("./src/test/resources/MediumNet.net.nml.xmi");
-		acnet2.delete();
-//		File bask = new File("./src/test/resources/bask.cell.nml.xmi");
-//		bask.delete();
-
-//		File pvdr = new File("./src/test/resources/PVDR.nml.xmi");
-//		pvdr.delete();
-
-		File ca1 = new File("./src/test/resources/BigCA1.net.nml.xmi");
-		ca1.delete();
 	}
 
 }

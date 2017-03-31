@@ -306,6 +306,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return this.neuroMLModelInterpreterConfig.getModelInterpreterName();
 	}
 
+    public PopulateTypes getPopulateTypes()
+    {
+        return this.populateTypes;
+    }
+
 	@Override
 	public void registerGeppettoService()
 	{
