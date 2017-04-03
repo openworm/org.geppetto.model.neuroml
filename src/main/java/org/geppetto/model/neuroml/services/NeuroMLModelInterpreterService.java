@@ -59,6 +59,7 @@ import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
+import org.geppetto.model.neuroml.features.DefaultViewCustomiserFeature;
 import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateTypes;
 import org.geppetto.model.neuroml.summaryUtils.PopulateSummaryNodesUtils;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
@@ -150,8 +151,8 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 			}
 
-			// Add LEMS Parameter Feature
 			this.addFeature(new LEMSParametersFeature());
+                        this.addFeature(new DefaultViewCustomiserFeature());
 			this.access = access;
 
 			long endTime = System.currentTimeMillis();
