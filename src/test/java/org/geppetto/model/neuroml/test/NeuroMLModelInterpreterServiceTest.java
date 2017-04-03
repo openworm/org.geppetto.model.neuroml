@@ -41,6 +41,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
+import org.junit.Before;
 import org.junit.AfterClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -63,22 +64,27 @@ import org.lemsml.jlems.core.type.Component;
  */
 public class NeuroMLModelInterpreterServiceTest
 {
+    private ModelTester mTest;
 
+    @Before
+    public void oneTimeSetUp() {
+        mTest = new ModelTester();
+    }
 	/**
 	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
 	 * 
 	 * @throws Exception
 	 */
-	@Test
-	public void testReadModelACnet() throws Exception
+    private class ModelTester {
+        public void testModelInterpretation(String modelPath, String typeId) throws Exception
 	{
                 NeuroMLModelInterpreterService nmlModelInterpreter = new NeuroMLModelInterpreterService();
 
-		ModelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", null, nmlModelInterpreter);
+                ModelInterpreterTestUtils.serialise(modelPath, typeId, nmlModelInterpreter);
 
                 NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-                NeuroMLDocument nmlDoc = neuromlConverter.loadNeuroML(new File("./src/test/resources/acnet2/MediumNet.net.nml"));
-                Type geppettoModel = ModelInterpreterTestUtils.readModel("/acnet2/MediumNet.net.nml", "network_ACnet2", new NeuroMLModelInterpreterService());
+                NeuroMLDocument nmlDoc = neuromlConverter.loadNeuroML(new File("./src/test/resources" + modelPath));
+                Type geppettoModel = ModelInterpreterTestUtils.readModel(modelPath, typeId, new NeuroMLModelInterpreterService());
 
                 // Make some comparisons between read Geppetto model and NeuroML document as read by org.neuroml.model
                 assertEquals(nmlDoc.getId(), geppettoModel.getId());
@@ -108,16 +114,22 @@ public class NeuroMLModelInterpreterServiceTest
 
                 List<Type> modelProjections = nmlModelInterpreter.getPopulateTypes().getTypesMap().get("projection");
                 Set<Entry<String, Integer>> modelProjSummary = new HashSet<Entry<String, Integer>>();
-                for (Type proj : modelProjections) {
-                    Component projComponent = (Component) proj.getDomainModel().getDomainModel();
-                    modelProjSummary.add(new SimpleEntry<String,Integer>(projComponent.getID(), projComponent.getStrictChildren().size()));
-                }
 
-                assertEquals(modelProjSummary, docProjSummary);
+                try {
+                    for (Type proj : modelProjections) {
+                        Component projComponent = (Component) proj.getDomainModel().getDomainModel();
+                        modelProjSummary.add(new SimpleEntry<String,Integer>(projComponent.getID(), projComponent.getStrictChildren().size()));
+                    }
+
+                    assertEquals(modelProjSummary, docProjSummary);
+                } catch (NullPointerException e) {
+                    // no projections
+                }
 
                 // Compare to model read from HDF5
                 // ...
 	}
+    }
 
 	/**
 	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
@@ -127,15 +139,22 @@ public class NeuroMLModelInterpreterServiceTest
 	@Test
 	public void testReadModelPVDR() throws Exception
 	{
-//		ModelInterpreterTestUtils.serialise("/pvdr/PVDR.nml", "PVDR", new NeuroMLModelInterpreterService());
-//		ModelInterpreterTestUtils.serialise("/pvdr/PVDR.nml", null, new NeuroMLModelInterpreterService());
+            //mTest.testModelInterpretation("/pvdr/PVDR.nml", "PVDR");
+            //ModelInterpreterTestUtils.serialise("/pvdr/PVDR.nml", "PVDR", new NeuroMLModelInterpreterService());
+            //ModelInterpreterTestUtils.serialise("/pvdr/PVDR.nml", null, new NeuroMLModelInterpreterService());
 	}
+
+        @Test
+        public void testAcnet2() throws Exception
+        {
+            mTest.testModelInterpretation("/acnet2/MediumNet.net.nml", null);
+        }
 
 	@Test
 	public void testCA1() throws Exception
 	{
-		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
-//		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", null, new NeuroMLModelInterpreterService());
+            //ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
+            mTest.testModelInterpretation("/ca1/BigCA1.net.nml", null);
 	}
 
 }
