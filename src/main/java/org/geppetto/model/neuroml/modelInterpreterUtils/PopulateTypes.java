@@ -504,7 +504,11 @@ public class PopulateTypes
 					arrayValue.getElements().add(arrayElement);
 
 					size++;
-				}
+				} else if (populationChild.getDeclaredType().equals("annotation"))
+                                    {
+                                        // extract population annotation
+                                        NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(refCompositeType, populationChild, access);
+                                    }
 			}
 			arrayType.setSize(size);
 		}
