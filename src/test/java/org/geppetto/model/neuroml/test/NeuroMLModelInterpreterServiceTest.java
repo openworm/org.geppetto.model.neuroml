@@ -52,10 +52,11 @@ import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Population;
 import org.neuroml.model.Projection;
-import org.geppetto.model.DomainModel;
-import org.geppetto.model.types.impl.ArrayTypeImpl;
+
+import org.geppetto.model.values.ArrayElement;
 
 import org.lemsml.jlems.core.type.Component;
+import org.neuroml.model.Instance;
 
 
 /**
@@ -88,22 +89,42 @@ public class NeuroMLModelInterpreterServiceTest
 
                 // Make some comparisons between read Geppetto model and NeuroML document as read by org.neuroml.model
                 assertEquals(nmlDoc.getId(), geppettoModel.getId());
+                System.out.println("Comparing NML model "+nmlDoc.getId()+" to Geppetto: "+geppettoModel.getId());
 
                 // Populations (compare id and size)
                 List<Population> docPopulations = nmlDoc.getNetwork().get(0).getPopulation();
                 Set<Entry<String, Integer>> docPopSummary = new HashSet<Entry<String, Integer>>();
+                Set<Entry<Integer, String>> docPosSummary = new HashSet<Entry<Integer, String>>();
+                
                 for (Population pop : docPopulations) {
                     docPopSummary.add(new SimpleEntry<String,Integer>(pop.getId(), pop.getSize()));
+                    if (!pop.getInstance().isEmpty())
+                    {
+                        Instance inst = pop.getInstance().get(0);
+                        docPosSummary.add(new SimpleEntry<Integer,String>(inst.getId().intValue(), "("+inst.getLocation().getX()+","+inst.getLocation().getY()+","+inst.getLocation().getZ()+")"));
+                    }
                 }
 
                 List<Type> modelPopulations = nmlModelInterpreter.getPopulateTypes().getTypesMap().get("population");
+                
                 Set<Entry<String, Integer>> modelPopSummary = new HashSet<Entry<String, Integer>>();
+                Set<Entry<Integer, String>> modelPosSummary = new HashSet<Entry<Integer, String>>();
+                
                 for (Type pop : modelPopulations) {
                     ArrayType popArray = (ArrayType) pop;
                     modelPopSummary.add(new SimpleEntry<String,Integer>(popArray.getId(), popArray.getSize()));
+                    ArrayElement el = popArray.getDefaultValue().getElements().get(0);
+                    modelPosSummary.add(new SimpleEntry<Integer,String>(el.getIndex(), "("+(float)el.getPosition().getX()+","+(float)el.getPosition().getY()+","+(float)el.getPosition().getZ()+")"));
                 }
-
+                
+                
+                System.out.println("modelPopSummary: "+ modelPopSummary);
+                System.out.println("modelPosSummary: "+ modelPosSummary);
+                System.out.println("docPopSummary: "+ docPopSummary);
+                System.out.println("docPosSummary: "+ docPosSummary);
+                
                 assertEquals(modelPopSummary, docPopSummary);
+                assertEquals(modelPosSummary, docPosSummary);
 
                 // Projections (compare id and size of connections list)
                 List<Projection> docProjections = nmlDoc.getNetwork().get(0).getProjection();
