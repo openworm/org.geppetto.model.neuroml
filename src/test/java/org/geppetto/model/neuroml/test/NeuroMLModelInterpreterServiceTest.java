@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
@@ -128,18 +129,20 @@ public class NeuroMLModelInterpreterServiceTest
 
                 // Projections (compare id and size of connections list)
                 List<Projection> docProjections = nmlDoc.getNetwork().get(0).getProjection();
-                Set<Entry<String, Integer>> docProjSummary = new HashSet<Entry<String, Integer>>();
+                
+                HashMap<String, Integer> docProjSummary = new HashMap<String, Integer>();
                 for (Projection proj : docProjections) {
-                    docProjSummary.add(new SimpleEntry<String,Integer>(proj.getId(), proj.getConnection().size()));
+                    docProjSummary.put(proj.getId(), proj.getConnection().size()+proj.getConnectionWD().size());
                 }
 
                 List<Type> modelProjections = nmlModelInterpreter.getPopulateTypes().getTypesMap().get("projection");
-                Set<Entry<String, Integer>> modelProjSummary = new HashSet<Entry<String, Integer>>();
+                HashMap<String, Integer> modelProjSummary = new HashMap<String, Integer>();
 
                 try {
                     for (Type proj : modelProjections) {
                         Component projComponent = (Component) proj.getDomainModel().getDomainModel();
-                        modelProjSummary.add(new SimpleEntry<String,Integer>(projComponent.getID(), projComponent.getStrictChildren().size()));
+                        modelProjSummary.put(projComponent.getID(), projComponent.getStrictChildren().size());
+                        System.out.println(projComponent.getID()+" = "+projComponent.getStrictChildren().size()+" = "+docProjSummary.get(projComponent.getID()));
                     }
 
                     assertEquals(modelProjSummary, docProjSummary);
@@ -176,6 +179,13 @@ public class NeuroMLModelInterpreterServiceTest
 	{
             //ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
             mTest.testModelInterpretation("/ca1/BigCA1.net.nml", null);
+	}
+
+	@Test
+	public void testTraub() throws Exception
+	{
+            //ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
+            mTest.testModelInterpretation("/traub/TestSmall.net.nml", null);
 	}
 
 }
