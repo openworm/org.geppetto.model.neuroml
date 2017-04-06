@@ -152,6 +152,8 @@ public class NeuroMLModelInterpreterUtils
 	 */
 	public static Point getPointAtFractionAlong(Cell neuroMLCell, String segmentId, String fractionAlong) throws NumberFormatException, NeuroMLException
 	{
+        if (neuroMLCell==null)
+            return null;
 		if(fractionAlong != null)
 		{
 			Point point = ValuesFactory.eINSTANCE.createPoint();
