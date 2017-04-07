@@ -108,6 +108,15 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private GeppettoModelAccess access;
 	private OptimizedLEMSReader reader = null;
 
+	public NeuroMLModelInterpreterService()
+	{
+		super();
+		
+		// add features when the service is created
+        this.addFeature(new LEMSParametersFeature());
+        this.addFeature(new DefaultViewCustomiserFeature());
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -121,9 +130,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		if(this.reader == null)
 		{
 			Type type = null;
-
-                        this.addFeature(new LEMSParametersFeature());
-                        this.addFeature(new DefaultViewCustomiserFeature());
 
 			// Read the neuroml/lems model and includes
 			// if there is a neuroml/lems exception -> call NeuroML Validator in order to get a good explanation for the user
