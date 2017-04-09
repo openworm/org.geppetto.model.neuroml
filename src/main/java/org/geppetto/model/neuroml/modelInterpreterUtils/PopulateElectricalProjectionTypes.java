@@ -51,7 +51,7 @@ public class PopulateElectricalProjectionTypes extends APopulateProjectionTypes
 				{
 					CompositeType anonymousCompositeType;
 
-					anonymousCompositeType = populateTypes.extractInfoFromComponent(projectionChild, null);
+					anonymousCompositeType = populateTypes.extractInfoFromComponent(projectionChild);
 
 					if(anonymousCompositeType != null)
 					{
