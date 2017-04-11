@@ -344,11 +344,18 @@ public class PopulateTypes
                         }
                 }
 
-		_logger.info("Creating composite type for " + component.getID() + ", took " + (System.currentTimeMillis() - start) + "ms");
+		//_logger.info("Creating composite type for " + component.getID() + ", took " + (System.currentTimeMillis() - start) + "ms");
 
 		return compositeType;
 
 	}
+
+    protected NetworkHelper getNetworkHelper()
+    {
+        return networkHelper;
+    }
+        
+        
 
 	/**
 	 * @param projection
@@ -485,7 +492,7 @@ public class PopulateTypes
 		// If it is not of type populationList we don't have to do anything in particular
 		if(populationType != null && populationType.equals("populationList"))
 		{
-
+            
 			int size = 0;
             int expSize = networkHelper.getPopulationSize(populationComponent.getID());
 			for(int i=0; i<expSize;i++)
