@@ -59,6 +59,7 @@ import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.geppetto.model.neuroml.summaryUtils.PopulateSummaryNodesUtils;
 import org.geppetto.model.types.Type;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.neuroml.model.NeuroMLDocument;
 
@@ -68,11 +69,19 @@ import org.neuroml.model.NeuroMLDocument;
  */
 public class PopulateSummaryNodesUtilsTest
 {
+	
     /*
        This is really just a helper class to allow update/testing of generated HTML in
        PopulateSummaryNodesUtils without deploying every time to Geppetto
     */
-
+	private ModelInterpreterTestUtils modelInterpreterTestUtils;
+	
+	@Before
+	public void oneTimeSetUp()
+	{
+		modelInterpreterTestUtils = new ModelInterpreterTestUtils();
+	}
+	
     public static void testSummary(String modelPath, String typeName, IModelInterpreter modelInterpreter) throws Exception
     {
         GeppettoFactory geppettoFactory = GeppettoFactory.eINSTANCE;
@@ -119,9 +128,9 @@ public class PopulateSummaryNodesUtilsTest
     @Test
     public void testModelACnet() throws Exception
     {
-        ModelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", null, new NeuroMLModelInterpreterService());
+        modelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", null, new NeuroMLModelInterpreterService());
         System.out.println("============================================");
-        ModelInterpreterTestUtils.serialise("/acnet2/pyr_4_sym.cell.nml", null, new NeuroMLModelInterpreterService());
+        modelInterpreterTestUtils.serialise("/acnet2/pyr_4_sym.cell.nml", null, new NeuroMLModelInterpreterService());
     }
 
 

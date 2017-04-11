@@ -406,4 +406,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return supportedOutputs;
 	}
 
+    public GeppettoModelAccess getAccess()
+    {
+        return access;
+    }
+
 }

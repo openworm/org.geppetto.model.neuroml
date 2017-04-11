@@ -37,11 +37,14 @@ package org.geppetto.model.neuroml.test;
 import java.io.File;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateProjectionTypes;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,16 +52,21 @@ import static org.junit.Assert.*;
 
 import org.geppetto.model.types.Type;
 import org.geppetto.model.types.ArrayType;
+import org.geppetto.model.types.CompositeType;
+import org.geppetto.model.types.ImportType;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Population;
 import org.neuroml.model.Projection;
 
 import org.geppetto.model.values.ArrayElement;
-
+import org.geppetto.model.variables.Variable;
 import org.lemsml.jlems.core.type.Component;
+import org.lemsml.jlems.core.type.ComponentType;
+import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Instance;
 import org.neuroml.model.util.hdf5.NeuroMLHDF5Reader;
+
 
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
@@ -86,9 +94,10 @@ public class NeuroMLModelInterpreterServiceTest
 
         public void testModelInterpretation(String modelPath, String typeId) throws Exception
         {
-            NeuroMLModelInterpreterService nmlModelInterpreter = new NeuroMLModelInterpreterService();
-
-            ModelInterpreterTestUtils.serialise(modelPath, typeId, nmlModelInterpreter);
+        	NeuroMLModelInterpreterService nmlModelInterpreter = new NeuroMLModelInterpreterService();
+        	ModelInterpreterTestUtils modelInterpreterTestUtils = new ModelInterpreterTestUtils(nmlModelInterpreter);
+            
+            modelInterpreterTestUtils.serialise(modelPath, typeId);
 
             NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 
@@ -104,8 +113,9 @@ public class NeuroMLModelInterpreterServiceTest
                 nmlDoc = nmlH5.parse(file, true);
             }
 
-            Type geppettoModel = ModelInterpreterTestUtils.readModel(modelPath, typeId, new NeuroMLModelInterpreterService());
-
+            NeuroMLModelInterpreterService nmlModelInterpreter2 = new NeuroMLModelInterpreterService();
+            Type geppettoModel = modelInterpreterTestUtils.readModel(modelPath, typeId, nmlModelInterpreter2);
+        	
             // Make some comparisons between read Geppetto model and NeuroML document as read by org.neuroml.model
             assertEquals(nmlDoc.getId(), geppettoModel.getId());
             System.out.println("Comparing NML model " + nmlDoc.getId() + " to Geppetto: " + geppettoModel.getId());
@@ -159,15 +169,23 @@ public class NeuroMLModelInterpreterServiceTest
                 docProjSummary.put(proj.getId(), total);
             }
 
-            List<Type> modelProjections = nmlModelInterpreter.getPopulateTypes().getTypesMap().get("projection");
             HashMap<String, Integer> modelProjSummary = new HashMap<String, Integer>();
-
+            PopulateProjectionTypes ppt = new PopulateProjectionTypes(nmlModelInterpreter.getPopulateTypes(), nmlModelInterpreter.getAccess(), modelInterpreterTestUtils.getLibrary());
             try
             {
+                List<Type> modelProjections = new ArrayList<Type>(nmlModelInterpreter.getPopulateTypes().getTypesMap().get("projection"));
                 for (Type proj : modelProjections)
                 {
                     Component projComponent = (Component) proj.getDomainModel().getDomainModel();
-                    modelProjSummary.put(projComponent.getID(), projComponent.getStrictChildren().size());
+                    CompositeType resolvedProj = (CompositeType) ppt.resolveProjectionImportType(projComponent, (ImportType) proj);
+
+                    int resolvedProjSize = 0;
+                    for (Variable var : resolvedProj.getVariables())
+                    	if (var.getId().startsWith("id"))
+                    		resolvedProjSize++;
+
+                    modelProjSummary.put(resolvedProj.getId(), resolvedProjSize);
+
                     System.out.println(projComponent.getID() + " = " + projComponent.getStrictChildren().size() + " = " + docProjSummary.get(projComponent.getID()));
                 }
 
@@ -177,7 +195,6 @@ public class NeuroMLModelInterpreterServiceTest
             {
                 // no projections
             }
-
             // Compare to model read from HDF5
             // ...
         }
@@ -201,7 +218,7 @@ public class NeuroMLModelInterpreterServiceTest
     @Test
     public void testAcnet2HDF5() throws Exception
     {
-        mTest.testModelInterpretation("/acnet2/MediumNet.net.nml", null);
+        mTest.testModelInterpretation("/acnet2/MediumNet.net.nml.h5", null);
     }
     
     @Test
