@@ -206,17 +206,24 @@ public class OptimizedLEMSReader
 					try
 					{
 						_inclusions.add(new URI(urlPath).normalize().toString());
-						dependentModels.add(new URL(urlPath));
 						String s = URLReader.readStringFromURL(url);
 
 						// If it is file and is not found, try to read at url base + file name
 						if(s.equals("") && kind.equals("file"))
 						{
-							urlPath = urlBase + urlPath.replace("file:///", "");
+							//a relative path has a / at the beginning, let's check for it and 
+							//remove it to avoid having an extra / that throws file not found exception
+							String urlPathBase = urlPath.replace("file:///", "");
+							if(urlPathBase.charAt(0)=='/'){
+								urlPathBase = urlPathBase.substring(1, urlPathBase.length());
+							}
+							urlPath = urlBase +urlPathBase ;
 							url = new URL(urlPath);
 							_inclusions.add(new URI(urlPath).normalize().toString());
 							s = URLReader.readStringFromURL(url);
 						}
+
+						dependentModels.add(new URL(urlPath));
 
 						int index = url.toString().lastIndexOf('/');
 						String newUrlBase = url.toString().substring(0, index + 1);
