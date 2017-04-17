@@ -48,7 +48,7 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 				}
 				else
 				{
-					CompositeType anonymousCompositeType = populateTypes.extractInfoFromComponent(projectionChild, null);
+					CompositeType anonymousCompositeType = populateTypes.extractInfoFromComponent(projectionChild);
 					if(anonymousCompositeType != null)
 					{
 						Variable variable = variablesFactory.createVariable();
