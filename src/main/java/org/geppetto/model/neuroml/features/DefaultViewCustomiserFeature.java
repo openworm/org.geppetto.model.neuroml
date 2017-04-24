@@ -40,7 +40,7 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
     public static JsonObject createCustomizationFromType(Type type)
     {
         // TEST STRING
-        String json = "{\"views\":{\"Popup1\":{\"widgetType\":1,\"name\":\"fix\",\"position\":{\"left\":358,\"top\":66},\"dataType\":\"string\",\"componentSpecific\":{\"customHandlers\":[\"test1\",\"test2\"]},\"data\":\"bugs\"},\"Plot1\":{\"name\":\"Recorded Variables\",\"size\":{\"height\":314.8,\"width\":628.8},\"dataType\":\"object\",\"data\":[\"hhcell.hhpop[0].v1\",\"hhcell.hhpop[0].v2\"],\"widgetType\":0},\"PopupX\":{\"name\":\"abc\",\"widgetType\":1,\"data\":\"xxx\"}}}";
+        String json = "{\"Popup1\":{\"widgetType\":1,\"name\":\"Test Default View\",\"position\":{\"left\":358,\"top\":66},\"size\":{\"width\":400,\"height\":250},\"dataType\":\"string\",\"componentSpecific\":{\"customHandlers\":[]},\"data\":\"Coming from model.neruoml.fatures.DefaultViewCustomiserFeature\"}}";
         Gson gson = new Gson();
         JsonParser jsonParser = new JsonParser();
         JsonObject jo = (JsonObject)jsonParser.parse(json);
