@@ -195,21 +195,21 @@ public class NeuroMLModelInterpreterServiceTest
         public void testHHInputExposures() throws Exception
         {
             NeuroMLModelInterpreterService nmlModelInterpreterService = new NeuroMLModelInterpreterService();
-            CompositeType geppettoModel = (CompositeType) ModelInterpreterTestUtils.readModel("/hhcell/NML2_SingleCompHHCell.nml", null, nmlModelInterpreterService);
+            CompositeType geppettoModel = (CompositeType) ModelInterpreterTestUtils.readModel("/hhtutorial/HHTutorial.net.nml", null, nmlModelInterpreterService);
 
             for (Variable var : geppettoModel.getVariables())
-                // should not have explicitInput on the network type
-                assertFalse(var.getId().equals("explicitInput"));
+                // should not have inputs directly on the network type
+                assertFalse(var.getId().equals("Input_0"));
 
-            // should have two pulseGens on hhpop
-            List<Variable> pulseGens = new ArrayList<Variable>();
+            // check inputs present on hhpop
+            List<Variable> inputs = new ArrayList<Variable>();
             for (Variable var : geppettoModel.getVariables()) {
                 if (var.getId().equals("hhpop")) {
-                    for(Variable popVars : ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables())
-                        if (var.getId().startsWith("pulseGen"))
-                            pulseGens.add(var);
+                    for (Variable popVars : ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables())
+                        if (var.getId().startsWith("IClamp"))
+                            inputs.add(var);
                 }
             }
-            assertEquals(pulseGens.size(), 2);
+            assertEquals(inputs.size(), 1);
         }
 }
