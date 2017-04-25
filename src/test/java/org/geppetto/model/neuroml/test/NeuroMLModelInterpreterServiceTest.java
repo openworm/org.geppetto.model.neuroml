@@ -37,6 +37,7 @@ import java.io.File;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -48,7 +49,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.geppetto.model.types.Type;
+import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.ArrayType;
+import org.geppetto.model.variables.Variable;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Population;
@@ -188,4 +191,25 @@ public class NeuroMLModelInterpreterServiceTest
             mTest.testModelInterpretation("/traub/TestSmall.net.nml", null);
 	}
 
+        @Test
+        public void testHHInputExposures() throws Exception
+        {
+            NeuroMLModelInterpreterService nmlModelInterpreterService = new NeuroMLModelInterpreterService();
+            CompositeType geppettoModel = (CompositeType) ModelInterpreterTestUtils.readModel("/hhcell/NML2_SingleCompHHCell.nml", null, nmlModelInterpreterService);
+
+            for (Variable var : geppettoModel.getVariables())
+                // should not have explicitInput on the network type
+                assertFalse(var.getId().equals("explicitInput"));
+
+            // should have two pulseGens on hhpop
+            List<Variable> pulseGens = new ArrayList<Variable>();
+            for (Variable var : geppettoModel.getVariables()) {
+                if (var.getId().equals("hhpop")) {
+                    for(Variable popVars : ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables())
+                        if (var.getId().startsWith("pulseGen"))
+                            pulseGens.add(var);
+                }
+            }
+            assertEquals(pulseGens.size(), 2);
+        }
 }
