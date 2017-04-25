@@ -79,6 +79,7 @@ import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroML2Validator;
 import org.neuroml.model.util.NeuroMLElements;
 import org.neuroml.model.util.NeuroMLException;
+import org.neuroml.model.util.hdf5.NetworkHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -124,7 +125,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				reader.readAllFormats(url);
 
 				// Extract Types from the lems/neuroml files
-				type = extractTypes(url, typeId, library, access, reader.getLEMSDocument(), reader.getNeuroMLDocument());
+				type = extractTypes(url, typeId, library, access, reader.getPartialLEMSDocument(), reader.getPartialNeuroMLDocument(), reader.getNetworkHelper());
 			}
 			catch(IOException | NumberFormatException | GeppettoVisitingException e)
 			{
@@ -137,14 +138,15 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				try
 				{
 					NeuroML2Validator neuroML2Validator = new NeuroML2Validator();
-					neuroML2Validator.validateWithTests(reader.getNeuroMLDocument());
+					neuroML2Validator.validateWithTests(reader.getPartialNeuroMLDocument());
+                    
 					if(neuroML2Validator.hasWarnings() || !neuroML2Validator.isValid())
 					{
 						throw new ModelInterpreterException("Validity: " + neuroML2Validator.getValidity() + "\nWarnings: " + neuroML2Validator.getWarnings()+"\nOriginal error: "+e.toString());
 					}
 					throw new ModelInterpreterException(e);
 				}
-				catch(NeuroMLException e1)
+				catch(NeuroMLException | NullPointerException e1)
 				{
 					throw new ModelInterpreterException(e1);
 				}
@@ -171,7 +173,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	}
 
-	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument, NeuroMLDocument neuroMLDocument) throws NeuroMLException,
+	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument, NeuroMLDocument neuroMLDocument, NetworkHelper networkHelper) throws NeuroMLException,
 			LEMSException, GeppettoVisitingException, ContentError, ModelInterpreterException
 	{
 		try
@@ -183,30 +185,30 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			Type type = null;
 
 			// Resolve LEMS model
-			Lems lems = ((Lems) lemsDocument);
-			lems.resolve();
+			Lems partialLems = ((Lems) lemsDocument);
+			partialLems.resolve();
 
 			_logger.info("Resolved LEMS model, took " + (System.currentTimeMillis() - start) + "ms");
 
 			start = System.currentTimeMillis();
 
-			populateTypes = new PopulateTypes(types, access, neuroMLDocument);
+			populateTypes = new PopulateTypes(types, access, neuroMLDocument, networkHelper);
 			// If we have a typeId let's get the type for this component
 			// Otherwise let's iterate through all the components
 			if(typeId != null && !typeId.isEmpty())
 			{
-				Component mainComponent = lems.getComponent(typeId);
-				type = populateTypes.extractInfoFromComponent(mainComponent, null);
+				Component mainComponent = partialLems.getComponent(typeId);
+				type = populateTypes.extractInfoFromComponent(mainComponent);
 			}
 			else
 			{
 				// If no type id then just iterate over the components
 				// While iterating get the main type
-				for(Component component : lems.getComponents())
+				for(Component component : partialLems.getComponents())
 				{
 					if(!types.containsKey(component.getDeclaredType() + component.getID()) && component.getID() != null)
 					{
-						types.put(component.getDeclaredType() + component.getID(), populateTypes.extractInfoFromComponent(component, null));
+						types.put(component.getDeclaredType() + component.getID(), populateTypes.extractInfoFromComponent(component));
 					}
 				}
 
@@ -306,6 +308,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return this.neuroMLModelInterpreterConfig.getModelInterpreterName();
 	}
 
+    public PopulateTypes getPopulateTypes()
+    {
+        return this.populateTypes;
+    }
+
 	@Override
 	public void registerGeppettoService()
 	{
@@ -398,5 +405,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		}
 		return supportedOutputs;
 	}
+
+    public GeppettoModelAccess getAccess()
+    {
+        return access;
+    }
 
 }

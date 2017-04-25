@@ -79,19 +79,19 @@ public enum ResourcesDomainType
 	}
 	
 	public static ResourcesDomainType getValueById(String id){
-		for(ResourcesDomainType e : ResourcesDomainType.values()){
-            if(id.equals(e._id)) return e;
-        }
-		//If we can't find a value, return the id
-		return null;
+            for(ResourcesDomainType e : ResourcesDomainType.values()){
+                if(id.equals(e._id)) return e;
+            }
+            //If we can't find a value, return the id
+            return null;
 	}
 	
 	public static String getValueByComponentType(ComponentType componentType){
-		for(ResourcesDomainType e : ResourcesDomainType.values()){
-            if(componentType.isOrExtends(e._id)) return e._id;
-        }
-		//If we can't find a value, return the id
-        return null;
+            for(ResourcesDomainType e : ResourcesDomainType.values()){
+                if(componentType.isOrExtends(e._id)) return e._id;
+            }
+            //If we can't find a value, return the id
+            return null;
 	}
 	
 }
