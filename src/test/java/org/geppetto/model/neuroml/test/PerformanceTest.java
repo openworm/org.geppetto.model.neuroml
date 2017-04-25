@@ -35,6 +35,7 @@ package org.geppetto.model.neuroml.test;
 
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -43,7 +44,13 @@ import org.junit.Test;
  */
 public class PerformanceTest
 {
-
+	private ModelInterpreterTestUtils modelInterpreterTestUtils;
+	
+	@Before
+	public void oneTimeSetUp()
+	{
+		modelInterpreterTestUtils = new ModelInterpreterTestUtils();
+	}
 	/**
 	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
 	 * 
@@ -52,7 +59,7 @@ public class PerformanceTest
 	@Test
 	public void testReadTraubLargeConns() throws Exception
 	{
-		ModelInterpreterTestUtils.serialise("/traub/LargeConns.net.nml", null, new NeuroMLModelInterpreterService());
+		modelInterpreterTestUtils.serialise("/traub/LargeConns.net.nml", null, new NeuroMLModelInterpreterService());
 	}
 
 	

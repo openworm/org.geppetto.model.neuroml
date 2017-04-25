@@ -84,7 +84,7 @@ public abstract class APopulateProjectionTypes
 			// Extract child component
 			for(Component projectionChild : projection.getChildHM().values())
 			{
-				CompositeType anonymousCompositeType = populateTypes.extractInfoFromComponent(projectionChild, null);
+				CompositeType anonymousCompositeType = populateTypes.extractInfoFromComponent(projectionChild);
 				if(anonymousCompositeType != null)
 				{
 					Variable variable = variablesFactory.createVariable();
