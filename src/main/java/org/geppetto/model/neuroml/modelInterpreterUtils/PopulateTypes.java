@@ -213,12 +213,12 @@ public class PopulateTypes
                             if (inputListChild.getTypeName().equals("input")) {
                                 String target = inputListChild.getAttributes().getByName("target").getValue();
                                 String pop = Utils.parseCellRefStringForPopulation(target);
-                                int num = Utils.parseCellRefStringForCellNum(target);
+
                                 for (Variable var : compositeType.getVariables()) {
                                     if (var.getId().equals(pop)) {
-                                        CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
+                                        CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
                                         Variable variable = variablesFactory.createVariable();
-                                        NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
+                                        NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
                                         variable.getAnonymousTypes().add(anonymousCompositeType);
                                         ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable);
                                     }
