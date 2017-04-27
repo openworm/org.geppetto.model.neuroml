@@ -205,9 +205,9 @@ public class NeuroMLModelInterpreterServiceTest
             List<Variable> inputs = new ArrayList<Variable>();
             for (Variable var : geppettoModel.getVariables()) {
                 if (var.getId().equals("hhpop")) {
-                    for (Variable popVars : ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables())
-                        if (var.getId().startsWith("IClamp"))
-                            inputs.add(var);
+                    for (Variable popVar : ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables())
+                        if (popVar.getId().startsWith("IClamp"))
+                            inputs.add(popVar);
                 }
             }
             assertEquals(inputs.size(), 1);
