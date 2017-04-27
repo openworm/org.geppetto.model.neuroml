@@ -33,41 +33,73 @@
 
 package org.geppetto.model.neuroml.test;
 
-import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
-import org.junit.AfterClass;
-import org.junit.Before;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.ArrayList;
+import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.junit.Test;
+import org.lemsml.jlems.core.sim.LEMSException;
+
+import org.neuroml.model.util.NeuroMLException;
+
 
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  * 
  */
-public class PerformanceTest
+public class OptimizedLEMSReaderTest
 {
-	private ModelInterpreterTestUtils modelInterpreterTestUtils;
-	
-	@Before
-	public void oneTimeSetUp()
-	{
-		modelInterpreterTestUtils = new ModelInterpreterTestUtils();
-	}
-	/**
-	 * Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testReadTraubLargeConns() throws Exception
-	{
-		modelInterpreterTestUtils.serialise("/traub/LargeConns.net.nml", null, new NeuroMLModelInterpreterService());
-	}
+    private void loadNeuroMLFile(String modelPath) throws IOException, NeuroMLException, LEMSException
+    {
 
-	
+        List<URL> dependentModels = new ArrayList<URL>();
 
-	@AfterClass
-	public static void doYourOneTimeTeardown()
-	{
+        URL url = ModelInterpreterTestUtils.class.getResource(modelPath);
+        OptimizedLEMSReader olr = new OptimizedLEMSReader(dependentModels);
+        System.out.println("Loading: "+modelPath);
+        olr.readAllFormats(url);
 
-	}
+        System.out.println("Done: "+olr.getNetworkHelper());
+
+    }
+
+
+    @Test
+    public void testReadAcnet() throws Exception
+    {
+        loadNeuroMLFile("/acnet2/MediumNet.net.nml");
+    }
+
+    @Test
+    public void testReadAcnetH5() throws Exception
+    {
+        loadNeuroMLFile("/acnet2/MediumNet.net.nml.h5");
+    }
+
+    @Test
+    public void testBalancedHDF5() throws Exception
+    {
+        loadNeuroMLFile("/Balanced/Balanced.net.nml.h5");
+    }
+
+    @Test
+    public void testBalanced() throws Exception
+    {
+        loadNeuroMLFile("/Balanced/Balanced.net.nml");
+    }
+
+    @Test
+    public void testCA1() throws Exception
+    {
+        loadNeuroMLFile("/ca1/BigCA1.net.nml");
+    }
+
+    @Test
+    public void testTraub() throws Exception
+    {
+        loadNeuroMLFile("/traub/TestSmall.net.nml");
+    }
+
 
 }

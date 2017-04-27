@@ -163,7 +163,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 					}
 					throw new ModelInterpreterException(e);
 				}
-				catch(NeuroMLException e1)
+				catch(NeuroMLException | NullPointerException e1)
 				{
 					throw new ModelInterpreterException(e1);
 				}
@@ -437,5 +437,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		}
 		return supportedOutputs;
 	}
+
+    public GeppettoModelAccess getAccess()
+    {
+        return access;
+    }
 
 }
