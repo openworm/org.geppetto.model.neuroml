@@ -223,7 +223,7 @@ public class OptimizedLEMSReader
 				String os =  System.getProperty("os.name");
 				//In Windows, the spec variable returned above starts with char 'C', throwing a malformed
 				//exception, this piece of code forces adding 'file:///' to avoid this issue
-				if(os.startsWith("Windows")){
+				if(os.startsWith("Windows")||os.startsWith("win32")){
 					if(spec.startsWith("C" )||spec.startsWith("c")){
 						spec= "file:///"+spec;
 					}
