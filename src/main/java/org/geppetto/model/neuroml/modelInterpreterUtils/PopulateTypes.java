@@ -280,12 +280,7 @@ public class PopulateTypes
                                                 Cell cell = getNeuroMLCell(component);
 
                                                 CellUtils cellUtils = new CellUtils(cell);
-                                                List<Segment> ca_segments = new ArrayList();
-                                                if (cellSegmentMap.get(component).size() > 1) {
-                                                    ca_segments = cellUtils.getSegmentsInGroup(species.getSegmentGroup());
-                                                } else {
-                                                    ca_segments = cell.getMorphology().getSegment();
-                                                }
+                                                List<Segment> ca_segments = cellUtils.getSegmentsInGroup(species.getSegmentGroup());
 
                                                 // set flag so we do not duplicate compartments later
                                                 if (species.getSegmentGroup() == "all")
