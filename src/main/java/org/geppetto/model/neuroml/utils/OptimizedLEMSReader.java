@@ -25,7 +25,6 @@ import org.neuroml.export.utils.Utils;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
-import org.neuroml.model.util.hdf5.NetworkHelper;
 
 /**
  * This class should not exist inside Geppetto and should be replaced when a proper library capable of reading a NeuroML and Lems file exists. This class is called Optimized reader because it uses a
@@ -50,8 +49,7 @@ public class OptimizedLEMSReader
 	private List<URL> dependentModels;
 
 	private ILEMSDocument lemsDocument;
-    
-    private NetworkHelper networkHelper;
+	private NeuroMLDocument neuromlDocument;
 
 	public OptimizedLEMSReader(List<URL> dependentModels) throws NeuroMLException
 	{
@@ -71,8 +69,7 @@ public class OptimizedLEMSReader
 		long start = System.currentTimeMillis();
 		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
 		_neuroMLString = NMLHEADER + System.getProperty("line.separator") + trimOuterElement(getLEMSString()) + System.getProperty("line.separator") + "</neuroml>";
-        
-		networkHelper = neuromlConverter.loadNeuroMLOptimized(_neuroMLString);
+		neuromlDocument = neuromlConverter.loadNeuroML(_neuroMLString);
 
 		_logger.info("Parsed NeuroML document of size " + getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
 
@@ -118,22 +115,15 @@ public class OptimizedLEMSReader
 		return _LEMSString.toString();
 	}
 
-	public ILEMSDocument getPartialLEMSDocument()
+	public ILEMSDocument getLEMSDocument()
 	{
 		return lemsDocument;
 	}
 
-	public NeuroMLDocument getPartialNeuroMLDocument()
+	public NeuroMLDocument getNeuroMLDocument()
 	{
-		return networkHelper.getNeuroMLDocument();
+		return neuromlDocument;
 	}
-
-    public NetworkHelper getNetworkHelper()
-    {
-        return networkHelper;
-    }
-    
-    
 
 	/**
 	 * @param documentString

@@ -86,7 +86,6 @@ import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroML2Validator;
 import org.neuroml.model.util.NeuroMLElements;
 import org.neuroml.model.util.NeuroMLException;
-import org.neuroml.model.util.hdf5.NetworkHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -142,7 +141,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				reader.readAllFormats(url);
 
 				// Extract Types from the lems/neuroml files
-				type = extractTypes(url, typeId, library, access, reader.getPartialLEMSDocument(), reader.getPartialNeuroMLDocument(), reader.getNetworkHelper());
+				type = extractTypes(url, typeId, library, access, reader.getLEMSDocument(), reader.getNeuroMLDocument());
 			}
 			catch(IOException | NumberFormatException | GeppettoVisitingException e)
 			{
@@ -155,8 +154,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				try
 				{
 					NeuroML2Validator neuroML2Validator = new NeuroML2Validator();
-					neuroML2Validator.validateWithTests(reader.getPartialNeuroMLDocument());
-                    
+					neuroML2Validator.validateWithTests(reader.getNeuroMLDocument());
 					if(neuroML2Validator.hasWarnings() || !neuroML2Validator.isValid())
 					{
 						throw new ModelInterpreterException("Validity: " + neuroML2Validator.getValidity() + "\nWarnings: " + neuroML2Validator.getWarnings()+"\nOriginal error: "+e.toString());
@@ -188,7 +186,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	}
 
-	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument, NeuroMLDocument neuroMLDocument, NetworkHelper networkHelper) throws NeuroMLException,
+	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument, NeuroMLDocument neuroMLDocument) throws NeuroMLException,
 			LEMSException, GeppettoVisitingException, ContentError, ModelInterpreterException
 	{
 		try
@@ -200,19 +198,19 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			Type type = null;
 
 			// Resolve LEMS model
-			Lems partialLems = ((Lems) lemsDocument);
-			partialLems.resolve();
+			Lems lems = ((Lems) lemsDocument);
+			lems.resolve();
 
 			_logger.info("Resolved LEMS model, took " + (System.currentTimeMillis() - start) + "ms");
 
 			start = System.currentTimeMillis();
 
-			populateTypes = new PopulateTypes(types, access, neuroMLDocument, networkHelper);
+			populateTypes = new PopulateTypes(types, access, neuroMLDocument);
 			// If we have a typeId let's get the type for this component
 			// Otherwise let's iterate through all the components
 			if(typeId != null && !typeId.isEmpty())
 			{
-				Component mainComponent = partialLems.getComponent(typeId);
+				Component mainComponent = lems.getComponent(typeId);
 				type = populateTypes.extractInfoFromComponent(mainComponent);
 
                                 DefaultViewCustomiserFeature customiser = (DefaultViewCustomiserFeature) this.getFeature(GeppettoFeature.DEFAULT_VIEW_CUSTOMISER_FEATURE);
@@ -236,7 +234,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 				// If no type id then just iterate over the components
 				// While iterating get the main type
-				for(Component component : partialLems.getComponents())
+				for(Component component : lems.getComponents())
 				{
 					if(!types.containsKey(component.getDeclaredType() + component.getID()) && component.getID() != null)
 					{

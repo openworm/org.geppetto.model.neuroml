@@ -39,12 +39,10 @@ import org.lemsml.jlems.core.type.Exposure;
 import org.lemsml.jlems.core.type.ParamValue;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Cell;
-import org.neuroml.model.Location;
 import org.neuroml.model.Segment;
 import org.neuroml.model.Species;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLException;
-import org.neuroml.model.util.hdf5.NetworkHelper;
 
 public class PopulateTypes
 {
@@ -65,20 +63,17 @@ public class PopulateTypes
 
 	private Map<String, Component> projections = new HashMap<String, Component>();
 
-	private NeuroMLDocument partialNeuroMLDocument;
-
-	private NetworkHelper networkHelper;
+	private NeuroMLDocument neuroMLDocument;
 
 	private Map<Type, Cell> geppettoCellTypesMap = new HashMap<Type, Cell>();
 
-	public PopulateTypes(Map<String, Type> types, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument, NetworkHelper networkHelper)
+	public PopulateTypes(Map<String, Type> types, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument)
 	{
 		super();
 		this.types = types;
 		this.typeFactory = new TypeFactory(types);
 		this.access = access;
-		this.partialNeuroMLDocument = neuroMLDocument;
-		this.networkHelper = networkHelper;
+		this.neuroMLDocument = neuroMLDocument;
 	}
 
         public CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException,
@@ -419,14 +414,14 @@ public class PopulateTypes
 	private Cell getNeuroMLCell(Component component)
 	{
 		String lemsId = component.getID();
-		for(Cell c : this.partialNeuroMLDocument.getCell())
+		for(Cell c : neuroMLDocument.getCell())
 		{
 			if(c.getId().equals(lemsId))
 			{
 				return c;
 			}
 		}
-		for(Cell c : this.partialNeuroMLDocument.getCell2CaPools())
+		for(Cell c : neuroMLDocument.getCell2CaPools())
 		{
 			if(c.getId().equals(lemsId))
 			{
@@ -487,32 +482,35 @@ public class PopulateTypes
 		{
 
 			int size = 0;
-                        int expSize = networkHelper.getPopulationSize(populationComponent.getID());
-			for(int i=0; i<expSize;i++)
+			for(Component populationChild : populationComponent.getAllChildren())
 			{
-				Point point = null;
-				Location loc = networkHelper.getLocation(populationComponent.getID(), i, true);
-				point = valuesFactory.createPoint();
-				point.setX(loc.getX());
-				point.setY(loc.getY());
-				point.setZ(loc.getZ());
-				
+				if(populationChild.getDeclaredType().equals("instance"))
+				{
+					Point point = null;
+					for(Component instanceChild : populationChild.getAllChildren())
+					{
+						if(instanceChild.getDeclaredType().equals("location"))
+						{
+							point = valuesFactory.createPoint();
+							point.setX(Double.parseDouble(instanceChild.getStringValue("x")));
+							point.setY(Double.parseDouble(instanceChild.getStringValue("y")));
+							point.setZ(Double.parseDouble(instanceChild.getStringValue("z")));
+						}
+					}
 
-				ArrayElement arrayElement = valuesFactory.createArrayElement();
-				arrayElement.setIndex(i);
-				arrayElement.setPosition(point);
-				arrayValue.getElements().add(arrayElement);
+					ArrayElement arrayElement = valuesFactory.createArrayElement();
+					arrayElement.setIndex(Integer.parseInt(populationChild.getID()));
+					arrayElement.setPosition(point);
+					arrayValue.getElements().add(arrayElement);
 
-				size++;
+					size++;
+				} else if (populationChild.getDeclaredType().equals("annotation"))
+                                    {
+                                        // extract population annotation
+                                        NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(refCompositeType, populationChild, access);
+                                    }
 			}
 			arrayType.setSize(size);
-
-                        for(Component populationChild : populationComponent.getAllChildren())
-                            if (populationChild.getDeclaredType().equals("annotation"))
-                                {
-                                    // extract population annotation
-                                    NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(refCompositeType, populationChild, access);
-                                }
 		}
 		else
 		{
