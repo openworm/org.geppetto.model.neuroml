@@ -3,6 +3,7 @@
  */
 package org.geppetto.model.neuroml.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -63,24 +64,44 @@ public class OptimizedLEMSReader
 	{
 		int index = url.toString().lastIndexOf('/');
 		String urlBase = url.toString().substring(0, index + 1);
-		read(url, urlBase); // expand it to have all the inclusions
-
-		// Reading NEUROML file
-		// Let's extract first the neuroml file so that if we have an error resolving the lems object at least we have the neuroml doc to validate it against neuroml.model
-		// We will show warning and error instead of an incomprehensible exception
-		long start = System.currentTimeMillis();
-		NeuroMLConverter neuromlConverter = new NeuroMLConverter();
-		_neuroMLString = NMLHEADER + System.getProperty("line.separator") + trimOuterElement(getLEMSString()) + System.getProperty("line.separator") + "</neuroml>";
         
-		networkHelper = neuromlConverter.loadNeuroMLOptimized(_neuroMLString);
+                NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+        
+                if (url.toString().endsWith("hdf5") || url.toString().endsWith("h5"))
+                    {
+                        String loc = url.toString();
+                        if (loc.startsWith("file:/"))
+                            loc = loc.substring(5);
+                        File f = new File(loc);
+            
+                        networkHelper = neuromlConverter.loadNeuroMLOptimized(f);
+            
+                        _neuroMLString = neuromlConverter.neuroml2ToXml(networkHelper.getNeuroMLDocument());
+            
+                        Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(_neuroMLString));
+                        lemsDocument = sim.getLems();
+                    }
+                else
+                    {
+                        read(url, urlBase); // expand it to have all the inclusions
 
-		_logger.info("Parsed NeuroML document of size " + getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
+                        // Reading NEUROML file
+                        // Let's extract first the neuroml file so that if we have an error resolving the lems object at least we have the neuroml doc to validate it against neuroml.model
+                        // We will show warning and error instead of an incomprehensible exception
+                        long start = System.currentTimeMillis();
+            
+                        _neuroMLString = NMLHEADER + System.getProperty("line.separator") + trimOuterElement(getLEMSString()) + System.getProperty("line.separator") + "</neuroml>";
 
-		// Reading LEMS files
-		start = System.currentTimeMillis();
-		Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(_neuroMLString));
-		lemsDocument = sim.getLems();
-		_logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
+                        networkHelper = neuromlConverter.loadNeuroMLOptimized(_neuroMLString);
+            
+                        _logger.info("Parsed NeuroML document of size " + getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
+
+                        // Reading LEMS files
+                        start = System.currentTimeMillis();
+                        Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(_neuroMLString));
+                        lemsDocument = sim.getLems();
+                        _logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
+                    }
 
 	}
 
