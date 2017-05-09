@@ -2,10 +2,20 @@ package org.geppetto.model.neuroml.features;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.types.Type;
+import org.geppetto.model.types.ImportType;
+import org.geppetto.model.types.CompositeType;
+import org.geppetto.model.values.Value;
+import org.geppetto.model.values.Text;
+import org.geppetto.model.variables.Variable;
+import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.features.IDefaultViewCustomiserFeature;
 import org.lemsml.jlems.core.type.Component;
@@ -37,11 +47,38 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
         defaultViewCustomisation.get(type);
     }
 
-    public static JsonObject createCustomizationFromType(Type type)
+    public static JsonObject createCustomizationFromType(Type type, GeppettoLibrary library)
     {
-        // TEST STRING
-        String json = "{\"Popup1\":{\"widgetType\":1,\"name\":\"Test Default View\",\"position\":{\"left\":358,\"top\":66},\"size\":{\"width\":400,\"height\":250},\"dataType\":\"string\",\"componentSpecific\":{\"customHandlers\":[]},\"data\":\"Coming from model.neruoml.fatures.DefaultViewCustomiserFeature\"}}";
+        Map<String, String> colorMap = new HashMap<String, String>();
+        for (Variable var : ((CompositeType) type).getVariables()) {
+            if (var.getId().equals("color")) {
+                for (Map.Entry<Type, Value> entry : var.getInitialValues())
+                    {
+                        String[] rgb = ((Text) entry.getValue()).getText().split(" ");
+                        String hexColor = String.format("#%02x%02x%02x",
+                                                   Math.round(Float.parseFloat(rgb[0])*255),
+                                                   Math.round(Float.parseFloat(rgb[1])*255),
+                                                   Math.round(Float.parseFloat(rgb[2])*255));  
+                        Component domainModel = (Component) type.getDomainModel().getDomainModel();
+                        List<String> path_segs = new ArrayList<String>();
+                        while (domainModel.getParent() != null) {
+                            if (domainModel.getParent().getDeclaredType().equals("network")){
+                                // so we can get the name of the network
+                                ImportType importType = (ImportType)library.getTypes().get(0);
+                                path_segs.add(importType.getReferencedVariables().get(0).getId());
+                            } else {
+                                path_segs.add(domainModel.getParent().getID());
+                            }
+                            domainModel = domainModel.getParent();
+                        }
+                        Collections.reverse(path_segs);
+                        String path = String.join(".", path_segs);
+                        colorMap.put(path, hexColor);
+                    }
+            }
+        }
         Gson gson = new Gson();
+        String json = "{\"Canvas1\":{\"widgetType\":\"CANVAS\",\"componentSpecific\":{\"colorMap\":" + gson.toJson(colorMap) +"}}}";
         JsonParser jsonParser = new JsonParser();
         JsonObject jo = (JsonObject)jsonParser.parse(json);
         return jo;
