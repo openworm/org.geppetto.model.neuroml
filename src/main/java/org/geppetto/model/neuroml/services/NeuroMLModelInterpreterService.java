@@ -1,5 +1,5 @@
 /*******************************************************************************
-. * The MIT License (MIT)
+ * The MIT License (MIT)
  *
  * Copyright (c) 2011 - 2015 OpenWorm.
  * http://openworm.org
