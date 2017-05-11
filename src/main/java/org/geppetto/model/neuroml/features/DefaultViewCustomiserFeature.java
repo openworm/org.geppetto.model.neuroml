@@ -61,20 +61,18 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
                                                    Math.round(Float.parseFloat(rgb[1])*255),
                                                    Math.round(Float.parseFloat(rgb[2])*255));  
                         Component domainModel = (Component) type.getDomainModel().getDomainModel();
-                        List<String> path_segs = new ArrayList<String>();
+                        String path = "";
                         while (domainModel.getParent() != null) {
                             if (domainModel.getParent().getDeclaredType().equals("network")){
                                 // so we can get the name of the network
                                 ImportType importType = (ImportType)library.getTypes().get(0);
-                                path_segs.add(importType.getReferencedVariables().get(0).getId());
+                                path = importType.getReferencedVariables().get(0).getId() + "." + path;
                             } else {
-                                path_segs.add(domainModel.getParent().getID());
+                                path = domainModel.getParent().getID() + "." + path;
                             }
                             domainModel = domainModel.getParent();
                         }
-                        Collections.reverse(path_segs);
-                        String path = StringUtils.join(path_segs, ".");
-                        colorMap.put(path, hexColor);
+                        colorMap.put(path.substring(0,path.length()-1), hexColor);
                     }
             }
         }
