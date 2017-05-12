@@ -22,6 +22,7 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
 {
     private GeppettoFeature type = GeppettoFeature.DEFAULT_VIEW_CUSTOMISER_FEATURE;
     private Map<Type, JsonObject> defaultViewCustomisation = new HashMap<Type, JsonObject>();
+    private Map<String, Integer> colorMap = new HashMap<String, Integer>();
 
     @Override
     public GeppettoFeature getType()
@@ -37,6 +38,7 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
 
     public void setDefaultViewCustomisation(Type type, JsonObject view)
     {
+        defaultViewCustomisation.clear();
         defaultViewCustomisation.put(type, view);
     }
 
@@ -45,9 +47,23 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
         defaultViewCustomisation.get(type);
     }
 
-    public static JsonObject createCustomizationFromType(Type type, GeppettoLibrary library)
+    public void addColor(Type type, String path, Integer color)
     {
-        Map<String, Integer> colorMap = new HashMap<String, Integer>();
+        colorMap.put(path, color);
+        Gson gson = new Gson();
+        String json = "{\"Canvas1\":{\"widgetType\":\"CANVAS\",\"componentSpecific\":{\"colorMap\":" + gson.toJson(colorMap) +"}}}";
+        JsonParser jsonParser = new JsonParser();
+        JsonObject jo = (JsonObject)jsonParser.parse(json);
+        setDefaultViewCustomisation(type, jo);
+    }
+
+    public Map<String, Integer> getColorMap()
+    {
+        return colorMap;
+    }
+
+    public void createCustomizationFromType(Type mainType, Type type, GeppettoLibrary library)
+    {
         for (Variable var : ((CompositeType) type).getVariables()) {
             if (var.getId().equals("color")) {
                 for (Map.Entry<Type, Value> entry : var.getInitialValues())
@@ -68,14 +84,9 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
                             }
                             domainModel = domainModel.getParent();
                         }
-                        colorMap.put(path.substring(0,path.length()-1), hexColor);
+                        this.addColor(mainType, path.substring(0,path.length()-1), hexColor);
                     }
             }
         }
-        Gson gson = new Gson();
-        String json = "{\"Canvas1\":{\"widgetType\":\"CANVAS\",\"componentSpecific\":{\"colorMap\":" + gson.toJson(colorMap) +"}}}";
-        JsonParser jsonParser = new JsonParser();
-        JsonObject jo = (JsonObject)jsonParser.parse(json);
-        return jo;
     }
 }
