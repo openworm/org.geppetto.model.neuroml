@@ -225,7 +225,6 @@ public class PopulateTypes
                                 }
                             }
                         }
-                        /**/
                     } else if((!componentChild.getComponentType().isOrExtends(Resources.POPULATION.getId()) && !componentChild.getComponentType().isOrExtends(Resources.POPULATION_LIST.getId()))
                               && !componentChild.getComponentType().isOrExtends(Resources.PROJECTION.getId()) && !componentChild.getComponentType().isOrExtends(Resources.ELECTRICAL_PROJECTION.getId())
                               && !componentChild.getComponentType().isOrExtends(Resources.CONTINUOUS_PROJECTION.getId()))

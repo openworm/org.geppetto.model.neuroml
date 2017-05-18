@@ -59,13 +59,13 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
         return path.substring(0, path.length()-1);
     }
 
-    public Integer extractColor(Variable var)
+    public String extractColor(Variable var)
     {
         String[] rgb = ((Text) var.getInitialValues().get(0).getValue()).getText().split(" ");
-        Integer color =
-            (Math.round(Float.parseFloat(rgb[0])*255) << 16) +
-            (Math.round(Float.parseFloat(rgb[1])*255) << 8) +
-            Math.round(Float.parseFloat(rgb[2])*255);
+        String color = String.format("#%02x%02x%02x",
+                                     Math.round(Float.parseFloat(rgb[0])*255),
+                                     Math.round(Float.parseFloat(rgb[1])*255),
+                                     Math.round(Float.parseFloat(rgb[2])*255));
         return color;
     }
 
@@ -75,7 +75,7 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
             switch (var.getId()) {
                 case "color":
                     String path = extractPath(type, library);
-                    Integer color = extractColor(var);
+                    String color = extractColor(var);
                     canvas.addColor(path, color);
                     break;
             }
