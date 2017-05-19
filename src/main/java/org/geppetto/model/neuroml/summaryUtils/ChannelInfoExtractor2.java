@@ -329,8 +329,11 @@ public class ChannelInfoExtractor2
             NeuroMLConverter nmlc = new NeuroMLConverter();
             NeuroMLDocument nmlDocument = nmlc.loadNeuroML(f);
             IonChannel ic = nmlDocument.getIonChannel().get(0);
+            
+            ChannelInfoExtractor cie0 = new ChannelInfoExtractor(ic);
+            System.out.println(cie0.getGates().toDetailString(" 1> "));
             ChannelInfoExtractor2 cie = new ChannelInfoExtractor2(ic, nmlDocument);
-            System.out.println(cie.getGates().toDetailString("  "));
+            System.out.println(cie.getGates().toDetailString(" 2> "));
         }
     }
 
