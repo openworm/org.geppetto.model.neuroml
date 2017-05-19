@@ -1,0 +1,1654 @@
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2"  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2 https://raw.github.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta5.xsd" id="L5TuftedPyrRS">
+    <include href="ar__m00_25.channel.nml"></include>
+    <include href="cad__beta0_01__phi4333_33.nml"></include>
+    <include href="cad__beta0_02__phi86666_7.nml"></include>
+    <include href="cad__beta0_075__phi86666_7.nml"></include>
+    <include href="cal.channel.nml"></include>
+    <include href="cat.channel.nml"></include>
+    <include href="k2.channel.nml"></include>
+    <include href="ka.channel.nml"></include>
+    <include href="kahp_deeppyr.channel.nml"></include>
+    <include href="kc.channel.nml"></include>
+    <include href="kdr.channel.nml"></include>
+    <include href="km.channel.nml"></include>
+    <include href="naf__a0__b0__c0__d0__fastNa_shiftmin3_5.channel.nml"></include>
+    <include href="nap.channel.nml"></include>
+    <include href="pas.channel.nml"></include>
+    <cell id="L5TuftedPyrRS">
+        <notes>Cell: tuftRS_0 exported from NEURON ModelView</notes>
+        <morphology id="morphology_L5TuftedPyrRS">
+            <segment id="0" name="Seg0_comp_1">
+                <proximal x="0.000000e+00" y="0.000000e+00" z="0.000000e+00" diameter="18.0"/>
+                <distal x="0.000000e+00" y="1.250000e+01" z="0.000000e+00" diameter="18.0"/>
+            </segment>
+            <segment id="1" name="Seg1_comp_1">
+                <parent segment="0" fractionAlong="1"/>
+                <distal x="-0.000000e+00" y="2.500000e+01" z="0.000000e+00" diameter="18.0"/>
+            </segment>
+            <segment id="110" name="Seg0_comp_56">
+                <parent segment="0" fractionAlong="0.0"/>
+                <proximal x="0.000000e+00" y="0.000000e+00" z="0.000000e+00" diameter="1.8"/>
+                <distal x="1.250000e+01" y="0.000000e+00" z="0.000000e+00" diameter="1.8"/>
+            </segment>
+            <segment id="111" name="Seg1_comp_56">
+                <parent segment="110" fractionAlong="1"/>
+                <distal x="2.500000e+01" y="0.000000e+00" z="0.000000e+00" diameter="1.8"/>
+            </segment>
+            <segment id="68" name="Seg0_comp_35">
+                <parent segment="1" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="2.500000e+01" z="0.000000e+00" diameter="4.0"/>
+                <distal x="-0.000000e+00" y="6.250000e+01" z="0.000000e+00" diameter="4.0"/>
+            </segment>
+            <segment id="69" name="Seg1_comp_35">
+                <parent segment="68" fractionAlong="1"/>
+                <distal x="-0.000000e+00" y="1.000000e+02" z="0.000000e+00" diameter="4.0"/>
+            </segment>
+            <segment id="10" name="Seg0_comp_6">
+                <parent segment="1" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="2.500000e+01" z="0.000000e+00" diameter="1.7"/>
+                <distal x="0.000000e+00" y="7.000000e+00" z="-2.400000e+01" diameter="1.7"/>
+            </segment>
+            <segment id="11" name="Seg1_comp_6">
+                <parent segment="10" fractionAlong="1"/>
+                <distal x="0.000000e+00" y="-1.100000e+01" z="-4.800000e+01" diameter="1.7"/>
+            </segment>
+            <segment id="8" name="Seg0_comp_5">
+                <parent segment="1" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="2.500000e+01" z="0.000000e+00" diameter="1.7"/>
+                <distal x="-2.400000e+01" y="7.000000e+00" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="9" name="Seg1_comp_5">
+                <parent segment="8" fractionAlong="1"/>
+                <distal x="-4.800000e+01" y="-1.100000e+01" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="6" name="Seg0_comp_4">
+                <parent segment="1" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="2.500000e+01" z="0.000000e+00" diameter="1.7"/>
+                <distal x="0.000000e+00" y="7.000000e+00" z="2.400000e+01" diameter="1.7"/>
+            </segment>
+            <segment id="7" name="Seg1_comp_4">
+                <parent segment="6" fractionAlong="1"/>
+                <distal x="0.000000e+00" y="-1.100000e+01" z="4.800000e+01" diameter="1.7"/>
+            </segment>
+            <segment id="4" name="Seg0_comp_3">
+                <parent segment="1" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="2.500000e+01" z="0.000000e+00" diameter="1.7"/>
+                <distal x="2.400000e+01" y="7.000000e+00" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="5" name="Seg1_comp_3">
+                <parent segment="4" fractionAlong="1"/>
+                <distal x="4.800000e+01" y="-1.100000e+01" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="2" name="Seg0_comp_2">
+                <parent segment="1" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="2.500000e+01" z="0.000000e+00" diameter="1.7"/>
+                <distal x="0.000000e+00" y="-5.000000e+00" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="3" name="Seg1_comp_2">
+                <parent segment="2" fractionAlong="1"/>
+                <distal x="0.000000e+00" y="-3.500000e+01" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="112" name="Seg0_comp_57">
+                <parent segment="111" fractionAlong="1"/>
+                <proximal x="2.500000e+01" y="0.000000e+00" z="0.000000e+00" diameter="1.4"/>
+                <distal x="5.000000e+01" y="0.000000e+00" z="0.000000e+00" diameter="1.4"/>
+            </segment>
+            <segment id="113" name="Seg1_comp_57">
+                <parent segment="112" fractionAlong="1"/>
+                <distal x="7.500000e+01" y="0.000000e+00" z="0.000000e+00" diameter="1.4"/>
+            </segment>
+            <segment id="70" name="Seg0_comp_36">
+                <parent segment="69" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="1.000000e+02" z="0.000000e+00" diameter="3.8"/>
+                <distal x="-0.000000e+00" y="1.375000e+02" z="0.000000e+00" diameter="3.8"/>
+            </segment>
+            <segment id="71" name="Seg1_comp_36">
+                <parent segment="70" fractionAlong="1"/>
+                <distal x="-0.000000e+00" y="1.750000e+02" z="0.000000e+00" diameter="3.8"/>
+            </segment>
+            <segment id="22" name="Seg0_comp_12">
+                <parent segment="69" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="3.000000e+01" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="23" name="Seg1_comp_12">
+                <parent segment="22" fractionAlong="1"/>
+                <distal x="6.000000e+01" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="12" name="Seg0_comp_7">
+                <parent segment="69" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="-3.000000e+01" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="13" name="Seg1_comp_7">
+                <parent segment="12" fractionAlong="1"/>
+                <distal x="-6.000000e+01" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="32" name="Seg0_comp_17">
+                <parent segment="11" fractionAlong="1"/>
+                <proximal x="0.000000e+00" y="-1.100000e+01" z="-4.800000e+01" diameter="1.7"/>
+                <distal x="0.000000e+00" y="-2.900000e+01" z="-7.200000e+01" diameter="1.7"/>
+            </segment>
+            <segment id="33" name="Seg1_comp_17">
+                <parent segment="32" fractionAlong="1"/>
+                <distal x="0.000000e+00" y="-4.700000e+01" z="-9.600000e+01" diameter="1.7"/>
+            </segment>
+            <segment id="30" name="Seg0_comp_16">
+                <parent segment="9" fractionAlong="1"/>
+                <proximal x="-4.800000e+01" y="-1.100000e+01" z="0.000000e+00" diameter="1.7"/>
+                <distal x="-7.200000e+01" y="-2.900000e+01" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="31" name="Seg1_comp_16">
+                <parent segment="30" fractionAlong="1"/>
+                <distal x="-9.600000e+01" y="-4.700000e+01" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="28" name="Seg0_comp_15">
+                <parent segment="7" fractionAlong="1"/>
+                <proximal x="0.000000e+00" y="-1.100000e+01" z="4.800000e+01" diameter="1.7"/>
+                <distal x="0.000000e+00" y="-2.900000e+01" z="7.200000e+01" diameter="1.7"/>
+            </segment>
+            <segment id="29" name="Seg1_comp_15">
+                <parent segment="28" fractionAlong="1"/>
+                <distal x="0.000000e+00" y="-4.700000e+01" z="9.600000e+01" diameter="1.7"/>
+            </segment>
+            <segment id="26" name="Seg0_comp_14">
+                <parent segment="5" fractionAlong="1"/>
+                <proximal x="4.800000e+01" y="-1.100000e+01" z="0.000000e+00" diameter="1.7"/>
+                <distal x="7.200000e+01" y="-2.900000e+01" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="27" name="Seg1_comp_14">
+                <parent segment="26" fractionAlong="1"/>
+                <distal x="9.600000e+01" y="-4.700000e+01" z="-0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="24" name="Seg0_comp_13">
+                <parent segment="3" fractionAlong="1"/>
+                <proximal x="0.000000e+00" y="-3.500000e+01" z="0.000000e+00" diameter="1.7"/>
+                <distal x="-0.000000e+00" y="-6.500000e+01" z="-0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="25" name="Seg1_comp_13">
+                <parent segment="24" fractionAlong="1"/>
+                <distal x="0.000000e+00" y="-9.500000e+01" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="116" name="Seg0_comp_59">
+                <parent segment="113" fractionAlong="1"/>
+                <proximal x="7.500000e+01" y="0.000000e+00" z="0.000000e+00" diameter="1.0"/>
+                <distal x="9.802650e+01" y="-9.735461e+00" z="0.000000e+00" diameter="1.0"/>
+            </segment>
+            <segment id="117" name="Seg1_comp_59">
+                <parent segment="116" fractionAlong="1"/>
+                <distal x="1.210530e+02" y="-1.947089e+01" z="0.000000e+00" diameter="1.0"/>
+            </segment>
+            <segment id="114" name="Seg0_comp_58">
+                <parent segment="113" fractionAlong="1"/>
+                <proximal x="7.500000e+01" y="0.000000e+00" z="0.000000e+00" diameter="1.0"/>
+                <distal x="9.802650e+01" y="9.735458e+00" z="0.000000e+00" diameter="1.0"/>
+            </segment>
+            <segment id="115" name="Seg1_comp_58">
+                <parent segment="114" fractionAlong="1"/>
+                <distal x="1.210530e+02" y="1.947091e+01" z="0.000000e+00" diameter="1.0"/>
+            </segment>
+            <segment id="20" name="Seg0_comp_11">
+                <parent segment="71" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="1.750000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="-0.000000e+00" y="1.750000e+02" z="3.000000e+01" diameter="1.24"/>
+            </segment>
+            <segment id="21" name="Seg1_comp_11">
+                <parent segment="20" fractionAlong="1"/>
+                <distal x="0.000000e+00" y="1.750013e+02" z="6.000000e+01" diameter="1.24"/>
+            </segment>
+            <segment id="14" name="Seg0_comp_8">
+                <parent segment="71" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="1.750000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="-0.000000e+00" y="1.750000e+02" z="-3.000000e+01" diameter="1.24"/>
+            </segment>
+            <segment id="15" name="Seg1_comp_8">
+                <parent segment="14" fractionAlong="1"/>
+                <distal x="9.692492e-04" y="1.750000e+02" z="-6.000000e+01" diameter="1.24"/>
+            </segment>
+            <segment id="72" name="Seg0_comp_37">
+                <parent segment="71" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="1.750000e+02" z="0.000000e+00" diameter="3.6"/>
+                <distal x="0.000000e+00" y="2.125000e+02" z="0.000000e+00" diameter="3.6"/>
+            </segment>
+            <segment id="73" name="Seg1_comp_37">
+                <parent segment="72" fractionAlong="1"/>
+                <distal x="-0.000000e+00" y="2.500000e+02" z="0.000000e+00" diameter="3.6"/>
+            </segment>
+            <segment id="44" name="Seg0_comp_23">
+                <parent segment="23" fractionAlong="1"/>
+                <proximal x="6.000000e+01" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="9.000000e+01" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="45" name="Seg1_comp_23">
+                <parent segment="44" fractionAlong="1"/>
+                <distal x="1.200000e+02" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="34" name="Seg0_comp_18">
+                <parent segment="13" fractionAlong="1"/>
+                <proximal x="-6.000000e+01" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="-9.000000e+01" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="35" name="Seg1_comp_18">
+                <parent segment="34" fractionAlong="1"/>
+                <distal x="-1.200000e+02" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="54" name="Seg0_comp_28">
+                <parent segment="33" fractionAlong="1"/>
+                <proximal x="0.000000e+00" y="-4.700000e+01" z="-9.600000e+01" diameter="1.7"/>
+                <distal x="0.000000e+00" y="-6.500000e+01" z="-1.200000e+02" diameter="1.7"/>
+            </segment>
+            <segment id="55" name="Seg1_comp_28">
+                <parent segment="54" fractionAlong="1"/>
+                <distal x="0.000000e+00" y="-8.300000e+01" z="-1.440000e+02" diameter="1.7"/>
+            </segment>
+            <segment id="52" name="Seg0_comp_27">
+                <parent segment="31" fractionAlong="1"/>
+                <proximal x="-9.600000e+01" y="-4.700000e+01" z="0.000000e+00" diameter="1.7"/>
+                <distal x="-1.200000e+02" y="-6.500000e+01" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="53" name="Seg1_comp_27">
+                <parent segment="52" fractionAlong="1"/>
+                <distal x="-1.440000e+02" y="-8.300000e+01" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="50" name="Seg0_comp_26">
+                <parent segment="29" fractionAlong="1"/>
+                <proximal x="0.000000e+00" y="-4.700000e+01" z="9.600000e+01" diameter="1.7"/>
+                <distal x="0.000000e+00" y="-6.500000e+01" z="1.200000e+02" diameter="1.7"/>
+            </segment>
+            <segment id="51" name="Seg1_comp_26">
+                <parent segment="50" fractionAlong="1"/>
+                <distal x="0.000000e+00" y="-8.300000e+01" z="1.440000e+02" diameter="1.7"/>
+            </segment>
+            <segment id="48" name="Seg0_comp_25">
+                <parent segment="27" fractionAlong="1"/>
+                <proximal x="9.600000e+01" y="-4.700000e+01" z="-0.000000e+00" diameter="1.7"/>
+                <distal x="1.200000e+02" y="-6.500000e+01" z="-0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="49" name="Seg1_comp_25">
+                <parent segment="48" fractionAlong="1"/>
+                <distal x="1.440000e+02" y="-8.300000e+01" z="-0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="46" name="Seg0_comp_24">
+                <parent segment="25" fractionAlong="1"/>
+                <proximal x="0.000000e+00" y="-9.500000e+01" z="0.000000e+00" diameter="1.7"/>
+                <distal x="0.000000e+00" y="-1.250000e+02" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="47" name="Seg1_comp_24">
+                <parent segment="46" fractionAlong="1"/>
+                <distal x="0.000000e+00" y="-1.550000e+02" z="0.000000e+00" diameter="1.7"/>
+            </segment>
+            <segment id="120" name="Seg0_comp_61">
+                <parent segment="117" fractionAlong="1"/>
+                <proximal x="1.210530e+02" y="-1.947089e+01" z="0.000000e+00" diameter="1.0"/>
+                <distal x="1.440800e+02" y="-2.920639e+01" z="0.000000e+00" diameter="1.0"/>
+            </segment>
+            <segment id="121" name="Seg1_comp_61">
+                <parent segment="120" fractionAlong="1"/>
+                <distal x="1.671060e+02" y="-3.894188e+01" z="0.000000e+00" diameter="1.0"/>
+            </segment>
+            <segment id="118" name="Seg0_comp_60">
+                <parent segment="115" fractionAlong="1"/>
+                <proximal x="1.210530e+02" y="1.947091e+01" z="0.000000e+00" diameter="1.0"/>
+                <distal x="1.440800e+02" y="2.920641e+01" z="0.000000e+00" diameter="1.0"/>
+            </segment>
+            <segment id="119" name="Seg1_comp_60">
+                <parent segment="118" fractionAlong="1"/>
+                <distal x="1.671060e+02" y="3.894181e+01" z="0.000000e+00" diameter="1.0"/>
+            </segment>
+            <segment id="42" name="Seg0_comp_22">
+                <parent segment="21" fractionAlong="1"/>
+                <proximal x="0.000000e+00" y="1.750013e+02" z="6.000000e+01" diameter="1.24"/>
+                <distal x="0.000000e+00" y="1.750018e+02" z="9.000081e+01" diameter="1.24"/>
+            </segment>
+            <segment id="43" name="Seg1_comp_22">
+                <parent segment="42" fractionAlong="1"/>
+                <distal x="1.051122e-03" y="1.750017e+02" z="1.200000e+02" diameter="1.24"/>
+            </segment>
+            <segment id="36" name="Seg0_comp_19">
+                <parent segment="15" fractionAlong="1"/>
+                <proximal x="9.692492e-04" y="1.750000e+02" z="-6.000000e+01" diameter="1.24"/>
+                <distal x="1.243884e-03" y="1.750000e+02" z="-9.000000e+01" diameter="1.24"/>
+            </segment>
+            <segment id="37" name="Seg1_comp_19">
+                <parent segment="36" fractionAlong="1"/>
+                <distal x="1.525546e-03" y="1.750000e+02" z="-1.200000e+02" diameter="1.24"/>
+            </segment>
+            <segment id="18" name="Seg0_comp_10">
+                <parent segment="73" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="3.000000e+01" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="19" name="Seg1_comp_10">
+                <parent segment="18" fractionAlong="1"/>
+                <distal x="6.000000e+01" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="16" name="Seg0_comp_9">
+                <parent segment="73" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="-3.000000e+01" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="17" name="Seg1_comp_9">
+                <parent segment="16" fractionAlong="1"/>
+                <distal x="-6.000000e+01" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="74" name="Seg0_comp_38">
+                <parent segment="73" fractionAlong="1"/>
+                <proximal x="-0.000000e+00" y="2.500000e+02" z="0.000000e+00" diameter="3.4"/>
+                <distal x="0.000000e+00" y="2.875000e+02" z="0.000000e+00" diameter="3.4"/>
+            </segment>
+            <segment id="75" name="Seg1_comp_38">
+                <parent segment="74" fractionAlong="1"/>
+                <distal x="0.000000e+00" y="3.250000e+02" z="0.000000e+00" diameter="3.4"/>
+            </segment>
+            <segment id="66" name="Seg0_comp_34">
+                <parent segment="45" fractionAlong="1"/>
+                <proximal x="1.200000e+02" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="1.500000e+02" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="67" name="Seg1_comp_34">
+                <parent segment="66" fractionAlong="1"/>
+                <distal x="1.800000e+02" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="56" name="Seg0_comp_29">
+                <parent segment="35" fractionAlong="1"/>
+                <proximal x="-1.200000e+02" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="-1.500000e+02" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="57" name="Seg1_comp_29">
+                <parent segment="56" fractionAlong="1"/>
+                <distal x="-1.800000e+02" y="1.000000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="64" name="Seg0_comp_33">
+                <parent segment="43" fractionAlong="1"/>
+                <proximal x="1.051122e-03" y="1.750017e+02" z="1.200000e+02" diameter="1.24"/>
+                <distal x="1.403861e-03" y="1.750026e+02" z="1.500000e+02" diameter="1.24"/>
+            </segment>
+            <segment id="65" name="Seg1_comp_33">
+                <parent segment="64" fractionAlong="1"/>
+                <distal x="1.756601e-03" y="1.750035e+02" z="1.800000e+02" diameter="1.24"/>
+            </segment>
+            <segment id="58" name="Seg0_comp_30">
+                <parent segment="37" fractionAlong="1"/>
+                <proximal x="1.525546e-03" y="1.750000e+02" z="-1.200000e+02" diameter="1.24"/>
+                <distal x="2.529157e-03" y="1.750000e+02" z="-1.500000e+02" diameter="1.24"/>
+            </segment>
+            <segment id="59" name="Seg1_comp_30">
+                <parent segment="58" fractionAlong="1"/>
+                <distal x="3.492540e-03" y="1.750000e+02" z="-1.800000e+02" diameter="1.24"/>
+            </segment>
+            <segment id="40" name="Seg0_comp_21">
+                <parent segment="19" fractionAlong="1"/>
+                <proximal x="6.000000e+01" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="9.000086e+01" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="41" name="Seg1_comp_21">
+                <parent segment="40" fractionAlong="1"/>
+                <distal x="1.200000e+02" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="38" name="Seg0_comp_20">
+                <parent segment="17" fractionAlong="1"/>
+                <proximal x="-6.000000e+01" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="-9.000000e+01" y="2.499991e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="39" name="Seg1_comp_20">
+                <parent segment="38" fractionAlong="1"/>
+                <distal x="-1.200000e+02" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="76" name="Seg0_comp_39">
+                <parent segment="75" fractionAlong="1"/>
+                <proximal x="0.000000e+00" y="3.250000e+02" z="0.000000e+00" diameter="3.2"/>
+                <distal x="1.229822e-03" y="3.625000e+02" z="0.000000e+00" diameter="3.2"/>
+            </segment>
+            <segment id="77" name="Seg1_comp_39">
+                <parent segment="76" fractionAlong="1"/>
+                <distal x="1.837706e-03" y="4.000000e+02" z="0.000000e+00" diameter="3.2"/>
+            </segment>
+            <segment id="62" name="Seg0_comp_32">
+                <parent segment="41" fractionAlong="1"/>
+                <proximal x="1.200000e+02" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="1.500000e+02" y="2.499989e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="63" name="Seg1_comp_32">
+                <parent segment="62" fractionAlong="1"/>
+                <distal x="1.800000e+02" y="2.499983e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="60" name="Seg0_comp_31">
+                <parent segment="39" fractionAlong="1"/>
+                <proximal x="-1.200000e+02" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+                <distal x="-1.500000e+02" y="2.499991e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="61" name="Seg1_comp_31">
+                <parent segment="60" fractionAlong="1"/>
+                <distal x="-1.800000e+02" y="2.500000e+02" z="0.000000e+00" diameter="1.24"/>
+            </segment>
+            <segment id="78" name="Seg0_comp_40">
+                <parent segment="77" fractionAlong="1"/>
+                <proximal x="1.837706e-03" y="4.000000e+02" z="0.000000e+00" diameter="3.0"/>
+                <distal x="2.490441e-03" y="4.375001e+02" z="0.000000e+00" diameter="3.0"/>
+            </segment>
+            <segment id="79" name="Seg1_comp_40">
+                <parent segment="78" fractionAlong="1"/>
+                <distal x="3.093468e-03" y="4.750000e+02" z="0.000000e+00" diameter="3.0"/>
+            </segment>
+            <segment id="80" name="Seg0_comp_41">
+                <parent segment="79" fractionAlong="1"/>
+                <proximal x="3.093468e-03" y="4.750000e+02" z="0.000000e+00" diameter="2.8"/>
+                <distal x="3.701352e-03" y="5.125000e+02" z="0.000000e+00" diameter="2.8"/>
+            </segment>
+            <segment id="81" name="Seg1_comp_41">
+                <parent segment="80" fractionAlong="1"/>
+                <distal x="4.297351e-03" y="5.500000e+02" z="0.000000e+00" diameter="2.8"/>
+            </segment>
+            <segment id="82" name="Seg0_comp_42">
+                <parent segment="81" fractionAlong="1"/>
+                <proximal x="4.297351e-03" y="5.500000e+02" z="0.000000e+00" diameter="2.6"/>
+                <distal x="4.884154e-03" y="5.875000e+02" z="0.000000e+00" diameter="2.6"/>
+            </segment>
+            <segment id="83" name="Seg1_comp_42">
+                <parent segment="82" fractionAlong="1"/>
+                <distal x="5.499065e-03" y="6.250000e+02" z="0.000000e+00" diameter="2.6"/>
+            </segment>
+            <segment id="84" name="Seg0_comp_43">
+                <parent segment="83" fractionAlong="1"/>
+                <proximal x="5.499065e-03" y="6.250000e+02" z="0.000000e+00" diameter="2.4"/>
+                <distal x="6.158827e-03" y="6.625000e+02" z="0.000000e+00" diameter="2.4"/>
+            </segment>
+            <segment id="85" name="Seg1_comp_43">
+                <parent segment="84" fractionAlong="1"/>
+                <distal x="6.742942e-03" y="7.000000e+02" z="0.000000e+00" diameter="2.4"/>
+            </segment>
+            <segment id="86" name="Seg0_comp_44">
+                <parent segment="85" fractionAlong="1"/>
+                <proximal x="6.742942e-03" y="7.000000e+02" z="0.000000e+00" diameter="2.0"/>
+                <distal x="7.388649e-03" y="7.375000e+02" z="0.000000e+00" diameter="2.0"/>
+            </segment>
+            <segment id="87" name="Seg1_comp_44">
+                <parent segment="86" fractionAlong="1"/>
+                <distal x="7.996533e-03" y="7.750000e+02" z="0.000000e+00" diameter="2.0"/>
+            </segment>
+            <segment id="88" name="Seg0_comp_45">
+                <parent segment="87" fractionAlong="1"/>
+                <proximal x="7.996533e-03" y="7.750000e+02" z="0.000000e+00" diameter="1.6"/>
+                <distal x="8.642241e-03" y="8.125001e+02" z="0.000000e+00" diameter="1.6"/>
+            </segment>
+            <segment id="89" name="Seg1_comp_45">
+                <parent segment="88" fractionAlong="1"/>
+                <distal x="9.192871e-03" y="8.500000e+02" z="0.000000e+00" diameter="1.6"/>
+            </segment>
+            <segment id="90" name="Seg0_comp_46">
+                <parent segment="89" fractionAlong="1"/>
+                <proximal x="9.192871e-03" y="8.500000e+02" z="0.000000e+00" diameter="1.4"/>
+                <distal x="9.800755e-03" y="8.874999e+02" z="0.000000e+00" diameter="1.4"/>
+            </segment>
+            <segment id="91" name="Seg1_comp_46">
+                <parent segment="90" fractionAlong="1"/>
+                <distal x="1.041835e-02" y="9.250000e+02" z="0.000000e+00" diameter="1.4"/>
+            </segment>
+            <segment id="92" name="Seg0_comp_47">
+                <parent segment="91" fractionAlong="1"/>
+                <proximal x="1.041835e-02" y="9.250000e+02" z="0.000000e+00" diameter="1.2"/>
+                <distal x="1.102624e-02" y="9.625000e+02" z="0.000000e+00" diameter="1.2"/>
+            </segment>
+            <segment id="93" name="Seg1_comp_47">
+                <parent segment="92" fractionAlong="1"/>
+                <distal x="1.164818e-02" y="1.000000e+03" z="0.000000e+00" diameter="1.2"/>
+            </segment>
+            <segment id="96" name="Seg0_comp_49">
+                <parent segment="93" fractionAlong="1"/>
+                <proximal x="1.164818e-02" y="1.000000e+03" z="0.000000e+00" diameter="1.1"/>
+                <distal x="1.169509e+01" y="1.027632e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="97" name="Seg1_comp_49">
+                <parent segment="96" fractionAlong="1"/>
+                <distal x="2.337855e+01" y="1.055268e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="94" name="Seg0_comp_48">
+                <parent segment="93" fractionAlong="1"/>
+                <proximal x="1.164818e-02" y="1.000000e+03" z="0.000000e+00" diameter="1.1"/>
+                <distal x="-1.166994e+01" y="1.027632e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="95" name="Seg1_comp_48">
+                <parent segment="94" fractionAlong="1"/>
+                <distal x="-2.335203e+01" y="1.055268e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="100" name="Seg0_comp_51">
+                <parent segment="97" fractionAlong="1"/>
+                <proximal x="2.337855e+01" y="1.055268e+03" z="0.000000e+00" diameter="1.1"/>
+                <distal x="3.506099e+01" y="1.082898e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="101" name="Seg1_comp_51">
+                <parent segment="100" fractionAlong="1"/>
+                <distal x="4.674449e+01" y="1.110527e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="98" name="Seg0_comp_50">
+                <parent segment="95" fractionAlong="1"/>
+                <proximal x="-2.335203e+01" y="1.055268e+03" z="0.000000e+00" diameter="1.1"/>
+                <distal x="-3.503420e+01" y="1.082899e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="99" name="Seg1_comp_50">
+                <parent segment="98" fractionAlong="1"/>
+                <distal x="-4.671619e+01" y="1.110529e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="104" name="Seg0_comp_53">
+                <parent segment="101" fractionAlong="1"/>
+                <proximal x="4.674449e+01" y="1.110527e+03" z="0.000000e+00" diameter="1.1"/>
+                <distal x="5.842691e+01" y="1.138157e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="105" name="Seg1_comp_53">
+                <parent segment="104" fractionAlong="1"/>
+                <distal x="7.011041e+01" y="1.165787e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="102" name="Seg0_comp_52">
+                <parent segment="99" fractionAlong="1"/>
+                <proximal x="-4.671619e+01" y="1.110529e+03" z="0.000000e+00" diameter="1.1"/>
+                <distal x="-5.839841e+01" y="1.138159e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="103" name="Seg1_comp_52">
+                <parent segment="102" fractionAlong="1"/>
+                <distal x="-7.008056e+01" y="1.165789e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="108" name="Seg0_comp_55">
+                <parent segment="105" fractionAlong="1"/>
+                <proximal x="7.011041e+01" y="1.165787e+03" z="0.000000e+00" diameter="1.1"/>
+                <distal x="8.179280e+01" y="1.193417e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="109" name="Seg1_comp_55">
+                <parent segment="108" fractionAlong="1"/>
+                <distal x="9.347627e+01" y="1.221056e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="106" name="Seg0_comp_54">
+                <parent segment="103" fractionAlong="1"/>
+                <proximal x="-7.008056e+01" y="1.165789e+03" z="0.000000e+00" diameter="1.1"/>
+                <distal x="-8.176266e+01" y="1.193419e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segment id="107" name="Seg1_comp_54">
+                <parent segment="106" fractionAlong="1"/>
+                <distal x="-9.344476e+01" y="1.221059e+03" z="0.000000e+00" diameter="1.1"/>
+            </segment>
+            <segmentGroup neuroLexId="sao864921383" id="comp_1">
+                <property tag="numberInternalDivisions" value="2"/>
+                <member segment="0"/>
+                <member segment="1"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_56">
+                <property tag="numberInternalDivisions" value="24"/>
+                <member segment="110"/>
+                <member segment="111"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_35">
+                <property tag="numberInternalDivisions" value="16"/>
+                <member segment="68"/>
+                <member segment="69"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_6">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="10"/>
+                <member segment="11"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_5">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="8"/>
+                <member segment="9"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_4">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="6"/>
+                <member segment="7"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_3">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="4"/>
+                <member segment="5"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_2">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="2"/>
+                <member segment="3"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_57">
+                <property tag="numberInternalDivisions" value="54"/>
+                <member segment="112"/>
+                <member segment="113"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_36">
+                <property tag="numberInternalDivisions" value="16"/>
+                <member segment="70"/>
+                <member segment="71"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_12">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="22"/>
+                <member segment="23"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_7">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="12"/>
+                <member segment="13"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_17">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="32"/>
+                <member segment="33"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_16">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="30"/>
+                <member segment="31"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_15">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="28"/>
+                <member segment="29"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_14">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="26"/>
+                <member segment="27"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_13">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="24"/>
+                <member segment="25"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_59">
+                <property tag="numberInternalDivisions" value="64"/>
+                <member segment="116"/>
+                <member segment="117"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_58">
+                <property tag="numberInternalDivisions" value="64"/>
+                <member segment="114"/>
+                <member segment="115"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_11">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="20"/>
+                <member segment="21"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_8">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="14"/>
+                <member segment="15"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_37">
+                <property tag="numberInternalDivisions" value="16"/>
+                <member segment="72"/>
+                <member segment="73"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_23">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="44"/>
+                <member segment="45"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_18">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="34"/>
+                <member segment="35"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_28">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="54"/>
+                <member segment="55"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_27">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="52"/>
+                <member segment="53"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_26">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="50"/>
+                <member segment="51"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_25">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="48"/>
+                <member segment="49"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_24">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="46"/>
+                <member segment="47"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_61">
+                <property tag="numberInternalDivisions" value="64"/>
+                <member segment="120"/>
+                <member segment="121"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_60">
+                <property tag="numberInternalDivisions" value="64"/>
+                <member segment="118"/>
+                <member segment="119"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_22">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="42"/>
+                <member segment="43"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_19">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="36"/>
+                <member segment="37"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_10">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="18"/>
+                <member segment="19"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_9">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="16"/>
+                <member segment="17"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_38">
+                <property tag="numberInternalDivisions" value="17"/>
+                <member segment="74"/>
+                <member segment="75"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_34">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="66"/>
+                <member segment="67"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_29">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="56"/>
+                <member segment="57"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_33">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="64"/>
+                <member segment="65"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_30">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="58"/>
+                <member segment="59"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_21">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="40"/>
+                <member segment="41"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_20">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="38"/>
+                <member segment="39"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_39">
+                <property tag="numberInternalDivisions" value="17"/>
+                <member segment="76"/>
+                <member segment="77"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_32">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="62"/>
+                <member segment="63"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_31">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="60"/>
+                <member segment="61"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_40">
+                <property tag="numberInternalDivisions" value="18"/>
+                <member segment="78"/>
+                <member segment="79"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_41">
+                <property tag="numberInternalDivisions" value="18"/>
+                <member segment="80"/>
+                <member segment="81"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_42">
+                <property tag="numberInternalDivisions" value="19"/>
+                <member segment="82"/>
+                <member segment="83"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_43">
+                <property tag="numberInternalDivisions" value="20"/>
+                <member segment="84"/>
+                <member segment="85"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_44">
+                <property tag="numberInternalDivisions" value="22"/>
+                <member segment="86"/>
+                <member segment="87"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_45">
+                <property tag="numberInternalDivisions" value="24"/>
+                <member segment="88"/>
+                <member segment="89"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_46">
+                <property tag="numberInternalDivisions" value="26"/>
+                <member segment="90"/>
+                <member segment="91"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_47">
+                <property tag="numberInternalDivisions" value="28"/>
+                <member segment="92"/>
+                <member segment="93"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_49">
+                <property tag="numberInternalDivisions" value="23"/>
+                <member segment="96"/>
+                <member segment="97"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_48">
+                <property tag="numberInternalDivisions" value="23"/>
+                <member segment="94"/>
+                <member segment="95"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_51">
+                <property tag="numberInternalDivisions" value="23"/>
+                <member segment="100"/>
+                <member segment="101"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_50">
+                <property tag="numberInternalDivisions" value="23"/>
+                <member segment="98"/>
+                <member segment="99"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_53">
+                <property tag="numberInternalDivisions" value="23"/>
+                <member segment="104"/>
+                <member segment="105"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_52">
+                <property tag="numberInternalDivisions" value="23"/>
+                <member segment="102"/>
+                <member segment="103"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_55">
+                <property tag="numberInternalDivisions" value="23"/>
+                <member segment="108"/>
+                <member segment="109"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="sao864921383" id="comp_54">
+                <property tag="numberInternalDivisions" value="23"/>
+                <member segment="106"/>
+                <member segment="107"/>
+            </segmentGroup>
+            <segmentGroup id="all">
+                <include segmentGroup="comp_1"/>
+                <include segmentGroup="comp_56"/>
+                <include segmentGroup="comp_35"/>
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_57"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_17"/>
+                <include segmentGroup="comp_16"/>
+                <include segmentGroup="comp_15"/>
+                <include segmentGroup="comp_14"/>
+                <include segmentGroup="comp_13"/>
+                <include segmentGroup="comp_59"/>
+                <include segmentGroup="comp_58"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_23"/>
+                <include segmentGroup="comp_18"/>
+                <include segmentGroup="comp_28"/>
+                <include segmentGroup="comp_27"/>
+                <include segmentGroup="comp_26"/>
+                <include segmentGroup="comp_25"/>
+                <include segmentGroup="comp_24"/>
+                <include segmentGroup="comp_61"/>
+                <include segmentGroup="comp_60"/>
+                <include segmentGroup="comp_22"/>
+                <include segmentGroup="comp_19"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_34"/>
+                <include segmentGroup="comp_29"/>
+                <include segmentGroup="comp_33"/>
+                <include segmentGroup="comp_30"/>
+                <include segmentGroup="comp_21"/>
+                <include segmentGroup="comp_20"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_32"/>
+                <include segmentGroup="comp_31"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+                <include segmentGroup="comp_45"/>
+                <include segmentGroup="comp_46"/>
+                <include segmentGroup="comp_47"/>
+                <include segmentGroup="comp_49"/>
+                <include segmentGroup="comp_48"/>
+                <include segmentGroup="comp_51"/>
+                <include segmentGroup="comp_50"/>
+                <include segmentGroup="comp_53"/>
+                <include segmentGroup="comp_52"/>
+                <include segmentGroup="comp_55"/>
+                <include segmentGroup="comp_54"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_1">
+                <include segmentGroup="comp_1"/>
+                <include segmentGroup="comp_35"/>
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_17"/>
+                <include segmentGroup="comp_16"/>
+                <include segmentGroup="comp_15"/>
+                <include segmentGroup="comp_14"/>
+                <include segmentGroup="comp_13"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_23"/>
+                <include segmentGroup="comp_18"/>
+                <include segmentGroup="comp_28"/>
+                <include segmentGroup="comp_27"/>
+                <include segmentGroup="comp_26"/>
+                <include segmentGroup="comp_25"/>
+                <include segmentGroup="comp_24"/>
+                <include segmentGroup="comp_22"/>
+                <include segmentGroup="comp_19"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_34"/>
+                <include segmentGroup="comp_29"/>
+                <include segmentGroup="comp_33"/>
+                <include segmentGroup="comp_30"/>
+                <include segmentGroup="comp_21"/>
+                <include segmentGroup="comp_20"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_32"/>
+                <include segmentGroup="comp_31"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+                <include segmentGroup="comp_45"/>
+                <include segmentGroup="comp_46"/>
+                <include segmentGroup="comp_47"/>
+                <include segmentGroup="comp_49"/>
+                <include segmentGroup="comp_48"/>
+                <include segmentGroup="comp_51"/>
+                <include segmentGroup="comp_50"/>
+                <include segmentGroup="comp_53"/>
+                <include segmentGroup="comp_52"/>
+                <include segmentGroup="comp_55"/>
+                <include segmentGroup="comp_54"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_2">
+                <include segmentGroup="comp_1"/>
+                <include segmentGroup="comp_56"/>
+                <include segmentGroup="comp_35"/>
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_57"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_59"/>
+                <include segmentGroup="comp_58"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_61"/>
+                <include segmentGroup="comp_60"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_4">
+                <include segmentGroup="comp_1"/>
+                <include segmentGroup="comp_56"/>
+                <include segmentGroup="comp_57"/>
+                <include segmentGroup="comp_59"/>
+                <include segmentGroup="comp_58"/>
+                <include segmentGroup="comp_61"/>
+                <include segmentGroup="comp_60"/>
+            </segmentGroup>
+            <segmentGroup id="OneSecGrp_SectionRef_1">
+                <include segmentGroup="comp_1"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="GO:0043025" id="soma_group">
+                <include segmentGroup="comp_1"/>
+            </segmentGroup>
+            <segmentGroup id="DeepBask_dends">
+                <include segmentGroup="comp_1"/>
+                <include segmentGroup="comp_35"/>
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_36"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="GO:0030424" id="axon_group">
+                <include segmentGroup="comp_56"/>
+                <include segmentGroup="comp_57"/>
+                <include segmentGroup="comp_59"/>
+                <include segmentGroup="comp_58"/>
+                <include segmentGroup="comp_61"/>
+                <include segmentGroup="comp_60"/>
+            </segmentGroup>
+            <segmentGroup id="prox_axon">
+                <include segmentGroup="comp_56"/>
+            </segmentGroup>
+            <segmentGroup neuroLexId="GO:0030425" id="dendrite_group">
+                <include segmentGroup="comp_35"/>
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_17"/>
+                <include segmentGroup="comp_16"/>
+                <include segmentGroup="comp_15"/>
+                <include segmentGroup="comp_14"/>
+                <include segmentGroup="comp_13"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_23"/>
+                <include segmentGroup="comp_18"/>
+                <include segmentGroup="comp_28"/>
+                <include segmentGroup="comp_27"/>
+                <include segmentGroup="comp_26"/>
+                <include segmentGroup="comp_25"/>
+                <include segmentGroup="comp_24"/>
+                <include segmentGroup="comp_22"/>
+                <include segmentGroup="comp_19"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_34"/>
+                <include segmentGroup="comp_29"/>
+                <include segmentGroup="comp_33"/>
+                <include segmentGroup="comp_30"/>
+                <include segmentGroup="comp_21"/>
+                <include segmentGroup="comp_20"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_32"/>
+                <include segmentGroup="comp_31"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+                <include segmentGroup="comp_45"/>
+                <include segmentGroup="comp_46"/>
+                <include segmentGroup="comp_47"/>
+                <include segmentGroup="comp_49"/>
+                <include segmentGroup="comp_48"/>
+                <include segmentGroup="comp_51"/>
+                <include segmentGroup="comp_50"/>
+                <include segmentGroup="comp_53"/>
+                <include segmentGroup="comp_52"/>
+                <include segmentGroup="comp_55"/>
+                <include segmentGroup="comp_54"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_5">
+                <include segmentGroup="comp_35"/>
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_17"/>
+                <include segmentGroup="comp_16"/>
+                <include segmentGroup="comp_15"/>
+                <include segmentGroup="comp_14"/>
+                <include segmentGroup="comp_13"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_23"/>
+                <include segmentGroup="comp_18"/>
+                <include segmentGroup="comp_28"/>
+                <include segmentGroup="comp_27"/>
+                <include segmentGroup="comp_26"/>
+                <include segmentGroup="comp_25"/>
+                <include segmentGroup="comp_24"/>
+                <include segmentGroup="comp_22"/>
+                <include segmentGroup="comp_19"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_34"/>
+                <include segmentGroup="comp_29"/>
+                <include segmentGroup="comp_33"/>
+                <include segmentGroup="comp_30"/>
+                <include segmentGroup="comp_21"/>
+                <include segmentGroup="comp_20"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_32"/>
+                <include segmentGroup="comp_31"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+                <include segmentGroup="comp_45"/>
+                <include segmentGroup="comp_46"/>
+                <include segmentGroup="comp_47"/>
+                <include segmentGroup="comp_49"/>
+                <include segmentGroup="comp_48"/>
+                <include segmentGroup="comp_51"/>
+                <include segmentGroup="comp_50"/>
+                <include segmentGroup="comp_53"/>
+                <include segmentGroup="comp_52"/>
+                <include segmentGroup="comp_55"/>
+                <include segmentGroup="comp_54"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_9">
+                <include segmentGroup="comp_35"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_17"/>
+                <include segmentGroup="comp_16"/>
+                <include segmentGroup="comp_15"/>
+                <include segmentGroup="comp_14"/>
+                <include segmentGroup="comp_13"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_23"/>
+                <include segmentGroup="comp_18"/>
+                <include segmentGroup="comp_28"/>
+                <include segmentGroup="comp_27"/>
+                <include segmentGroup="comp_26"/>
+                <include segmentGroup="comp_25"/>
+                <include segmentGroup="comp_24"/>
+                <include segmentGroup="comp_22"/>
+                <include segmentGroup="comp_19"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_34"/>
+                <include segmentGroup="comp_29"/>
+                <include segmentGroup="comp_33"/>
+                <include segmentGroup="comp_30"/>
+                <include segmentGroup="comp_21"/>
+                <include segmentGroup="comp_20"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_32"/>
+                <include segmentGroup="comp_31"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+                <include segmentGroup="comp_45"/>
+                <include segmentGroup="comp_46"/>
+                <include segmentGroup="comp_47"/>
+                <include segmentGroup="comp_49"/>
+                <include segmentGroup="comp_48"/>
+                <include segmentGroup="comp_51"/>
+                <include segmentGroup="comp_50"/>
+                <include segmentGroup="comp_53"/>
+                <include segmentGroup="comp_52"/>
+                <include segmentGroup="comp_55"/>
+                <include segmentGroup="comp_54"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_13">
+                <include segmentGroup="comp_35"/>
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_17"/>
+                <include segmentGroup="comp_16"/>
+                <include segmentGroup="comp_15"/>
+                <include segmentGroup="comp_14"/>
+                <include segmentGroup="comp_13"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_23"/>
+                <include segmentGroup="comp_18"/>
+                <include segmentGroup="comp_28"/>
+                <include segmentGroup="comp_27"/>
+                <include segmentGroup="comp_26"/>
+                <include segmentGroup="comp_25"/>
+                <include segmentGroup="comp_24"/>
+                <include segmentGroup="comp_22"/>
+                <include segmentGroup="comp_19"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+                <include segmentGroup="comp_34"/>
+                <include segmentGroup="comp_29"/>
+                <include segmentGroup="comp_33"/>
+                <include segmentGroup="comp_30"/>
+                <include segmentGroup="comp_21"/>
+                <include segmentGroup="comp_20"/>
+                <include segmentGroup="comp_32"/>
+                <include segmentGroup="comp_31"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_15">
+                <include segmentGroup="comp_35"/>
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_19">
+                <include segmentGroup="comp_35"/>
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_17"/>
+                <include segmentGroup="comp_16"/>
+                <include segmentGroup="comp_15"/>
+                <include segmentGroup="comp_14"/>
+                <include segmentGroup="comp_13"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_23"/>
+                <include segmentGroup="comp_18"/>
+                <include segmentGroup="comp_28"/>
+                <include segmentGroup="comp_27"/>
+                <include segmentGroup="comp_26"/>
+                <include segmentGroup="comp_25"/>
+                <include segmentGroup="comp_24"/>
+                <include segmentGroup="comp_22"/>
+                <include segmentGroup="comp_19"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_34"/>
+                <include segmentGroup="comp_29"/>
+                <include segmentGroup="comp_33"/>
+                <include segmentGroup="comp_30"/>
+                <include segmentGroup="comp_21"/>
+                <include segmentGroup="comp_20"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_32"/>
+                <include segmentGroup="comp_31"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+            </segmentGroup>
+            <segmentGroup id="OneSecGrp_SectionRef_3">
+                <include segmentGroup="comp_35"/>
+            </segmentGroup>
+            <segmentGroup id="dends_no_tuft">
+                <include segmentGroup="comp_35"/>
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_17"/>
+                <include segmentGroup="comp_16"/>
+                <include segmentGroup="comp_15"/>
+                <include segmentGroup="comp_14"/>
+                <include segmentGroup="comp_13"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_23"/>
+                <include segmentGroup="comp_18"/>
+                <include segmentGroup="comp_28"/>
+                <include segmentGroup="comp_27"/>
+                <include segmentGroup="comp_26"/>
+                <include segmentGroup="comp_25"/>
+                <include segmentGroup="comp_24"/>
+                <include segmentGroup="comp_22"/>
+                <include segmentGroup="comp_19"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_34"/>
+                <include segmentGroup="comp_29"/>
+                <include segmentGroup="comp_33"/>
+                <include segmentGroup="comp_30"/>
+                <include segmentGroup="comp_21"/>
+                <include segmentGroup="comp_20"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_32"/>
+                <include segmentGroup="comp_31"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+                <include segmentGroup="comp_45"/>
+                <include segmentGroup="comp_46"/>
+                <include segmentGroup="comp_47"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_8">
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_2"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_18">
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+            </segmentGroup>
+            <segmentGroup id="L4SS_dends">
+                <include segmentGroup="comp_6"/>
+                <include segmentGroup="comp_5"/>
+                <include segmentGroup="comp_4"/>
+                <include segmentGroup="comp_3"/>
+                <include segmentGroup="comp_2"/>
+                <include segmentGroup="comp_36"/>
+                <include segmentGroup="comp_12"/>
+                <include segmentGroup="comp_7"/>
+                <include segmentGroup="comp_11"/>
+                <include segmentGroup="comp_8"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_10"/>
+                <include segmentGroup="comp_9"/>
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_14">
+                <include segmentGroup="comp_17"/>
+                <include segmentGroup="comp_16"/>
+                <include segmentGroup="comp_15"/>
+                <include segmentGroup="comp_14"/>
+                <include segmentGroup="comp_13"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_23"/>
+                <include segmentGroup="comp_18"/>
+                <include segmentGroup="comp_28"/>
+                <include segmentGroup="comp_27"/>
+                <include segmentGroup="comp_26"/>
+                <include segmentGroup="comp_25"/>
+                <include segmentGroup="comp_24"/>
+                <include segmentGroup="comp_22"/>
+                <include segmentGroup="comp_19"/>
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_34"/>
+                <include segmentGroup="comp_29"/>
+                <include segmentGroup="comp_33"/>
+                <include segmentGroup="comp_30"/>
+                <include segmentGroup="comp_21"/>
+                <include segmentGroup="comp_20"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_32"/>
+                <include segmentGroup="comp_31"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+                <include segmentGroup="comp_45"/>
+                <include segmentGroup="comp_46"/>
+                <include segmentGroup="comp_47"/>
+                <include segmentGroup="comp_49"/>
+                <include segmentGroup="comp_48"/>
+                <include segmentGroup="comp_51"/>
+                <include segmentGroup="comp_50"/>
+                <include segmentGroup="comp_53"/>
+                <include segmentGroup="comp_52"/>
+                <include segmentGroup="comp_55"/>
+                <include segmentGroup="comp_54"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_16">
+                <include segmentGroup="comp_17"/>
+                <include segmentGroup="comp_16"/>
+                <include segmentGroup="comp_15"/>
+                <include segmentGroup="comp_14"/>
+                <include segmentGroup="comp_13"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_23"/>
+                <include segmentGroup="comp_18"/>
+                <include segmentGroup="comp_28"/>
+                <include segmentGroup="comp_27"/>
+                <include segmentGroup="comp_26"/>
+                <include segmentGroup="comp_25"/>
+                <include segmentGroup="comp_24"/>
+                <include segmentGroup="comp_22"/>
+                <include segmentGroup="comp_19"/>
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_34"/>
+                <include segmentGroup="comp_29"/>
+                <include segmentGroup="comp_33"/>
+                <include segmentGroup="comp_30"/>
+                <include segmentGroup="comp_21"/>
+                <include segmentGroup="comp_20"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_32"/>
+                <include segmentGroup="comp_31"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+            </segmentGroup>
+            <segmentGroup id="dend_tips_shaft">
+                <include segmentGroup="comp_17"/>
+                <include segmentGroup="comp_16"/>
+                <include segmentGroup="comp_15"/>
+                <include segmentGroup="comp_14"/>
+                <include segmentGroup="comp_13"/>
+                <include segmentGroup="comp_37"/>
+                <include segmentGroup="comp_23"/>
+                <include segmentGroup="comp_18"/>
+                <include segmentGroup="comp_28"/>
+                <include segmentGroup="comp_27"/>
+                <include segmentGroup="comp_26"/>
+                <include segmentGroup="comp_25"/>
+                <include segmentGroup="comp_24"/>
+                <include segmentGroup="comp_22"/>
+                <include segmentGroup="comp_19"/>
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_34"/>
+                <include segmentGroup="comp_29"/>
+                <include segmentGroup="comp_33"/>
+                <include segmentGroup="comp_30"/>
+                <include segmentGroup="comp_21"/>
+                <include segmentGroup="comp_20"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_32"/>
+                <include segmentGroup="comp_31"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+                <include segmentGroup="comp_45"/>
+                <include segmentGroup="comp_46"/>
+                <include segmentGroup="comp_47"/>
+                <include segmentGroup="comp_49"/>
+                <include segmentGroup="comp_48"/>
+                <include segmentGroup="comp_51"/>
+                <include segmentGroup="comp_50"/>
+                <include segmentGroup="comp_53"/>
+                <include segmentGroup="comp_52"/>
+                <include segmentGroup="comp_55"/>
+                <include segmentGroup="comp_54"/>
+            </segmentGroup>
+            <segmentGroup id="distal_axon">
+                <include segmentGroup="comp_61"/>
+                <include segmentGroup="comp_60"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_11">
+                <include segmentGroup="comp_38"/>
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+                <include segmentGroup="comp_45"/>
+                <include segmentGroup="comp_46"/>
+                <include segmentGroup="comp_47"/>
+            </segmentGroup>
+            <segmentGroup id="apic_shaft">
+                <include segmentGroup="comp_39"/>
+                <include segmentGroup="comp_40"/>
+                <include segmentGroup="comp_41"/>
+                <include segmentGroup="comp_42"/>
+                <include segmentGroup="comp_43"/>
+                <include segmentGroup="comp_44"/>
+                <include segmentGroup="comp_45"/>
+                <include segmentGroup="comp_46"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_17">
+                <include segmentGroup="comp_45"/>
+                <include segmentGroup="comp_46"/>
+                <include segmentGroup="comp_47"/>
+                <include segmentGroup="comp_49"/>
+                <include segmentGroup="comp_48"/>
+                <include segmentGroup="comp_51"/>
+                <include segmentGroup="comp_50"/>
+                <include segmentGroup="comp_53"/>
+                <include segmentGroup="comp_52"/>
+                <include segmentGroup="comp_55"/>
+                <include segmentGroup="comp_54"/>
+            </segmentGroup>
+            <segmentGroup id="tuft_plus">
+                <include segmentGroup="comp_47"/>
+                <include segmentGroup="comp_49"/>
+                <include segmentGroup="comp_48"/>
+                <include segmentGroup="comp_51"/>
+                <include segmentGroup="comp_50"/>
+                <include segmentGroup="comp_53"/>
+                <include segmentGroup="comp_52"/>
+                <include segmentGroup="comp_55"/>
+                <include segmentGroup="comp_54"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_7">
+                <include segmentGroup="comp_49"/>
+                <include segmentGroup="comp_48"/>
+                <include segmentGroup="comp_51"/>
+                <include segmentGroup="comp_50"/>
+                <include segmentGroup="comp_53"/>
+                <include segmentGroup="comp_52"/>
+                <include segmentGroup="comp_55"/>
+                <include segmentGroup="comp_54"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_12">
+                <include segmentGroup="comp_49"/>
+                <include segmentGroup="comp_48"/>
+            </segmentGroup>
+            <segmentGroup id="ModelViewParmSubset_10">
+                <include segmentGroup="comp_51"/>
+                <include segmentGroup="comp_50"/>
+                <include segmentGroup="comp_53"/>
+                <include segmentGroup="comp_52"/>
+                <include segmentGroup="comp_55"/>
+                <include segmentGroup="comp_54"/>
+            </segmentGroup>
+        </morphology>
+        <biophysicalProperties id="biophys">
+            <membraneProperties>
+                <channelDensity id="ar_OneSecGrp_SectionRef_1" ionChannel="ar__m00_25" condDensity="0.1 mS_per_cm2" erev="-35.0 mV" segmentGroup="OneSecGrp_SectionRef_1" ion="ar"/>
+                <channelDensity id="ar_dends_no_tuft" ionChannel="ar__m00_25" condDensity="0.2 mS_per_cm2" erev="-35.0 mV" segmentGroup="dends_no_tuft" ion="ar"/>
+                <channelDensity id="ar_ModelViewParmSubset_7" ionChannel="ar__m00_25" condDensity="0.4 mS_per_cm2" erev="-35.0 mV" segmentGroup="ModelViewParmSubset_7" ion="ar"/>
+                <channelDensity id="cal_OneSecGrp_SectionRef_1" ionChannel="cal" condDensity="1.6 mS_per_cm2" erev="125.0 mV" segmentGroup="OneSecGrp_SectionRef_1" ion="ca"/>
+                <channelDensity id="cal_ModelViewParmSubset_12" ionChannel="cal" condDensity="2.16 mS_per_cm2" erev="125.0 mV" segmentGroup="ModelViewParmSubset_12" ion="ca"/>
+                <channelDensity id="cal_ModelViewParmSubset_13" ionChannel="cal" condDensity="3.2 mS_per_cm2" erev="125.0 mV" segmentGroup="ModelViewParmSubset_13" ion="ca"/>
+                <channelDensity id="cal_ModelViewParmSubset_10" ionChannel="cal" condDensity="0.48 mS_per_cm2" erev="125.0 mV" segmentGroup="ModelViewParmSubset_10" ion="ca"/>
+                <channelDensity id="cal_ModelViewParmSubset_11" ionChannel="cal" condDensity="0.8 mS_per_cm2" erev="125.0 mV" segmentGroup="ModelViewParmSubset_11" ion="ca"/>
+                <channelDensity id="cat_OneSecGrp_SectionRef_1" ionChannel="cat" condDensity="0.1 mS_per_cm2" erev="125.0 mV" segmentGroup="OneSecGrp_SectionRef_1" ion="cat"/>
+                <channelDensity id="cat_ModelViewParmSubset_5" ionChannel="cat" condDensity="0.2 mS_per_cm2" erev="125.0 mV" segmentGroup="ModelViewParmSubset_5" ion="cat"/>
+                <channelDensity id="k2_ModelViewParmSubset_5" ionChannel="k2" condDensity="1.0 mS_per_cm2" erev="-95.0 mV" segmentGroup="ModelViewParmSubset_5" ion="k"/>
+                <channelDensity id="k2_ModelViewParmSubset_4" ionChannel="k2" condDensity="0.5 mS_per_cm2" erev="-95.0 mV" segmentGroup="ModelViewParmSubset_4" ion="k"/>
+                <channelDensity id="ka_ModelViewParmSubset_14" ionChannel="ka" condDensity="1.2 mS_per_cm2" erev="-95.0 mV" segmentGroup="ModelViewParmSubset_14" ion="k"/>
+                <channelDensity id="ka_ModelViewParmSubset_15" ionChannel="ka" condDensity="16.0 mS_per_cm2" erev="-95.0 mV" segmentGroup="ModelViewParmSubset_15" ion="k"/>
+                <channelDensity id="ka_OneSecGrp_SectionRef_1" ionChannel="ka" condDensity="20.0 mS_per_cm2" erev="-95.0 mV" segmentGroup="OneSecGrp_SectionRef_1" ion="k"/>
+                <channelDensity id="ka_axon_group" ionChannel="ka" condDensity="0.6 mS_per_cm2" erev="-95.0 mV" segmentGroup="axon_group" ion="k"/>
+                <channelDensity id="kahp_deeppyr_OneSecGrp_SectionRef_1" ionChannel="kahp_deeppyr" condDensity="0.2 mS_per_cm2" erev="-95.0 mV" segmentGroup="OneSecGrp_SectionRef_1" ion="k"/>
+                <channelDensity id="kahp_deeppyr_ModelViewParmSubset_5" ionChannel="kahp_deeppyr" condDensity="0.4 mS_per_cm2" erev="-95.0 mV" segmentGroup="ModelViewParmSubset_5" ion="k"/>
+                <channelDensity id="kc_ModelViewParmSubset_16" ionChannel="kc" condDensity="1.8 mS_per_cm2" erev="-95.0 mV" segmentGroup="ModelViewParmSubset_16" ion="k"/>
+                <channelDensity id="kc_OneSecGrp_SectionRef_1" ionChannel="kc" condDensity="28.8 mS_per_cm2" erev="-95.0 mV" segmentGroup="OneSecGrp_SectionRef_1" ion="k"/>
+                <channelDensity id="kc_ModelViewParmSubset_17" ionChannel="kc" condDensity="4.32 mS_per_cm2" erev="-95.0 mV" segmentGroup="ModelViewParmSubset_17" ion="k"/>
+                <channelDensity id="kc_ModelViewParmSubset_15" ionChannel="kc" condDensity="57.6 mS_per_cm2" erev="-95.0 mV" segmentGroup="ModelViewParmSubset_15" ion="k"/>
+                <channelDensity id="kdr_ModelViewParmSubset_18" ionChannel="kdr" condDensity="150.0 mS_per_cm2" erev="-95.0 mV" segmentGroup="ModelViewParmSubset_18" ion="k"/>
+                <channelDensity id="kdr_OneSecGrp_SectionRef_1" ionChannel="kdr" condDensity="170.0 mS_per_cm2" erev="-95.0 mV" segmentGroup="OneSecGrp_SectionRef_1" ion="k"/>
+                <channelDensity id="kdr_OneSecGrp_SectionRef_3" ionChannel="kdr" condDensity="240.0 mS_per_cm2" erev="-95.0 mV" segmentGroup="OneSecGrp_SectionRef_3" ion="k"/>
+                <channelDensity id="kdr_axon_group" ionChannel="kdr" condDensity="450.0 mS_per_cm2" erev="-95.0 mV" segmentGroup="axon_group" ion="k"/>
+                <channelDensity id="km_ModelViewParmSubset_19" ionChannel="km" condDensity="27.2 mS_per_cm2" erev="-95.0 mV" segmentGroup="ModelViewParmSubset_19" ion="k"/>
+                <channelDensity id="km_axon_group" ionChannel="km" condDensity="30.0 mS_per_cm2" erev="-95.0 mV" segmentGroup="axon_group" ion="k"/>
+                <channelDensity id="km_ModelViewParmSubset_17" ionChannel="km" condDensity="8.0 mS_per_cm2" erev="-95.0 mV" segmentGroup="ModelViewParmSubset_17" ion="k"/>
+                <channelDensity id="km_OneSecGrp_SectionRef_1" ionChannel="km" condDensity="8.5 mS_per_cm2" erev="-95.0 mV" segmentGroup="OneSecGrp_SectionRef_1" ion="k"/>
+                <channelDensity id="naf_ModelViewParmSubset_18" ionChannel="naf__a0__b0__c0__d0__fastNa_shiftmin3_5" condDensity="150.0 mS_per_cm2" erev="50.0 mV" segmentGroup="ModelViewParmSubset_18" ion="na"/>
+                <channelDensity id="naf_OneSecGrp_SectionRef_1" ionChannel="naf__a0__b0__c0__d0__fastNa_shiftmin3_5" condDensity="200.0 mS_per_cm2" erev="50.0 mV" segmentGroup="OneSecGrp_SectionRef_1" ion="na"/>
+                <channelDensity id="naf_OneSecGrp_SectionRef_3" ionChannel="naf__a0__b0__c0__d0__fastNa_shiftmin3_5" condDensity="300.0 mS_per_cm2" erev="50.0 mV" segmentGroup="OneSecGrp_SectionRef_3" ion="na"/>
+                <channelDensity id="naf_ModelViewParmSubset_16" ionChannel="naf__a0__b0__c0__d0__fastNa_shiftmin3_5" condDensity="30.0 mS_per_cm2" erev="50.0 mV" segmentGroup="ModelViewParmSubset_16" ion="na"/>
+                <channelDensity id="naf_axon_group" ionChannel="naf__a0__b0__c0__d0__fastNa_shiftmin3_5" condDensity="450.0 mS_per_cm2" erev="50.0 mV" segmentGroup="axon_group" ion="na"/>
+                <channelDensity id="naf_ModelViewParmSubset_17" ionChannel="naf__a0__b0__c0__d0__fastNa_shiftmin3_5" condDensity="6.0 mS_per_cm2" erev="50.0 mV" segmentGroup="ModelViewParmSubset_17" ion="na"/>
+                <channelDensity id="nap_ModelViewParmSubset_18" ionChannel="nap" condDensity="0.12 mS_per_cm2" erev="50.0 mV" segmentGroup="ModelViewParmSubset_18" ion="na"/>
+                <channelDensity id="nap_OneSecGrp_SectionRef_1" ionChannel="nap" condDensity="0.16 mS_per_cm2" erev="50.0 mV" segmentGroup="OneSecGrp_SectionRef_1" ion="na"/>
+                <channelDensity id="nap_ModelViewParmSubset_16" ionChannel="nap" condDensity="0.024 mS_per_cm2" erev="50.0 mV" segmentGroup="ModelViewParmSubset_16" ion="na"/>
+                <channelDensity id="nap_OneSecGrp_SectionRef_3" ionChannel="nap" condDensity="0.24 mS_per_cm2" erev="50.0 mV" segmentGroup="OneSecGrp_SectionRef_3" ion="na"/>
+                <channelDensity id="nap_ModelViewParmSubset_17" ionChannel="nap" condDensity="0.0048 mS_per_cm2" erev="50.0 mV" segmentGroup="ModelViewParmSubset_17" ion="na"/>
+                <channelDensity id="pas_axon_group" ionChannel="pas" condDensity="1.0 mS_per_cm2" erev="-70.0 mV" segmentGroup="axon_group" ion="non_specific"/>
+                <channelDensity id="pas_OneSecGrp_SectionRef_1" ionChannel="pas" condDensity="0.02 mS_per_cm2" erev="-70.0 mV" segmentGroup="OneSecGrp_SectionRef_1" ion="non_specific"/>
+                <channelDensity id="pas_ModelViewParmSubset_5" ionChannel="pas" condDensity="0.04 mS_per_cm2" erev="-70.0 mV" segmentGroup="ModelViewParmSubset_5" ion="non_specific"/>
+                <spikeThresh value="0.0 mV"/>
+                <specificCapacitance value="1.8 uF_per_cm2" segmentGroup="ModelViewParmSubset_5"/>
+                <specificCapacitance value="0.9 uF_per_cm2" segmentGroup="ModelViewParmSubset_4"/>
+                <initMembPotential value="-70.0 mV"/>
+            </membraneProperties>
+            <intracellularProperties>
+                <species segmentGroup="ModelViewParmSubset_9" id="ca" concentrationModel="cad__beta0_075__phi86666_7" ion="ca" initialConcentration="1.0E-8 mol_per_cm3" initialExtConcentration="2.0E-6 mol_per_cm3"/>
+                <species segmentGroup="ModelViewParmSubset_8" id="ca" concentrationModel="cad__beta0_02__phi86666_7" ion="ca" initialConcentration="1.0E-8 mol_per_cm3" initialExtConcentration="2.0E-6 mol_per_cm3"/>
+                <species segmentGroup="OneSecGrp_SectionRef_1" id="ca" concentrationModel="cad__beta0_01__phi4333_33" ion="ca" initialConcentration="1.0E-8 mol_per_cm3" initialExtConcentration="2.0E-6 mol_per_cm3"/>
+                <resistivity value="0.1 kohm_cm" segmentGroup="axon_group"/>
+                <resistivity value="0.25 kohm_cm" segmentGroup="ModelViewParmSubset_1"/>
+            </intracellularProperties>
+        </biophysicalProperties>
+    </cell>
+</neuroml>
