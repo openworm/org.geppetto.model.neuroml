@@ -13,18 +13,11 @@ import java.util.Set;
 import org.lemsml.exprparser.utils.ExpressionParser;
 import org.neuroml.export.info.model.*;
 import org.neuroml.model.Base;
-import org.neuroml.model.GateHHRates;
-import org.neuroml.model.GateHHRatesInf;
-import org.neuroml.model.GateHHRatesTau;
-import org.neuroml.model.GateHHTauInf;
-import org.neuroml.model.GateHHUndetermined;
-import org.neuroml.model.GateTypes;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.util.NeuroMLException;
 
-import org.neuroml2.model.BaseGate;
 
 import org.lemsml.model.exceptions.LEMSCompilerException;
 
@@ -32,7 +25,6 @@ import org.lemsml.exprparser.utils.UndefinedSymbolException;
 import org.lemsml.exprparser.visitors.ARenderAs;
 import org.lemsml.exprparser.visitors.AntlrExpressionParser;
 import org.lemsml.exprparser.visitors.RenderMathJS;
-import org.lemsml.jlems.core.type.ComponentType;
 import org.lemsml.model.Case;
 import org.lemsml.model.ConditionalDerivedVariable;
 import org.lemsml.model.extended.Component;
@@ -41,10 +33,7 @@ import org.lemsml.model.extended.Scope;
 import org.lemsml.model.extended.Symbol;
 import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.IonChannelKS;
-import org.neuroml2.model.BaseVoltageDepRate;
 import org.neuroml2.model.BaseGate;
-import org.neuroml2.model.BaseVoltageDepTime;
-import org.neuroml2.model.BaseVoltageDepVariable;
 import org.neuroml2.model.NeuroML2ModelReader;
 import org.neuroml2.model.Neuroml2;
 
