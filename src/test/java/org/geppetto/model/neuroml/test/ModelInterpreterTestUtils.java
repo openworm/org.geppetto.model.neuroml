@@ -20,13 +20,32 @@ import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.GeppettoModel;
 import org.geppetto.model.GeppettoPackage;
+import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateProjectionTypes;
+import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.geppetto.model.types.Type;
+
+import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateProjectionTypes;
 
 public class ModelInterpreterTestUtils
 {
 	//private static Log _logger = LogFactory.getLog(NeuroMLModelInterpreterServiceTest.class);
+	
+	public PopulateProjectionTypes ppt;
+	public GeppettoModel gm;
+	private GeppettoLibrary gl;
+	public IModelInterpreter modelInterpreter;
+	
+	public ModelInterpreterTestUtils()
+	{
+		
+	}
+	
+	public ModelInterpreterTestUtils(IModelInterpreter modelInterpreter)
+	{
+		this.modelInterpreter = modelInterpreter;
+	}
 
-    public static Type readModel(String modelPath, String typeName, IModelInterpreter modelInterpreter, GeppettoLibrary gl, GeppettoModel gm) throws Exception
+    public Type readModel(String modelPath, String typeName, IModelInterpreter modelInterpreter, GeppettoLibrary gl, GeppettoModel gm) throws Exception
     {
                 gm.getLibraries().add(gl);
                 gm.getLibraries().add(EcoreUtil.copy(SharedLibraryManager.getSharedCommonLibrary()));
@@ -39,16 +58,23 @@ public class ModelInterpreterTestUtils
                 return type;
     }
     
-        public static Type readModel(String modelPath, String typeName, IModelInterpreter modelInterpreter) throws Exception
+        public Type readModel(String modelPath, String typeName, IModelInterpreter modelInterpreter) throws Exception
 	{
                 GeppettoFactory geppettoFactory = GeppettoFactory.eINSTANCE;
 		GeppettoLibrary gl = geppettoFactory.createGeppettoLibrary();
 		GeppettoModel gm = geppettoFactory.createGeppettoModel();
+		this.gl = gl;
+		this.gm = gm;
 
                 return readModel(modelPath, typeName, modelInterpreter, gl, gm);
 	}
 
-	public static void serialise(String modelPath, String typeName, IModelInterpreter modelInterpreter) throws Exception
+    public Type readModel(String modelPath, String typeName) throws Exception
+    {
+    	return readModel(modelPath, typeName, this.modelInterpreter);
+    }
+
+	public void serialise(String modelPath, String typeName, IModelInterpreter modelInterpreter) throws Exception
 	{
                 GeppettoFactory geppettoFactory = GeppettoFactory.eINSTANCE;
 		GeppettoLibrary gl = geppettoFactory.createGeppettoLibrary();
@@ -78,5 +104,15 @@ public class ModelInterpreterTestUtils
 
                 geppettoModelAccess.addTypeToLibrary(type,gl);
 		resourceAll.save(null);
+	}
+	
+	public void serialise(String modelPath, String typeName) throws Exception
+	{
+		this.serialise(modelPath, typeName, this.modelInterpreter);
+	}
+	
+	public GeppettoLibrary getLibrary()
+	{
+		return gl;
 	}
 }

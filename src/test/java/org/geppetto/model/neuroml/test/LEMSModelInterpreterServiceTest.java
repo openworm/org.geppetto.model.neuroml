@@ -39,6 +39,7 @@ import java.net.MalformedURLException;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.neuroml.services.LEMSModelInterpreterService;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.lemsml.jlems.api.LEMSBuildException;
 
@@ -48,7 +49,13 @@ import org.lemsml.jlems.api.LEMSBuildException;
  */
 public class LEMSModelInterpreterServiceTest
 {
+    private ModelInterpreterTestUtils modelInterpreterTestUtils;
 
+	@Before
+	public void oneTimeSetUp()
+	{
+		modelInterpreterTestUtils = new ModelInterpreterTestUtils();
+	}
 	/**
 	 * "" Test method for {@link org.geppetto.model.neuroml.services.LemsMLModelInterpreterService#readModel(java.net.URL)}.
 	 * 
@@ -59,7 +66,7 @@ public class LEMSModelInterpreterServiceTest
 	@Test
 	public void testReadModelHHCell() throws Exception
 	{
-		ModelInterpreterTestUtils.serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "hhcell", new LEMSModelInterpreterService());
+		modelInterpreterTestUtils.serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "hhcell", new LEMSModelInterpreterService());
 //		ModelInterpreterTestUtils.serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", null, new LEMSModelInterpreterService());
 //		ModelInterpreterTestUtils.serialise("/hhcell/LEMS_NML2_Ex5_DetCell.xml", "net1", new LEMSModelInterpreterService());
 	}
@@ -69,7 +76,7 @@ public class LEMSModelInterpreterServiceTest
 	public void testReadModelc302() throws Exception
 	{
 //		ModelInterpreterTestUtils.serialise("/c302/LEMS_c302_A.xml", "c302_A", new LEMSModelInterpreterService());
-		ModelInterpreterTestUtils.serialise("/c302/LEMS_c302_A.xml", null, new LEMSModelInterpreterService());
+		modelInterpreterTestUtils.serialise("/c302/LEMS_c302_A.xml", null, new LEMSModelInterpreterService());
 	}
 	
 	@Test
