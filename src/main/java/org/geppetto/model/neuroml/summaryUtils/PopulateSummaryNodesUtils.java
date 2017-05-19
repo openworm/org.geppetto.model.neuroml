@@ -585,38 +585,41 @@ public class PopulateSummaryNodesUtils
 							for(VisualGroup visualGroup : visualGroups)
 							{
 
+                                htmlText0.append("<!-- VT = "+visualGroup.getName()+" -->\n");
 								if(visualGroup.getName().equals("Cell Regions"))
 								{
 									htmlText0.append("<tr><td>\n<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">Highlight "
-											+ visualGroup.getName() + "</a> ");
-									htmlText0.append("( <b><span style=\"color:#" + ModelInterpreterVisualConstants.SOMA_COLOR.substring(2) + "\">soma</span>, " + "<span style=\"color:#"
-											+ ModelInterpreterVisualConstants.DENDRITES_COLOR.substring(2) + "\">dendrites</span>, " + "<span style=\"color:#"
-											+ ModelInterpreterVisualConstants.AXONS_COLOR.substring(2) + "\">axon</span></b> )\n");
+											+ visualGroup.getName().toLowerCase() + "</a>&nbsp;");
+									htmlText0.append("<td/><td>( "
+                                        + "<b><span style=\"color:#" + ModelInterpreterVisualConstants.SOMA_COLOR.substring(2) + "\">soma</span>, " 
+                                        + "<span style=\"color:#" + ModelInterpreterVisualConstants.DENDRITES_COLOR.substring(2) + "\">dendrites</span>, " 
+                                        + "<span style=\"color:#" + ModelInterpreterVisualConstants.AXONS_COLOR.substring(2) + "\">axon</span></b> )\n");
 
 									htmlText0.append("<td/><tr/>\n");
 								}
 								else
 								{
 									String ion = getIon(visualGroup.getName().toLowerCase());
-
-									String info = ("<tr><td>\n<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">Highlight "
-											+ visualGroup.getName() + "</a> \n");
+                                    String condName = visualGroup.getName();
+                                    if (condName.length()>20)
+                                        condName = condName.substring(0,20)+"...";
+									String info = ("<tr><td>\n<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">"
+											+ condName + "</a> <td/>\n");
 
 									Float[] minMax = ionChannelInfo.get(visualGroup.getName());
 									if(minMax == null)
 									{
 										minMax = new Float[] { -2f, -1f };
-									}
-									;
+									};
 									String min = minMax[0].intValue() != minMax[0].floatValue() ? minMax[0].toString() : minMax[0].intValue() + "";
 									String max = minMax[1].intValue() != minMax[1].floatValue() ? minMax[1].toString() : minMax[1].intValue() + "";
-									info += "( ";
-									info += "<span style=\"color:#" + ModelInterpreterVisualConstants.HIGH_SPECTRUM.substring(2) + "\">" + min + " S/m2</span>";
-									if(!min.equals(max)) info += " -> <span style=\"color:#" + ModelInterpreterVisualConstants.LOW_SPECTRUM.substring(2) + "\">" + max + " S/m2</span>";
-									info += ", <span style=\"color:#FFFFFF\">none</span> )";
-									info += " <td/>\n<td>\n" + getSvgScale(minMax[0], minMax[1], ion);
+									info += " \n<td>\n" + getSvgScale(minMax[0], minMax[1], ion)+"<td/>";
+									info += "<td>&nbsp;";
+									if(!min.equals(max)) info += "<span style=\"color:#" + ModelInterpreterVisualConstants.HIGH_SPECTRUM.substring(2) + "\">" + min + " S/m2</span> -> ";
+									info += "<span style=\"color:#" + ModelInterpreterVisualConstants.LOW_SPECTRUM.substring(2) + "\">" + max + " S/m2</span><td/>";
+									//info += ", <span style=\"color:#FFFFFF\">none</span>)";
 
-									info += ("<td/><tr/>\n");
+									info += ("<tr/>\n");
 									ionsVsHtml.put(ion, ionsVsHtml.get(ion) + info);
 
 								}
@@ -630,6 +633,10 @@ public class PopulateSummaryNodesUtils
 							htmlText0.append("</table><br/><br/>");
 						}
 					}
+                    else
+                    {
+						htmlText0.append("<!-- VT = null -->\n");
+                    }
 
 					// Create HTML Value object and set HTML text
 					HTML html0 = valuesFactory.createHTML();
