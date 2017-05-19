@@ -83,6 +83,23 @@ public class NeuroMLModelInterpreterUtils
 			}
 		}
 
+                // would be better to add getChildrenHM method to jlems
+                if ((annotation.getChildHM().size() == 0) && (annotation.getAllChildren().size() > 0))
+                    for(Component child : annotation.getAllChildren())
+                        {
+                            if(child.getTypeName().equals("property"))
+                                {
+                                    Text text = valuesFactory.createText();
+                                    text.setText(child.getTextParam("value"));
+
+                                    Variable variable = variablesFactory.createVariable();
+                                    NeuroMLModelInterpreterUtils.initialiseNodeFromString(variable, child.getTextParam("tag"));
+                                    variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
+                                    variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+                                    annotationType.getVariables().add(variable);
+                                }
+                        }
+
 		Variable variable = variablesFactory.createVariable();
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, annotation);
 		variable.getAnonymousTypes().add(annotationType);
@@ -135,6 +152,8 @@ public class NeuroMLModelInterpreterUtils
 	 */
 	public static Point getPointAtFractionAlong(Cell neuroMLCell, String segmentId, String fractionAlong) throws NumberFormatException, NeuroMLException
 	{
+        if (neuroMLCell==null)
+            return null;
 		if(fractionAlong != null)
 		{
 			Point point = ValuesFactory.eINSTANCE.createPoint();
