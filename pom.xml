@@ -31,17 +31,17 @@
 		<dependency>
 			<groupId>org.neuroml.model</groupId>
 			<artifactId>org.neuroml.model</artifactId>
-			<version>1.5.0</version>
+			<version>1.5.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
-			<version>1.5.0</version>
+			<version>1.5.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.lemsml</groupId>
 			<artifactId>jlems</artifactId>
-			<version>0.9.8.7</version>
+			<version>0.9.8.8</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.lemsml.exprparser</groupId>
@@ -166,7 +166,7 @@
 		</repository>
 		<repository>
 			<id>org.geppetto-mvn-repo</id>
-			<url>https://raw.github.com/openworm/org.geppetto.maven/mvn-revo-pg</url>
+			<url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml-1.5.1-lems2</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
