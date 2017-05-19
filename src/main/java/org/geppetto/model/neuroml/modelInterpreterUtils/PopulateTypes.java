@@ -81,17 +81,16 @@ public class PopulateTypes
 		this.networkHelper = networkHelper;
 	}
 
-        public CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException,
-			ModelInterpreterException
-        {
-            return extractInfoFromComponent(component, ResourcesDomainType.getValueByComponentType(component.getComponentType()));
-        }
+	public CompositeType extractInfoFromComponent(Component component) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
+	{
+		return extractInfoFromComponent(component, ResourcesDomainType.getValueByComponentType(component.getComponentType()));
+	}
 
 	/*
 	 * Generic method to extract info from any component
 	 */
-        public CompositeType extractInfoFromComponent(Component component, String domainType) throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException,
-			ModelInterpreterException
+	public CompositeType extractInfoFromComponent(Component component, String domainType)
+			throws NumberFormatException, NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
 	{
 		long start = System.currentTimeMillis();
 
@@ -103,7 +102,7 @@ public class PopulateTypes
 		// Parameter types
 		for(ParamValue pv : component.getParamValues())
 		{
-		        if(component.hasAttribute(pv.getName()))
+			if(component.hasAttribute(pv.getName()))
 			{
 				attributes.add(pv.getName());
 				compositeType.getVariables().add(ModelInterpreterUtils.createParameterTypeVariable(pv.getName(), component.getStringValue(pv.getName()), this.access));
@@ -242,38 +241,42 @@ public class PopulateTypes
                         }
 		}
 
-                boolean allSegs = false;
+		boolean allSegs = false;
 
 		// Exposures are the variables that can potentially be watched
 		for(Exposure exposure : component.getComponentType().getExposures())
-                    {
-                        if(cellSegmentMap.containsKey(component) && cellSegmentMap.get(component).size() > 1 && (exposure.getName().equals(Resources.POTENTIAL.getId()) || exposure.getName().equals(Resources.SPIKING.getId())))
-                            {
-                                if(!types.containsKey(Resources.COMPARTMENT.getId()) || ((CompositeType) types.get(Resources.COMPARTMENT.getId())).getVariables().size() == 1)
-                                    {
-                                        // we create four compartment types, one with v+spiking only, another with caConc in addition,
-                                        // and copies of these to designate root comparments (no parent) segment
-                                        Resources[] compartments = {Resources.COMPARTMENT, Resources.ROOT_COMPARTMENT, Resources.CA_COMPARTMENT, Resources.CA_ROOT_COMPARTMENT};
-                                        if(!types.containsKey(Resources.COMPARTMENT.getId()))
-                                            {
-                                                for (Resources compartment : compartments) {
-                                                    CompositeType compartmentType = (CompositeType) typeFactory.createType(null);
-                                                    // all our compartment types must have the id Resources.COMPARTMENT so Neuron recognizes them
-                                                    NeuroMLModelInterpreterUtils.initialiseNodeFromString(compartmentType, Resources.COMPARTMENT.getId());
-                                                    compartmentType.setName(compartment.getId());
-                                                    types.put(compartment.getId(), compartmentType);
-                                                }
-                                            }
+		{
+			if(cellSegmentMap.containsKey(component) && cellSegmentMap.get(component).size() > 1
+					&& (exposure.getName().equals(Resources.POTENTIAL.getId()) || exposure.getName().equals(Resources.SPIKING.getId())))
+			{
+				if(!types.containsKey(Resources.COMPARTMENT.getId()) || ((CompositeType) types.get(Resources.COMPARTMENT.getId())).getVariables().size() == 1)
+				{
+					// we create four compartment types, one with v+spiking only, another with caConc in addition,
+					// and copies of these to designate root comparments (no parent) segment
+					Resources[] compartments = { Resources.COMPARTMENT, Resources.ROOT_COMPARTMENT, Resources.CA_COMPARTMENT, Resources.CA_ROOT_COMPARTMENT };
+					if(!types.containsKey(Resources.COMPARTMENT.getId()))
+					{
+						for(Resources compartment : compartments)
+						{
+							CompositeType compartmentType = (CompositeType) typeFactory.createType(null);
+							// all our compartment types must have the id Resources.COMPARTMENT so Neuron recognizes them
+							NeuroMLModelInterpreterUtils.initialiseNodeFromString(compartmentType, Resources.COMPARTMENT.getId());
+							compartmentType.setName(compartment.getId());
+							types.put(compartment.getId(), compartmentType);
+						}
+					}
 
-                                        if(exposure.getName().equals(Resources.POTENTIAL.getId()) || exposure.getName().equals(Resources.SPIKING.getId()))
-                                            {
-                                                for (Resources compartment : compartments) {
-                                                    CompositeType compartmentType = (CompositeType) types.get(compartment.getId());
-                                                    compartmentType.getVariables().add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
-                                                  }
-                                            }
-                                    }
-                            }
+					if(exposure.getName().equals(Resources.POTENTIAL.getId()) || exposure.getName().equals(Resources.SPIKING.getId()))
+					{
+						for(Resources compartment : compartments)
+						{
+							CompositeType compartmentType = (CompositeType) types.get(compartment.getId());
+							compartmentType.getVariables()
+									.add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
+						}
+					}
+				}
+			}
 			else
                             {
                                 // only expose caConc where ca species present in cell
@@ -397,8 +400,8 @@ public class PopulateTypes
 		}
 	}
 
-	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component morphology) throws GeppettoVisitingException, LEMSException, NeuroMLException,
-			ModelInterpreterException
+	private void createVisualTypeFromMorphology(Component component, CompositeType compositeType, Component morphology)
+			throws GeppettoVisitingException, LEMSException, NeuroMLException, ModelInterpreterException
 	{
 		if(!types.containsKey(morphology.getDeclaredType() + morphology.getParent().getID() + "_" + morphology.getID()))
 		{

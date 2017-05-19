@@ -13,3 +13,8 @@ geppettoTmp/
 /libjhdf5.so
 /src/test/resources/MediumNet.net.nml.h5.xmi
 /src/test/resources/FS.net.nml.xmi
+/src/test/resources/Balanced.net.nml.xmi
+/src/test/resources/CA1PyramidalCell.net.nml.xmi
+/src/test/resources/NML2_SingleCompHHCell.nml.xmi
+/src/test/resources/BigCA1.net.nml.xmi
+/src/test/resources/MediumNet.net.nml.xmi
