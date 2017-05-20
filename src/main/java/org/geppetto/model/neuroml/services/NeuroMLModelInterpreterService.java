@@ -224,7 +224,9 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
                                         try {
                                             for (Variable arrayVar : ((CompositeType) ((ArrayType) varType).getArrayType()).getVariables())
                                                 if (arrayVar.getId().equals(Resources.ANNOTATION.getId())) {
-                                                    customiser.buildCustomizationFromType(arrayVar.getAnonymousTypes().get(0), library);
+                                                    customiser.createCustomizationFromType(type, arrayVar.getAnonymousTypes().get(0), library);
+                                                    //JsonObject customization = DefaultViewCustomiserFeature.createCustomizationFromType(arrayVar.getAnonymousTypes().get(0), library);
+                                                    //customiser.setDefaultViewCustomisation(type, customization);
                                                 }
                                         } catch (ClassCastException e) {
                                             continue;
