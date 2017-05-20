@@ -19,7 +19,6 @@ import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.features.IDefaultViewCustomiserFeature;
 import org.lemsml.jlems.core.type.Component;
-import org.apache.commons.lang3.StringUtils;
 
 public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeature
 {
@@ -73,7 +72,7 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
                             domainModel = domainModel.getParent();
                         }
                         Collections.reverse(path_segs);
-                        String path = StringUtils.join(path_segs, ".");
+                        String path = String.join(".", path_segs);
                         colorMap.put(path, hexColor);
                     }
             }
