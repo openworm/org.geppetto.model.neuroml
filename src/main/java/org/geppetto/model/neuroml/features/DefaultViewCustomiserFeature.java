@@ -47,15 +47,16 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
 
     public static JsonObject createCustomizationFromType(Type type, GeppettoLibrary library)
     {
-        Map<String, Integer> colorMap = new HashMap<String, Integer>();
+        Map<String, String> colorMap = new HashMap<String, String>();
         for (Variable var : ((CompositeType) type).getVariables()) {
             if (var.getId().equals("color")) {
                 for (Map.Entry<Type, Value> entry : var.getInitialValues())
                     {
                         String[] rgb = ((Text) entry.getValue()).getText().split(" ");
-                        Integer hexColor = (Math.round(Float.parseFloat(rgb[0])*255) << 16) +
-                            (Math.round(Float.parseFloat(rgb[1])*255) << 8) +
-                            Math.round(Float.parseFloat(rgb[2])*255);
+                        String hexColor = String.format("#%02x%02x%02x",
+                                                   Math.round(Float.parseFloat(rgb[0])*255),
+                                                   Math.round(Float.parseFloat(rgb[1])*255),
+                                                   Math.round(Float.parseFloat(rgb[2])*255));  
                         Component domainModel = (Component) type.getDomainModel().getDomainModel();
                         String path = "";
                         while (domainModel.getParent() != null) {
