@@ -1,22 +1,25 @@
 package org.geppetto.model.neuroml.features;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import org.geppetto.core.features.IDefaultViewCustomiserFeature;
-import org.geppetto.core.services.GeppettoFeature;
-import org.geppetto.model.GeppettoLibrary;
-import org.geppetto.model.types.CompositeType;
-import org.geppetto.model.types.ImportType;
-import org.geppetto.model.types.Type;
-import org.geppetto.model.values.Text;
-import org.geppetto.model.values.Value;
-import org.geppetto.model.variables.Variable;
-import org.lemsml.jlems.core.type.Component;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.geppetto.model.GeppettoLibrary;
+import org.geppetto.model.types.Type;
+import org.geppetto.model.types.ImportType;
+import org.geppetto.model.types.CompositeType;
+import org.geppetto.model.values.Value;
+import org.geppetto.model.values.Text;
+import org.geppetto.model.variables.Variable;
+import org.geppetto.core.model.GeppettoModelAccess;
+import org.geppetto.core.services.GeppettoFeature;
+import org.geppetto.core.features.IDefaultViewCustomiserFeature;
+import org.lemsml.jlems.core.type.Component;
+import org.apache.commons.lang3.StringUtils;
 
 public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeature
 {
