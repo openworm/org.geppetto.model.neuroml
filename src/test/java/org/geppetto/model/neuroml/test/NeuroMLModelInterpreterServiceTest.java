@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,26 +48,28 @@ import java.util.Map.Entry;
 import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateProjectionTypes;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.Before;
+import org.junit.AfterClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.geppetto.model.types.Type;
-import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
+import org.geppetto.model.types.ArrayType;
+import org.geppetto.model.variables.Variable;
 import org.geppetto.model.types.ImportType;
+import org.geppetto.model.values.ArrayElement;
+import org.geppetto.model.variables.Variable;
+
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Population;
 import org.neuroml.model.Projection;
-
-import org.geppetto.model.values.ArrayElement;
-import org.geppetto.model.variables.Variable;
-import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.ComponentType;
-import org.lemsml.jlems.core.type.Lems;
 import org.neuroml.model.Instance;
 import org.neuroml.model.util.hdf5.NeuroMLHDF5Reader;
 
+import org.lemsml.jlems.core.type.Component;
+import org.lemsml.jlems.core.type.ComponentType;
+import org.lemsml.jlems.core.type.Lems;
 
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
@@ -74,7 +77,6 @@ import org.neuroml.model.util.hdf5.NeuroMLHDF5Reader;
  */
 public class NeuroMLModelInterpreterServiceTest
 {
-
     private ModelTester mTest;
 
     @Before
@@ -253,4 +255,26 @@ public class NeuroMLModelInterpreterServiceTest
         mTest.testModelInterpretation("/traub/TestSmall.net.nml", null);
     }
 
+    @Test
+    public void testHHInputExposures() throws Exception
+    {
+        NeuroMLModelInterpreterService nmlModelInterpreterService = new NeuroMLModelInterpreterService();
+        ModelInterpreterTestUtils modelInterpreterTestUtils = new ModelInterpreterTestUtils(nmlModelInterpreterService);
+        CompositeType geppettoModel = (CompositeType) modelInterpreterTestUtils.readModel("/hhtutorial/HHTutorial.net.nml", null, nmlModelInterpreterService);
+
+        for (Variable var : geppettoModel.getVariables())
+            // should not have inputs directly on the network type
+            assertFalse(var.getId().equals("Input_0"));
+
+        // check inputs present on hhpop
+        List<Variable> inputs = new ArrayList<Variable>();
+        for (Variable var : geppettoModel.getVariables()) {
+            if (var.getId().equals("hhpop")) {
+                for (Variable popVar : ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables())
+                    if (popVar.getId().startsWith("IClamp"))
+                        inputs.add(popVar);
+            }
+        }
+        assertEquals(inputs.size(), 1);
+    }
 }
