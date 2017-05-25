@@ -40,9 +40,9 @@ import org.lemsml.jlems.core.type.ParamValue;
 import org.neuroml.export.utils.Utils;
 import org.neuroml.model.Cell;
 import org.neuroml.model.Location;
+import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.Segment;
 import org.neuroml.model.Species;
-import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroMLException;
 import org.neuroml.model.util.hdf5.NetworkHelper;
 
@@ -207,21 +207,38 @@ public class PopulateTypes
 		// Extracting the rest of the children
 		for(Component componentChild : component.getStrictChildren())
 		{
-			if((!componentChild.getComponentType().isOrExtends(Resources.POPULATION.getId()) && !componentChild.getComponentType().isOrExtends(Resources.POPULATION_LIST.getId()))
-					&& !componentChild.getComponentType().isOrExtends(Resources.PROJECTION.getId()) && !componentChild.getComponentType().isOrExtends(Resources.ELECTRICAL_PROJECTION.getId())
-					&& !componentChild.getComponentType().isOrExtends(Resources.CONTINUOUS_PROJECTION.getId()))
+                    if(componentChild.getComponentType().isOrExtends(Resources.INPUT_LIST.getId())) {
+                        for (Component inputListChild : componentChild.getAllChildren()) {
+                            if (inputListChild.getTypeName().equals("input")) {
+                                String target = inputListChild.getAttributes().getByName("target").getValue();
+                                String pop = Utils.parseCellRefStringForPopulation(target);
+
+                                for (Variable var : compositeType.getVariables()) {
+                                    if (var.getId().equals(pop)) {
+                                        CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
+                                        Variable variable = variablesFactory.createVariable();
+                                        NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
+                                        variable.getAnonymousTypes().add(anonymousCompositeType);
+                                        ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable);
+                                    }
+                                }
+                            }
+                        }
+                    } else if((!componentChild.getComponentType().isOrExtends(Resources.POPULATION.getId()) && !componentChild.getComponentType().isOrExtends(Resources.POPULATION_LIST.getId()))
+                              && !componentChild.getComponentType().isOrExtends(Resources.PROJECTION.getId()) && !componentChild.getComponentType().isOrExtends(Resources.ELECTRICAL_PROJECTION.getId())
+                              && !componentChild.getComponentType().isOrExtends(Resources.CONTINUOUS_PROJECTION.getId()))
 			{
-				// If it is not a population, a projection/connection or a morphology, let's deal with it in a generic way
-				CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
-				if(anonymousCompositeType != null)
+                            // If it is not a population, a projection/connection or a morphology, let's deal with it in a generic way
+                            CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
+                            if(anonymousCompositeType != null)
 				{
-					// For the moment all the children are extracted as anonymous types
-					Variable variable = variablesFactory.createVariable();
-					NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
-					variable.getAnonymousTypes().add(anonymousCompositeType);
-					compositeType.getVariables().add(variable);
+                                    // For the moment all the children are extracted as anonymous types
+                                    Variable variable = variablesFactory.createVariable();
+                                    NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
+                                    variable.getAnonymousTypes().add(anonymousCompositeType);
+                                    compositeType.getVariables().add(variable);
 				}
-			}
+                        }
 		}
 
 		boolean allSegs = false;
@@ -290,7 +307,12 @@ public class PopulateTypes
 									Cell cell = getNeuroMLCell(component);
 
 									CellUtils cellUtils = new CellUtils(cell);
-									List<Segment> ca_segments = cellUtils.getSegmentsInGroup(species.getSegmentGroup());
+                                    List<Segment> ca_segments = new ArrayList();
+                                    if (cellSegmentMap.get(component).size() > 1) {
+                                    	ca_segments = cellUtils.getSegmentsInGroup(species.getSegmentGroup());
+                                    } else {
+                                        ca_segments = cell.getMorphology().getSegment();
+                                    }
 
 									// set flag so we do not duplicate compartments later
 									if(species.getSegmentGroup() == "all") allSegs = true;
@@ -510,7 +532,7 @@ public class PopulateTypes
 		{
             
 			int size = 0;
-            int expSize = networkHelper.getPopulationSize(populationComponent.getID());
+                        int expSize = networkHelper.getPopulationSize(populationComponent.getID());
 			for(int i=0; i<expSize;i++)
 			{
 				Point point = null;
@@ -530,6 +552,13 @@ public class PopulateTypes
 				
 			}
 			arrayType.setSize(size);
+
+                        for(Component populationChild : populationComponent.getAllChildren())
+                            if (populationChild.getDeclaredType().equals("annotation"))
+                                {
+                                    // extract population annotation
+                                    NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(refCompositeType, populationChild, access);
+                                }
 		}
 		else
 		{

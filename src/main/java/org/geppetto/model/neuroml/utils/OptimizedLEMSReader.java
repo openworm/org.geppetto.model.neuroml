@@ -65,43 +65,43 @@ public class OptimizedLEMSReader
 		int index = url.toString().lastIndexOf('/');
 		String urlBase = url.toString().substring(0, index + 1);
         
-        NeuroMLConverter neuromlConverter = new NeuroMLConverter();
+                NeuroMLConverter neuromlConverter = new NeuroMLConverter();
         
-        if (url.toString().endsWith("hdf5") || url.toString().endsWith("h5"))
-        {
-            String loc = url.toString();
-            if (loc.startsWith("file:/"))
-                loc = loc.substring(5);
-            File f = new File(loc);
+                if (url.toString().endsWith("hdf5") || url.toString().endsWith("h5"))
+                    {
+                        String loc = url.toString();
+                        if (loc.startsWith("file:/"))
+                            loc = loc.substring(5);
+                        File f = new File(loc);
             
-            networkHelper = neuromlConverter.loadNeuroMLOptimized(f);
+                        networkHelper = neuromlConverter.loadNeuroMLOptimized(f);
             
-            _neuroMLString = neuromlConverter.neuroml2ToXml(networkHelper.getNeuroMLDocument());
+                        _neuroMLString = neuromlConverter.neuroml2ToXml(networkHelper.getNeuroMLDocument());
             
-            Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(_neuroMLString));
-            lemsDocument = sim.getLems();
-        }
-        else
-        {
-            read(url, urlBase); // expand it to have all the inclusions
+                        Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(_neuroMLString));
+                        lemsDocument = sim.getLems();
+                    }
+                else
+                    {
+                        read(url, urlBase); // expand it to have all the inclusions
 
-            // Reading NEUROML file
-            // Let's extract first the neuroml file so that if we have an error resolving the lems object at least we have the neuroml doc to validate it against neuroml.model
-            // We will show warning and error instead of an incomprehensible exception
-            long start = System.currentTimeMillis();
+                        // Reading NEUROML file
+                        // Let's extract first the neuroml file so that if we have an error resolving the lems object at least we have the neuroml doc to validate it against neuroml.model
+                        // We will show warning and error instead of an incomprehensible exception
+                        long start = System.currentTimeMillis();
             
-            _neuroMLString = NMLHEADER + System.getProperty("line.separator") + trimOuterElement(getLEMSString()) + System.getProperty("line.separator") + "</neuroml>";
+                        _neuroMLString = NMLHEADER + System.getProperty("line.separator") + trimOuterElement(getLEMSString()) + System.getProperty("line.separator") + "</neuroml>";
 
-            networkHelper = neuromlConverter.loadNeuroMLOptimized(_neuroMLString);
+                        networkHelper = neuromlConverter.loadNeuroMLOptimized(_neuroMLString);
             
-            _logger.info("Parsed NeuroML document of size " + getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
+                        _logger.info("Parsed NeuroML document of size " + getNeuroMLString().length() / 1024 + "KB, took " + (System.currentTimeMillis() - start) + "ms");
 
-            // Reading LEMS files
-            start = System.currentTimeMillis();
-            Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(_neuroMLString));
-            lemsDocument = sim.getLems();
-            _logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
-        }
+                        // Reading LEMS files
+                        start = System.currentTimeMillis();
+                        Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(_neuroMLString));
+                        lemsDocument = sim.getLems();
+                        _logger.info("Parsed LEMS document, took " + (System.currentTimeMillis() - start) + "ms");
+                    }
 
 	}
 
@@ -223,7 +223,7 @@ public class OptimizedLEMSReader
 				String os =  System.getProperty("os.name");
 				//In Windows, the spec variable returned above starts with char 'C', throwing a malformed
 				//exception, this piece of code forces adding 'file:///' to avoid this issue
-				if(os.startsWith("Windows")){
+				if(os.startsWith("Windows")||os.startsWith("win32")){
 					if(spec.startsWith("C" )||spec.startsWith("c")){
 						spec= "file:///"+spec;
 					}
@@ -237,17 +237,24 @@ public class OptimizedLEMSReader
 					try
 					{
 						_inclusions.add(new URI(urlPath).normalize().toString());
-						dependentModels.add(new URL(urlPath));
 						String s = URLReader.readStringFromURL(url);
 
 						// If it is file and is not found, try to read at url base + file name
 						if(s.equals("") && kind.equals("file"))
 						{
-							urlPath = urlBase + urlPath.replace("file:///", "");
+							//a relative path has a / at the beginning, let's check for it and 
+							//remove it to avoid having an extra / that throws file not found exception
+							String urlPathBase = urlPath.replace("file:///", "");
+							if(urlPathBase.charAt(0)=='/'){
+								urlPathBase = urlPathBase.substring(1, urlPathBase.length());
+							}
+							urlPath = urlBase +urlPathBase ;
 							url = new URL(urlPath);
 							_inclusions.add(new URI(urlPath).normalize().toString());
 							s = URLReader.readStringFromURL(url);
 						}
+
+						dependentModels.add(new URL(urlPath));
 
 						int index = url.toString().lastIndexOf('/');
 						String newUrlBase = url.toString().substring(0, index + 1);
@@ -307,5 +314,5 @@ public class OptimizedLEMSReader
 		processedString = processedString.replaceAll("</(Lems|neuroml)([\\s\\S]*?)>", ""); // remove close neuroml or lems tags
 		return cleanLEMSNeuroMLDocument(processedString);
 	}
-    
+
 }
