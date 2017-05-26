@@ -54,6 +54,7 @@ public class ChannelInfoExtractor2
 		// Sim simchan = Utils.convertNeuroMLToSim(chan);
         
         NeuroMLDocument nmlDoc = new NeuroMLDocument();
+        nmlDoc.setId("temp");
         for (IonChannel ic: nmlDoc0.getIonChannel())
             nmlDoc.getIonChannel().add(ic);
         for (IonChannelHH ic: nmlDoc0.getIonChannelHH())
@@ -71,7 +72,7 @@ public class ChannelInfoExtractor2
         }
         catch (Throwable t)
         {
-            throw new NeuroMLException("Error reading ion channel with NeuroML/LEMS v2 libraries: "+t.getMessage(), t);
+            throw new NeuroMLException("Error reading ion channel "+chan.getId()+" with NeuroML/LEMS v2 libraries\n\n"+xml+"\nError: "+t+";\n"+t.getStackTrace(), t);
         }
         
         for(BaseGate g: nml2Doc.getAllOfType(BaseGate.class))
@@ -322,7 +323,8 @@ public class ChannelInfoExtractor2
         
         File[] fs = new File[]{new File("src/test/resources/traub/cal.channel.nml"),
                                new File("src/test/resources/traub/kdr.channel.nml"),
-                               new File("src/test/resources/traub/k2.channel.nml")};
+                               new File("src/test/resources/traub/k2.channel.nml"),
+                               new File("src/test/resources/acnet2/Kdr_pyr.channel.nml")};
         for (File f: fs)
         {
             System.out.println("===============================\nOpening: "+f.getAbsolutePath());
@@ -331,9 +333,9 @@ public class ChannelInfoExtractor2
             IonChannel ic = nmlDocument.getIonChannel().get(0);
             
             ChannelInfoExtractor cie0 = new ChannelInfoExtractor(ic);
-            System.out.println(cie0.getGates().toDetailString(" 1> "));
+            System.out.println(cie0.getGates().toDetailString(" Old > "));
             ChannelInfoExtractor2 cie = new ChannelInfoExtractor2(ic, nmlDocument);
-            System.out.println(cie.getGates().toDetailString(" 2> "));
+            System.out.println(cie.getGates().toDetailString(" New > "));
         }
     }
 
