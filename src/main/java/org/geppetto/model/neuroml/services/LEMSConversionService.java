@@ -80,59 +80,64 @@ public class LEMSConversionService extends AConversion
 
 	private static Log _logger = LogFactory.getLog(LEMSConversionService.class);
 
+	private static List<ModelFormat> outputModelFormats = null;
+
+	private static List<ModelFormat> inputModelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("LEMS")));
+
 	@Override
 	public List<ModelFormat> getSupportedInputs() throws ConversionException
 	{
-		return new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.getModelFormat("LEMS")));
+		return inputModelFormats;
 	}
 
 	@Override
 	public void registerGeppettoService() throws ConversionException
 	{
-		// Input Model Format
-		List<ModelFormat> inputModelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("LEMS")));
-
-		// Output Model Formats
-		List<ModelFormat> outputModelFormats = new ArrayList<ModelFormat>();
-		for(Format format : SupportedFormats.getSupportedOutputs())
-		{
-			// Convert from export formats to Geppetto formats
-			ModelFormatMapping modelFormatMapping = ModelFormatMapping.fromExportValue(format.toString());
-			if(modelFormatMapping != null)
-			{
-				ModelFormat modelFormat = ServicesRegistry.registerModelFormat(modelFormatMapping.name());
-				if(modelFormat != null) outputModelFormats.add(modelFormat);
-			}
-		}
-
-		ServicesRegistry.registerConversionService(this, inputModelFormats, outputModelFormats);
+		ServicesRegistry.registerConversionService(this, inputModelFormats, getSupportedOutputs());
 	}
 
 	@Override
 	public List<ModelFormat> getSupportedOutputs() throws ConversionException
 	{
 		_logger.info("Getting supported outputs");
-		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
-
-		for(Format format : SupportedFormats.getSupportedOutputs())
+		// Output Model Formats
+		if(outputModelFormats == null)
 		{
-			// Convert from export formats to Geppetto formats
-			ModelFormatMapping modelFormatMapping = ModelFormatMapping.fromExportValue(format.toString());
-			if(modelFormatMapping != null)
+			outputModelFormats = new ArrayList<ModelFormat>();
+
+			for(Format format : SupportedFormats.getSupportedOutputs())
 			{
-				ModelFormat modelFormat = ServicesRegistry.getModelFormat(modelFormatMapping.name());
-				if(modelFormat != null) modelFormats.add(modelFormat);
+				// Convert from export formats to Geppetto formats
+				ModelFormatMapping modelFormatMapping = ModelFormatMapping.fromExportValue(format.toString());
+				if(modelFormatMapping != null)
+				{
+					ModelFormat modelFormat = ServicesRegistry.registerModelFormat(modelFormatMapping.name());
+					if(modelFormat != null) outputModelFormats.add(modelFormat);
+				}
 			}
 		}
-		return modelFormats;
+		return outputModelFormats;
 	}
 
 	@Override
 	public List<ModelFormat> getSupportedOutputs(DomainModel model) throws ConversionException
 	{
 		_logger.info("Getting supported outputs for a specific model and input format " + model.getFormat());
+		// if(modelFormats == null)
+		// {
+		// // TEMPORARY OPTIMIZATION NEUROML EXPORT LIBRARY TAKES FOREVER TO GIVE BACK SUPPORTED TYPES
+		// modelFormats = new ArrayList<ModelFormat>();
+		// ModelFormat NEURON = GeppettoFactory.eINSTANCE.createModelFormat();
+		// NEURON.setModelFormat("NEURON");
+		// ModelFormat NEUROML = GeppettoFactory.eINSTANCE.createModelFormat();
+		// NEURON.setModelFormat("NEUROML");
+		// ModelFormat LEMS = GeppettoFactory.eINSTANCE.createModelFormat();
+		// NEURON.setModelFormat("LEMS");
+		// modelFormats.add(NEURON);
+		// modelFormats.add(NEUROML);
+		// modelFormats.add(LEMS);
+		// }
 		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>();
-
 		try
 		{
 			// Read LEMS component to convert and add to the LEMS file
@@ -143,7 +148,8 @@ public class LEMSConversionService extends AConversion
 			// Get supported outputs and add them to the model formats list
 			for(Format format : SupportedFormats.getSupportedOutputs(lems))
 			{
-				if (ModelFormatMapping.fromExportValue(format.toString()) != null){
+				if(ModelFormatMapping.fromExportValue(format.toString()) != null)
+				{
 					// Convert from export formats to Geppetto formats
 					ModelFormat modelFormat = ServicesRegistry.getModelFormat(ModelFormatMapping.fromExportValue(format.toString()).name());
 					if(modelFormat != null) modelFormats.add(modelFormat);
@@ -177,7 +183,7 @@ public class LEMSConversionService extends AConversion
 			lems.addComponent(component);
 
 			// Create Folder
-			File outputFolder = PathConfiguration.createFolderInProjectTmpFolder(getScope(), projectId,
+			File outputFolder = PathConfiguration.createFolderInExperimentTmpFolder(getScope(), projectId, getExperiment().getId(), aspectConfig.getInstance(),
 					PathConfiguration.getName(output.getModelFormat() + PathConfiguration.downloadModelFolderName, true));
 
 			// Extracting watch variables from aspect configuration
