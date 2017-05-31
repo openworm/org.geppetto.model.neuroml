@@ -47,6 +47,15 @@ public class ChannelInfoExtractor2
     
 	private Neuroml2 nml2Doc;
     NeuroMLConverter nmlConverter = new NeuroMLConverter();
+    static NeuroML2ModelReader nmlReader2 = null;
+
+    private NeuroML2ModelReader getNML2Reader() throws Throwable 
+    {
+        if (nmlReader2==null)
+            nmlReader2 = new NeuroML2ModelReader();
+        
+        return nmlReader2;
+    }
 
 	public ChannelInfoExtractor2(IonChannel chan, NeuroMLDocument nmlDoc0) throws NeuroMLException
 	{
@@ -67,8 +76,7 @@ public class ChannelInfoExtractor2
         String xml = nmlConverter.neuroml2ToXml(nmlDoc);
         try 
         {
-            NeuroML2ModelReader nmlReader = new NeuroML2ModelReader();
-            nml2Doc = nmlReader.read(xml);
+            nml2Doc = getNML2Reader().read(xml);
         }
         catch (Throwable t)
         {
@@ -86,19 +94,25 @@ public class ChannelInfoExtractor2
                 {
                     if (c.getId().equals("forwardRate"))
                     {
-                        gate.put("forward rate", getExpressionNode(processExpression(c.getScope().resolve("r")),chan.getId(), g.getId()));
+                        String fwd = processExpression(c.getScope().resolve("r"));
+                        gate.put("forward rate", getExpressionNode(fwd,chan.getId(), g.getId()));
+                        //gate.put("forward rate plot", PlotNodeGenerator.createPlotNode(c.getScope().resolve("r"), -0.08, 0.1, 0.005, "V", "ms-1"));
                     }
                     else if (c.getId().equals("reverseRate"))
                     {
+                        String rev = processExpression(c.getScope().resolve("r"));
                         gate.put("reverse rate", getExpressionNode(processExpression(c.getScope().resolve("r")),chan.getId(), g.getId()));
                     }
                     else if (c.getId().equals("timeCourse"))
                     {
                         gate.put("time constant", getExpressionNode(processExpression(c.getScope().resolve("t")),chan.getId(), g.getId()));
+                        
+                        //gate.put("time constant plot", PlotNodeGenerator.createPlotNode(tau.getExpression(), -0.08, 0.1, 0.005, "V", "ms-1"));
                     }
                     else if (c.getId().equals("steadyState"))
                     {
                         gate.put("steady state", getExpressionNode(processExpression(c.getScope().resolve("x")),chan.getId(), g.getId()));
+                        //gate.put("steady state plot", PlotNodeGenerator.createPlotNode(inf.getExpression(), -0.08, 0.1, 0.005, "V", "ms-1"));
                     }
                 }
                 catch (Exception e)

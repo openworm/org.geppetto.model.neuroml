@@ -109,7 +109,11 @@ public class LEMSConversionServiceTest
 		Assert.assertEquals(17, modelFormats.size());
 
 		modelFormats = lemsConversionService.getSupportedOutputs(inputModel);
-		Assert.assertEquals(5, modelFormats.size());
+        for (ModelFormat mf: modelFormats)
+        {
+            System.out.println("Supported: "+mf.getModelFormat());
+        }
+		Assert.assertEquals(6, modelFormats.size());
 
 	}
 
@@ -168,9 +172,16 @@ public class LEMSConversionServiceTest
 		{
 			for(File child : directoryListing)
 			{
-				System.out.println(child.getName());
 				File expectedFile = new File(LEMSConversionServiceTest.class.getClassLoader().getResource(expectedFolder + child.getName()).toURI());
-				Assert.assertEquals(FileUtils.readLines(expectedFile), FileUtils.readLines(child));
+				System.out.println("= Comparing: "+child.getAbsolutePath());
+				System.out.println("= to: "+expectedFile.getAbsolutePath());
+                List exp = FileUtils.readLines(expectedFile);
+                List found = FileUtils.readLines(child);
+                for (int i=0; i<exp.size(); i++)
+                {
+                    Assert.assertEquals(exp.get(i),found.get(i));
+                }
+                    
 			}
 		}
 	}

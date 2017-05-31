@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>org.neuroml.neuroml2-model</groupId>
 			<artifactId>org.neuroml.neuroml2-model</artifactId>
-			<version>0.0.4</version>
+			<version>0.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geppetto</groupId>
@@ -58,7 +58,7 @@
 			<artifactId>jaxb-osgi</artifactId>
 			<version>2.2.11</version>
 		</dependency>
-		<dependency>
+        <dependency>
 			<groupId>org.jvnet.jaxb2_commons</groupId>
 			<artifactId>jaxb2-commons-lang</artifactId>
 			<version>2.4</version>
