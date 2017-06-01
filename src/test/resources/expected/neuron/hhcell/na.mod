@@ -20,29 +20,6 @@ NEURON {
     RANGE g                                 : exposure
     
     RANGE fopen                             : exposure
-    RANGE m_instances                       : parameter
-    
-    RANGE m_alpha                           : exposure
-    
-    RANGE m_beta                            : exposure
-    
-    RANGE m_tau                             : exposure
-    
-    RANGE m_inf                             : exposure
-    
-    RANGE m_rateScale                       : exposure
-    
-    RANGE m_fcond                           : exposure
-    RANGE m_forwardRate_rate                : parameter
-    RANGE m_forwardRate_midpoint            : parameter
-    RANGE m_forwardRate_scale               : parameter
-    
-    RANGE m_forwardRate_r                   : exposure
-    RANGE m_reverseRate_rate                : parameter
-    RANGE m_reverseRate_midpoint            : parameter
-    RANGE m_reverseRate_scale               : parameter
-    
-    RANGE m_reverseRate_r                   : exposure
     RANGE h_instances                       : parameter
     
     RANGE h_alpha                           : exposure
@@ -66,6 +43,29 @@ NEURON {
     RANGE h_reverseRate_scale               : parameter
     
     RANGE h_reverseRate_r                   : exposure
+    RANGE m_instances                       : parameter
+    
+    RANGE m_alpha                           : exposure
+    
+    RANGE m_beta                            : exposure
+    
+    RANGE m_tau                             : exposure
+    
+    RANGE m_inf                             : exposure
+    
+    RANGE m_rateScale                       : exposure
+    
+    RANGE m_fcond                           : exposure
+    RANGE m_forwardRate_rate                : parameter
+    RANGE m_forwardRate_midpoint            : parameter
+    RANGE m_forwardRate_scale               : parameter
+    
+    RANGE m_forwardRate_r                   : exposure
+    RANGE m_reverseRate_rate                : parameter
+    RANGE m_reverseRate_midpoint            : parameter
+    RANGE m_reverseRate_scale               : parameter
+    
+    RANGE m_reverseRate_r                   : exposure
     RANGE m_forwardRate_x                   : derived variable
     RANGE conductanceScale                  : derived variable
     RANGE fopen0                            : derived variable
@@ -95,13 +95,6 @@ PARAMETER {
     gmax = 0  (S/cm2)                       : Will be changed when ion channel mechanism placed on cell!
     
     conductance = 1.0E-5 (uS)
-    m_instances = 3 
-    m_forwardRate_rate = 1 (kHz)
-    m_forwardRate_midpoint = -40 (mV)
-    m_forwardRate_scale = 10 (mV)
-    m_reverseRate_rate = 4 (kHz)
-    m_reverseRate_midpoint = -65 (mV)
-    m_reverseRate_scale = -18 (mV)
     h_instances = 1 
     h_forwardRate_rate = 0.07 (kHz)
     h_forwardRate_midpoint = -65 (mV)
@@ -109,6 +102,13 @@ PARAMETER {
     h_reverseRate_rate = 1 (kHz)
     h_reverseRate_midpoint = -35 (mV)
     h_reverseRate_scale = 10 (mV)
+    m_instances = 3 
+    m_forwardRate_rate = 1 (kHz)
+    m_forwardRate_midpoint = -40 (mV)
+    m_forwardRate_scale = 10 (mV)
+    m_reverseRate_rate = 4 (kHz)
+    m_reverseRate_midpoint = -65 (mV)
+    m_reverseRate_scale = -18 (mV)
 }
 
 ASSIGNED {
