@@ -105,6 +105,35 @@ public class LEMSConversionServiceTest
 		DomainModel inputModel = createDomainModel(new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml"), "net1");
 		DomainModel outputModel = convertModelTo(lemsConversionService, inputModel, "net1", "NEURON");
 
+		compareGeneratedDomainModel(outputModel, "/neuron/hhcell/");
+
+		List<ModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
+		Assert.assertEquals(17, modelFormats.size());
+
+		modelFormats = lemsConversionService.getSupportedOutputs(inputModel);
+		Assert.assertEquals(6, modelFormats.size());
+
+	}
+    
+	/**
+	 * "" Test method for {@link org.geppetto.model.neuroml.services.LEMSConversionService#readModel(java.net.URL)}.
+	 * 
+	 * @throws ModelInterpreterException
+	 * @throws IOException
+	 * @throws LEMSException
+	 * @throws NeuroMLException
+	 * @throws URISyntaxException
+	 * @throws LEMSBuildException
+	 */
+	@Test
+	public void testNetPyNE() throws ConversionException, ModelInterpreterException, LEMSException, IOException, NeuroMLException, URISyntaxException
+	{
+		LEMSConversionService lemsConversionService = new LEMSConversionService();
+		lemsConversionService.setProjectId(1);
+		lemsConversionService.setExperiment(new LocalExperiment(1, null, null, null, null, null, null, null, null, null, null));
+		DomainModel inputModel = createDomainModel(new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml"), "net1");
+		DomainModel outputModel = convertModelTo(lemsConversionService, inputModel, "net1", "NETPYNE");
+
 		//FIXME uncomment as soon as 1.5.2 of NML are integrated
 		//compareGeneratedDomainModel(outputModel, "/neuron/hhcell/");
 
@@ -128,7 +157,7 @@ public class LEMSConversionServiceTest
 	{
 		Map<String, String> parametersSimulatorConfiguration = new HashMap<String, String>();
 		parametersSimulatorConfiguration.put("target", targetModel);
-		LocalSimulatorConfiguration localSimulatorConfiguration = new LocalSimulatorConfiguration(0, "0", "0", 0.05f, 300f, parametersSimulatorConfiguration);
+		LocalSimulatorConfiguration localSimulatorConfiguration = new LocalSimulatorConfiguration(0, "0", "0", 0.00005f, 1f, parametersSimulatorConfiguration);
 		DomainModel outputModel = lemsConversionService.convert(model, ServicesRegistry.getModelFormat(targetFormat), new LocalAspectConfiguration(0, null, null, null, localSimulatorConfiguration),
 				null);
 		return outputModel;
@@ -171,12 +200,18 @@ public class LEMSConversionServiceTest
 		{
 			for(File child : directoryListing)
 			{
-				System.out.println(child.getName());
 				File expectedFile = new File(LEMSConversionServiceTest.class.getClassLoader().getResource(expectedFolder + child.getName()).toURI());
-				Assert.assertEquals(FileUtils.readLines(expectedFile), FileUtils.readLines(child));
+				System.out.println("= Comparing: "+child.getAbsolutePath());
+				System.out.println("= to: "+expectedFile.getAbsolutePath());
+                List exp = FileUtils.readLines(expectedFile);
+                List found = FileUtils.readLines(child);
+                for (int i=0; i<exp.size(); i++)
+                {
+                    Assert.assertEquals(exp.get(i),found.get(i));
+                }
 			}
-		}
-	}
+        }
+    }
 
 	@AfterClass
 	public static void teardown() throws Exception
@@ -185,7 +220,7 @@ public class LEMSConversionServiceTest
 		if(tmp.exists())
 		{
 			deleteDirectory(tmp);
-		}
+        }
 	}
 
 	public static boolean deleteDirectory(File directory)
