@@ -112,7 +112,7 @@ public class LEMSConversionServiceTest
 		Assert.assertEquals(17, modelFormats.size());
 
 		modelFormats = lemsConversionService.getSupportedOutputs(inputModel);
-		Assert.assertEquals(5, modelFormats.size());
+		Assert.assertEquals(6, modelFormats.size());
 
 	}
 
