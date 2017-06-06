@@ -52,8 +52,8 @@ J. Neurophysiol. 93, 2194-2232, 2005</rdf:li>
     <ComponentType name="napf_spinstell_m_tau_tau" extends="baseVoltageDepTime">
         <Constant name="TIME_SCALE" dimension="time" value="1 ms"/>
         <Constant name="VOLT_SCALE" dimension="voltage" value="1 mV"/>
-        <!--Note: this parameter (fastNa_shift) should ideally be defined only once within the ionChannel! Work in progress...-->
-        <Constant name="fastNa_shift" dimension="none" value="-2.5"/>
+        <!--Note: this parameter (sh) should ideally be defined only once within the ionChannel! Work in progress...-->
+        <Constant name="sh" dimension="none" value="-2.5"/>
         <!--Note: this parameter (a) should ideally be defined only once within the ionChannel! Work in progress...-->
         <Constant name="a" dimension="none" value="0"/>
         <!--Note: this parameter (b) should ideally be defined only once within the ionChannel! Work in progress...-->
@@ -66,8 +66,8 @@ J. Neurophysiol. 93, 2194-2232, 2005</rdf:li>
         <Dynamics>
             <DerivedVariable name="V" dimension="none" value="v / VOLT_SCALE"/>
             <ConditionalDerivedVariable name="t" exposure="t" dimension="time">
-                <Case condition="( V + fastNa_shift )  .lt. ( -30 )" value="( 0.025 + 0.14 * ( exp ( ((V + fastNa_shift) + 30) / 10) ) ) * TIME_SCALE"/>
-                <Case value="( 0.02 + a + (0.145 + b) * ( exp ( -1 * ((V + fastNa_shift + d) + 30) / (10 + c)) )) * TIME_SCALE"/>
+                <Case condition="( V + sh )  .lt. ( -30 )" value="( 0.025 + 0.14 * ( exp ( ((V + sh) + 30) / 10) ) ) * TIME_SCALE"/>
+                <Case value="( 0.02 + a + (0.145 + b) * ( exp ( -1 * ((V + sh + d) + 30) / (10 + c)) )) * TIME_SCALE"/>
             </ConditionalDerivedVariable>
         </Dynamics>
 
@@ -76,8 +76,8 @@ J. Neurophysiol. 93, 2194-2232, 2005</rdf:li>
     <ComponentType name="napf_spinstell_m_inf_inf" extends="baseVoltageDepVariable">
         <Constant name="TIME_SCALE" dimension="time" value="1 ms"/>
         <Constant name="VOLT_SCALE" dimension="voltage" value="1 mV"/>
-        <!--Note: this parameter (fastNa_shift) should ideally be defined only once within the ionChannel! Work in progress...-->
-        <Constant name="fastNa_shift" dimension="none" value="-2.5"/>
+        <!--Note: this parameter (sh) should ideally be defined only once within the ionChannel! Work in progress...-->
+        <Constant name="sh" dimension="none" value="-2.5"/>
         <!--Note: this parameter (a) should ideally be defined only once within the ionChannel! Work in progress...-->
         <Constant name="a" dimension="none" value="0"/>
         <!--Note: this parameter (b) should ideally be defined only once within the ionChannel! Work in progress...-->
@@ -89,7 +89,7 @@ J. Neurophysiol. 93, 2194-2232, 2005</rdf:li>
 
         <Dynamics>
             <DerivedVariable name="V" dimension="none" value="v / VOLT_SCALE"/>
-            <DerivedVariable name="x" exposure="x" dimension="none" value=" 1 / ( 1 + (exp ( ( -1 * (V + fastNa_shift) - 38) / 10)) ) "/>
+            <DerivedVariable name="x" exposure="x" dimension="none" value=" 1 / ( 1 + (exp ( ( -1 * (V + sh) - 38) / 10)) ) "/>
         </Dynamics>
 
     </ComponentType>

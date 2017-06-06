@@ -204,6 +204,7 @@ public enum Resources
 	CONNECTION_ID("Connection Id", "ConnectionId"),
 	PROJECTION_ID("Projection Id", "ProjectionId"),
 	INPUT_LIST("Input List", "inputList"),
+        EXPLICIT_INPUT("Explicit Input", "explicitInput"),
 	POST_SYNAPTIC_POPULATION("Post Synaptic Population", "postsynapticPopulation"),
 	PRE_SYNAPTIC_POPULATION("Pre Synaptic Population", "presynapticPopulation"),
 	MORPHOLOGY("Morphology", "morphology"),

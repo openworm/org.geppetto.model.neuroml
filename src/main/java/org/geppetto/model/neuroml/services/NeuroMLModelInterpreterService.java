@@ -1,5 +1,5 @@
 /*******************************************************************************
-. * The MIT License (MIT)
+ * The MIT License (MIT)
  *
  * Copyright (c) 2011 - 2015 OpenWorm.
  * http://openworm.org
@@ -42,7 +42,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
 
+import com.google.gson.JsonObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
@@ -53,21 +55,26 @@ import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
+import org.geppetto.model.neuroml.features.DefaultViewCustomiserFeature;
 import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateTypes;
 import org.geppetto.model.neuroml.summaryUtils.PopulateSummaryNodesUtils;
+import org.geppetto.model.neuroml.utils.CellUtils;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.CompositeType;
+import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Pointer;
+import org.geppetto.model.variables.Variable;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -79,6 +86,7 @@ import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.util.NeuroML2Validator;
 import org.neuroml.model.util.NeuroMLElements;
 import org.neuroml.model.util.NeuroMLException;
+import org.neuroml.model.util.hdf5.NetworkHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -101,6 +109,15 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private GeppettoModelAccess access;
 	private OptimizedLEMSReader reader = null;
 
+	public NeuroMLModelInterpreterService()
+	{
+		super();
+		
+		// add features when the service is created
+        this.addFeature(new LEMSParametersFeature());
+        this.addFeature(new DefaultViewCustomiserFeature());
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -114,6 +131,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		if(this.reader == null)
 		{
 			Type type = null;
+
 			// Read the neuroml/lems model and includes
 			// if there is a neuroml/lems exception -> call NeuroML Validator in order to get a good explanation for the user
 			try
@@ -124,7 +142,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				reader.readAllFormats(url);
 
 				// Extract Types from the lems/neuroml files
-				type = extractTypes(url, typeId, library, access, reader.getLEMSDocument(), reader.getNeuroMLDocument());
+				type = extractTypes(url, typeId, library, access, reader.getPartialLEMSDocument(), reader.getPartialNeuroMLDocument(), reader.getNetworkHelper());
 			}
 			catch(IOException | NumberFormatException | GeppettoVisitingException e)
 			{
@@ -137,21 +155,20 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				try
 				{
 					NeuroML2Validator neuroML2Validator = new NeuroML2Validator();
-					neuroML2Validator.validateWithTests(reader.getNeuroMLDocument());
+					neuroML2Validator.validateWithTests(reader.getPartialNeuroMLDocument());
+                    
 					if(neuroML2Validator.hasWarnings() || !neuroML2Validator.isValid())
 					{
 						throw new ModelInterpreterException("Validity: " + neuroML2Validator.getValidity() + "\nWarnings: " + neuroML2Validator.getWarnings()+"\nOriginal error: "+e.toString());
 					}
 					throw new ModelInterpreterException(e);
 				}
-				catch(NeuroMLException e1)
+				catch(NeuroMLException | NullPointerException e1)
 				{
 					throw new ModelInterpreterException(e1);
 				}
 			}
 
-			// Add LEMS Parameter Feature
-			this.addFeature(new LEMSParametersFeature());
 			this.access = access;
 
 			long endTime = System.currentTimeMillis();
@@ -171,7 +188,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 
 	}
 
-	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument, NeuroMLDocument neuroMLDocument) throws NeuroMLException,
+	public Type extractTypes(URL url, String typeId, GeppettoLibrary library, GeppettoModelAccess access, ILEMSDocument lemsDocument, NeuroMLDocument neuroMLDocument, NetworkHelper networkHelper) throws NeuroMLException,
 			LEMSException, GeppettoVisitingException, ContentError, ModelInterpreterException
 	{
 		try
@@ -183,26 +200,42 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			Type type = null;
 
 			// Resolve LEMS model
-			Lems lems = ((Lems) lemsDocument);
-			lems.resolve();
+			Lems partialLems = ((Lems) lemsDocument);
+			partialLems.resolve();
 
 			_logger.info("Resolved LEMS model, took " + (System.currentTimeMillis() - start) + "ms");
 
 			start = System.currentTimeMillis();
 
-			populateTypes = new PopulateTypes(types, access, neuroMLDocument);
+			populateTypes = new PopulateTypes(types, access, neuroMLDocument, networkHelper);
 			// If we have a typeId let's get the type for this component
 			// Otherwise let's iterate through all the components
 			if(typeId != null && !typeId.isEmpty())
 			{
-				Component mainComponent = lems.getComponent(typeId);
+				Component mainComponent = partialLems.getComponent(typeId);
 				type = populateTypes.extractInfoFromComponent(mainComponent);
+
+                                DefaultViewCustomiserFeature customiser = (DefaultViewCustomiserFeature) this.getFeature(GeppettoFeature.DEFAULT_VIEW_CUSTOMISER_FEATURE);
+
+                                // look for annotation variables on array types and
+                                // use to set appropriate view customizations
+                                for (Variable var : ((CompositeType) type).getVariables())
+                                    for (Type varType : var.getTypes()) {
+                                        try {
+                                            for (Variable arrayVar : ((CompositeType) ((ArrayType) varType).getArrayType()).getVariables())
+                                                if (arrayVar.getId().equals(Resources.ANNOTATION.getId())) {
+                                                    customiser.buildCustomizationFromType(arrayVar.getAnonymousTypes().get(0), library);
+                                                }
+                                        } catch (ClassCastException e) {
+                                            continue;
+                                        }
+                                    }
 			}
 			else
 			{
 				// If no type id then just iterate over the components
 				// While iterating get the main type
-				for(Component component : lems.getComponents())
+				for(Component component : partialLems.getComponents())
 				{
 					if(!types.containsKey(component.getDeclaredType() + component.getID()) && component.getID() != null)
 					{
@@ -306,6 +339,11 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		return this.neuroMLModelInterpreterConfig.getModelInterpreterName();
 	}
 
+    public PopulateTypes getPopulateTypes()
+    {
+        return this.populateTypes;
+    }
+
 	@Override
 	public void registerGeppettoService()
 	{
@@ -398,5 +436,10 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		}
 		return supportedOutputs;
 	}
+
+    public GeppettoModelAccess getAccess()
+    {
+        return access;
+    }
 
 }

@@ -49,6 +49,7 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
+import org.geppetto.model.neuroml.features.DefaultViewCustomiserFeature;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.types.Type;
@@ -80,6 +81,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 		
 		// Add LEMS Parameter Feature
 		this.addFeature(new LEMSParametersFeature());
+		this.addFeature(new DefaultViewCustomiserFeature());
 	}
 
 	@Override
@@ -97,7 +99,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			reader.readAllFormats(url);
 
 			// Extract Types from the lems/neuroml files
-			type = _neuroMLModelInterpreter.extractTypes(url, typeId, library, access, reader.getLEMSDocument(), reader.getNeuroMLDocument());
+			type = _neuroMLModelInterpreter.extractTypes(url, typeId, library, access, reader.getPartialLEMSDocument(), reader.getPartialNeuroMLDocument(), reader.getNetworkHelper());
 		}
 		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
 		{

@@ -51,7 +51,8 @@
     <ComponentType name="na3_m_tau_tau" extends="baseVoltageDepTime">
         <Constant name="TIME_SCALE" dimension="time" value="1 ms"/>
         <Constant name="VOLT_SCALE" dimension="voltage" value="1 mV"/>
-        <!--Note: this parameter (ar) should ideally be defined only once within the ionChannel! Work in progress...--><Constant name="ar" dimension="none" value="1"/>
+        <!--Note: this parameter (ar) should ideally be defined only once within the ionChannel! Work in progress...-->
+        <Constant name="ar" dimension="none" value="1"/>
         <Requirement name="alpha" dimension="per_time"/>
         <Requirement name="beta" dimension="per_time"/>
         <Requirement name="rateScale" dimension="none"/>
@@ -72,7 +73,8 @@
     <ComponentType name="na3_h_tau_tau" extends="baseVoltageDepTime">
         <Constant name="TIME_SCALE" dimension="time" value="1 ms"/>
         <Constant name="VOLT_SCALE" dimension="voltage" value="1 mV"/>
-        <!--Note: this parameter (ar) should ideally be defined only once within the ionChannel! Work in progress...--><Constant name="ar" dimension="none" value="1"/>
+        <!--Note: this parameter (ar) should ideally be defined only once within the ionChannel! Work in progress...-->
+        <Constant name="ar" dimension="none" value="1"/>
         <Requirement name="alpha" dimension="per_time"/>
         <Requirement name="beta" dimension="per_time"/>
         <Requirement name="rateScale" dimension="none"/>
@@ -93,7 +95,8 @@
     <ComponentType name="na3_h_inf_inf" extends="baseVoltageDepVariable">
         <Constant name="TIME_SCALE" dimension="time" value="1 ms"/>
         <Constant name="VOLT_SCALE" dimension="voltage" value="1 mV"/>
-        <!--Note: this parameter (ar) should ideally be defined only once within the ionChannel! Work in progress...--><Constant name="ar" dimension="none" value="1"/>
+        <!--Note: this parameter (ar) should ideally be defined only once within the ionChannel! Work in progress...-->
+        <Constant name="ar" dimension="none" value="1"/>
 
         <Dynamics>
             <DerivedVariable name="V" dimension="none" value="v / VOLT_SCALE"/>
