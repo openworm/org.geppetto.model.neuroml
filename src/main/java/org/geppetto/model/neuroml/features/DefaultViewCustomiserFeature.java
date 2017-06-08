@@ -51,6 +51,9 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
                 // so we can get the name of the network
                 ImportType importType = (ImportType)library.getTypes().get(0);
                 path = importType.getReferencedVariables().get(0).getId() + "." + path;
+            } else if (domainModel.getParent().getTypeName().equals("populationList")) {
+                // FIXME: should be generalized from 0 to however many in list
+                path = domainModel.getParent().getID() + "[0]." + path;
             } else {
                 path = domainModel.getParent().getID() + "." + path;
             }
