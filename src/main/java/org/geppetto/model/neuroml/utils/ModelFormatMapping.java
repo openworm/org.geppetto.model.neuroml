@@ -56,7 +56,7 @@ public enum ModelFormatMapping
 	GRAPH_VIZ("GraphViz"),
 	NEST("NEST"),
 	NEURON("NEURON"),
-	NETPYNE("NetPyNE"),
+	NETPYNE("NETPYNE"),
 	PYNN("PyNN"),
 	SBML("SBML"),
 	SVG("SVG"),
