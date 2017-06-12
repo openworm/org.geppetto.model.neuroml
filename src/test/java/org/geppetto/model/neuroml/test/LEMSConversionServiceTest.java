@@ -134,8 +134,8 @@ public class LEMSConversionServiceTest
 		DomainModel inputModel = createDomainModel(new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml"), "net1");
 		DomainModel outputModel = convertModelTo(lemsConversionService, inputModel, "net1", "NETPYNE");
 
-		//FIXME uncomment as soon as 1.5.2 of NML are integrated
-		//compareGeneratedDomainModel(outputModel, "/neuron/hhcell/");
+        //FIXME uncomment as soon as 1.5.2 of NML are integrated
+		/////////////compareGeneratedDomainModel(outputModel, "/netpyne/hhcell/");
 
 		List<ModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
 		Assert.assertEquals(17, modelFormats.size());
@@ -200,9 +200,9 @@ public class LEMSConversionServiceTest
 		{
 			for(File child : directoryListing)
 			{
+				System.out.println("= Comparing: "+child.getAbsolutePath()+"...");
 				File expectedFile = new File(LEMSConversionServiceTest.class.getClassLoader().getResource(expectedFolder + child.getName()).toURI());
-				System.out.println("= Comparing: "+child.getAbsolutePath());
-				System.out.println("= to: "+expectedFile.getAbsolutePath());
+				System.out.println("= ...to: "+expectedFile.getAbsolutePath());
                 List exp = FileUtils.readLines(expectedFile);
                 List found = FileUtils.readLines(child);
                 for (int i=0; i<exp.size(); i++)
