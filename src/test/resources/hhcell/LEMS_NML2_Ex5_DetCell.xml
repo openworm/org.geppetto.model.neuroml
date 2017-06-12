@@ -11,10 +11,10 @@
     <Target component="sim1"/>
 
     <Include url="https://raw.github.com/NeuroML/NeuroML2/master/NeuroML2CoreTypes/NeuroML2CoreTypes.xml"/>
-    <Include file="/Simulation.xml"/>
+    <Include file="Simulation.xml"/>
 
     <!-- Including file with a <neuroml> root, a "real" NeuroML 2 file -->
-    <Include file="/NML2_SingleCompHHCell.nml"/>
+    <Include file="NML2_SingleCompHHCell.nml"/>
     
 
 

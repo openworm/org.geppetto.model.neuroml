@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2  https://raw.githubusercontent.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta5.xsd" id="SomaOnly_allCml">
+
+    <include href="hd__vhalflmin73.channel.nml"/>
+
+    <include href="kad.channel.nml"/>
+
+    <include href="kap.channel.nml"/>
+
+    <include href="kdr.channel.nml"/>
+
+    <include href="na3.channel.nml"/>
+
+    <include href="nax.channel.nml"/>
+
+    <include href="pasCA1.channel.nml"/>
+
+    <cell id="SomaOnly_allCml">
+
+        <notes>Only soma of more detailed cell</notes>
+
+        <morphology id="morphology_SomaOnly_allCml">
+
+            <segment id="0" name="Seg0_soma_0">
+                <proximal x="0.0" y="0.0" z="0.0" diameter="7.491"/>
+                <distal x="0.0" y="7.4909997" z="0.0" diameter="7.491"/>
+            </segment>
+
+            <segmentGroup id="soma_0" neuroLexId="sao864921383">    <!--
+                This group contains an unbranched set of segments, and all of the segmentGroups marked with
+                neuroLexId = sao864921383 form a non-overlapping set of all of the segments. 
+                These segmentGroups correspond to the 'cables' of NeuroML v1.8.1. -->
+
+                <member segment="0"/>
+            </segmentGroup>
+
+            <segmentGroup id="all">
+                <include segmentGroup="soma_0"/>
+            </segmentGroup>
+
+            <segmentGroup id="soma_group" neuroLexId="GO:0043025">    <!--Soma group-->
+
+                <include segmentGroup="soma_0"/>
+            </segmentGroup>
+
+            <segmentGroup id="ModelViewParmSubset_2">
+                <include segmentGroup="soma_0"/>
+            </segmentGroup>
+
+            <segmentGroup id="ModelViewParmSubset_6">
+                <include segmentGroup="soma_0"/>
+            </segmentGroup>
+
+            <segmentGroup id="ModelViewParmSubset_9">
+                <include segmentGroup="soma_0"/>
+            </segmentGroup>
+
+            <segmentGroup id="OneSecGrp_SectionRef_1">
+                <include segmentGroup="soma_0"/>
+            </segmentGroup>
+
+            
+        </morphology>
+
+            <!--Adding the biophysical parameters-->
+
+        <biophysicalProperties id="biophys">
+
+            <membraneProperties>
+                
+                <channelDensity condDensity="0.05 mS_per_cm2" id="hd_all" ionChannel="hd__vhalflmin73" ion="hd" erev="-30.0 mV"/>
+                
+                <channelDensity condDensity="30.0 mS_per_cm2" id="kad_all" ionChannel="kad" ion="k" erev="-90.0 mV"/>
+                
+                <channelDensity condDensity="30.0 mS_per_cm2" id="kap_all" ionChannel="kap" ion="k" erev="-90.0 mV"/>
+                
+                <channelDensity condDensity="10.0 mS_per_cm2" id="kdr_all" ionChannel="kdr" ion="k" erev="-90.0 mV"/>
+                
+                <channelDensity condDensity="25.0 mS_per_cm2" id="na3_all" ionChannel="na3" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="125.0 mS_per_cm2" id="nax_all" ionChannel="nax" ion="na" erev="50.0 mV"/>
+                
+                <channelDensity condDensity="0.0357143 mS_per_cm2" id="pasCA1_all" ionChannel="pasCA1" ion="non_specific" erev="-58.0 mV"/>
+                
+
+                <spikeThresh value="0.0 mV"/>
+
+                <specificCapacitance value="1.0 uF_per_cm2"/>
+
+                <initMembPotential value="-65.0 mV"/>
+
+            </membraneProperties>
+
+            <intracellularProperties>
+
+                <resistivity value="0.15 kohm_cm"/>
+
+            </intracellularProperties>
+
+        </biophysicalProperties>
+
+    </cell>
+    
+</neuroml>

@@ -134,12 +134,18 @@ public class PopulateSummaryNodesUtilsTest
     }
 
 
-    /*@Test
+    @Test
     public void testCA1() throws Exception
     {
-        ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", "CA1", new NeuroMLModelInterpreterService());
-//		ModelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", null, new NeuroMLModelInterpreterService());  
-    }*/
+        modelInterpreterTestUtils.serialise("/ca1/CA1PyramidalCell.net.nml", null, new NeuroMLModelInterpreterService());
+//		modelInterpreterTestUtils.serialise("/ca1/BigCA1.net.nml", null, new NeuroMLModelInterpreterService());  
+    }
+
+    @Test
+    public void testHH() throws Exception
+    {
+        modelInterpreterTestUtils.serialise("/hhcell/NML2_SingleCompHHCell.nml", null, new NeuroMLModelInterpreterService());
+    }
 
 
     @AfterClass

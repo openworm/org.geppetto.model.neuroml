@@ -6,10 +6,10 @@
     <!-- Include core NeuroML2 ComponentType definitions -->
 
     <Include url="https://raw.github.com/NeuroML/NeuroML2/master/NeuroML2CoreTypes/NeuroML2CoreTypes.xml"/>
-    <Include file="/Simulation.xml"/>
+    <Include file="Simulation.xml"/>
 
     <!-- Including file with a <neuroml> root, a "real" NeuroML 2 file -->
-    <Include file="/c302_A.nml"/>
+    <Include file="c302_A.nml"/>
     
 
     <!-- End of NeuroML2 content -->

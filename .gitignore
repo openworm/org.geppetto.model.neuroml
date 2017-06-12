@@ -16,3 +16,5 @@ geppettoTmp/
 /src/test/resources/Balanced.net.nml.xmi
 /src/test/resources/CA1PyramidalCell.net.nml.xmi
 /src/test/resources/NML2_SingleCompHHCell.nml.xmi
+/src/test/resources/BigCA1.net.nml.xmi
+/src/test/resources/MediumNet.net.nml.xmi
