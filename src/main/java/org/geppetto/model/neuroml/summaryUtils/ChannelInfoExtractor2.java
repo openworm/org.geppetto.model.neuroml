@@ -65,13 +65,24 @@ public class ChannelInfoExtractor2
         NeuroMLDocument nmlDoc = new NeuroMLDocument();
         nmlDoc.setId("temp");
         for (IonChannel ic: nmlDoc0.getIonChannel())
-            nmlDoc.getIonChannel().add(ic);
+        {
+            if (chan.getId().equals(ic.getId()))
+                nmlDoc.getIonChannel().add(ic);
+        }
         for (IonChannelHH ic: nmlDoc0.getIonChannelHH())
-            nmlDoc.getIonChannelHH().add(ic);
+        {
+            if (chan.getId().equals(ic.getId()))
+                nmlDoc.getIonChannelHH().add(ic);
+        }
         for (IonChannelKS ic: nmlDoc0.getIonChannelKS())
-            nmlDoc.getIonChannelKS().add(ic);
+        {
+            if (chan.getId().equals(ic.getId()))
+                nmlDoc.getIonChannelKS().add(ic);
+        }
         for (org.neuroml.model.ComponentType ct: nmlDoc0.getComponentType())
+        {
             nmlDoc.getComponentType().add(ct);
+        }
         
         String xml = nmlConverter.neuroml2ToXml(nmlDoc);
         try 
@@ -338,18 +349,21 @@ public class ChannelInfoExtractor2
         File[] fs = new File[]{new File("src/test/resources/traub/cal.channel.nml"),
                                new File("src/test/resources/traub/kdr.channel.nml"),
                                new File("src/test/resources/traub/k2.channel.nml"),
-                               new File("src/test/resources/acnet2/Kdr_pyr.channel.nml")};
+                               new File("src/test/resources/acnet2/Kdr_pyr.channel.nml"),
+        new File("/home/padraig/temp/nn.nml")};
         for (File f: fs)
         {
             System.out.println("===============================\nOpening: "+f.getAbsolutePath());
             NeuroMLConverter nmlc = new NeuroMLConverter();
             NeuroMLDocument nmlDocument = nmlc.loadNeuroML(f);
-            IonChannel ic = nmlDocument.getIonChannel().get(0);
             
-            ChannelInfoExtractor cie0 = new ChannelInfoExtractor(ic);
-            System.out.println(cie0.getGates().toDetailString(" Old > "));
-            ChannelInfoExtractor2 cie = new ChannelInfoExtractor2(ic, nmlDocument);
-            System.out.println(cie.getGates().toDetailString(" New > "));
+            for (IonChannel ic: nmlDocument.getIonChannel())
+            {
+                ChannelInfoExtractor cie0 = new ChannelInfoExtractor(ic);
+                System.out.println(cie0.getGates().toDetailString(" Old > "));
+                ChannelInfoExtractor2 cie = new ChannelInfoExtractor2(ic, nmlDocument);
+                System.out.println(cie.getGates().toDetailString(" New > "));
+            }
         }
     }
 
