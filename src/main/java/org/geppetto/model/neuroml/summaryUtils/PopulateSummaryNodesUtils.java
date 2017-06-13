@@ -364,6 +364,7 @@ public class PopulateSummaryNodesUtils
 		if(ion.toLowerCase().equals("na")) col = new int[] { 30, 144, 255 };
 		else if(ion.toLowerCase().equals("k")) col = new int[] { 205, 92, 92 };
 		else if(ion.toLowerCase().equals("ca")) col = new int[] { 143, 188, 143 };
+		else if(ion.toLowerCase().equals("h")) col = new int[] { 255, 217, 179 };
 		else col = new int[] { 169, 169, 169 };
 
 		return col;
