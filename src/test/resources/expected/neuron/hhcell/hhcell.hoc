@@ -1,0 +1,199 @@
+// Cell: hhcell
+/*
+{
+  "id" : "hhcell",
+  "sections" : [ {
+    "name" : "soma",
+    "id" : "0",
+    "points3d" : [ "0.0, 0.0, 0.0, 17.841242", "0.0, 17.841242, 0.0, 17.841242" ],
+    "comments" : "Section in NeuroML is spherical, so using cylindrical section along Y axis in NEURON"
+  } ],
+  "groups" : [ {
+    "name" : "Soma",
+    "segments" : [ "soma" ]
+  }, {
+    "name" : "soma_group",
+    "groups" : [ "Soma" ],
+    "sections" : [ ]
+  }, {
+    "name" : "all",
+    "sections" : [ "soma" ]
+  } ],
+  "specificCapacitance" : [ {
+    "group" : "all",
+    "value" : "1.0"
+  } ],
+  "initMembPotential" : [ {
+    "group" : "all",
+    "value" : "-65.0"
+  } ],
+  "resistivity" : [ {
+    "group" : "all",
+    "value" : "30.000002"
+  } ],
+  "channelDensity" : [ {
+    "id" : "leak",
+    "ionChannel" : "passive",
+    "ion" : "non_specific",
+    "group" : "all",
+    "condDens" : "2.9999999E-4",
+    "erev" : "-54.3"
+  }, {
+    "id" : "naChans",
+    "ionChannel" : "na",
+    "ion" : "non_specific",
+    "group" : "all",
+    "condDens" : "0.12",
+    "erev" : "50.0"
+  }, {
+    "id" : "kChans",
+    "ionChannel" : "k",
+    "ion" : "non_specific",
+    "group" : "all",
+    "condDens" : "0.036",
+    "erev" : "-77.0"
+  } ],
+  "species" : [ ]
+}
+*/
+
+load_file("subiter.hoc")
+
+begintemplate hhcell
+
+public init, topol, basic_shape, subsets, geom, memb
+public x, y, z, position
+
+
+//  Some methods for referencing the cells
+
+public toString, netInfo, set_initial_v, set_initial_ion_properties, synlist
+
+
+// Section: soma, id: 0, parent: $s.parent
+create soma
+public soma
+
+// Group: {name=Soma, segments=[soma]}
+objref Soma
+// Group: {name=soma_group, groups=[Soma], sections=[]}
+objref soma_group
+// Group: {name=all, sections=[soma]}
+objref all
+
+objref synlist
+
+proc init() {
+    topol()
+    geom_nseg()
+    subsets()
+    subsets_inhomogeneous()
+    biophys()
+    biophys_inhomogeneous()
+    synlist = new List()
+    x = y = z = 0
+
+}
+
+proc set_initial_v() {
+    // Taken from the initMembPotential value
+    forsec all v = -65.0  // units: mV
+}
+
+
+proc set_initial_ion_properties() {
+    // From species
+}
+
+
+proc topol() {
+    basic_shape()
+
+}
+
+
+proc basic_shape() {
+
+    // Section: soma, id: 0, parent: $s.parent (entry count 0/100)
+    soma { pt3dclear() }
+    soma { pt3dadd( 0.0, 0.0, 0.0, 17.841242 ) }
+    soma { pt3dadd( 0.0, 17.841242, 0.0, 17.841242 ) }
+
+}
+
+
+proc subsets() { local i
+
+    // Group: {name=Soma, segments=[soma]}
+    Soma = new SectionList()
+
+    // Group: {name=soma_group, groups=[Soma], sections=[]}
+    soma_group = new SectionList()
+    forsec Soma soma_group.append()
+
+    // Group: {name=all, sections=[soma]}
+    all = new SectionList()
+    soma all.append()
+
+}
+
+
+proc subsets_inhomogeneous() {
+}
+
+proc biophys() {
+
+    // Specific capacitance
+    forsec all cm = 1.0  // units: uF/cm2
+
+    // Specific axial resistance/resistivity
+    forsec all Ra = 30.000002  // units: ohm cm
+
+    // Channel densities
+    forsec all {
+        insert passive
+        gmax_passive = 2.9999999E-4  // units: S cm-2
+        e_passive = -54.3  // units: mV
+    }
+    forsec all {
+        insert na
+        gmax_na = 0.12  // units: S cm-2
+        e_na = 50.0  // units: mV
+    }
+    forsec all {
+        insert k
+        gmax_k = 0.036  // units: S cm-2
+        e_k = -77.0  // units: mV
+    }
+
+    // Concentration models for species
+
+}
+
+func H() { // Heaviside function
+    if ($1>=0) return 1
+    if ($1==0) return 0.5
+    return 0
+}
+
+proc biophys_inhomogeneous() {
+}
+
+proc geom_nseg() {
+    // All sections not mentioned here have nseg = 1
+}
+
+
+proc position() { local i
+    forsec all {
+        for i = 0, n3d()-1 {
+            pt3dchange(i, $1+x3d(i), $2+y3d(i), $3+z3d(i), diam3d(i))
+        }
+    }
+    x = $1  y = $2  z = $3
+}
+
+
+endtemplate hhcell
+
+

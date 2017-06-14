@@ -1,5 +1,5 @@
 /*******************************************************************************
-. * The MIT License (MIT)
+ * The MIT License (MIT)
  *
  * Copyright (c) 2011 - 2015 OpenWorm.
  * http://openworm.org
@@ -42,7 +42,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
 
+import com.google.gson.JsonObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
@@ -53,21 +55,26 @@ import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.AModelInterpreter;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.ModelFormat;
 import org.geppetto.model.neuroml.features.LEMSParametersFeature;
+import org.geppetto.model.neuroml.features.DefaultViewCustomiserFeature;
 import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateTypes;
 import org.geppetto.model.neuroml.summaryUtils.PopulateSummaryNodesUtils;
+import org.geppetto.model.neuroml.utils.CellUtils;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.types.CompositeType;
+import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.Type;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Pointer;
+import org.geppetto.model.variables.Variable;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -102,6 +109,15 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 	private GeppettoModelAccess access;
 	private OptimizedLEMSReader reader = null;
 
+	public NeuroMLModelInterpreterService()
+	{
+		super();
+		
+		// add features when the service is created
+        this.addFeature(new LEMSParametersFeature());
+        this.addFeature(new DefaultViewCustomiserFeature());
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -115,6 +131,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 		if(this.reader == null)
 		{
 			Type type = null;
+
 			// Read the neuroml/lems model and includes
 			// if there is a neuroml/lems exception -> call NeuroML Validator in order to get a good explanation for the user
 			try
@@ -152,8 +169,6 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				}
 			}
 
-			// Add LEMS Parameter Feature
-			this.addFeature(new LEMSParametersFeature());
 			this.access = access;
 
 			long endTime = System.currentTimeMillis();
@@ -199,6 +214,22 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			{
 				Component mainComponent = partialLems.getComponent(typeId);
 				type = populateTypes.extractInfoFromComponent(mainComponent);
+
+                                DefaultViewCustomiserFeature customiser = (DefaultViewCustomiserFeature) this.getFeature(GeppettoFeature.DEFAULT_VIEW_CUSTOMISER_FEATURE);
+
+                                // look for annotation variables on array types and
+                                // use to set appropriate view customizations
+                                for (Variable var : ((CompositeType) type).getVariables())
+                                    for (Type varType : var.getTypes()) {
+                                        try {
+                                            for (Variable arrayVar : ((CompositeType) ((ArrayType) varType).getArrayType()).getVariables())
+                                                if (arrayVar.getId().equals(Resources.ANNOTATION.getId())) {
+                                                    customiser.buildCustomizationFromType(arrayVar.getAnonymousTypes().get(0), library);
+                                                }
+                                        } catch (ClassCastException e) {
+                                            continue;
+                                        }
+                                    }
 			}
 			else
 			{
