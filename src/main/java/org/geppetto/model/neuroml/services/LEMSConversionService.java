@@ -259,7 +259,7 @@ public class LEMSConversionService extends AConversion
 				outputFileName = "main_script.py";
 
 				// Convert model
-				IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormatMapping.valueOf(output.getModelFormat()).toString());
+				IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormatMapping.valueOf(output.getModelFormat().toUpperCase()).toString());
 				List<File> outputFiles = exportWriter.convert();
 			}
 
