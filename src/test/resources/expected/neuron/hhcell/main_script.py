@@ -122,6 +122,15 @@ class NeuronSimulation():
         return int(hashlib.md5(obj).hexdigest()[0:8],16)  # convert 8 first chars of md5 hash in base 16 to int
 
 
+    ###############################################################################
+    # Initialize the stim randomizer
+    # This is copied from NetPyNE: https://github.com/Neurosim-lab/netpyne/blob/master/netpyne/simFuncs.py
+    ###############################################################################
+    def _init_stim_randomizer(self,rand, stimType, gid, seed): 
+        print("INIT STIM  %s; %s; %s; %s; %s"%(rand, stimType, self._id32(stimType), gid, seed))
+        rand.Random123(self._id32(stimType), gid, seed)
+
+
     def save_results(self):
 
         print("Saving results at t=%s..."%h.t)
