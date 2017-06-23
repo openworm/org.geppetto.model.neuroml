@@ -108,10 +108,10 @@ public class LEMSConversionServiceTest
 		compareGeneratedDomainModel(outputModel, "/neuron/hhcell/");
 
 		List<ModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
-		Assert.assertEquals(17, modelFormats.size());
+		Assert.assertEquals(18, modelFormats.size());
 
 		modelFormats = lemsConversionService.getSupportedOutputs(inputModel);
-		Assert.assertEquals(6, modelFormats.size());
+		Assert.assertEquals(7, modelFormats.size());
 
 	}
     
@@ -137,10 +137,41 @@ public class LEMSConversionServiceTest
 		compareGeneratedDomainModel(outputModel, "/netpyne/hhcell/");
 
 		List<ModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
-		Assert.assertEquals(17, modelFormats.size());
+		Assert.assertEquals(18, modelFormats.size());
 
 		modelFormats = lemsConversionService.getSupportedOutputs(inputModel);
-		Assert.assertEquals(6, modelFormats.size());
+		Assert.assertEquals(7, modelFormats.size());
+
+    }
+    
+	/**
+	 * "" Test method for {@link org.geppetto.model.neuroml.services.LEMSConversionService#readModel(java.net.URL)}.
+	 * 
+	 * @throws ModelInterpreterException
+	 * @throws IOException
+	 * @throws LEMSException
+	 * @throws NeuroMLException
+	 * @throws URISyntaxException
+	 * @throws LEMSBuildException
+	 */
+	@Test
+	public void testJNeuroML() throws ConversionException, ModelInterpreterException, LEMSException, IOException, NeuroMLException, URISyntaxException
+	{
+		LEMSConversionService lemsConversionService = new LEMSConversionService();
+		lemsConversionService.setProjectId(1);
+		lemsConversionService.setExperiment(new LocalExperiment(1, null, null, null, null, null, null, null, null, null, null));
+		DomainModel inputModel = createDomainModel(new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml"), "net1");
+        //DomainModel inputModel = createDomainModel(new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/NeuroML/Pyramidal/L5bPyrCellHayEtAl2011.net.nml"), "net1");
+		
+		DomainModel outputModel = convertModelTo(lemsConversionService, inputModel, "net1", "jNeuroML");
+
+		compareGeneratedDomainModel(outputModel, "/jneuroml/hhcell/");
+
+		List<ModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
+	    Assert.assertEquals(18, modelFormats.size());
+
+		modelFormats = lemsConversionService.getSupportedOutputs(inputModel);
+		Assert.assertEquals(7, modelFormats.size());
 
 	}
 
@@ -157,6 +188,9 @@ public class LEMSConversionServiceTest
 		Map<String, String> parametersSimulatorConfiguration = new HashMap<String, String>();
 		parametersSimulatorConfiguration.put("target", targetModel);
 		LocalSimulatorConfiguration localSimulatorConfiguration = new LocalSimulatorConfiguration(0, "0", "0", 0.00005f, 1f, parametersSimulatorConfiguration);
+        ModelFormat mf = ServicesRegistry.getModelFormat(targetFormat);
+        if (mf==null)
+            throw new ConversionException("Error converting to "+targetFormat+"\nRegistered model formats: "+ServicesRegistry.getRegisteredModelFormats());
 		DomainModel outputModel = lemsConversionService.convert(model, ServicesRegistry.getModelFormat(targetFormat), new LocalAspectConfiguration(0, null, null, null, localSimulatorConfiguration),
 				null);
 		return outputModel;

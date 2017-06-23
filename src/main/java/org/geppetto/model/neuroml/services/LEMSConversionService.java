@@ -257,6 +257,9 @@ public class LEMSConversionService extends AConversion
 			{
 				// FIXME: the py extension can be added inside.
 				outputFileName = "main_script.py";
+                if (output.getModelFormat().equalsIgnoreCase(ModelFormatMapping.JNEUROML.getExportValue()))
+                    
+                    outputFileName = "LEMS_sim.xml";
 
 				// Convert model
 				IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormatMapping.valueOf(output.getModelFormat().toUpperCase()).toString());

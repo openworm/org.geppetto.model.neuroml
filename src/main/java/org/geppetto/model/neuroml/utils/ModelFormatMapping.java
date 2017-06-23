@@ -61,7 +61,8 @@ public enum ModelFormatMapping
 	SBML("SBML"),
 	SVG("SVG"),
 	XINEML("XINEML"),
-	XPP("XPP");
+	XPP("XPP"),
+	JNEUROML("jNeuroML");
 	
 	
 	private String _value;
