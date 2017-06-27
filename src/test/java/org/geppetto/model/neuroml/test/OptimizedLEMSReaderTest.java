@@ -37,6 +37,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.model.neuroml.utils.OptimizedLEMSReader;
 import org.junit.Test;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -50,6 +53,8 @@ import org.neuroml.model.util.NeuroMLException;
  */
 public class OptimizedLEMSReaderTest
 {
+	private static Log _logger = LogFactory.getLog(OptimizedLEMSReaderTest.class);
+	
     private void loadNeuroMLFile(String modelPath) throws IOException, NeuroMLException, LEMSException
     {
 
@@ -57,10 +62,10 @@ public class OptimizedLEMSReaderTest
 
         URL url = ModelInterpreterTestUtils.class.getResource(modelPath);
         OptimizedLEMSReader olr = new OptimizedLEMSReader(dependentModels);
-        System.out.println("Loading: "+modelPath);
+        _logger.info("Loading: "+modelPath);
         olr.readAllFormats(url);
 
-        System.out.println("Done: "+olr.getNetworkHelper());
+        _logger.info("Done: "+olr.getNetworkHelper());
 
     }
 

@@ -39,6 +39,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -54,7 +57,6 @@ import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.GeppettoModel;
 import org.geppetto.model.GeppettoPackage;
-
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.geppetto.model.neuroml.summaryUtils.PopulateSummaryNodesUtils;
 import org.geppetto.model.types.Type;
@@ -69,6 +71,7 @@ import org.neuroml.model.NeuroMLDocument;
  */
 public class PopulateSummaryNodesUtilsTest
 {
+	private static Log _logger = LogFactory.getLog(PopulateSummaryNodesUtilsTest.class);
 	
     /*
        This is really just a helper class to allow update/testing of generated HTML in
@@ -129,7 +132,7 @@ public class PopulateSummaryNodesUtilsTest
     public void testModelACnet() throws Exception
     {
         modelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", null, new NeuroMLModelInterpreterService());
-        System.out.println("============================================");
+        _logger.info("============================================");
         modelInterpreterTestUtils.serialise("/acnet2/pyr_4_sym.cell.nml", null, new NeuroMLModelInterpreterService());
     }
 
