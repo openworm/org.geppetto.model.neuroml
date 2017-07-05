@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.local.LocalAspectConfiguration;
@@ -72,6 +74,9 @@ import org.neuroml.model.util.NeuroMLException;
  */
 public class LEMSConversionServiceTest
 {
+	
+	private static Log _logger = LogFactory.getLog(LEMSConversionServiceTest.class);
+	
 	// FIXME: We have to use OSGI text or spring app context initialization
 	@BeforeClass
 	public static void initializeServiceRegistry() throws Exception
@@ -171,7 +176,7 @@ public class LEMSConversionServiceTest
 		{
 			for(File child : directoryListing)
 			{
-				System.out.println(child.getName());
+				_logger.info(child.getName());
 				File expectedFile = new File(LEMSConversionServiceTest.class.getClassLoader().getResource(expectedFolder + child.getName()).toURI());
 				Assert.assertEquals(FileUtils.readLines(expectedFile), FileUtils.readLines(child));
 			}
