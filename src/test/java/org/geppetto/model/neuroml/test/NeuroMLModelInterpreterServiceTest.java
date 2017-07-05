@@ -37,18 +37,17 @@ package org.geppetto.model.neuroml.test;
 import java.io.File;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateProjectionTypes;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.Before;
-import org.junit.AfterClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -58,7 +57,6 @@ import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.types.ImportType;
 import org.geppetto.model.values.ArrayElement;
-import org.geppetto.model.variables.Variable;
 
 import org.neuroml.model.util.NeuroMLConverter;
 import org.neuroml.model.NeuroMLDocument;
@@ -68,8 +66,6 @@ import org.neuroml.model.Instance;
 import org.neuroml.model.util.hdf5.NeuroMLHDF5Reader;
 
 import org.lemsml.jlems.core.type.Component;
-import org.lemsml.jlems.core.type.ComponentType;
-import org.lemsml.jlems.core.type.Lems;
 
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
@@ -77,6 +73,8 @@ import org.lemsml.jlems.core.type.Lems;
  */
 public class NeuroMLModelInterpreterServiceTest
 {
+	private static Log _logger = LogFactory.getLog(NeuroMLModelInterpreterServiceTest.class);
+	
     private ModelTester mTest;
 
     @Before
@@ -120,7 +118,7 @@ public class NeuroMLModelInterpreterServiceTest
         	
             // Make some comparisons between read Geppetto model and NeuroML document as read by org.neuroml.model
             assertEquals(nmlDoc.getId(), geppettoModel.getId());
-            System.out.println("Comparing NML model " + nmlDoc.getId() + " to Geppetto: " + geppettoModel.getId());
+            _logger.info("Comparing NML model " + nmlDoc.getId() + " to Geppetto: " + geppettoModel.getId());
 
             // Populations (compare id and size)
             List<Population> docPopulations = nmlDoc.getNetwork().get(0).getPopulation();
@@ -150,10 +148,10 @@ public class NeuroMLModelInterpreterServiceTest
                 modelPosSummary.add(new SimpleEntry<Integer, String>(el.getIndex(), "(" + (float) el.getPosition().getX() + "," + (float) el.getPosition().getY() + "," + (float) el.getPosition().getZ() + ")"));
             }
 
-            System.out.println("modelPopSummary: " + modelPopSummary);
-            System.out.println("modelPosSummary: " + modelPosSummary);
-            System.out.println("docPopSummary: " + docPopSummary);
-            System.out.println("docPosSummary: " + docPosSummary);
+            _logger.info("modelPopSummary: " + modelPopSummary);
+            _logger.info("modelPosSummary: " + modelPosSummary);
+            _logger.info("docPopSummary: " + docPopSummary);
+            _logger.info("docPosSummary: " + docPosSummary);
 
             assertEquals(modelPopSummary, docPopSummary);
             assertEquals(modelPosSummary, docPosSummary);
@@ -167,7 +165,7 @@ public class NeuroMLModelInterpreterServiceTest
             for (Projection proj : docProjections)
             {
                 int total = proj.getConnection().size() + proj.getConnectionWD().size();
-                System.out.println("Model has proj " + proj.getId() + " with " + total + " conns");
+                _logger.info("Model has proj " + proj.getId() + " with " + total + " conns");
                 docProjSummary.put(proj.getId(), total);
             }
 
@@ -188,7 +186,7 @@ public class NeuroMLModelInterpreterServiceTest
 
                     modelProjSummary.put(resolvedProj.getId(), resolvedProjSize);
 
-                    System.out.println(projComponent.getID() + " = " + projComponent.getStrictChildren().size() + " = " + docProjSummary.get(projComponent.getID()));
+                    _logger.info(projComponent.getID() + " = " + projComponent.getStrictChildren().size() + " = " + docProjSummary.get(projComponent.getID()));
                 }
 
                 assertEquals(modelProjSummary, docProjSummary);

@@ -151,6 +151,7 @@
 				<configuration>
   					<argLine>-Xmx1024m</argLine>
 					<junitArtifactName>org.junit:com.springsource.org.junit</junitArtifactName>
+					<redirectTestOutputToFile>true</redirectTestOutputToFile>
 				</configuration>	
 			</plugin>
 			<plugin>
