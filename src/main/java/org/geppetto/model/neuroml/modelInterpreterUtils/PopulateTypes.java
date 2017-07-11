@@ -178,30 +178,30 @@ public class PopulateTypes
 		// Extracting the rest of the child
 		for(Component componentChild : component.getChildHM().values())
 		{
-			if(componentChild.getDeclaredType().equals(Resources.MORPHOLOGY.getId()))
-			{
-				createVisualTypeFromMorphology(component, compositeType, componentChild);
-			}
-			else if(componentChild.getDeclaredType().equals(Resources.ANNOTATION.getId()))
-			{
-				NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(compositeType, componentChild, access);
-			}
-			else if(componentChild.getDeclaredType().equals(Resources.NOTES.getId()))
-			{
-				compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(Resources.NOTES.get(), componentChild.getAbout(), this.access));
-			}
-			else
-			{
-				// For the moment all the child are extracted as anonymous types
-				CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
-				if(anonymousCompositeType != null)
-				{
-					Variable variable = variablesFactory.createVariable();
-					NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
-					variable.getAnonymousTypes().add(anonymousCompositeType);
-					compositeType.getVariables().add(variable);
-				}
-			}
+                    if (componentChild.getDeclaredType().equals(Resources.MORPHOLOGY.getId())) {
+                        createVisualTypeFromMorphology(component, compositeType, componentChild);
+                    }
+                    else if (componentChild.getDeclaredType().equals(Resources.PROPERTY.getId())) { 
+                        compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(componentChild.getTextParam("tag"), componentChild.getTextParam("value"), this.access));
+                    }
+                    else if (componentChild.getDeclaredType().equals(Resources.ANNOTATION.getId())) {
+                        NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(compositeType, componentChild, access);
+                    }
+                    else if (componentChild.getDeclaredType().equals(Resources.NOTES.getId())) {
+                        compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(Resources.NOTES.get(), componentChild.getAbout(), this.access));
+                    }
+                    else {
+                        // For the moment all the child are extracted as anonymous types
+                        CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
+                        if(anonymousCompositeType != null)
+                            {
+                                Variable variable = variablesFactory.createVariable();
+                                NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
+                                variable.getAnonymousTypes().add(anonymousCompositeType);
+                                compositeType.getVariables().add(variable);
+                            }
+                        break;
+                    }
 		}
 
 		// Extracting the rest of the children
@@ -524,11 +524,20 @@ public class PopulateTypes
 		}
 
                 for(Component populationChild : populationComponent.getAllChildren())
-                    if (populationChild.getDeclaredType().equals("annotation"))
-                        {
-                            // extract population annotation
-                            NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(refCompositeType, populationChild, access);
-                        }
+                    if (populationChild.getDeclaredType().equals("annotation")) {
+                        // extract population annotation
+                        NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(refCompositeType, populationChild, access);
+                    }
+                    else if (populationChild.getDeclaredType().equals("property")) {
+                        CompositeType propertyType = typesFactory.createCompositeType();
+                        NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(propertyType, populationChild);
+                        Variable propertyVar = ModelInterpreterUtils.createTextTypeVariable(populationChild.getTextParam("tag"), populationChild.getTextParam("value"), this.access);
+                        propertyType.getVariables().add(propertyVar);
+                        Variable variable = variablesFactory.createVariable();
+                        NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, populationChild);
+                        variable.getAnonymousTypes().add(propertyType);
+                        refCompositeType.getVariables().add(variable);
+                    }
 
 		arrayType.setArrayType(refCompositeType);
 
