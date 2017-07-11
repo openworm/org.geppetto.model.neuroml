@@ -522,6 +522,14 @@ public class PopulateTypes
 			refCompositeType.setVisualType((VisualType) types.get("morphology_sphere"));
 
 		}
+
+                for(Component populationChild : populationComponent.getAllChildren())
+                    if (populationChild.getDeclaredType().equals("annotation"))
+                        {
+                            // extract population annotation
+                            NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(refCompositeType, populationChild, access);
+                        }
+
 		arrayType.setArrayType(refCompositeType);
 
 		ArrayValue arrayValue = valuesFactory.createArrayValue();
@@ -552,13 +560,6 @@ public class PopulateTypes
 				
 			}
 			arrayType.setSize(size);
-
-                        for(Component populationChild : populationComponent.getAllChildren())
-                            if (populationChild.getDeclaredType().equals("annotation"))
-                                {
-                                    // extract population annotation
-                                    NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(refCompositeType, populationChild, access);
-                                }
 		}
 		else
 		{
