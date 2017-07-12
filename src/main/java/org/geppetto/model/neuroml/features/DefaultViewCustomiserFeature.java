@@ -2,6 +2,8 @@ package org.geppetto.model.neuroml.features;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.geppetto.core.features.IDefaultViewCustomiserFeature;
 import org.geppetto.core.services.GeppettoFeature;
@@ -42,24 +44,36 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
         return jo;
     }
 
-    public String extractPath(Type type, GeppettoLibrary library)
+    public List<String> extractPaths(Type type, GeppettoLibrary library)
     {
         Component domainModel = (Component) type.getDomainModel().getDomainModel();
+        List<String> paths = new ArrayList<String>();
         String path = "";
         while (domainModel.getParent() != null) {
             if (domainModel.getParent().getDeclaredType().equals("network")){
                 // so we can get the name of the network
                 ImportType importType = (ImportType)library.getTypes().get(0);
-                path = importType.getReferencedVariables().get(0).getId() + "." + path;
+                for (int i = 0; i < paths.size(); i++)
+                    paths.set(i, importType.getReferencedVariables().get(0).getId() + "." + paths.get(i));
             } else if (domainModel.getParent().getTypeName().equals("populationList")) {
-                // FIXME: should be generalized from 0 to however many in list
-                path = domainModel.getParent().getID() + "[0]." + path;
+                for (int i = 0; i < domainModel.getParent().getComponents().size()-1; ++i)
+                    paths.add(domainModel.getParent().getID() + "[" + i + "]." + path);
             } else {
-                path = domainModel.getParent().getID() + "." + path;
+                if (paths.size() == 0)
+                    paths.add(domainModel.getParent().getID() + "." + path);
+                else {
+                    for (int i = 0; i < paths.size(); i++) {
+                        paths.set(i, domainModel.getParent().getID() + "." + paths.get(i));
+                    }
+                }
             }
             domainModel = domainModel.getParent();
         }
-        return path.substring(0, path.length()-1);
+        // trim trailing .
+        for (int i = 0; i < paths.size(); i++) {
+            paths.set(i, paths.get(i).substring(0, paths.get(i).length()-1));
+        }
+        return paths;
     }
 
     public String extractData(Variable var)
@@ -80,17 +94,16 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
     public void buildCustomizationFromType(Type type, GeppettoLibrary library)
     {
         for (Variable var : ((CompositeType) type).getVariables()) {
-            String path;
             switch (var.getId()) {
                 case "color":
-                    path = extractPath(type, library);
                     String color = extractColor(var);
-                    canvas.addColor(path, color);
+                    for (String path : extractPaths(type, library))
+                        canvas.addColor(path, color);
                     break;
                 case "radius":
-                    path = extractPath(type, library);
                     String radius = extractData(var);
-                    canvas.addRadius(path, radius);
+                    for (String path : extractPaths(type, library))
+                        canvas.addRadius(path, radius);
                     break;
             }
         }
