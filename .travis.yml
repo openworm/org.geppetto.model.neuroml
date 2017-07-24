@@ -7,10 +7,6 @@ install:
 - mvn install
 - cd ..
 
-- # Todo: remove for development
-- if [ $TRAVIS_BRANCH == "pg_netpyne" ]; then main_repo_branch="pg_netpyne" ; fi
-- echo "Cloning branch " $main_repo_branch
-
 - git clone https://github.com/openworm/org.geppetto.core.git -b $main_repo_branch
 - cd org.geppetto.core
 - mvn install
