@@ -200,7 +200,6 @@ public class PopulateTypes
                                 variable.getAnonymousTypes().add(anonymousCompositeType);
                                 compositeType.getVariables().add(variable);
                             }
-                        break;
                     }
 		}
 
