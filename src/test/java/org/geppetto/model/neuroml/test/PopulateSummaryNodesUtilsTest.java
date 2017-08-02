@@ -129,13 +129,19 @@ public class PopulateSummaryNodesUtilsTest
     }
 
     @Test
+    public void testModelL23Smith() throws Exception
+    {
+        _logger.info("============================================");
+        modelInterpreterTestUtils.serialise("/l23smith/L23_One.net.nml", null, new NeuroMLModelInterpreterService());
+    }
+
+    @Test
     public void testModelACnet() throws Exception
     {
         modelInterpreterTestUtils.serialise("/acnet2/MediumNet.net.nml", null, new NeuroMLModelInterpreterService());
         _logger.info("============================================");
         modelInterpreterTestUtils.serialise("/acnet2/pyr_4_sym.cell.nml", null, new NeuroMLModelInterpreterService());
     }
-
 
     @Test
     public void testCA1() throws Exception

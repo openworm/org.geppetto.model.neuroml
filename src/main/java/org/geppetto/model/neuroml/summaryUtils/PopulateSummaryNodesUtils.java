@@ -398,7 +398,7 @@ public class PopulateSummaryNodesUtils
 		float xmin = width * (lmin - start) / order;
 		float xmax = width * (lmax - start) / order;
 
-		StringBuilder sb = new StringBuilder("<svg width=\"" + width + "\" height=\"" + height + "\">\n");
+		StringBuilder sb = new StringBuilder("<!-- SVG for "+min+"->"+max+" RGB: ("+r+","+g+","+b+")-->\n<svg width=\"" + width + "\" height=\"" + height + "\">\n");
 		sb.append("<rect width=\"" + width + "\" height=\"" + height + "\" style=\"fill:rgb(" + r + "," + g + "," + b + ");stroke-width:0;stroke:rgb(10,10,10)\"/>\n");
 		for(int i = 1; i < order; i++)
 		{
@@ -604,14 +604,17 @@ public class PopulateSummaryNodesUtils
                                     String condName = visualGroup.getName();
                                     if (condName.length()>20)
                                         condName = condName.substring(0,20)+"...";
-									String info = ("<tr><td>\n<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">"
-											+ condName + "</a> <td/>\n");
 
 									Float[] minMax = ionChannelInfo.get(visualGroup.getName());
 									if(minMax == null)
 									{
 										minMax = new Float[] { -2f, -1f };
-									};
+									}
+                                    
+									String info = ("\n<!-- Ion: "+ion+", condName: "+condName+", minMax: ("+minMax[0]+","+minMax[1]+")-->\n"
+                                        + "<tr><td>\n<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">"
+									    + condName + "</a> <td/>\n");
+                                    
 									String min = minMax[0].intValue() != minMax[0].floatValue() ? minMax[0].toString() : minMax[0].intValue() + "";
 									String max = minMax[1].intValue() != minMax[1].floatValue() ? minMax[1].toString() : minMax[1].intValue() + "";
 									info += " \n<td>\n" + getSvgScale(minMax[0], minMax[1], ion)+"<td/>";
