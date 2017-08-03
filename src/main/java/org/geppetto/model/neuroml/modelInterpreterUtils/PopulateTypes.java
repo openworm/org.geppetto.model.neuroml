@@ -217,6 +217,7 @@ public class PopulateTypes
                                         CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
                                         Variable variable = variablesFactory.createVariable();
                                         NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
+                                        variable.setStatic(true);
                                         variable.getAnonymousTypes().add(anonymousCompositeType);
                                         ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable);
                                     }
@@ -235,6 +236,7 @@ public class PopulateTypes
                                     Variable variable = variablesFactory.createVariable();
                                     NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
                                     variable.getAnonymousTypes().add(anonymousCompositeType);
+                                    variable.setStatic(true);
                                     compositeType.getVariables().add(variable);
 				}
                         }
@@ -271,7 +273,7 @@ public class PopulateTypes
 						{
 							CompositeType compartmentType = (CompositeType) types.get(compartment.getId());
 							compartmentType.getVariables()
-									.add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
+                                                            .add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
 						}
 					}
 				}
@@ -306,12 +308,12 @@ public class PopulateTypes
 									Cell cell = getNeuroMLCell(component);
 
 									CellUtils cellUtils = new CellUtils(cell);
-                                    List<Segment> ca_segments = new ArrayList();
-                                    if (cellSegmentMap.get(component).size() > 1) {
-                                    	ca_segments = cellUtils.getSegmentsInGroup(species.getSegmentGroup());
-                                    } else {
-                                        ca_segments = cell.getMorphology().getSegment();
-                                    }
+                                                                        List<Segment> ca_segments = new ArrayList();
+                                                                        if (cellSegmentMap.get(component).size() > 1) {
+                                                                            ca_segments = cellUtils.getSegmentsInGroup(species.getSegmentGroup());
+                                                                        } else {
+                                                                            ca_segments = cell.getMorphology().getSegment();
+                                                                        }
 
 									// set flag so we do not duplicate compartments later
 									if(species.getSegmentGroup() == "all") allSegs = true;
@@ -361,6 +363,7 @@ public class PopulateTypes
 					Variable variable = variablesFactory.createVariable();
 					variable.setName(Resources.getValueById(compartment.getName()));
 					variable.setId(compartment.getId());
+                                        variable.setStatic(true);
 					Cell cell = getNeuroMLCell(component);
 					for(Segment seg : cell.getMorphology().getSegment())
 					{
@@ -535,6 +538,7 @@ public class PopulateTypes
                         Variable variable = variablesFactory.createVariable();
                         NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, populationChild);
                         variable.getAnonymousTypes().add(propertyType);
+                        variable.setStatic(true);
                         refCompositeType.getVariables().add(variable);
                     }
 
