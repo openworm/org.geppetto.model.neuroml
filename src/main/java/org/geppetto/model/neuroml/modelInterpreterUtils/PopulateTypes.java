@@ -70,6 +70,8 @@ public class PopulateTypes
 	private NetworkHelper networkHelper;
 
 	private Map<Type, Cell> geppettoCellTypesMap = new HashMap<Type, Cell>();
+    
+    private final String CA_ION = "ca";
 
 	public PopulateTypes(Map<String, Type> types, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument, NetworkHelper networkHelper)
 	{
@@ -289,7 +291,10 @@ public class PopulateTypes
 					{
 						for(Species species : c.getBiophysicalProperties().getIntracellularProperties().getSpecies())
 						{
-							if(species.getId().equals(Resources.CALCIUM.getId()))
+                            // Removing ca from Resources, as it gets used among other things to substitute channel densities named ca with Calcium... 
+							// if(species.getId().equals(Resources.CALCIUM.getId()))
+                                
+							if(species.getId().equals(CA_ION))
 							{
 
 								// if we have not yet added caConc exposure ... this should be generalized
