@@ -109,7 +109,7 @@ public class ExtractVisualType
 		long start = System.currentTimeMillis();
 
 		CompositeVisualType visualCompositeType = typeFactory.createCompositeVisualType();
-		NeuroMLModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, cell.getMorphology().getId());
+		NeuroMLModelInterpreterUtils.initialiseNodeFromString(visualCompositeType, cell.getId()+"__"+cell.getMorphology().getId());
 
 		VisualGroup visualGroupCellParts = createCellPartsVisualGroups();
 		if(visualGroupCellParts != null)

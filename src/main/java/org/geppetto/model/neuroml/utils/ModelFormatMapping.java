@@ -56,12 +56,13 @@ public enum ModelFormatMapping
 	GRAPH_VIZ("GraphViz"),
 	NEST("NEST"),
 	NEURON("NEURON"),
-	NETPYNE("NetPyNE"),
+	NETPYNE("NETPYNE"),
 	PYNN("PyNN"),
 	SBML("SBML"),
 	SVG("SVG"),
 	XINEML("XINEML"),
-	XPP("XPP");
+	XPP("XPP"),
+	JNEUROML("jNeuroML");
 	
 	
 	private String _value;

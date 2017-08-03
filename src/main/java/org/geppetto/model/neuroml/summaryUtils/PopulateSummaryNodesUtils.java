@@ -49,10 +49,12 @@ import org.eclipse.emf.common.util.EList;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.Node;
+import org.geppetto.model.neuroml.utils.CellUtils;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
 import org.geppetto.model.neuroml.utils.ResourcesDomainType;
 import org.geppetto.model.neuroml.visualUtils.ModelInterpreterVisualConstants;
+import org.geppetto.model.neuroml.visualUtils.PopulateChannelDensityVisualGroups;
 import org.geppetto.model.types.ArrayType;
 import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.CompositeVisualType;
@@ -72,6 +74,9 @@ import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.values.VisualGroup;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
+import org.lemsml.jlems.core.eval.DoubleEvaluator;
+import org.lemsml.jlems.core.expression.ParseError;
+import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
 import org.neuroml.export.info.model.ExpressionNode;
@@ -94,13 +99,17 @@ import org.neuroml.model.GateHHRatesTau;
 import org.neuroml.model.GateHHRatesTauInf;
 import org.neuroml.model.GateHHTauInf;
 import org.neuroml.model.GateHHUndetermined;
+import org.neuroml.model.InhomogeneousParameter;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.Izhikevich2007Cell;
 import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.PulseGenerator;
+import org.neuroml.model.Segment;
+import org.neuroml.model.SegmentGroup;
 import org.neuroml.model.Standalone;
+import org.neuroml.model.VariableParameter;
 import org.neuroml.model.util.NeuroMLException;
 
 /**
@@ -289,11 +298,13 @@ public class PopulateSummaryNodesUtils
 	 * 
 	 * @returns HashMap with channel id vs [min, max] of channel density in SI units
 	 */
-	public HashMap<String, Float[]> getIonChannelsInCell(Cell cell) throws NeuroMLException
+	public HashMap<String, Float[]> getIonChannelsInCell(Cell cell) throws NeuroMLException, ContentError, ParseError
 	{
 		HashMap<String, Float[]> ic = new HashMap<>();
 
 		if(cell == null) return ic;
+        
+		CellUtils cellUtils = new CellUtils(cell);
 
 		if(cell.getBiophysicalProperties() != null)
 		{
@@ -331,22 +342,94 @@ public class PopulateSummaryNodesUtils
 			}
 			for(ChannelDensityNonUniform cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniform())
 			{
-				if(ic.containsKey(cd.getIonChannel()))
+                String visId = cd.getIonChannel()+"_"+cd.getVariableParameter().get(0).getSegmentGroup();
+				if(!ic.containsKey(visId))
 				{
-					ic.put(cd.getIonChannel(), new Float[] { -1f, -1f });
+					ic.put(visId, new Float[] { Float.MAX_VALUE, Float.MIN_VALUE });
 				}
-				// float densSi = cd.getCondDensity();
-			}
+                
+                for(VariableParameter variableParameter : cd.getVariableParameter())
+                {
+                    if(variableParameter.getParameter().equals(Resources.COND_DENSITY.getId()))
+                    {
+                        DoubleEvaluator doubleEvaluator = PopulateChannelDensityVisualGroups.getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
+                        
+                        String segGrpId = variableParameter.getSegmentGroup();
+                        SegmentGroup segmentGroup = null;
+                        for (SegmentGroup sg: cell.getMorphology().getSegmentGroup())
+                        {
+                            if (sg.getId().equals(segGrpId))
+                                segmentGroup = sg;
+                        }
+                        
+                        for(InhomogeneousParameter inhomogeneousParameter : segmentGroup.getInhomogeneousParameter())
+                        {
+                            if(inhomogeneousParameter.getId().equals(variableParameter.getInhomogeneousValue().getInhomogeneousParameter()))
+                            {
+                                // Get all segments for the subgroup
+                                List<Segment> segmentsPerSubgroup = cellUtils.getSegmentsInGroup(segmentGroup.getId());
+                                for(Segment sg : segmentsPerSubgroup)
+                                {
+                                    double distanceAllSegments = cellUtils.calculateDistanceInGroup(0.0, sg);
+                                    
+                                    HashMap<String, Double> valHM = new HashMap<String, Double>();
+                                    valHM.put(inhomogeneousParameter.getVariable(), distanceAllSegments);
+
+                                    float densSi = (float) doubleEvaluator.evalD(valHM);
+                                    if(densSi < ic.get(visId)[0]) ic.get(visId)[0] = densSi;
+                                    if(densSi > ic.get(visId)[1]) ic.get(visId)[1] = densSi;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 			/*
 			 * for (ChannelDensityNonUniformGHK cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformGHK()) ic.add(cd.getIonChannel());
 			 */
 			for(ChannelDensityNonUniformNernst cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformNernst())
 			{
-				if(ic.containsKey(cd.getIonChannel()))
+                String visId = cd.getIonChannel()+"_"+cd.getVariableParameter().get(0).getSegmentGroup();
+				if(!ic.containsKey(visId))
 				{
-					ic.put(cd.getIonChannel(), new Float[] { -1f, -1f });
+					ic.put(visId, new Float[] { Float.MAX_VALUE, Float.MIN_VALUE });
 				}
-				// float densSi = cd.getCondDensity();
+                
+                for(VariableParameter variableParameter : cd.getVariableParameter())
+                {
+                    if(variableParameter.getParameter().equals(Resources.COND_DENSITY.getId()))
+                    {
+                        DoubleEvaluator doubleEvaluator = PopulateChannelDensityVisualGroups.getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
+                        
+                        String segGrpId = variableParameter.getSegmentGroup();
+                        SegmentGroup segmentGroup = null;
+                        for (SegmentGroup sg: cell.getMorphology().getSegmentGroup())
+                        {
+                            if (sg.getId().equals(segGrpId))
+                                segmentGroup = sg;
+                        }
+                        
+                        for(InhomogeneousParameter inhomogeneousParameter : segmentGroup.getInhomogeneousParameter())
+                        {
+                            if(inhomogeneousParameter.getId().equals(variableParameter.getInhomogeneousValue().getInhomogeneousParameter()))
+                            {
+                                // Get all segments for the subgroup
+                                List<Segment> segmentsPerSubgroup = cellUtils.getSegmentsInGroup(segmentGroup.getId());
+                                for(Segment sg : segmentsPerSubgroup)
+                                {
+                                    double distanceAllSegments = cellUtils.calculateDistanceInGroup(0.0, sg);
+                                    
+                                    HashMap<String, Double> valHM = new HashMap<String, Double>();
+                                    valHM.put(inhomogeneousParameter.getVariable(), distanceAllSegments);
+
+                                    float densSi = (float) doubleEvaluator.evalD(valHM);
+                                    if(densSi < ic.get(visId)[0]) ic.get(visId)[0] = densSi;
+                                    if(densSi > ic.get(visId)[1]) ic.get(visId)[1] = densSi;
+                                }
+                            }
+                        }
+                    }
+                }
 			}
 		}
 		return ic;
@@ -399,7 +482,7 @@ public class PopulateSummaryNodesUtils
 		float xmin = width * (lmin - start) / order;
 		float xmax = width * (lmax - start) / order;
 
-		StringBuilder sb = new StringBuilder("<svg width=\"" + width + "\" height=\"" + height + "\">\n");
+		StringBuilder sb = new StringBuilder("<!-- SVG for "+min+"->"+max+" RGB: ("+r+","+g+","+b+")-->\n<svg width=\"" + width + "\" height=\"" + height + "\">\n");
 		sb.append("<rect width=\"" + width + "\" height=\"" + height + "\" style=\"fill:rgb(" + r + "," + g + "," + b + ");stroke-width:0;stroke:rgb(10,10,10)\"/>\n");
 		for(int i = 1; i < order; i++)
 		{
@@ -447,14 +530,18 @@ public class PopulateSummaryNodesUtils
 	private String getIon(String ionChannel)
 	{
 		String ion = "";
-		if(ionChannel.startsWith("na")) ion = "na";
-		else if(ionChannel.startsWith("k")) ion = "k";
-		else if(ionChannel.startsWith("ca")) ion = "ca";
-		else if(ionChannel.startsWith("h")) ion = "h";
-		else if(ionChannel.indexOf("na") > 0) ion = "na";
-		else if(ionChannel.indexOf("k") > 0) ion = "k";
-		else if(ionChannel.indexOf("ca") > 0) ion = "ca";
-		else if(ionChannel.indexOf("h") > 0) ion = "h";
+        
+		if(ionChannel.toLowerCase().startsWith("na")) ion = "na";
+		else if(ionChannel.toLowerCase().startsWith("k")) ion = "k";
+		else if(ionChannel.toLowerCase().startsWith("ca")) ion = "ca";
+		else if(ionChannel.toLowerCase().startsWith("h")) ion = "h";
+		else if(ionChannel.toLowerCase().startsWith("ih")) ion = "h";
+		else if(ionChannel.toLowerCase().startsWith("im")) ion = "k";
+        
+		else if(ionChannel.toLowerCase().indexOf("na") > 0) ion = "na";
+		else if(ionChannel.toLowerCase().indexOf("k") > 0) ion = "k";
+		else if(ionChannel.toLowerCase().indexOf("ca") > 0) ion = "ca";
+		else if(ionChannel.toLowerCase().indexOf("h") > 0) ion = "h";
 		else ion = "o";
 		return ion;
 	}
@@ -590,7 +677,7 @@ public class PopulateSummaryNodesUtils
                                 htmlText0.append("<!-- VT = "+visualGroup.getName()+" -->\n");
 								if(visualGroup.getName().equals("Cell Regions"))
 								{
-									htmlText0.append("<tr><td>\n<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">Highlight "
+									htmlText0.append("<tr><td>\n<a href=\"#Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">Highlight "
 											+ visualGroup.getName().toLowerCase() + "</a>&nbsp;");
 									htmlText0.append("<td/><td>( "
                                         + "<b><span style=\"color:#" + ModelInterpreterVisualConstants.SOMA_COLOR.substring(2) + "\">soma</span>, " 
@@ -605,14 +692,17 @@ public class PopulateSummaryNodesUtils
                                     String condName = visualGroup.getName();
                                     if (condName.length()>20)
                                         condName = condName.substring(0,20)+"...";
-									String info = ("<tr><td>\n<a href=\"#\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">"
-											+ condName + "</a> <td/>\n");
 
 									Float[] minMax = ionChannelInfo.get(visualGroup.getName());
 									if(minMax == null)
 									{
 										minMax = new Float[] { -2f, -1f };
-									};
+									}
+                                    
+									String info = ("\n<!-- Ion: "+ion+", condName: "+condName+", minMax: ("+minMax[0]+","+minMax[1]+")-->\n"
+                                        + "<tr><td>\n<a href=\"#Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">"
+									    + condName + "</a> <td/>\n");
+                                    
 									String min = minMax[0].intValue() != minMax[0].floatValue() ? minMax[0].toString() : minMax[0].intValue() + "";
 									String max = minMax[1].intValue() != minMax[1].floatValue() ? minMax[1].toString() : minMax[1].intValue() + "";
 									info += " \n<td>\n" + getSvgScale(minMax[0], minMax[1], ion)+"<td/>";

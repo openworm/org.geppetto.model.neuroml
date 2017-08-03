@@ -70,6 +70,8 @@ public class PopulateTypes
 	private NetworkHelper networkHelper;
 
 	private Map<Type, Cell> geppettoCellTypesMap = new HashMap<Type, Cell>();
+    
+    private final String CA_ION = "ca";
 
 	public PopulateTypes(Map<String, Type> types, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument, NetworkHelper networkHelper)
 	{
@@ -178,30 +180,29 @@ public class PopulateTypes
 		// Extracting the rest of the child
 		for(Component componentChild : component.getChildHM().values())
 		{
-			if(componentChild.getDeclaredType().equals(Resources.MORPHOLOGY.getId()))
-			{
-				createVisualTypeFromMorphology(component, compositeType, componentChild);
-			}
-			else if(componentChild.getDeclaredType().equals(Resources.ANNOTATION.getId()))
-			{
-				NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(compositeType, componentChild, access);
-			}
-			else if(componentChild.getDeclaredType().equals(Resources.NOTES.getId()))
-			{
-				compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(Resources.NOTES.get(), componentChild.getAbout(), this.access));
-			}
-			else
-			{
-				// For the moment all the child are extracted as anonymous types
-				CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
-				if(anonymousCompositeType != null)
-				{
-					Variable variable = variablesFactory.createVariable();
-					NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
-					variable.getAnonymousTypes().add(anonymousCompositeType);
-					compositeType.getVariables().add(variable);
-				}
-			}
+                    if (componentChild.getDeclaredType().equals(Resources.MORPHOLOGY.getId())) {
+                        createVisualTypeFromMorphology(component, compositeType, componentChild);
+                    }
+                    else if (componentChild.getDeclaredType().equals(Resources.PROPERTY.getId())) { 
+                        compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(componentChild.getTextParam("tag"), componentChild.getTextParam("value"), this.access));
+                    }
+                    else if (componentChild.getDeclaredType().equals(Resources.ANNOTATION.getId())) {
+                        NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(compositeType, componentChild, access);
+                    }
+                    else if (componentChild.getDeclaredType().equals(Resources.NOTES.getId())) {
+                        compositeType.getVariables().add(ModelInterpreterUtils.createTextTypeVariable(Resources.NOTES.get(), componentChild.getAbout(), this.access));
+                    }
+                    else {
+                        // For the moment all the child are extracted as anonymous types
+                        CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild);
+                        if(anonymousCompositeType != null)
+                            {
+                                Variable variable = variablesFactory.createVariable();
+                                NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
+                                variable.getAnonymousTypes().add(anonymousCompositeType);
+                                compositeType.getVariables().add(variable);
+                            }
+                    }
 		}
 
 		// Extracting the rest of the children
@@ -288,7 +289,10 @@ public class PopulateTypes
 					{
 						for(Species species : c.getBiophysicalProperties().getIntracellularProperties().getSpecies())
 						{
-							if(species.getId().equals(Resources.CALCIUM.getId()))
+                            // Removing ca from Resources, as it gets used among other things to substitute channel densities named ca with Calcium... 
+							// if(species.getId().equals(Resources.CALCIUM.getId()))
+                                
+							if(species.getId().equals(CA_ION))
 							{
 
 								// if we have not yet added caConc exposure ... this should be generalized
@@ -522,6 +526,23 @@ public class PopulateTypes
 			refCompositeType.setVisualType((VisualType) types.get("morphology_sphere"));
 
 		}
+
+                for(Component populationChild : populationComponent.getAllChildren())
+                    if (populationChild.getDeclaredType().equals("annotation")) {
+                        // extract population annotation
+                        NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(refCompositeType, populationChild, access);
+                    }
+                    else if (populationChild.getDeclaredType().equals("property")) {
+                        CompositeType propertyType = typesFactory.createCompositeType();
+                        NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(propertyType, populationChild);
+                        Variable propertyVar = ModelInterpreterUtils.createTextTypeVariable(populationChild.getTextParam("tag"), populationChild.getTextParam("value"), this.access);
+                        propertyType.getVariables().add(propertyVar);
+                        Variable variable = variablesFactory.createVariable();
+                        NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, populationChild);
+                        variable.getAnonymousTypes().add(propertyType);
+                        refCompositeType.getVariables().add(variable);
+                    }
+
 		arrayType.setArrayType(refCompositeType);
 
 		ArrayValue arrayValue = valuesFactory.createArrayValue();
@@ -552,13 +573,6 @@ public class PopulateTypes
 				
 			}
 			arrayType.setSize(size);
-
-                        for(Component populationChild : populationComponent.getAllChildren())
-                            if (populationChild.getDeclaredType().equals("annotation"))
-                                {
-                                    // extract population annotation
-                                    NeuroMLModelInterpreterUtils.createCompositeTypeFromAnnotation(refCompositeType, populationChild, access);
-                                }
 		}
 		else
 		{

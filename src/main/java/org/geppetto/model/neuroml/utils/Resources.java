@@ -68,7 +68,9 @@ public enum Resources
 	ION_CHANNEL("Ion Channel", "ionChannel"),
 	CHANNEL_DENSITY("Channel Density", "channelDensity"),
 	SPECIES("Species", "species"),
-        CALCIUM("Calcium", "ca"),
+    
+        /*CALCIUM("Calcium", "ca"),  Removing this from here, as it gets used among other things to substitute channel densities named ca with Calcium... */
+    
 	INIT_CONCENTRATION("Initial Concentration", "initialConcentration"),
 	INIT_EXT_CONCENTRATION("Initial External Concentration", "initialExternalConcentration"),
 	CONCENTRATION_MODEL("Concentration Model", "concentrationModel"),

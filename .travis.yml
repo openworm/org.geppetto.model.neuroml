@@ -6,6 +6,7 @@ install:
 - cd org.geppetto.model
 - mvn install
 - cd ..
+
 - git clone https://github.com/openworm/org.geppetto.core.git -b $main_repo_branch
 - cd org.geppetto.core
 - mvn install
