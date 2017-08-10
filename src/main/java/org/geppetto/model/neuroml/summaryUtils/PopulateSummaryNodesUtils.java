@@ -281,7 +281,7 @@ public class PopulateSummaryNodesUtils
 			{
 				if(!ic.containsKey(cd.getIonChannel()))
 				{
-					ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, Float.MIN_VALUE });
+					ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, 0f });
 				}
 				float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
 				if(densSi < ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0] = densSi;
@@ -303,7 +303,7 @@ public class PopulateSummaryNodesUtils
 			{
 				if(!ic.containsKey(cd.getIonChannel()))
 				{
-					ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, Float.MIN_VALUE });
+					ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, 0f });
 				}
 				float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
 				if(densSi < ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0] = densSi;
@@ -314,7 +314,7 @@ public class PopulateSummaryNodesUtils
                 String visId = cd.getIonChannel()+"_"+cd.getVariableParameter().get(0).getSegmentGroup();
 				if(!ic.containsKey(visId))
 				{
-					ic.put(visId, new Float[] { Float.MAX_VALUE, Float.MIN_VALUE });
+					ic.put(visId, new Float[] { Float.MAX_VALUE, 0f });
 				}
                 
                 for(VariableParameter variableParameter : cd.getVariableParameter())
@@ -361,7 +361,7 @@ public class PopulateSummaryNodesUtils
                 String visId = cd.getIonChannel()+"_"+cd.getVariableParameter().get(0).getSegmentGroup();
 				if(!ic.containsKey(visId))
 				{
-					ic.put(visId, new Float[] { Float.MAX_VALUE, Float.MIN_VALUE });
+					ic.put(visId, new Float[] { Float.MAX_VALUE, 0f });
 				}
                 
                 for(VariableParameter variableParameter : cd.getVariableParameter())
@@ -667,20 +667,23 @@ public class PopulateSummaryNodesUtils
 										minMax = new Float[] { -2f, -1f };
 									}
                                     
-									String info = ("\n<!-- Ion: "+ion+", condName: "+condName+", minMax: ("+minMax[0]+","+minMax[1]+")-->\n"
-                                        + "<tr><td>\n<a href=\"#Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">"
-									    + condName + "</a> <td/>\n");
-                                    
-									String min = minMax[0].intValue() != minMax[0].floatValue() ? minMax[0].toString() : minMax[0].intValue() + "";
-									String max = minMax[1].intValue() != minMax[1].floatValue() ? minMax[1].toString() : minMax[1].intValue() + "";
-									info += " \n<td>\n" + getSvgScale(minMax[0], minMax[1], ion)+"<td/>";
-									info += "<td>&nbsp;";
-									if(!min.equals(max)) info += "<span style=\"color:#" + ModelInterpreterVisualConstants.HIGH_SPECTRUM.substring(2) + "\">" + min + " S/m2</span> -> ";
-									info += "<span style=\"color:#" + ModelInterpreterVisualConstants.LOW_SPECTRUM.substring(2) + "\">" + max + " S/m2</span><td/>";
-									//info += ", <span style=\"color:#FFFFFF\">none</span>)";
+                                    if (minMax[1]!=0)
+                                    {
+                                        String info = ("\n<!-- Ion: "+ion+", condName: "+condName+", minMax: ("+minMax[0]+","+minMax[1]+")-->\n"
+                                            + "<tr><td>\n<a href=\"#Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\" type=\"visual\" instancePath=\"Model.neuroml." + visualType.getId() + "." + visualGroup.getId() + "\">"
+                                            + condName + "</a> <td/>\n");
 
-									info += ("<tr/>\n");
-									ionsVsHtml.put(ion, ionsVsHtml.get(ion) + info);
+                                        String min = minMax[0].intValue() != minMax[0].floatValue() ? minMax[0].toString() : minMax[0].intValue() + "";
+                                        String max = minMax[1].intValue() != minMax[1].floatValue() ? minMax[1].toString() : minMax[1].intValue() + "";
+                                        info += " \n<td>\n" + getSvgScale(minMax[0], minMax[1], ion)+"<td/>";
+                                        info += "<td>&nbsp;";
+                                        if(!min.equals(max)) info += "<span style=\"color:#" + ModelInterpreterVisualConstants.HIGH_SPECTRUM.substring(2) + "\">" + min + " S/m<sup>2</sup></span> -> ";
+                                        info += "<span style=\"color:#" + ModelInterpreterVisualConstants.LOW_SPECTRUM.substring(2) + "\">" + max + " S/m<sup>2</sup></span><td/>";
+                                        //info += ", <span style=\"color:#FFFFFF\">none</span>)";
+
+                                        info += ("<tr/>\n");
+                                        ionsVsHtml.put(ion, ionsVsHtml.get(ion) + info);
+                                    }
 
 								}
 							}

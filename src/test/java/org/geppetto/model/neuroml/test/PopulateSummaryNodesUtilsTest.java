@@ -124,17 +124,23 @@ public class PopulateSummaryNodesUtilsTest
     {
         modelInterpreterTestUtils.serialise("/hhcell/NML2_SingleCompHHCell.nml", null, new NeuroMLModelInterpreterService());
     }
-
+    
     @Test
     public void testHHTut() throws Exception
     {
         modelInterpreterTestUtils.serialise("/hhtutorial/HHTutorial.net.nml", null, new NeuroMLModelInterpreterService());
     }
-
+    
     @Test
     public void testBBP() throws Exception
     {
         modelInterpreterTestUtils.serialise("/bbp/ManyCells.net.nml", null, new NeuroMLModelInterpreterService());
+    }
+    
+    @Test
+    public void testTraub() throws Exception
+    {
+        modelInterpreterTestUtils.serialise("/traub/TestSmall.net.nml", null, new NeuroMLModelInterpreterService());
     }
 
 
