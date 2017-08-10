@@ -178,7 +178,7 @@ public class PopulateChannelDensityVisualGroups
 		return vis;
 	}
 
-	private DoubleEvaluator getExpressionEvaluator(String expression) throws ContentError, ParseError
+	public static DoubleEvaluator getExpressionEvaluator(String expression) throws ContentError, ParseError
 	{
 		Parser parser = new Parser();
 		ParseTree parseTree = parser.parseExpression(expression);
