@@ -1,35 +1,4 @@
-/*******************************************************************************
- * The MIT License (MIT)
- *
- * Copyright (c) 2011, 2013 OpenWorm.
- * http://openworm.org
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the MIT License
- * which accompanies this distribution, and is available at
- * http://opensource.org/licenses/MIT
- *
- * Contributors:
- *     	OpenWorm - http://openworm.org/people.html
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
- * USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+
 package org.geppetto.model.neuroml.test;
 
 import java.io.File;
@@ -42,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.local.LocalAspectConfiguration;
@@ -72,6 +43,9 @@ import org.neuroml.model.util.NeuroMLException;
  */
 public class LEMSConversionServiceTest
 {
+	
+	private static Log _logger = LogFactory.getLog(LEMSConversionServiceTest.class);
+	
 	// FIXME: We have to use OSGI text or spring app context initialization
 	@BeforeClass
 	public static void initializeServiceRegistry() throws Exception
@@ -105,14 +79,73 @@ public class LEMSConversionServiceTest
 		DomainModel inputModel = createDomainModel(new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml"), "net1");
 		DomainModel outputModel = convertModelTo(lemsConversionService, inputModel, "net1", "NEURON");
 
-		//FIXME uncomment as soon as 1.5.2 of NML are integrated
-		//compareGeneratedDomainModel(outputModel, "/neuron/hhcell/");
+		compareGeneratedDomainModel(outputModel, "/neuron/hhcell/");
 
 		List<ModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
-		Assert.assertEquals(17, modelFormats.size());
+		Assert.assertEquals(18, modelFormats.size());
 
 		modelFormats = lemsConversionService.getSupportedOutputs(inputModel);
-		Assert.assertEquals(5, modelFormats.size());
+		Assert.assertEquals(7, modelFormats.size());
+
+	}
+
+	/**
+	 * "" Test method for {@link org.geppetto.model.neuroml.services.LEMSConversionService#readModel(java.net.URL)}.
+	 * 
+	 * @throws ModelInterpreterException
+	 * @throws IOException
+	 * @throws LEMSException
+	 * @throws NeuroMLException
+	 * @throws URISyntaxException
+	 * @throws LEMSBuildException
+	 */
+	@Test
+	public void testNetPyNE() throws ConversionException, ModelInterpreterException, LEMSException, IOException, NeuroMLException, URISyntaxException
+	{
+		LEMSConversionService lemsConversionService = new LEMSConversionService();
+		lemsConversionService.setProjectId(1);
+		lemsConversionService.setExperiment(new LocalExperiment(1, null, null, null, null, null, null, null, null, null, null));
+		DomainModel inputModel = createDomainModel(new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml"), "net1");
+		DomainModel outputModel = convertModelTo(lemsConversionService, inputModel, "net1", "NETPYNE");
+
+		compareGeneratedDomainModel(outputModel, "/netpyne/hhcell/");
+
+		List<ModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
+		Assert.assertEquals(18, modelFormats.size());
+
+		modelFormats = lemsConversionService.getSupportedOutputs(inputModel);
+		Assert.assertEquals(7, modelFormats.size());
+
+    }
+    
+	/**
+	 * "" Test method for {@link org.geppetto.model.neuroml.services.LEMSConversionService#readModel(java.net.URL)}.
+	 * 
+	 * @throws ModelInterpreterException
+	 * @throws IOException
+	 * @throws LEMSException
+	 * @throws NeuroMLException
+	 * @throws URISyntaxException
+	 * @throws LEMSBuildException
+	 */
+	@Test
+	public void testJNeuroML() throws ConversionException, ModelInterpreterException, LEMSException, IOException, NeuroMLException, URISyntaxException
+	{
+		LEMSConversionService lemsConversionService = new LEMSConversionService();
+		lemsConversionService.setProjectId(1);
+		lemsConversionService.setExperiment(new LocalExperiment(1, null, null, null, null, null, null, null, null, null, null));
+		DomainModel inputModel = createDomainModel(new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/LEMS/SingleComponentHH/LEMS_NML2_Ex5_DetCell.xml"), "net1");
+        //DomainModel inputModel = createDomainModel(new URL("https://raw.githubusercontent.com/openworm/org.geppetto.samples/development/NeuroML/Pyramidal/L5bPyrCellHayEtAl2011.net.nml"), "net1");
+		
+		DomainModel outputModel = convertModelTo(lemsConversionService, inputModel, "net1", "jNeuroML");
+
+		compareGeneratedDomainModel(outputModel, "/jneuroml/hhcell/");
+
+		List<ModelFormat> modelFormats = lemsConversionService.getSupportedOutputs();
+	    Assert.assertEquals(18, modelFormats.size());
+
+		modelFormats = lemsConversionService.getSupportedOutputs(inputModel);
+		Assert.assertEquals(7, modelFormats.size());
 
 	}
 
@@ -128,7 +161,10 @@ public class LEMSConversionServiceTest
 	{
 		Map<String, String> parametersSimulatorConfiguration = new HashMap<String, String>();
 		parametersSimulatorConfiguration.put("target", targetModel);
-		LocalSimulatorConfiguration localSimulatorConfiguration = new LocalSimulatorConfiguration(0, "0", "0", 0.05f, 300f, parametersSimulatorConfiguration);
+		LocalSimulatorConfiguration localSimulatorConfiguration = new LocalSimulatorConfiguration(0, "0", "0", 0.00005f, 1f, parametersSimulatorConfiguration);
+        ModelFormat mf = ServicesRegistry.getModelFormat(targetFormat);
+        if (mf==null)
+            throw new ConversionException("Error converting to "+targetFormat+"\nRegistered model formats: "+ServicesRegistry.getRegisteredModelFormats());
 		DomainModel outputModel = lemsConversionService.convert(model, ServicesRegistry.getModelFormat(targetFormat), new LocalAspectConfiguration(0, null, null, null, localSimulatorConfiguration),
 				null);
 		return outputModel;
@@ -171,12 +207,18 @@ public class LEMSConversionServiceTest
 		{
 			for(File child : directoryListing)
 			{
-				System.out.println(child.getName());
+				_logger.info("= Comparing: "+child.getAbsolutePath()+"...");
 				File expectedFile = new File(LEMSConversionServiceTest.class.getClassLoader().getResource(expectedFolder + child.getName()).toURI());
-				Assert.assertEquals(FileUtils.readLines(expectedFile), FileUtils.readLines(child));
+				_logger.info("= ...to: "+expectedFile.getAbsolutePath());
+                List exp = FileUtils.readLines(expectedFile);
+                List found = FileUtils.readLines(child);
+                for (int i=0; i<exp.size(); i++)
+                {
+                    Assert.assertEquals(exp.get(i),found.get(i));
 			}
 		}
 	}
+    }
 
 	@AfterClass
 	public static void teardown() throws Exception

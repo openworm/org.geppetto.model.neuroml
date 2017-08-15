@@ -1,35 +1,4 @@
-/*******************************************************************************
- * The MIT License (MIT)
- *
- * Copyright (c) 2011, 2013 OpenWorm.
- * http://openworm.org
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the MIT License
- * which accompanies this distribution, and is available at
- * http://opensource.org/licenses/MIT
- *
- * Contributors:
- *     	OpenWorm - http://openworm.org/people.html
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
- * USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+
 package org.geppetto.model.neuroml.services;
 
 import java.io.File;
@@ -179,8 +148,8 @@ public class LEMSConversionService extends AConversion
 			Lems lems = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems("<neuroml></neuroml>")).getLems();
 
 			// Read LEMS component to convert and add to the LEMS file
-			Component component = (Component) model.getDomainModel();
-			lems.addComponent(component);
+			Component mainModelComponent = (Component) model.getDomainModel();
+			lems.addComponent(mainModelComponent);
 
 			// Create Folder
 			File outputFolder = PathConfiguration.createFolderInExperimentTmpFolder(getScope(), projectId, getExperiment().getId(), aspectConfig.getInstance(),
@@ -229,7 +198,7 @@ public class LEMSConversionService extends AConversion
 						Component outputColumn = new Component(watchedVariable.substring(watchedVariable.lastIndexOf(".") + 1).replace("(", "_").replace(")", ""), new ComponentType("OutputColumn"));
 
 						// Convert from Geppetto to LEMS Path
-						outputColumn.addAttribute(new XMLAttribute("quantity", extractLEMSPath(component, modelAccess.getPointer(watchedVariable))));
+						outputColumn.addAttribute(new XMLAttribute("quantity", extractLEMSPath(mainModelComponent, modelAccess.getPointer(watchedVariable))));
 
 						// Add output column component to file
 						outputFile.addComponent(outputColumn);
@@ -246,6 +215,7 @@ public class LEMSConversionService extends AConversion
 
 				// Process LEMS
 				lems.resolve();
+                addRefComponents(lems, mainModelComponent);
 
 			}
 
@@ -256,9 +226,12 @@ public class LEMSConversionService extends AConversion
 			{
 				// FIXME: the py extension can be added inside.
 				outputFileName = "main_script.py";
+                if (output.getModelFormat().equalsIgnoreCase(ModelFormatMapping.JNEUROML.getExportValue()))
+                    
+                    outputFileName = "LEMS_sim.xml";
 
 				// Convert model
-				IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormatMapping.valueOf(output.getModelFormat()).toString());
+				IBaseWriter exportWriter = ExportFactory.getExportWriter(lems, outputFolder, outputFileName, ModelFormatMapping.valueOf(output.getModelFormat().toUpperCase()).toString());
 				List<File> outputFiles = exportWriter.convert();
 			}
 
@@ -274,6 +247,31 @@ public class LEMSConversionService extends AConversion
 
 		return outputModel;
 	}
+    
+    /*
+    Previously only the top level (network) lems component was added to this lems instance.
+    This was fine for NeuronWriter since that just used the network for populations/projections
+    etc. and found the rest of the Components through accessing getRefComponents().get(x).
+    However, other Writers (e.g. NetPyne) use lems.getComponent(x), so the components need
+    to be added to the lems object
+    */
+    private void addRefComponents(Lems lems, Component comp) throws ContentError
+    {
+        for (Component child: comp.getAllChildren())
+        {
+            for (String r: child.getRefComponents().keySet())
+            {
+                Component refComp = child.getRefComponents().get(r);
+                if (!lems.hasComponent(refComp.getID()))
+                {
+                    lems.addComponent(refComp);
+                    addRefComponents(lems, refComp);
+                }
+            }
+            addRefComponents(lems, child);
+        }
+    }
+        
 
 	// Check whether main component is a network or a cell. If it is a network, return the type of population, otherwise return cell
 	// Returned value will define the lems path format

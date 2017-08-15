@@ -10,6 +10,7 @@ import org.geppetto.model.types.CompositeType;
 import org.geppetto.model.types.ConnectionType;
 import org.geppetto.model.types.ImportType;
 import org.geppetto.model.types.Type;
+import org.geppetto.model.types.TypesPackage;
 import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Connection;
@@ -77,10 +78,10 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 	 * @throws ModelInterpreterException
 	 */
 	private Variable extractConnection(Component projectionChild, ArrayType prePopulationType, Variable prePopulationVariable, ArrayType postPopulationType, Variable postPopulationVariable)
-			throws ModelInterpreterException
+            throws ModelInterpreterException, GeppettoVisitingException
 	{
 		ConnectionType connectionType = (ConnectionType) populateTypes.getTypeFactory().getSuperType(ResourcesDomainType.CONNECTION);
-
+                connectionType.getSuperType().add(this.geppettoModelAccess.getType(TypesPackage.Literals.CONNECTION_TYPE));
 		Connection connection = valuesFactory.createConnection();
 		connection.setConnectivity(Connectivity.DIRECTIONAL);
 
