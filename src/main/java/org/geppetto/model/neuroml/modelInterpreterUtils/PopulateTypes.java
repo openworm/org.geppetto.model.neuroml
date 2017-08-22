@@ -296,18 +296,23 @@ public class PopulateTypes
                                 
 							if(species.getId().equals(CA_ION))
 							{
-
-								// if we have not yet added caConc exposure ... this should be generalized
 								if(types.get(Resources.CA_COMPARTMENT.getId()) != null)
 								{
+                                                                    // add caConc and caConcExt to compartment if they don't exist. this condition should be strengthed
 									if(((CompositeType) types.get(Resources.CA_COMPARTMENT.getId())).getVariables().size() <= 2)
 									{
-										CompositeType ca_compartment = (CompositeType) types.get(Resources.CA_COMPARTMENT.getId());
-										ca_compartment.getVariables()
-												.add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
-										CompositeType ca_root_compartment = (CompositeType) types.get(Resources.CA_ROOT_COMPARTMENT.getId());
-										ca_root_compartment.getVariables()
-												.add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
+                                                                            Exposure ca_conc_ext = component.getComponentType().getExposures().getByName(Resources.CA_CONC_EXT.getId());
+                                                                            Exposure ca_conc = component.getComponentType().getExposures().getByName(Resources.CA_CONC.getId());
+                                                                            CompositeType ca_compartment = (CompositeType) types.get(Resources.CA_COMPARTMENT.getId());
+                                                                            ca_compartment.getVariables()
+                                                                                .add(ModelInterpreterUtils.createExposureTypeVariable(ca_conc_ext.getName(), Utils.getSIUnitInNeuroML(ca_conc_ext.getDimension()).getSymbol(), this.access));
+                                                                            ca_compartment.getVariables()
+                                                                                .add(ModelInterpreterUtils.createExposureTypeVariable(ca_conc.getName(), Utils.getSIUnitInNeuroML(ca_conc.getDimension()).getSymbol(), this.access));
+                                                                            CompositeType ca_root_compartment = (CompositeType) types.get(Resources.CA_ROOT_COMPARTMENT.getId());
+                                                                            ca_root_compartment.getVariables()
+                                                                                .add(ModelInterpreterUtils.createExposureTypeVariable(ca_conc_ext.getName(), Utils.getSIUnitInNeuroML(ca_conc_ext.getDimension()).getSymbol(), this.access));
+                                                                            ca_root_compartment.getVariables()
+                                                                                .add(ModelInterpreterUtils.createExposureTypeVariable(ca_conc.getName(), Utils.getSIUnitInNeuroML(ca_conc.getDimension()).getSymbol(), this.access));
 									}
 
 									Cell cell = getNeuroMLCell(component);
