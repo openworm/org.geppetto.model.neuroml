@@ -291,29 +291,27 @@ public class PopulateTypes
 					{
 						for(Species species : c.getBiophysicalProperties().getIntracellularProperties().getSpecies())
 						{
-                            // Removing ca from Resources, as it gets used among other things to substitute channel densities named ca with Calcium... 
-							// if(species.getId().equals(Resources.CALCIUM.getId()))
-                                
 							if(species.getId().equals(CA_ION))
 							{
 								if(types.get(Resources.CA_COMPARTMENT.getId()) != null)
 								{
-                                                                    // add caConc and caConcExt to compartment if they don't exist. this condition should be strengthed
-									if(((CompositeType) types.get(Resources.CA_COMPARTMENT.getId())).getVariables().size() <= 2)
-									{
-                                                                            Exposure ca_conc_ext = component.getComponentType().getExposures().getByName(Resources.CA_CONC_EXT.getId());
-                                                                            Exposure ca_conc = component.getComponentType().getExposures().getByName(Resources.CA_CONC.getId());
-                                                                            CompositeType ca_compartment = (CompositeType) types.get(Resources.CA_COMPARTMENT.getId());
-                                                                            ca_compartment.getVariables()
-                                                                                .add(ModelInterpreterUtils.createExposureTypeVariable(ca_conc_ext.getName(), Utils.getSIUnitInNeuroML(ca_conc_ext.getDimension()).getSymbol(), this.access));
-                                                                            ca_compartment.getVariables()
-                                                                                .add(ModelInterpreterUtils.createExposureTypeVariable(ca_conc.getName(), Utils.getSIUnitInNeuroML(ca_conc.getDimension()).getSymbol(), this.access));
-                                                                            CompositeType ca_root_compartment = (CompositeType) types.get(Resources.CA_ROOT_COMPARTMENT.getId());
-                                                                            ca_root_compartment.getVariables()
-                                                                                .add(ModelInterpreterUtils.createExposureTypeVariable(ca_conc_ext.getName(), Utils.getSIUnitInNeuroML(ca_conc_ext.getDimension()).getSymbol(), this.access));
-                                                                            ca_root_compartment.getVariables()
-                                                                                .add(ModelInterpreterUtils.createExposureTypeVariable(ca_conc.getName(), Utils.getSIUnitInNeuroML(ca_conc.getDimension()).getSymbol(), this.access));
-									}
+                                                                    Variable exposureVar = ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access);
+                                                                    // add exposure(=caConc/caConcExt) to compartments if they don't exist
+                                                                    CompositeType ca_compartment = (CompositeType) types.get(Resources.CA_COMPARTMENT.getId());
+                                                                    found : {
+                                                                        for (Variable var : ca_compartment.getVariables())
+                                                                            if (var.getId().equals(exposureVar.getId()))
+                                                                                break found;
+                                                                        ca_compartment.getVariables().add(exposureVar);
+                                                                    }
+
+                                                                    CompositeType ca_root_compartment = (CompositeType) types.get(Resources.CA_ROOT_COMPARTMENT.getId());
+                                                                    found : {
+                                                                        for (Variable var : ca_root_compartment.getVariables())
+                                                                            if (var.getId().equals(exposureVar.getId()))
+                                                                                break found;
+                                                                        ca_root_compartment.getVariables().add(exposureVar);
+                                                                    }
 
 									Cell cell = getNeuroMLCell(component);
 
