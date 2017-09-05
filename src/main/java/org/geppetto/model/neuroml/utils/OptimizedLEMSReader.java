@@ -41,7 +41,7 @@ public class OptimizedLEMSReader
 	private static Log _logger = LogFactory.getLog(OptimizedLEMSReader.class);
 	private static final List<String> NeuroMLInclusions = Arrays.asList("https://raw.github.com/NeuroML/NeuroML2/master/NeuroML2CoreTypes/NeuroML2CoreTypes.xml", "NeuroML2CoreTypes.xml",
 			"NeuroMLCoreCompTypes.xml", "NeuroMLCoreDimensions.xml", "Cells.xml", "Networks.xml", "Synapes.xml", "Inputs.xml", "Channels.xml", "PyNN.xml");
-	private static final String NMLHEADER = "<neuroml xmlns=\"http://www.neuroml.org/schema/neuroml2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.neuroml.org/schema/neuroml2  http://neuroml.svn.sourceforge.net/viewvc/neuroml/NeuroML2/Schemas/NeuroML2/NeuroML_v2alpha.xsd\">";
+	private static final String NMLHEADER = "<neuroml xmlns=\"http://www.neuroml.org/schema/neuroml2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.neuroml.org/schema/neuroml2  https://raw.github.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd\" id=\"NeuroML 2 loaded via LEMS by Geppetto\">";
 	private static final String simulationInclusion = "Simulation.xml";
 
 	private List<String> _inclusions = new ArrayList<String>();
@@ -314,5 +314,33 @@ public class OptimizedLEMSReader
 		processedString = processedString.replaceAll("</(Lems|neuroml)([\\s\\S]*?)>", ""); // remove close neuroml or lems tags
 		return cleanLEMSNeuroMLDocument(processedString);
 	}
+    
+    /*
+    ****    TEMP: to be removed before merging...
+    */
+	public static void main(String[] args) throws Exception
+	{
+        
+        String modelPath = "/acnet2/MediumNet.net.nml";
+        modelPath = "/acnet2/TwoCell.net.nml";
+        modelPath = "/acnet2/MediumNet.net.nml";
+        //modelPath = "/acnet2/MediumNet.net.nml.h5";
+        
+        List<URL> dependentModels = new ArrayList<URL>();
+
+        //URL url = new URL("file:///home/padraig/geppetto/org.geppetto.model.neuroml/src/test/resources/Balanced/Balanced.net.nml.h5");
+        URL url = new URL("file:///home/padraig/geppetto/org.geppetto.model.neuroml/src/test/resources"+modelPath);
+        System.out.println("URL: "+url);
+        OptimizedLEMSReader olr = new OptimizedLEMSReader(dependentModels);
+        System.out.println("Loading: "+modelPath);
+        olr.readAllFormats(url);
+
+        System.out.println("Done: "+olr.getNetworkHelper());
+        
+        NeuroMLConverter nmlConv = new NeuroMLConverter();
+        System.out.println("NML2 Info: "+nmlConv.summary(olr.getPartialNeuroMLDocument()));
+        System.out.println("LEMS Info: "+olr.getPartialLEMSDocument().toString());
+        
+    }
 
 }
