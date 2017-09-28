@@ -48,7 +48,6 @@ import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
-import org.neuroml.export.info.model.ChannelInfoExtractor;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
@@ -819,7 +818,7 @@ public class PopulateSummaryNodesUtils
 				List<Variable> variables = this.plottableVariables.get(ionChannel.getName());
 				if(variables != null)
 				{
-					htmlText.append("<b>Plot activation variables</b><br/>\n");
+					htmlText.append("<b>Plot activation variables</b><br/><br/>\n");
 					for(Variable v : variables)
 					{
 						String[] split = v.getPath().split("\\.");
@@ -831,7 +830,9 @@ public class PopulateSummaryNodesUtils
 							info = "Gate: " + split[2] + " " + split[split.length - 1].replace("_", " ");
 							info += (info.indexOf("forward") > 0 ? ", alpha<sub>" + split[2] + "</sub>" : ", beta<sub>" + split[2] + "</sub>");
 						}
-						htmlText.append("<a href=\"#\" type=\"variable\" instancePath=\"Model." + v.getPath() + "\">" + info + "</a><br/>\n");
+                        String ip = "Model." + v.getPath();
+						htmlText.append("<a href=\"#\" type=\"variable\" instancePath=\"" + ip + "\">" + info + "</a><br/>\n");
+						//htmlText.append("instancePath =  " + ip + "<br/>\n");
 					}
 				}
 				Variable htmlVariable = variablesFactory.createVariable();
@@ -1012,7 +1013,7 @@ public class PopulateSummaryNodesUtils
 		// Create channel info extractor from export library
 		if(neuromlIonChannel != null)
 		{
-			ChannelInfoExtractor channelInfoExtractor = new ChannelInfoExtractor((IonChannel) neuromlIonChannel);
+			ChannelInfoExtractor2 channelInfoExtractor = new ChannelInfoExtractor2((IonChannel) neuromlIonChannel);
 			InfoNode gatesNode = channelInfoExtractor.getGates();
 			for(Map.Entry<String, Object> entry : gatesNode.getProperties().entrySet())
 			{
@@ -1042,6 +1043,7 @@ public class PopulateSummaryNodesUtils
 
 											if(!((ExpressionNode) gateProperties.getValue()).getExpression().startsWith("org.neuroml.export"))
 											{
+                                                //System.out.println("Adding ............."+ionChannel.getName()+" "+gateVariable.getId());
 												List<Variable> variables = this.plottableVariables.get(ionChannel.getName());
 												if(variables == null) variables = new ArrayList<Variable>();
 												variables.add(variable);
