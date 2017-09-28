@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
-			<version>1.5.2</version>
+			<version>1.5.3</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.lemsml.exprparser</groupId>
@@ -125,7 +125,7 @@
 		</repository>
 		<repository>
 			<id>org.geppetto-mvn-repo</id>
-			<url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml-1.5.1-lems2</url>
+			<url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml1.5.3-lems2</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
