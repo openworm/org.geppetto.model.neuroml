@@ -90,6 +90,7 @@ public class NeuroMLModelInterpreterUtils
                             if(child.getTypeName().equals("property"))
                                 {
                                     Variable variable = ModelInterpreterUtils.createTextTypeVariable(child.getTextParam("tag"), child.getTextParam("value"), access);
+                                    variable.setStatic(true);
                                     annotationType.getVariables().add(variable);
                                 }
                         }

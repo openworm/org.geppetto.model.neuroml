@@ -56,8 +56,7 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
                 for (int i = 0; i < paths.size(); i++)
                     paths.set(i, importType.getReferencedVariables().get(0).getId() + "." + paths.get(i));
             } else if (domainModel.getParent().getTypeName().equals("populationList")) {
-                for (int i = 0; i < domainModel.getParent().getComponents().size()-1; ++i)
-                    paths.add(domainModel.getParent().getID() + "[" + i + "]." + path);
+                paths.add(domainModel.getParent().getID() + "." + path);
             } else {
                 if (paths.size() == 0)
                     paths.add(domainModel.getParent().getID() + "." + path);

@@ -219,6 +219,7 @@ public class PopulateTypes
                                         CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
                                         Variable variable = variablesFactory.createVariable();
                                         NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
+                                        variable.setStatic(true);
                                         variable.getAnonymousTypes().add(anonymousCompositeType);
                                         ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable);
                                     }
@@ -237,6 +238,7 @@ public class PopulateTypes
                                     Variable variable = variablesFactory.createVariable();
                                     NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
                                     variable.getAnonymousTypes().add(anonymousCompositeType);
+                                    variable.setStatic(true);
                                     compositeType.getVariables().add(variable);
 				}
                         }
@@ -273,7 +275,7 @@ public class PopulateTypes
 						{
 							CompositeType compartmentType = (CompositeType) types.get(compartment.getId());
 							compartmentType.getVariables()
-									.add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
+                                                            .add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
 						}
 					}
 				}
@@ -289,34 +291,37 @@ public class PopulateTypes
 					{
 						for(Species species : c.getBiophysicalProperties().getIntracellularProperties().getSpecies())
 						{
-                            // Removing ca from Resources, as it gets used among other things to substitute channel densities named ca with Calcium... 
-							// if(species.getId().equals(Resources.CALCIUM.getId()))
-                                
 							if(species.getId().equals(CA_ION))
 							{
-
-								// if we have not yet added caConc exposure ... this should be generalized
 								if(types.get(Resources.CA_COMPARTMENT.getId()) != null)
 								{
-									if(((CompositeType) types.get(Resources.CA_COMPARTMENT.getId())).getVariables().size() <= 2)
-									{
-										CompositeType ca_compartment = (CompositeType) types.get(Resources.CA_COMPARTMENT.getId());
-										ca_compartment.getVariables()
-												.add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
-										CompositeType ca_root_compartment = (CompositeType) types.get(Resources.CA_ROOT_COMPARTMENT.getId());
-										ca_root_compartment.getVariables()
-												.add(ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access));
-									}
+                                                                    Variable exposureVar = ModelInterpreterUtils.createExposureTypeVariable(exposure.getName(), Utils.getSIUnitInNeuroML(exposure.getDimension()).getSymbol(), this.access);
+                                                                    // add exposure(=caConc/caConcExt) to compartments if they don't exist
+                                                                    CompositeType ca_compartment = (CompositeType) types.get(Resources.CA_COMPARTMENT.getId());
+                                                                    found : {
+                                                                        for (Variable var : ca_compartment.getVariables())
+                                                                            if (var.getId().equals(exposureVar.getId()))
+                                                                                break found;
+                                                                        ca_compartment.getVariables().add(exposureVar);
+                                                                    }
+
+                                                                    CompositeType ca_root_compartment = (CompositeType) types.get(Resources.CA_ROOT_COMPARTMENT.getId());
+                                                                    found : {
+                                                                        for (Variable var : ca_root_compartment.getVariables())
+                                                                            if (var.getId().equals(exposureVar.getId()))
+                                                                                break found;
+                                                                        ca_root_compartment.getVariables().add(exposureVar);
+                                                                    }
 
 									Cell cell = getNeuroMLCell(component);
 
 									CellUtils cellUtils = new CellUtils(cell);
-                                    List<Segment> ca_segments = new ArrayList();
-                                    if (cellSegmentMap.get(component).size() > 1) {
-                                    	ca_segments = cellUtils.getSegmentsInGroup(species.getSegmentGroup());
-                                    } else {
-                                        ca_segments = cell.getMorphology().getSegment();
-                                    }
+                                                                        List<Segment> ca_segments = new ArrayList();
+                                                                        if (cellSegmentMap.get(component).size() > 1) {
+                                                                            ca_segments = cellUtils.getSegmentsInGroup(species.getSegmentGroup());
+                                                                        } else {
+                                                                            ca_segments = cell.getMorphology().getSegment();
+                                                                        }
 
 									// set flag so we do not duplicate compartments later
 									if(species.getSegmentGroup() == "all") allSegs = true;
@@ -366,6 +371,7 @@ public class PopulateTypes
 					Variable variable = variablesFactory.createVariable();
 					variable.setName(Resources.getValueById(compartment.getName()));
 					variable.setId(compartment.getId());
+                                        variable.setStatic(true);
 					Cell cell = getNeuroMLCell(component);
 					for(Segment seg : cell.getMorphology().getSegment())
 					{
@@ -540,6 +546,7 @@ public class PopulateTypes
                         Variable variable = variablesFactory.createVariable();
                         NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, populationChild);
                         variable.getAnonymousTypes().add(propertyType);
+                        variable.setStatic(true);
                         refCompositeType.getVariables().add(variable);
                     }
 
