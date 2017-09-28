@@ -31,17 +31,22 @@
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
-			<version>1.5.2</version>
+			<version>1.5.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.neuroml.neuroml2-model</groupId>
 			<artifactId>org.neuroml.neuroml2-model</artifactId>
-			<version>0.0.5</version>
+		    <version>0.0.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geppetto</groupId>
 			<artifactId>core</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>    
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics</artifactId>
+			<version>0.9.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
@@ -49,16 +54,11 @@
 			<version>2.2.11</version>
 		</dependency>
         <dependency>
-			<groupId>org.jvnet.jaxb2_commons</groupId>
-			<artifactId>jaxb2-commons-lang</artifactId>
-			<version>2.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jvnet.jaxb2_commons</groupId>
-			<artifactId>jaxb2-basics-runtime</artifactId>
-			<version>0.9.0</version>
-		</dependency>
-		<dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
 			<groupId>org.jvnet.sorcerer</groupId>
 			<artifactId>sorcerer-javac</artifactId>
 			<version>0.8</version>
@@ -125,7 +125,7 @@
 		</repository>
 		<repository>
 			<id>org.geppetto-mvn-repo</id>
-			<url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml-1.5.1-lems2</url>
+			<url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml1.5.3-lems2</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
