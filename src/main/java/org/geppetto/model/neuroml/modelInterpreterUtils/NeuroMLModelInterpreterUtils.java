@@ -89,13 +89,8 @@ public class NeuroMLModelInterpreterUtils
                         {
                             if(child.getTypeName().equals("property"))
                                 {
-                                    Text text = valuesFactory.createText();
-                                    text.setText(child.getTextParam("value"));
-
-                                    Variable variable = variablesFactory.createVariable();
-                                    NeuroMLModelInterpreterUtils.initialiseNodeFromString(variable, child.getTextParam("tag"));
-                                    variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
-                                    variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
+                                    Variable variable = ModelInterpreterUtils.createTextTypeVariable(child.getTextParam("tag"), child.getTextParam("value"), access);
+                                    variable.setStatic(true);
                                     annotationType.getVariables().add(variable);
                                 }
                         }
