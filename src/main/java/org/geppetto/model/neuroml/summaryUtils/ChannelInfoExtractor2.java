@@ -36,7 +36,6 @@ import org.neuroml.model.IonChannelKS;
 import org.neuroml2.model.BaseGate;
 import org.neuroml2.model.NeuroML2ModelReader;
 import org.neuroml2.model.Neuroml2;
-import javax.xml.bind.helpers.AbstractUnmarshallerImpl;
 
 /**
  * @author borismarin
