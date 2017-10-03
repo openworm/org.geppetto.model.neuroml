@@ -36,6 +36,7 @@ import org.neuroml.model.IonChannelKS;
 import org.neuroml2.model.BaseGate;
 import org.neuroml2.model.NeuroML2ModelReader;
 import org.neuroml2.model.Neuroml2;
+import javax.xml.bind.helpers.AbstractUnmarshallerImpl;
 
 /**
  * @author borismarin
@@ -55,6 +56,13 @@ public class ChannelInfoExtractor2
             nmlReader2 = new NeuroML2ModelReader();
         
         return nmlReader2;
+    }
+    
+    public static void sayHi()
+    {
+        Case c = new Case();
+        System.out.println(">>>>>>>>>  Created: "+c);
+        return;
     }
 
 	public ChannelInfoExtractor2(IonChannel chan, NeuroMLDocument nmlDoc0) throws NeuroMLException

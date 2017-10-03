@@ -105,7 +105,15 @@ public class PopulateSummaryNodesUtils
 	URL url;
 	private final NeuroMLDocument neuroMLDocument;
     
-    boolean verbose = false;
+    
+    
+    
+    
+    
+    
+    
+    
+    boolean verbose = true;
 
     
 	public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, Type type, URL url, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument)
@@ -1015,6 +1023,11 @@ public class PopulateSummaryNodesUtils
 		// Create channel info extractor from export library
 		if(neuromlIonChannel != null)
 		{
+            ChannelInfoExtractor2.sayHi();
+            System.out.println("CCCC: "+ionChannel.getId());
+			ChannelInfoExtractor2 channelInfoExtractor = new ChannelInfoExtractor2((IonChannel) neuromlIonChannel, neuroMLDocument);
+            
+            /*
 			ChannelInfoExtractor2 channelInfoExtractor = new ChannelInfoExtractor2((IonChannel) neuromlIonChannel, neuroMLDocument);
 			InfoNode gatesNode = channelInfoExtractor.getGates();
 			for(Map.Entry<String, Object> entry : gatesNode.getProperties().entrySet())
@@ -1063,7 +1076,7 @@ public class PopulateSummaryNodesUtils
 						}
 					}
 				}
-			}
+			}*/
 		}
 	}
 

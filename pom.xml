@@ -46,9 +46,9 @@
 		<dependency>    
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics</artifactId>
-			<version>0.9.3</version>
+			<version>1.11.1</version>
 		</dependency>
-		<dependency>
+        <dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-osgi</artifactId>
 			<version>2.2.11</version>
@@ -151,7 +151,6 @@
 				<configuration>
   					<argLine>-Xmx1024m</argLine>
 					<junitArtifactName>org.junit:com.springsource.org.junit</junitArtifactName>
-					<redirectTestOutputToFile>true</redirectTestOutputToFile>
 				</configuration>	
 			</plugin>
 			<plugin>
