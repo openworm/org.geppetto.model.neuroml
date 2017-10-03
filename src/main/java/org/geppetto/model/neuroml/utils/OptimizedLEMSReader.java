@@ -339,6 +339,7 @@ public class OptimizedLEMSReader
         
         NeuroMLConverter nmlConv = new NeuroMLConverter();
         System.out.println("NML2 Info: "+nmlConv.summary(olr.getPartialNeuroMLDocument()));
+        System.out.println("One conn "+ NeuroMLConverter.connectionInfo(olr.getNetworkHelper().getConnection("SmallNet_bask_bask", 0)));
         System.out.println("LEMS Info: "+olr.getPartialLEMSDocument().toString());
         
     }
