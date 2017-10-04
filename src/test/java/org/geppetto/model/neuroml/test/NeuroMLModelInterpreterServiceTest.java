@@ -214,7 +214,7 @@ public class NeuroMLModelInterpreterServiceTest
         //ModelInterpreterTestUtils.serialise("/pvdr/PVDR.nml", null, new NeuroMLModelInterpreterService());
     }
 
-    /*
+
     @Test
     public void testAcnet2HDF5() throws Exception
     {
@@ -225,7 +225,7 @@ public class NeuroMLModelInterpreterServiceTest
     public void testBalancedHDF5() throws Exception
     {
         mTest.testModelInterpretation("/Balanced/Balanced.net.nml.h5", null);
-    }*/
+    }
 
     @Test
     public void testAcnet2() throws Exception
