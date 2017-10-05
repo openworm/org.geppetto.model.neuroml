@@ -18,6 +18,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.manager.Scope;
 import org.geppetto.core.utilities.URLReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -62,6 +63,12 @@ public class OptimizedLEMSReader
 
 	public void readAllFormats(URL url) throws IOException, NeuroMLException, LEMSException
 	{
+		// we only need to give a projectID if a remote h5 file is being read
+		readAllFormats(url, null);
+	}
+
+	public void readAllFormats(URL url, Long projectID) throws IOException, NeuroMLException, LEMSException
+	{
 		int index = url.toString().lastIndexOf('/');
 		String urlBase = url.toString().substring(0, index + 1);
         
@@ -69,9 +76,17 @@ public class OptimizedLEMSReader
         
                 if (url.toString().endsWith("hdf5") || url.toString().endsWith("h5"))
                     {
-                        String loc = url.toString();
-                        if (loc.startsWith("file:/"))
-                            loc = loc.substring(5);
+                        String loc;
+                        // local h5 file
+                        if (url.getProtocol().equals("file")) {
+                            loc = url.toString().substring(5);
+                        // remote h5 file, create local copy and get its path
+                        } else if (url.getProtocol().startsWith("http") && projectID != null) {
+				Scope scope = Scope.CONNECTION;
+				loc = URLReader.createLocalCopy(scope, projectID, url, false).toString().substring(5);
+                        } else {
+				throw new IOException("Unrecognized protocol " + url.toString());
+                        }
                         File f = new File(loc);
             
                         networkHelper = neuromlConverter.loadNeuroMLOptimized(f);
