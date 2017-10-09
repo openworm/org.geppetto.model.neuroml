@@ -89,10 +89,20 @@ public class OptimizedLEMSReader
                         }
                         File f = new File(loc);
             
-                        networkHelper = neuromlConverter.loadNeuroMLOptimized(f);
-            
+                        // load without including includes
+                        networkHelper = neuromlConverter.loadNeuroMLOptimized(f, false);
+
                         _neuroMLString = neuromlConverter.neuroml2ToXml(networkHelper.getNeuroMLDocument());
-            
+
+                        // expand inclusions
+                        try {
+				_neuroMLString = processLEMSInclusions(_neuroMLString, urlBase).toString();
+                        } catch(JAXBException | NeuroMLException | URISyntaxException e) {
+				throw new IOException(e);
+                        }
+
+                        // load string with inclusions ... can we avoid this second call to loadNeuroMLOptimized?
+                        // networkHelper = neuromlConverter.loadNeuroMLOptimized(_neuroMLString);
                         Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(_neuroMLString));
                         lemsDocument = sim.getLems();
                     }
