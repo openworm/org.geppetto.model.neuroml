@@ -1,5 +1,4 @@
 
-
 package org.geppetto.model.neuroml.test;
 
 import java.io.File;
@@ -97,6 +96,14 @@ public class PopulateSummaryNodesUtilsTest
 
     }
 
+
+    @Test
+    public void testModelL23Smith() throws Exception
+    {
+        _logger.info("============================================");
+        modelInterpreterTestUtils.serialise("/l23smith/L23_One.net.nml", null, new NeuroMLModelInterpreterService());
+    }
+    
     @Test
     public void testModelACnet() throws Exception
     {
@@ -104,7 +111,6 @@ public class PopulateSummaryNodesUtilsTest
         _logger.info("============================================");
         modelInterpreterTestUtils.serialise("/acnet2/pyr_4_sym.cell.nml", null, new NeuroMLModelInterpreterService());
     }
-
 
     @Test
     public void testCA1() throws Exception
@@ -117,6 +123,24 @@ public class PopulateSummaryNodesUtilsTest
     public void testHH() throws Exception
     {
         modelInterpreterTestUtils.serialise("/hhcell/NML2_SingleCompHHCell.nml", null, new NeuroMLModelInterpreterService());
+    }
+    
+    @Test
+    public void testHHTut() throws Exception
+    {
+        modelInterpreterTestUtils.serialise("/hhtutorial/HHTutorial.net.nml", null, new NeuroMLModelInterpreterService());
+    }
+    
+    @Test
+    public void testBBP() throws Exception
+    {
+        modelInterpreterTestUtils.serialise("/bbp/ManyCells.net.nml", null, new NeuroMLModelInterpreterService());
+    }
+    
+    @Test
+    public void testTraub() throws Exception
+    {
+        modelInterpreterTestUtils.serialise("/traub/TestSmall.net.nml", null, new NeuroMLModelInterpreterService());
     }
 
 
