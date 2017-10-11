@@ -29,3 +29,4 @@ geppettoTmp/
 /src/test/resources/hhcell/na.mod
 /src/test/resources/hhcell/passive.mod
 /src/test/resources/hhcell/pulseGen1.mod
+/libjhdf5.jnilib

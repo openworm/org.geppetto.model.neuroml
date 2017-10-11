@@ -35,7 +35,7 @@ class NeuronSimulation():
 
     def __init__(self, tstop, dt, seed=123456789):
 
-        print("\n    Starting simulation in NEURON generated from NeuroML2 model...\n")
+        print("\n    Starting simulation in NEURON of %sms generated from NeuroML2 model...\n"%tstop)
 
         self.seed = seed
         self.randoms = []
@@ -132,6 +132,7 @@ class NeuronSimulation():
     # This is copied from NetPyNE: https://github.com/Neurosim-lab/netpyne/blob/master/netpyne/simFuncs.py
     ###############################################################################
     def _init_stim_randomizer(self,rand, stimType, gid, seed): 
+        #print("INIT STIM  %s; %s; %s; %s"%(rand, stimType, gid, seed))
         rand.Random123(self._id32(stimType), gid, seed)
 
 

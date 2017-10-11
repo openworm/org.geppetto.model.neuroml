@@ -224,7 +224,7 @@ public class NeuroMLModelInterpreterServiceTest
     @Test
     public void testBalancedHDF5() throws Exception
     {
-        mTest.testModelInterpretation("/Balanced/Balanced.net.nml.h5", null);
+        //////////mTest.testModelInterpretation("/Balanced/Balanced.net.nml.h5", null);
     }
 
     @Test
