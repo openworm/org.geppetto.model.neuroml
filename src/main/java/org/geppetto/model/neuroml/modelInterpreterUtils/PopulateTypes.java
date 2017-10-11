@@ -371,7 +371,6 @@ public class PopulateTypes
 					Variable variable = variablesFactory.createVariable();
 					variable.setName(Resources.getValueById(compartment.getName()));
 					variable.setId(compartment.getId());
-                                        variable.setStatic(true);
 					Cell cell = getNeuroMLCell(component);
 					for(Segment seg : cell.getMorphology().getSegment())
 					{
