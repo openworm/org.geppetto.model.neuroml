@@ -238,7 +238,6 @@ public class PopulateTypes
                                     Variable variable = variablesFactory.createVariable();
                                     NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild);
                                     variable.getAnonymousTypes().add(anonymousCompositeType);
-                                    variable.setStatic(true);
                                     compositeType.getVariables().add(variable);
 				}
                         }
