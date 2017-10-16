@@ -101,8 +101,8 @@ public class OptimizedLEMSReader
 				throw new IOException(e);
                         }
 
-                        // load string with inclusions ... can we avoid this second call to loadNeuroMLOptimized?
-                        // networkHelper = neuromlConverter.loadNeuroMLOptimized(_neuroMLString);
+                        // refresh the neuroml document with expanded string (does not reprocess populations/projections)
+                        networkHelper.setNeuroMLDocument(neuromlConverter.loadNeuroML(_neuroMLString));
                         Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(_neuroMLString));
                         lemsDocument = sim.getLems();
                     }
