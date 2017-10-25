@@ -18,6 +18,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.manager.Scope;
 import org.geppetto.core.utilities.URLReader;
 import org.lemsml.jlems.api.interfaces.ILEMSDocument;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -41,7 +42,7 @@ public class OptimizedLEMSReader
 	private static Log _logger = LogFactory.getLog(OptimizedLEMSReader.class);
 	private static final List<String> NeuroMLInclusions = Arrays.asList("https://raw.github.com/NeuroML/NeuroML2/master/NeuroML2CoreTypes/NeuroML2CoreTypes.xml", "NeuroML2CoreTypes.xml",
 			"NeuroMLCoreCompTypes.xml", "NeuroMLCoreDimensions.xml", "Cells.xml", "Networks.xml", "Synapes.xml", "Inputs.xml", "Channels.xml", "PyNN.xml");
-	private static final String NMLHEADER = "<neuroml xmlns=\"http://www.neuroml.org/schema/neuroml2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.neuroml.org/schema/neuroml2  http://neuroml.svn.sourceforge.net/viewvc/neuroml/NeuroML2/Schemas/NeuroML2/NeuroML_v2alpha.xsd\">";
+	private static final String NMLHEADER = "<neuroml xmlns=\"http://www.neuroml.org/schema/neuroml2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.neuroml.org/schema/neuroml2  https://raw.github.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd\" id=\"NeuroML 2 loaded via LEMS by Geppetto\">";
 	private static final String simulationInclusion = "Simulation.xml";
 
 	private List<String> _inclusions = new ArrayList<String>();
@@ -62,6 +63,12 @@ public class OptimizedLEMSReader
 
 	public void readAllFormats(URL url) throws IOException, NeuroMLException, LEMSException
 	{
+		// we only need to give a projectID if a remote h5 file is being read
+		readAllFormats(url, null);
+	}
+
+	public void readAllFormats(URL url, Long projectID) throws IOException, NeuroMLException, LEMSException
+	{
 		int index = url.toString().lastIndexOf('/');
 		String urlBase = url.toString().substring(0, index + 1);
         
@@ -69,15 +76,33 @@ public class OptimizedLEMSReader
         
                 if (url.toString().endsWith("hdf5") || url.toString().endsWith("h5"))
                     {
-                        String loc = url.toString();
-                        if (loc.startsWith("file:/"))
-                            loc = loc.substring(5);
+                        String loc;
+                        // local h5 file
+                        if (url.getProtocol().equals("file")) {
+                            loc = url.toString().substring(5);
+                        // remote h5 file, create local copy and get its path
+                        } else if (url.getProtocol().startsWith("http") && projectID != null) {
+				Scope scope = Scope.CONNECTION;
+				loc = URLReader.createLocalCopy(scope, projectID, url, false).toString().substring(5);
+                        } else {
+				throw new IOException("Unrecognized protocol " + url.toString());
+                        }
                         File f = new File(loc);
             
-                        networkHelper = neuromlConverter.loadNeuroMLOptimized(f);
-            
+                        // load without including includes
+                        networkHelper = neuromlConverter.loadNeuroMLOptimized(f, false);
+
                         _neuroMLString = neuromlConverter.neuroml2ToXml(networkHelper.getNeuroMLDocument());
-            
+
+                        // expand inclusions
+                        try {
+				_neuroMLString = processLEMSInclusions(_neuroMLString, urlBase).toString();
+                        } catch(JAXBException | NeuroMLException | URISyntaxException e) {
+				throw new IOException(e);
+                        }
+
+                        // refresh the neuroml document with expanded string (does not reprocess populations/projections)
+                        networkHelper.setNeuroMLDocument(neuromlConverter.loadNeuroML(_neuroMLString));
                         Sim sim = Utils.readLemsNeuroMLFile(NeuroMLConverter.convertNeuroML2ToLems(_neuroMLString));
                         lemsDocument = sim.getLems();
                     }
@@ -314,5 +339,34 @@ public class OptimizedLEMSReader
 		processedString = processedString.replaceAll("</(Lems|neuroml)([\\s\\S]*?)>", ""); // remove close neuroml or lems tags
 		return cleanLEMSNeuroMLDocument(processedString);
 	}
+    
+    /*
+    ****    TEMP: to be removed before merging...
+    */
+	public static void main(String[] args) throws Exception
+	{
+        
+        String modelPath = "/acnet2/MediumNet.net.nml";
+        modelPath = "/acnet2/TwoCell.net.nml";
+        modelPath = "/acnet2/MediumNet.net.nml";
+        //modelPath = "/acnet2/MediumNet.net.nml.h5";
+        
+        List<URL> dependentModels = new ArrayList<URL>();
+
+        //URL url = new URL("file:///home/padraig/geppetto/org.geppetto.model.neuroml/src/test/resources/Balanced/Balanced.net.nml.h5");
+        URL url = new URL("file:///home/padraig/geppetto/org.geppetto.model.neuroml/src/test/resources"+modelPath);
+        System.out.println("URL: "+url);
+        OptimizedLEMSReader olr = new OptimizedLEMSReader(dependentModels);
+        System.out.println("Loading: "+modelPath);
+        olr.readAllFormats(url);
+
+        System.out.println("Done: "+olr.getNetworkHelper());
+        
+        NeuroMLConverter nmlConv = new NeuroMLConverter();
+        System.out.println("NML2 Info: "+nmlConv.summary(olr.getPartialNeuroMLDocument()));
+        System.out.println("One conn "+ NeuroMLConverter.connectionInfo(olr.getNetworkHelper().getConnection("SmallNet_bask_bask", 0)));
+        System.out.println("LEMS Info: "+olr.getPartialLEMSDocument().toString());
+        
+    }
 
 }
