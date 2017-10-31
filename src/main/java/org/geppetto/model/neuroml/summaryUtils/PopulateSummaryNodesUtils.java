@@ -80,6 +80,7 @@ import org.neuroml.model.SegmentGroup;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.VariableParameter;
 import org.neuroml.model.util.NeuroMLException;
+import org.neuroml2.modellite.NeuroML2ModelReader;
 
 /**
  * Populates the Model Tree of Aspect
@@ -104,6 +105,8 @@ public class PopulateSummaryNodesUtils
 
 	URL url;
 	private NeuroMLDocument neuroMLDocument;
+    
+    private InfoNode nml2ModelInfo;
 
 	boolean verbose = false;
 
@@ -183,6 +186,9 @@ public class PopulateSummaryNodesUtils
 					Text notes = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
 					modelDescription.append("<b>Description</b><br/>\n<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(notes.getText()) + "</p>\n ");
 				}
+                
+                nml2ModelInfo = NeuroML2ModelReader.extractExpressions(neuroMLDocument);
+                
 			}
 
 		}
@@ -220,7 +226,21 @@ public class PopulateSummaryNodesUtils
 				if(ionChannel != ionChannelComponents.get(ionChannelComponents.size() - 1)) modelDescription.append(" | \n");
 
 				// Add expresion nodes from the export library for the gate rates
-				addExpresionNodes((CompositeType) ionChannel);
+				//InfoNode in = addExpresionNodes((CompositeType) ionChannel);
+                boolean found = false;
+                if (nml2ModelInfo!=null)
+                {
+                    for (Map.Entry<String, Object> entry : nml2ModelInfo.getProperties().entrySet())
+                    {
+                        //System.out.println("Checking: "+((InfoNode)entry.getValue()).toDetailString("> "));
+                        if (entry.getKey().equals(ionChannel.getName()))
+                        {
+                            found = extractPlottables((CompositeType) ionChannel, (InfoNode)entry.getValue());
+                        }
+                    }
+                }
+                //if (!found)
+				//modelDescription.append("<br/>Not found!<br/>\n");
 			}
 			modelDescription.append("<br/><br/>\n");
 		}
@@ -822,17 +842,24 @@ public class PopulateSummaryNodesUtils
 					for(Variable v : variables)
 					{
 						String[] split = v.getPath().split("\\.");
-						String shortLabel = v.getPath();
 						String info = v.getPath();
-						if(split.length > 5)
+                        
+						if(split.length >= 5)
 						{
-							shortLabel = split[1] + "." + split[2] + "..." + split[split.length - 1];
-							info = "Gate: " + split[2] + " " + split[split.length - 1].replace("_", " ");
-							info += (info.indexOf("forward") > 0 ? ", alpha<sub>" + split[2] + "</sub>" : ", beta<sub>" + split[2] + "</sub>");
+							info = "Gate: " + split[2] + ", " + split[split.length - 1].replace("_", " ");
+                            if (info.contains("forward"))
+                                info += " (alpha<sub>" + split[2] + "</sub>)";
+                            if (info.contains("reverse"))
+                                info += " (beta<sub>" + split[2] + "</sub>)";
+                            if (info.contains("time"))
+                                info += " (tau<sub>" + split[2] + "</sub>)";
+                            if (info.contains("steady"))
+                                info += " (inf<sub>" + split[2] + "</sub>)";
+                            
 						}
                         String ip = "Model." + v.getPath();
-						htmlText.append("<a href=\"#\" type=\"variable\" instancePath=\"" + ip + "\">" + info + "</a><br/>\n");
-						//htmlText.append("instancePath =  " + ip + "<br/>\n");
+                        
+						htmlText.append("<a href=\"#" + ip + "\" type=\"variable\" instancePath=\"" + ip + "\" hover=\""+v.toString()+"\">" + info + "</a><br/>\n");
 					}
 				}
 				Variable htmlVariable = variablesFactory.createVariable();
@@ -1003,8 +1030,65 @@ public class PopulateSummaryNodesUtils
 		// }
 		return null;
 	}
+    
+    private boolean extractPlottables(CompositeType ionChannel, InfoNode node) throws GeppettoVisitingException, ModelInterpreterException
+    {
+        boolean found = false;
+			for(Map.Entry<String, Object> entry : node.getProperties().entrySet())
+			{
+				String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
+				for(Variable gateVariable : ionChannel.getVariables())
+				{
+					if(gateVariable.getId().equals(id))
+					{
+						InfoNode gateNode = (InfoNode) entry.getValue();
+						for(Map.Entry<String, Object> gateProperties : gateNode.getProperties().entrySet())
+						{
+							if(gateProperties.getValue() instanceof ExpressionNode)
+							{
+								// Match property id in export lib with neuroml id
+								ResourcesSummary gatePropertyResources = ResourcesSummary.getValueByValue(gateProperties.getKey());
+								if(gatePropertyResources != null)
+								{
+									CompositeType gateType = (CompositeType) gateVariable.getAnonymousTypes().get(0);
+									for(Variable rateVariable : gateType.getVariables())
+									{
+										if(rateVariable.getId().equals(gatePropertyResources.getNeuromlId()))
+										{
+											CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
+											// Create expression node
+                                            
+                                            ExpressionNode en = (ExpressionNode) gateProperties.getValue();
+											Variable variable = getExpressionVariable(gateProperties.getKey(), en);
+											rateType.getVariables().add(variable);
 
-	private void addExpresionNodes(CompositeType ionChannel) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
+											if(!((ExpressionNode) gateProperties.getValue()).getExpression().startsWith("org.neuroml.export"))
+											{
+												List<Variable> variables = this.plottableVariables.get(ionChannel.getName());
+												if(variables == null) variables = new ArrayList<Variable>();
+												variables.add(variable);
+												this.plottableVariables.put(ionChannel.getName(), variables);
+                                                found = true;
+											}
+										}
+									}
+
+								}
+								else
+								{
+									System.out.println("No node matches summary gate rate!!!");
+								}
+							}
+						}
+					}
+				}
+			}
+            return found;
+    }
+
+
+/*
+	private InfoNode addExpresionNodes(CompositeType ionChannel) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
 	{
 		// Get lems component and convert to neuroml
 		Component component = ((Component) ionChannel.getDomainModel().getDomainModel());
@@ -1062,8 +1146,10 @@ public class PopulateSummaryNodesUtils
 					}
 				}
 			}
+            return gatesNode;
 		}
-	}
+        return new InfoNode();
+    }*/
 
 	private Variable getExpressionVariable(String expressionNodeId, ExpressionNode expressionNode) throws GeppettoVisitingException
 	{
