@@ -195,10 +195,11 @@ public class LEMSConversionService extends AConversion
 							fileIndex++;
 						}
 						// Create output column component
-						Component outputColumn = new Component(watchedVariable.substring(watchedVariable.lastIndexOf(".") + 1).replace("(", "_").replace(")", ""), new ComponentType("OutputColumn"));
+						String quantityPath = extractLEMSPath(mainModelComponent, modelAccess.getPointer(watchedVariable));
+						Component outputColumn = new Component(quantityPath.replace("/", "_").replace("[", "_").replace("]", "_"), new ComponentType("OutputColumn"));
 
 						// Convert from Geppetto to LEMS Path
-						outputColumn.addAttribute(new XMLAttribute("quantity", extractLEMSPath(mainModelComponent, modelAccess.getPointer(watchedVariable))));
+						outputColumn.addAttribute(new XMLAttribute("quantity", quantityPath));
 
 						// Add output column component to file
 						outputFile.addComponent(outputColumn);

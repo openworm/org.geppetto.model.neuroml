@@ -56,6 +56,7 @@ public class ModelInterpreterUtils
 		NeuroMLModelInterpreterUtils.initialiseNodeFromString(variable, id);
 		variable.getInitialValues().put(access.getType(TypesPackage.Literals.TEXT_TYPE), text);
 		variable.getTypes().add(access.getType(TypesPackage.Literals.TEXT_TYPE));
+                variable.setStatic(true);
 		return variable;
 	}
 
