@@ -57,6 +57,9 @@ simConfig.verbose = False  # show detailed messages
 # Recording 
 simConfig.recordCells = ['all']  
 simConfig.recordTraces = {}
+simConfig.saveCellSecs=False
+simConfig.saveCellConns=False
+simConfig.gatherOnlySimData=True 
 
 
 
