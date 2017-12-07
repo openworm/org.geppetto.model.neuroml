@@ -192,7 +192,7 @@ public class PopulateSummaryNodesUtils
 			}
 
 		}
-		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View NeuroML 2 source file</i></a><br/><br/>\n");
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original NeuroML 2 source file</i></a><br/><br/>\n");
 
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
