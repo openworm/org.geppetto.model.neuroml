@@ -202,7 +202,7 @@ public class PopulateSummaryNodesUtils
 				modelDescription.append("" + population.getName() + ": ");
 				// get proper name of population cell with brackets and index # of population
 				int size = ((ArrayType) population).getSize();
-				String name = ((ArrayType) population).getArrayType().getId().trim() + "." + population.getId().trim() + "[" + populationComponents.indexOf(population) + "]";
+				String name = ((ArrayType) population).getArrayType().getId().trim();
 				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + name + "\">" + size + " cell" + (size == 1 ? "s" : "") + " of type "
 						+ ((ArrayType) population).getArrayType().getName() + "</a><br/>\n");
 			}
@@ -830,8 +830,8 @@ public class PopulateSummaryNodesUtils
 
 				if(chan != null)
 				{
-					htmlText.append("<b>Ion:</b> <a href=\"#\">" + (chan.getSpecies() != null ? chan.getSpecies() : "Non specific") + "</a><br/><br/>\n");
-					htmlText.append("<b>Conductance:</b> <a href=\"#\">" + createIonChannelExpression(chan) + "</a><br/><br/>\n");
+					htmlText.append("<b>Ion: </b>" + (chan.getSpecies() != null ? chan.getSpecies() : "Non specific") + "<br/><br/>\n");
+					htmlText.append("<b>Conductance: </b>" + createIonChannelExpression(chan) + "<br/><br/>\n");
 				}
 
 				// Adds plot activation variables
