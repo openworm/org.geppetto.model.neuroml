@@ -1,6 +1,6 @@
 {
   "name" : "hhcell",
   "type" : "cell",
-  "comment" : "Not adding rest of cell definition in JSON as it is of type <cell>",
+  "comment" : "Not adding all of cell definition in JSON as it is of type <cell>",
   "parameters" : { }
 }

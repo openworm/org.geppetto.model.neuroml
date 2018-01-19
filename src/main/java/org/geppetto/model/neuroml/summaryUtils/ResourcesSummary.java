@@ -14,7 +14,7 @@ public enum ResourcesSummary
 	FORWARD_RATE ("forwardRate", "forward rate"),
 	REVERSE_RATE ("reverseRate", "reverse rate"),
 	STEADY_STATE("steadyState", "steady state"),
-	TIME_CONSTANT("timeConstant", "time constant");
+	TIME_COURSE("timeCourse", "time course");
 	
 	
 	private String _neuromlId;
