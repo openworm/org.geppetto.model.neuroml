@@ -27,6 +27,7 @@ public enum Resources
 	CONNECTION_WD("Connection with Weight & Delay", "connectionWD"),
 	ELECTRICAL_CONNECTION("Electrical Connection", "electricalConnection"),
 	ELECTRICAL_CONNECTION_INSTANCE("Electrical Connection Instance", "electricalConnectionInstance"),
+	ELECTRICAL_CONNECTION_INSTANCE_W("Electrical Connection Instance with weight", "electricalConnectionInstanceW"),
 	CONTINUOUS_CONNECTION("Continuous Connection", "continuousConnection"),
 	PROJECTION("Projection", "projection"),
 	ELECTRICAL_PROJECTION("Electrical Projection", "electricalProjection"),

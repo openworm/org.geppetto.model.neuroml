@@ -16,8 +16,7 @@ import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Connection;
 import org.geppetto.model.values.Connectivity;
-import org.geppetto.model.values.ValuesFactory;
-import org.geppetto.model.values.VisualReference;
+import org.geppetto.model.values.Text;
 import org.geppetto.model.variables.Variable;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
@@ -89,18 +88,25 @@ public class PopulateElectricalProjectionTypes extends APopulateProjectionTypes
 
 		Connection connection = valuesFactory.createConnection();
 		connection.setConnectivity(Connectivity.DIRECTIONAL);
+        String weight = null;
 
 		try
 		{
 
-			String preCell = projectionChild.getDeclaredType().equals(Resources.ELECTRICAL_CONNECTION_INSTANCE.getId()) ? ModelInterpreterUtils.parseCellRefStringForCellNum(projectionChild
-					.getAttributeValue("preCell")) : projectionChild.getAttributeValue("preCell");
-			String postCell = projectionChild.getDeclaredType().equals(Resources.ELECTRICAL_CONNECTION_INSTANCE.getId()) ? ModelInterpreterUtils.parseCellRefStringForCellNum(projectionChild
-					.getAttributeValue("postCell")) : projectionChild.getAttributeValue("postCell");
-			String preSegmentId = projectionChild.getAttributeValue("preSegment");
-			String preFractionAlong = projectionChild.getAttributeValue("preFractionAlong");
-			String postSegmentId = projectionChild.getAttributeValue("postSegment");
-			String postFractionAlong = projectionChild.getAttributeValue("postFractionAlong");
+			String preSegmentId = projectionChild.hasAttribute("preSegment") ? projectionChild.getAttributeValue("preSegment") : "0";
+			String postSegmentId = projectionChild.hasAttribute("postSegment") ? projectionChild.getAttributeValue("postSegment") : "0";
+            
+			String preFractionAlong = projectionChild.hasAttribute("preFractionAlong") ? projectionChild.getAttributeValue("preFractionAlong") : "0.5";
+			String postFractionAlong = projectionChild.hasAttribute("preFractionAlong") ? projectionChild.getAttributeValue("postFractionAlong") : "0.5";
+            
+			String preCell = projectionChild.getComponentType().isOrExtends(Resources.ELECTRICAL_CONNECTION_INSTANCE.getId()) 
+                                ? ModelInterpreterUtils.parseCellRefStringForCellNum(projectionChild.getAttributeValue("preCell")) 
+                                : projectionChild.getAttributeValue("preCell");
+            
+			String postCell = projectionChild.getComponentType().isOrExtends(Resources.ELECTRICAL_CONNECTION_INSTANCE.getId()) 
+                                ? ModelInterpreterUtils.parseCellRefStringForCellNum(projectionChild.getAttributeValue("postCell")) 
+                                : projectionChild.getAttributeValue("postCell");
+            
 			if(preCell != null)
 			{
 				connection.setA(PointerUtility.getPointer(prePopulationVariable, prePopulationType, Integer.parseInt(preCell)));
@@ -119,6 +125,10 @@ public class PopulateElectricalProjectionTypes extends APopulateProjectionTypes
 					connection.getB().setPoint(NeuroMLModelInterpreterUtils.getPointAtFractionAlong(neuroMLCell,postSegmentId,postFractionAlong));
 				}
 			}
+            
+            if(projectionChild.getComponentType().isOrExtends(Resources.ELECTRICAL_CONNECTION_INSTANCE_W.getId())) {
+				weight = projectionChild.getAttributeValue("weight");
+            }
 		}
 		catch(ContentError | NumberFormatException | NeuroMLException e)
 		{
@@ -129,6 +139,16 @@ public class PopulateElectricalProjectionTypes extends APopulateProjectionTypes
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, projectionChild);
 		variable.getTypes().add(connectionType);
 		variable.getInitialValues().put(connectionType, connection);
+        
+        
+		if(projectionChild.getComponentType().isOrExtends(Resources.ELECTRICAL_CONNECTION_INSTANCE_W.getId())) {
+            
+            Text weightValue = valuesFactory.createText();
+            weightValue.setText(weight);
+            Variable weightVar = variablesFactory.createVariable();
+            NeuroMLModelInterpreterUtils.initialiseNodeFromString(weightVar, "weight");
+            variable.getInitialValues().put(geppettoModelAccess.getType(TypesPackage.Literals.TEXT_TYPE), weightValue);
+		}
 		return variable;
 
 	}
