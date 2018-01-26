@@ -45,6 +45,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateContinuousProjectionTypes;
 import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateElectricalProjectionTypes;
 import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateProjectionTypes;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
@@ -67,6 +68,7 @@ import org.neuroml.model.Instance;
 import org.neuroml.model.util.hdf5.NeuroMLHDF5Reader;
 
 import org.lemsml.jlems.core.type.Component;
+import org.neuroml.model.ContinuousProjection;
 import org.neuroml.model.ElectricalProjection;
 
 /**
@@ -176,10 +178,17 @@ public class NeuroMLModelInterpreterServiceTest
                 _logger.info("Model has proj " + proj.getId() + " with " + total + " conns");
                 docProjSummary.put(proj.getId(), total);
             }
+            for (ContinuousProjection proj : nmlDoc.getNetwork().get(0).getContinuousProjection())
+            {
+                int total = proj.getContinuousConnection().size() + proj.getContinuousConnectionInstance().size() + proj.getContinuousConnectionInstanceW().size();
+                _logger.info("Model has proj " + proj.getId() + " with " + total + " conns");
+                docProjSummary.put(proj.getId(), total);
+            }
 
             HashMap<String, Integer> modelProjSummary = new HashMap<String, Integer>();
             PopulateProjectionTypes ppts = new PopulateProjectionTypes(nmlModelInterpreter.getPopulateTypes(), nmlModelInterpreter.getAccess(), modelInterpreterTestUtils.getLibrary());
             PopulateElectricalProjectionTypes pept = new PopulateElectricalProjectionTypes(nmlModelInterpreter.getPopulateTypes(), nmlModelInterpreter.getAccess(), modelInterpreterTestUtils.getLibrary());
+            PopulateContinuousProjectionTypes pcpt = new PopulateContinuousProjectionTypes(nmlModelInterpreter.getPopulateTypes(), nmlModelInterpreter.getAccess(), modelInterpreterTestUtils.getLibrary());
             
             try
             {
@@ -191,8 +200,12 @@ public class NeuroMLModelInterpreterServiceTest
                     CompositeType resolvedProj = null;
                     
                     Component projComponent = (Component) proj.getDomainModel().getDomainModel();
-                 
-                    if (nmlDoc.getNetwork().get(0).getElectricalProjection().size()>0)
+                    
+                    if (nmlDoc.getNetwork().get(0).getContinuousProjection().size()>0)
+                    {
+                        resolvedProj = (CompositeType) pcpt.resolveProjectionImportType(projComponent, (ImportType) proj);
+                    }
+                    else if (nmlDoc.getNetwork().get(0).getElectricalProjection().size()>0)
                     {
                         resolvedProj = (CompositeType) pept.resolveProjectionImportType(projComponent, (ImportType) proj);
                     }
@@ -209,6 +222,7 @@ public class NeuroMLModelInterpreterServiceTest
                     modelProjSummary.put(resolvedProj.getId(), resolvedProjSize);
 
                     _logger.info(projComponent.getID() + " = " + projComponent.getStrictChildren().size() + " = " + docProjSummary.get(projComponent.getID()));
+                    System.out.println(projComponent.getID() + " = " + projComponent.getStrictChildren().size() + " = " + docProjSummary.get(projComponent.getID()));
                 }
 
                 assertEquals(modelProjSummary, docProjSummary);
@@ -261,6 +275,11 @@ public class NeuroMLModelInterpreterServiceTest
     public void testC302C() throws Exception
     {
         mTest.testModelInterpretation("/c302/c302_C_Pharyngeal.net.nml", null);
+    }
+    @Test
+    public void testC302C0() throws Exception
+    {
+        mTest.testModelInterpretation("/c302/c302_C0_Social.net.nml", null);
     }
     @Test
     public void testGaps() throws Exception
