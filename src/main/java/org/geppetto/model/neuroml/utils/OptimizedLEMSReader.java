@@ -4,18 +4,35 @@
 package org.geppetto.model.neuroml.utils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.SequenceInputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ExecutionException;
+
+import java.lang.InterruptedException;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.manager.Scope;
@@ -37,6 +54,7 @@ import org.neuroml.model.util.hdf5.NetworkHelper;
  * @author matteocantarelli
  * 
  */
+
 public class OptimizedLEMSReader
 {
 	private static Log _logger = LogFactory.getLog(OptimizedLEMSReader.class);
@@ -61,13 +79,13 @@ public class OptimizedLEMSReader
 		this.dependentModels = dependentModels;
 	}
 
-	public void readAllFormats(URL url) throws IOException, NeuroMLException, LEMSException
+    public void readAllFormats(URL url) throws IOException, NeuroMLException, LEMSException, InterruptedException, ExecutionException
 	{
 		// we only need to give a projectID if a remote h5 file is being read
 		readAllFormats(url, null);
 	}
 
-	public void readAllFormats(URL url, Long projectID) throws IOException, NeuroMLException, LEMSException
+    public void readAllFormats(URL url, Long projectID) throws IOException, NeuroMLException, LEMSException, InterruptedException, ExecutionException
 	{
 		int index = url.toString().lastIndexOf('/');
 		String urlBase = url.toString().substring(0, index + 1);
@@ -138,7 +156,7 @@ public class OptimizedLEMSReader
 	 * @return A string containing all the models included via the root one (and in nested children) in the same file
 	 * @throws IOException
 	 */
-	public void read(URL url, String urlBase) throws IOException
+    public void read(URL url, String urlBase) throws IOException, InterruptedException, ExecutionException
 	{
 		try
 		{
@@ -189,7 +207,7 @@ public class OptimizedLEMSReader
 	 * @throws NeuroMLException
 	 * @throws URISyntaxException
 	 */
-	private StringBuffer processLEMSInclusions(String documentString, String urlBase) throws IOException, JAXBException, NeuroMLException, URISyntaxException
+    private StringBuffer processLEMSInclusions(String documentString, String urlBase) throws IOException, JAXBException, NeuroMLException, URISyntaxException, InterruptedException, ExecutionException
 	{
 		// 1. We receive a document, it could be NeuroML or LEMS, we remove useless parts as optimization
 		String smallerDocumentString = cleanLEMSNeuroMLDocument(documentString);
@@ -200,10 +218,12 @@ public class OptimizedLEMSReader
 		String regExp = "\\<include\\s*(href|file|url)\\s*=\\s*\\\"(.*)\\\"\\s*(\\/>|><\\/include>)";
 		Pattern pattern = Pattern.compile(regExp, Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(smallerDocumentString);
+                ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
+                Set<Future<InputStream>> set = new LinkedHashSet<Future<InputStream>>();
+                long start = System.currentTimeMillis();
 		while(matcher.find())
 		{
-			long start = System.currentTimeMillis();
 			String kind = matcher.group(1);
 			String urlPath = "";
 			String lemsInclusion = "";
@@ -262,43 +282,48 @@ public class OptimizedLEMSReader
 					try
 					{
 						_inclusions.add(new URI(urlPath).normalize().toString());
-						String s = URLReader.readStringFromURL(url);
-
-						// If it is file and is not found, try to read at url base + file name
-						if(s.equals("") && kind.equals("file"))
-						{
-							//a relative path has a / at the beginning, let's check for it and 
-							//remove it to avoid having an extra / that throws file not found exception
-							String urlPathBase = urlPath.replace("file:///", "");
-							if(urlPathBase.charAt(0)=='/'){
-								urlPathBase = urlPathBase.substring(1, urlPathBase.length());
-							}
-							urlPath = urlBase +urlPathBase ;
-							url = new URL(urlPath);
-							_inclusions.add(new URI(urlPath).normalize().toString());
-							s = URLReader.readStringFromURL(url);
-						}
-
+                                                Callable<InputStream> callable = new Request(url);
+                                                Future<InputStream> future = executor.submit(callable);
+                                                set.add(future);
 						dependentModels.add(new URL(urlPath));
-
 						int index = url.toString().lastIndexOf('/');
 						String newUrlBase = url.toString().substring(0, index + 1);
-						lemsInclusion = trimOuterElement(processLEMSInclusions(s, newUrlBase).toString());
+						//lemsInclusion = trimOuterElement(processLEMSInclusions(s, newUrlBase).toString());
 
 					}
-					catch(IOException | NeuroMLException e)
+					catch(IOException e)
 					{
 						_logger.warn(e.toString());
 					}
 				}
-			}
+			} else {
+                            // if already included, replace include with blank
+                            matcher.appendReplacement(processedLEMSString, lemsInclusion);
+                        }
+                }
 
-			matcher.appendReplacement(processedLEMSString, lemsInclusion);
-			_logger.info("Inclusion iteration completed, took " + (System.currentTimeMillis() - start) + "ms");
-		}
+                String lemsInclusion = "";
+                if (set.size() > 0) {
+                    List<InputStream> inputStreams = new ArrayList<InputStream>(set.size());
+                    for(Future<InputStream> future: set){
+                        inputStreams.add(future.get());
+                    }
+                    Enumeration resolved = Collections.enumeration(inputStreams);
+                    matcher.reset();
+                    while (matcher.find()) {
+                        matcher.appendReplacement(processedLEMSString, trimOuterElement(IOUtils.toString((InputStream)resolved.nextElement())));
+                    }
+                    matcher.appendTail(processedLEMSString);
+                    executor.shutdown();
 
-		matcher.appendTail(processedLEMSString);
-		return processedLEMSString;
+                    _logger.info("Inclusion iteration completed, took " + (System.currentTimeMillis() - start) + "ms");
+		
+                    lemsInclusion = trimOuterElement(processLEMSInclusions(processedLEMSString.toString(), urlBase).toString());
+                } else {
+                    matcher.appendTail(processedLEMSString);
+                    lemsInclusion = processedLEMSString.toString();
+                }
+                return new StringBuffer(lemsInclusion);
 	}
 
 	/**

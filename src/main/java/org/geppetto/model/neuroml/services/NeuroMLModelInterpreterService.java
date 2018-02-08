@@ -59,6 +59,9 @@ import org.neuroml.model.util.hdf5.NetworkHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.InterruptedException;
+import java.util.concurrent.ExecutionException;
+
 /**
  * @author matteocantarelli
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
@@ -113,7 +116,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				// Extract Types from the lems/neuroml files
 				type = extractTypes(url, typeId, library, access, reader.getPartialLEMSDocument(), reader.getPartialNeuroMLDocument(), reader.getNetworkHelper());
 			}
-			catch(IOException | NumberFormatException | GeppettoVisitingException e)
+			catch(IOException | NumberFormatException | GeppettoVisitingException | ExecutionException | InterruptedException e)
 			{
 				throw new ModelInterpreterException(e);
 			}

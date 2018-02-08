@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
+import java.lang.InterruptedException;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,7 +26,7 @@ public class OptimizedLEMSReaderTest
 {
 	private static Log _logger = LogFactory.getLog(OptimizedLEMSReaderTest.class);
 	
-    private void loadNeuroMLFile(String modelPath) throws IOException, NeuroMLException, LEMSException
+    private void loadNeuroMLFile(String modelPath) throws IOException, NeuroMLException, LEMSException, InterruptedException, ExecutionException
     {
 
         List<URL> dependentModels = new ArrayList<URL>();

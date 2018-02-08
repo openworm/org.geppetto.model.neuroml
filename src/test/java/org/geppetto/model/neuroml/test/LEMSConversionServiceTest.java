@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.lang.InterruptedException;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
@@ -102,7 +104,7 @@ public class LEMSConversionServiceTest
 	 * @throws LEMSBuildException
 	 */
 	@Test
-	public void testNeuron() throws ConversionException, ModelInterpreterException, LEMSException, IOException, NeuroMLException, URISyntaxException
+	public void testNeuron() throws ConversionException, ModelInterpreterException, LEMSException, IOException, NeuroMLException, URISyntaxException, InterruptedException, ExecutionException
 	{
 		LEMSConversionService lemsConversionService = new LEMSConversionService();
 		lemsConversionService.setProjectId(1);
@@ -131,7 +133,7 @@ public class LEMSConversionServiceTest
 	 * @throws LEMSBuildException
 	 */
 	@Test
-	public void testNetPyNE() throws ConversionException, ModelInterpreterException, LEMSException, IOException, NeuroMLException, URISyntaxException
+	public void testNetPyNE() throws ConversionException, ModelInterpreterException, LEMSException, IOException, NeuroMLException, URISyntaxException, InterruptedException, ExecutionException
 	{
 		LEMSConversionService lemsConversionService = new LEMSConversionService();
 		lemsConversionService.setProjectId(1);
@@ -160,7 +162,7 @@ public class LEMSConversionServiceTest
 	 * @throws LEMSBuildException
 	 */
 	@Test
-	public void testJNeuroML() throws ConversionException, ModelInterpreterException, LEMSException, IOException, NeuroMLException, URISyntaxException
+	public void testJNeuroML() throws ConversionException, ModelInterpreterException, LEMSException, IOException, NeuroMLException, URISyntaxException, InterruptedException, ExecutionException
 	{
 		LEMSConversionService lemsConversionService = new LEMSConversionService();
 		lemsConversionService.setProjectId(1);
@@ -212,7 +214,7 @@ public class LEMSConversionServiceTest
 	 * @throws LEMSException
 	 * @throws ContentError
 	 */
-	private DomainModel createDomainModel(URL url, String component) throws NeuroMLException, IOException, LEMSException, ContentError
+	private DomainModel createDomainModel(URL url, String component) throws NeuroMLException, IOException, LEMSException, ContentError, InterruptedException, ExecutionException
 	{
 		List<URL> dependentModels = new ArrayList<URL>();
 		OptimizedLEMSReader reader = new OptimizedLEMSReader(dependentModels);

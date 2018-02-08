@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import java.lang.InterruptedException;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.ModelInterpreterConfig;
@@ -70,7 +73,7 @@ public class LEMSModelInterpreterService extends AModelInterpreter
 			// Extract Types from the lems/neuroml files
 			type = _neuroMLModelInterpreter.extractTypes(url, typeId, library, access, reader.getPartialLEMSDocument(), reader.getPartialNeuroMLDocument(), reader.getNetworkHelper());
 		}
-		catch(IOException | NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
+		catch(IOException | NumberFormatException | ExecutionException | InterruptedException | NeuroMLException | LEMSException | GeppettoVisitingException e)
 		{
 			e.printStackTrace();
 			throw new ModelInterpreterException(e);
