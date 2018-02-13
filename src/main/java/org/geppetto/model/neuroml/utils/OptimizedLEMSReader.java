@@ -339,34 +339,3 @@ public class OptimizedLEMSReader
 		processedString = processedString.replaceAll("</(Lems|neuroml)([\\s\\S]*?)>", ""); // remove close neuroml or lems tags
 		return cleanLEMSNeuroMLDocument(processedString);
 	}
-    
-    /*
-    ****    TEMP: to be removed before merging...
-    */
-	public static void main(String[] args) throws Exception
-	{
-        
-        String modelPath = "/acnet2/MediumNet.net.nml";
-        modelPath = "/acnet2/TwoCell.net.nml";
-        modelPath = "/acnet2/MediumNet.net.nml";
-        //modelPath = "/acnet2/MediumNet.net.nml.h5";
-        
-        List<URL> dependentModels = new ArrayList<URL>();
-
-        //URL url = new URL("file:///home/padraig/geppetto/org.geppetto.model.neuroml/src/test/resources/Balanced/Balanced.net.nml.h5");
-        URL url = new URL("file:///home/padraig/geppetto/org.geppetto.model.neuroml/src/test/resources"+modelPath);
-        System.out.println("URL: "+url);
-        OptimizedLEMSReader olr = new OptimizedLEMSReader(dependentModels);
-        System.out.println("Loading: "+modelPath);
-        olr.readAllFormats(url);
-
-        System.out.println("Done: "+olr.getNetworkHelper());
-        
-        NeuroMLConverter nmlConv = new NeuroMLConverter();
-        System.out.println("NML2 Info: "+nmlConv.summary(olr.getPartialNeuroMLDocument()));
-        System.out.println("One conn "+ NeuroMLConverter.connectionInfo(olr.getNetworkHelper().getConnection("SmallNet_bask_bask", 0)));
-        System.out.println("LEMS Info: "+olr.getPartialLEMSDocument().toString());
-        
-    }
-
-}
