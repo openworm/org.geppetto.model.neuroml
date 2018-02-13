@@ -219,7 +219,6 @@ public class PopulateTypes
                                         CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
                                         Variable variable = variablesFactory.createVariable();
                                         NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
-                                        variable.setStatic(true);
                                         variable.getAnonymousTypes().add(anonymousCompositeType);
                                         ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable);
                                     }
