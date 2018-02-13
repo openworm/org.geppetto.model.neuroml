@@ -45,6 +45,8 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateContinuousProjectionTypes;
+import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateElectricalProjectionTypes;
 import org.geppetto.model.neuroml.modelInterpreterUtils.PopulateProjectionTypes;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.junit.Before;
@@ -66,6 +68,8 @@ import org.neuroml.model.Instance;
 import org.neuroml.model.util.hdf5.NeuroMLHDF5Reader;
 
 import org.lemsml.jlems.core.type.Component;
+import org.neuroml.model.ContinuousProjection;
+import org.neuroml.model.ElectricalProjection;
 
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
@@ -127,7 +131,7 @@ public class NeuroMLModelInterpreterServiceTest
 
             for (Population pop : docPopulations)
             {
-                docPopSummary.add(new SimpleEntry<String, Integer>(pop.getId(), pop.getSize()));
+                docPopSummary.add(new SimpleEntry<String, Integer>(pop.getId(), pop.getSize()!=null ? pop.getSize() : pop.getInstance().size()));
                 if (!pop.getInstance().isEmpty())
                 {
                     Instance inst = pop.getInstance().get(0);
@@ -168,17 +172,48 @@ public class NeuroMLModelInterpreterServiceTest
                 _logger.info("Model has proj " + proj.getId() + " with " + total + " conns");
                 docProjSummary.put(proj.getId(), total);
             }
+            for (ElectricalProjection proj : nmlDoc.getNetwork().get(0).getElectricalProjection())
+            {
+                int total = proj.getElectricalConnection().size() + proj.getElectricalConnectionInstance().size() + proj.getElectricalConnectionInstanceW().size();
+                _logger.info("Model has proj " + proj.getId() + " with " + total + " conns");
+                docProjSummary.put(proj.getId(), total);
+            }
+            for (ContinuousProjection proj : nmlDoc.getNetwork().get(0).getContinuousProjection())
+            {
+                int total = proj.getContinuousConnection().size() + proj.getContinuousConnectionInstance().size() + proj.getContinuousConnectionInstanceW().size();
+                _logger.info("Model has proj " + proj.getId() + " with " + total + " conns");
+                docProjSummary.put(proj.getId(), total);
+            }
 
             HashMap<String, Integer> modelProjSummary = new HashMap<String, Integer>();
-            PopulateProjectionTypes ppt = new PopulateProjectionTypes(nmlModelInterpreter.getPopulateTypes(), nmlModelInterpreter.getAccess(), modelInterpreterTestUtils.getLibrary());
+            PopulateProjectionTypes ppts = new PopulateProjectionTypes(nmlModelInterpreter.getPopulateTypes(), nmlModelInterpreter.getAccess(), modelInterpreterTestUtils.getLibrary());
+            PopulateElectricalProjectionTypes pept = new PopulateElectricalProjectionTypes(nmlModelInterpreter.getPopulateTypes(), nmlModelInterpreter.getAccess(), modelInterpreterTestUtils.getLibrary());
+            PopulateContinuousProjectionTypes pcpt = new PopulateContinuousProjectionTypes(nmlModelInterpreter.getPopulateTypes(), nmlModelInterpreter.getAccess(), modelInterpreterTestUtils.getLibrary());
+            
             try
             {
                 List<Type> modelProjections = new ArrayList<Type>(nmlModelInterpreter.getPopulateTypes().getTypesMap().get("projection"));
+                System.out.println("Types "+nmlModelInterpreter.getPopulateTypes().getTypesMap().keySet());
                 for (Type proj : modelProjections)
                 {
+                    
+                    CompositeType resolvedProj = null;
+                    
                     Component projComponent = (Component) proj.getDomainModel().getDomainModel();
-                    CompositeType resolvedProj = (CompositeType) ppt.resolveProjectionImportType(projComponent, (ImportType) proj);
-
+                    
+                    if (nmlDoc.getNetwork().get(0).getContinuousProjection().size()>0)
+                    {
+                        resolvedProj = (CompositeType) pcpt.resolveProjectionImportType(projComponent, (ImportType) proj);
+                    }
+                    else if (nmlDoc.getNetwork().get(0).getElectricalProjection().size()>0)
+                    {
+                        resolvedProj = (CompositeType) pept.resolveProjectionImportType(projComponent, (ImportType) proj);
+                    }
+                    else
+                    {
+                        resolvedProj = (CompositeType) ppts.resolveProjectionImportType(projComponent, (ImportType) proj);
+                    }
+                
                     int resolvedProjSize = 0;
                     for (Variable var : resolvedProj.getVariables())
                     	if (var.getId().startsWith("id"))
@@ -187,12 +222,15 @@ public class NeuroMLModelInterpreterServiceTest
                     modelProjSummary.put(resolvedProj.getId(), resolvedProjSize);
 
                     _logger.info(projComponent.getID() + " = " + projComponent.getStrictChildren().size() + " = " + docProjSummary.get(projComponent.getID()));
+                    System.out.println(projComponent.getID() + " = " + projComponent.getStrictChildren().size() + " = " + docProjSummary.get(projComponent.getID()));
                 }
 
                 assertEquals(modelProjSummary, docProjSummary);
             }
             catch (NullPointerException e)
             {
+                System.out.println("No projections");
+                e.printStackTrace();
                 // no projections
             }
             // Compare to model read from HDF5
@@ -214,7 +252,7 @@ public class NeuroMLModelInterpreterServiceTest
         //ModelInterpreterTestUtils.serialise("/pvdr/PVDR.nml", null, new NeuroMLModelInterpreterService());
     }
 
-    /*
+
     @Test
     public void testAcnet2HDF5() throws Exception
     {
@@ -224,13 +262,29 @@ public class NeuroMLModelInterpreterServiceTest
     @Test
     public void testBalancedHDF5() throws Exception
     {
-        mTest.testModelInterpretation("/Balanced/Balanced.net.nml.h5", null);
-    }*/
+        //////////mTest.testModelInterpretation("/Balanced/Balanced.net.nml.h5", null);
+    }
 
     @Test
     public void testAcnet2() throws Exception
     {
         mTest.testModelInterpretation("/acnet2/MediumNet.net.nml", null);
+    }
+
+    @Test
+    public void testC302C() throws Exception
+    {
+        mTest.testModelInterpretation("/c302/c302_C_Pharyngeal.net.nml", null);
+    }
+    @Test
+    public void testC302C0() throws Exception
+    {
+        mTest.testModelInterpretation("/c302/c302_C0_Social.net.nml", null);
+    }
+    @Test
+    public void testGaps() throws Exception
+    {
+        mTest.testModelInterpretation("/gaps/GapJunctions.net.nml", null);
     }
 
     @Test
