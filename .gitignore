@@ -32,3 +32,5 @@ geppettoTmp/
 /src/test/resources/hhcell/passive.mod
 /src/test/resources/hhcell/pulseGen1.mod
 /libjhdf5.jnilib
+/src/test/resources/GapJunctions.net.nml.xmi
+/src/test/resources/c302_C_Pharyngeal.net.nml.xmi
