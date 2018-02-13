@@ -1,5 +1,8 @@
 package org.geppetto.model.neuroml.modelInterpreterUtils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.model.GeppettoLibrary;
@@ -16,6 +19,9 @@ import org.geppetto.model.util.GeppettoVisitingException;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.model.values.Connection;
 import org.geppetto.model.values.Connectivity;
+import org.geppetto.model.values.PhysicalQuantity;
+import org.geppetto.model.values.Text;
+import org.geppetto.model.values.Unit;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.values.VisualReference;
 import org.geppetto.model.variables.Variable;
@@ -92,7 +98,8 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
                 connectionType.getSuperType().add(this.geppettoModelAccess.getType(TypesPackage.Literals.CONNECTION_TYPE));
 		Connection connection = valuesFactory.createConnection();
 		connection.setConnectivity(Connectivity.DIRECTIONAL);
-
+		String weight = null;
+		String delay = null;
 		try
 		{
 			String preCell = ModelInterpreterUtils.parseCellRefStringForCellNum(projectionChild.getAttributeValue("preCellId"));
@@ -112,6 +119,10 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 			String postFractionAlong = null;
 			if(projectionChild.hasAttribute("postFractionAlong")){
 				postFractionAlong=projectionChild.getAttributeValue("postFractionAlong");
+			}
+			if(projectionChild.getTypeName().equals(ResourcesDomainType.CONNECTIONWD.getId())) {
+				weight = projectionChild.getAttributeValue("weight");
+				delay = projectionChild.getAttributeValue("delay");
 			}
 			if(preCell != null)
 			{
@@ -141,6 +152,29 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, projectionChild);
 		variable.getTypes().add(connectionType);
 		variable.getInitialValues().put(connectionType, connection);
+
+		if(projectionChild.getTypeName().equals(ResourcesDomainType.CONNECTIONWD.getId())) {
+			String regExp = "\\s*([0-9-]*\\.?[0-9]*[eE]?[-+]?[0-9]+)?\\s*(\\w*)";
+	        Pattern pattern = Pattern.compile(regExp);
+	        Matcher matcher = pattern.matcher(delay);
+	
+	        if(matcher.find())
+	        {
+	                PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
+	                Unit unit = valuesFactory.createUnit();
+	                unit.setUnit(matcher.group(2));
+	                physicalQuantity.setUnit(unit);
+	                physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
+	                variable.getInitialValues().put(geppettoModelAccess.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
+	        }
+
+            Text weightValue = valuesFactory.createText();
+            weightValue.setText(weight);
+            Variable weightVar = variablesFactory.createVariable();
+            NeuroMLModelInterpreterUtils.initialiseNodeFromString(weightVar, "weight");
+            variable.getInitialValues().put(geppettoModelAccess.getType(TypesPackage.Literals.TEXT_TYPE), weightValue);
+		}
+
 		return variable;
 
 	}
