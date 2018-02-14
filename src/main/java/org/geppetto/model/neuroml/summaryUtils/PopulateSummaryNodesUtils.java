@@ -111,7 +111,7 @@ public class PopulateSummaryNodesUtils
     
     private InfoNode nml2ModelInfo;
 
-	boolean verbose = true;
+	boolean verbose = false;
 
 	public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, Type type, URL url, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument)
 	{
