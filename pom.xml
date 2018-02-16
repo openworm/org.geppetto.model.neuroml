@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
-			<version>1.5.3</version>
+			<version>1.5.3-a</version>
 		</dependency>
         
 		<dependency>
@@ -127,7 +127,7 @@
 		</repository>
 		<repository>
 			<id>org.geppetto-mvn-repo</id>
-            <url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml1.5.3</url>
+            <url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
