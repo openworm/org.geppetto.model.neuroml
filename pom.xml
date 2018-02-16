@@ -127,7 +127,7 @@
 		</repository>
 		<repository>
 			<id>org.geppetto-mvn-repo</id>
-            <url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml1.5.3</url>
+            <url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml1.5.3-a</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
