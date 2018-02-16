@@ -130,7 +130,7 @@ public class LEMSConversionServiceTest
 	 * @throws URISyntaxException
 	 * @throws LEMSBuildException
 	 */
-	@Test
+	/*@Test
 	public void testNetPyNE() throws ConversionException, ModelInterpreterException, LEMSException, IOException, NeuroMLException, URISyntaxException
 	{
 		LEMSConversionService lemsConversionService = new LEMSConversionService();
@@ -147,7 +147,7 @@ public class LEMSConversionServiceTest
 		modelFormats = lemsConversionService.getSupportedOutputs(inputModel);
 		Assert.assertEquals(7, modelFormats.size());
 
-    }
+    }*/
     
 	/**
 	 * "" Test method for {@link org.geppetto.model.neuroml.services.LEMSConversionService#readModel(java.net.URL)}.
