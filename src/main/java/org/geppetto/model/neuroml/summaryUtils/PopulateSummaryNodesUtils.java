@@ -17,7 +17,9 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.emf.common.util.EList;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.ModelInterpreterException;
+import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.model.Node;
+import org.geppetto.model.neuroml.features.DefaultViewCustomiserFeature;
 import org.geppetto.model.neuroml.utils.CellUtils;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
@@ -48,7 +50,6 @@ import org.lemsml.jlems.core.expression.ParseError;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.sim.LEMSException;
 import org.lemsml.jlems.core.type.Component;
-import org.neuroml.export.info.model.ChannelInfoExtractor;
 import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
@@ -74,6 +75,7 @@ import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.Izhikevich2007Cell;
 import org.neuroml.model.IzhikevichCell;
+import org.neuroml.model.IafCell;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Segment;
@@ -81,6 +83,7 @@ import org.neuroml.model.SegmentGroup;
 import org.neuroml.model.Standalone;
 import org.neuroml.model.VariableParameter;
 import org.neuroml.model.util.NeuroMLException;
+import org.neuroml2.modellite.NeuroML2ModelReader;
 
 /**
  * Populates the Model Tree of Aspect
@@ -105,6 +108,8 @@ public class PopulateSummaryNodesUtils
 
 	URL url;
 	private NeuroMLDocument neuroMLDocument;
+    
+    private InfoNode nml2ModelInfo;
 
 	boolean verbose = false;
 
@@ -184,20 +189,25 @@ public class PopulateSummaryNodesUtils
 					Text notes = (Text) note.getInitialValues().get(access.getType(TypesPackage.Literals.TEXT_TYPE));
 					modelDescription.append("<b>Description</b><br/>\n<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(notes.getText()) + "</p>\n ");
 				}
+                
+                nml2ModelInfo = NeuroML2ModelReader.extractExpressions(neuroMLDocument);
+                
 			}
 
 		}
-		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View NeuroML 2 source file</i></a><br/><br/>\n");
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original NeuroML 2 source file</i></a><br/><br/>\n");
 
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
 			modelDescription.append("<b>Populations</b><br/>\n");
 			for(Type population : populationComponents)
 			{
+                // TODO
+				//modelDescription.append("<span style=\"color:#" + ((ArrayType) population).getVisualType() + "\">XXX</span>\n");
 				modelDescription.append("" + population.getName() + ": ");
 				// get proper name of population cell with brackets and index # of population
 				int size = ((ArrayType) population).getSize();
-				String name = ((ArrayType) population).getArrayType().getId().trim() + "." + population.getId().trim() + "[" + populationComponents.indexOf(population) + "]";
+				String name = ((ArrayType) population).getArrayType().getId().trim();
 				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + name + "\">" + size + " cell" + (size == 1 ? "s" : "") + " of type "
 						+ ((ArrayType) population).getArrayType().getName() + "</a><br/>\n");
 			}
@@ -221,7 +231,17 @@ public class PopulateSummaryNodesUtils
 				if(ionChannel != ionChannelComponents.get(ionChannelComponents.size() - 1)) modelDescription.append(" | \n");
 
 				// Add expresion nodes from the export library for the gate rates
-				addExpresionNodes((CompositeType) ionChannel);
+                boolean found = false;
+                if (nml2ModelInfo!=null)
+                {
+                    for (Map.Entry<String, Object> entry : nml2ModelInfo.getProperties().entrySet())
+                    {
+                        if (entry.getKey().equals(ionChannel.getName()))
+                        {
+                            found = extractPlottables((CompositeType) ionChannel, (InfoNode)entry.getValue());
+                        }
+                    }
+                }
 			}
 			modelDescription.append("<br/><br/>\n");
 		}
@@ -570,10 +590,23 @@ public class PopulateSummaryNodesUtils
 					Cell nmlCell = null;
 
 					// TODO: replace this hard coding!!
+					for(IafCell c : neuroMLDocument.getIafCell())
+					{
+						if(c.getId().equals(cell.getId()))
+						{
+							htmlText0.append("Type: NeuroML IaFCell<br/>\n");
+							htmlText0.append("Leak reversal potential: " + c.getLeakReversal() + "<br/>\n");
+							htmlText0.append("Threshold voltage: " + c.getThresh() + "<br/>\n");
+							htmlText0.append("Reset voltage: " + c.getReset() + "<br/>\n");
+							htmlText0.append("Capacitance: " + c.getC() + "<br/>\n");
+							htmlText0.append("Leak conductance: " + c.getLeakConductance() + "<br/>\n");
+						}
+					}
 					for(Izhikevich2007Cell c : neuroMLDocument.getIzhikevich2007Cell())
 					{
 						if(c.getId().equals(cell.getId()))
 						{
+							htmlText0.append("Type: NeuroML Izhikevich2007Cell<br/>\n");
 							htmlText0.append("a: " + c.getA() + "<br/>\n");
 							htmlText0.append("b: " + c.getB() + "<br/>\n");
 							htmlText0.append("c: " + c.getC() + "<br/>\n");
@@ -589,6 +622,7 @@ public class PopulateSummaryNodesUtils
 					{
 						if(c.getId().equals(cell.getId()))
 						{
+							htmlText0.append("Type: NeuroML IzhikevichCell<br/>\n");
 							htmlText0.append("a: " + c.getA() + "<br/>\n");
 							htmlText0.append("b: " + c.getB() + "<br/>\n");
 							htmlText0.append("c: " + c.getC() + "<br/>\n");
@@ -811,8 +845,8 @@ public class PopulateSummaryNodesUtils
 
 				if(chan != null)
 				{
-					htmlText.append("<b>Ion:</b> <a href=\"#\">" + (chan.getSpecies() != null ? chan.getSpecies() : "Non specific") + "</a><br/><br/>\n");
-					htmlText.append("<b>Conductance:</b> <a href=\"#\">" + createIonChannelExpression(chan) + "</a><br/><br/>\n");
+					htmlText.append("<b>Ion: </b>" + (chan.getSpecies() != null ? chan.getSpecies() : "Non specific") + "<br/>\n");
+					htmlText.append("<b>Conductance: </b>" + createIonChannelExpression(chan) + "<br/><br/>\n");
 				}
 
 				// Adds plot activation variables
@@ -823,15 +857,24 @@ public class PopulateSummaryNodesUtils
 					for(Variable v : variables)
 					{
 						String[] split = v.getPath().split("\\.");
-						String shortLabel = v.getPath();
 						String info = v.getPath();
-						if(split.length > 5)
+                        
+						if(split.length >= 5)
 						{
-							shortLabel = split[1] + "." + split[2] + "..." + split[split.length - 1];
-							info = "Gate: " + split[2] + " " + split[split.length - 1].replace("_", " ");
-							info += (info.indexOf("forward") > 0 ? ", alpha<sub>" + split[2] + "</sub>" : ", beta<sub>" + split[2] + "</sub>");
+							info = "Gate: " + split[2] + ", " + split[split.length - 1].replace("_", " ");
+                            if (info.contains("forward"))
+                                info += " (alpha<sub>" + split[2] + "</sub>)";
+                            if (info.contains("reverse"))
+                                info += " (beta<sub>" + split[2] + "</sub>)";
+                            if (info.contains("time"))
+                                info += " (tau<sub>" + split[2] + "</sub>)";
+                            if (info.contains("steady"))
+                                info += " (inf<sub>" + split[2] + "</sub>)";
+                            
 						}
-						htmlText.append("<a href=\"#\" type=\"variable\" instancePath=\"Model." + v.getPath() + "\">" + info + "</a><br/>\n");
+                        String ip = "Model." + v.getPath();
+                        
+						htmlText.append("<a href=\"#" + ip + "\" type=\"variable\" instancePath=\"" + ip /*+ "\" hover=\""+v.toString()*/+"\">" + info + "</a><br/>\n");
 					}
 				}
 				Variable htmlVariable = variablesFactory.createVariable();
@@ -1002,19 +1045,11 @@ public class PopulateSummaryNodesUtils
 		// }
 		return null;
 	}
-
-	private void addExpresionNodes(CompositeType ionChannel) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
-	{
-		// Get lems component and convert to neuroml
-		Component component = ((Component) ionChannel.getDomainModel().getDomainModel());
-		Standalone neuromlIonChannel = getNeuroMLIonChannel(component);
-
-		// Create channel info extractor from export library
-		if(neuromlIonChannel != null)
-		{
-			ChannelInfoExtractor channelInfoExtractor = new ChannelInfoExtractor((IonChannel) neuromlIonChannel);
-			InfoNode gatesNode = channelInfoExtractor.getGates();
-			for(Map.Entry<String, Object> entry : gatesNode.getProperties().entrySet())
+    
+    private boolean extractPlottables(CompositeType ionChannel, InfoNode node) throws GeppettoVisitingException, ModelInterpreterException
+    {
+        boolean found = false;
+			for(Map.Entry<String, Object> entry : node.getProperties().entrySet())
 			{
 				String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
 				for(Variable gateVariable : ionChannel.getVariables())
@@ -1037,7 +1072,9 @@ public class PopulateSummaryNodesUtils
 										{
 											CompositeType rateType = (CompositeType) rateVariable.getAnonymousTypes().get(0);
 											// Create expression node
-											Variable variable = getExpressionVariable(gateProperties.getKey(), (ExpressionNode) gateProperties.getValue());
+                                            
+                                            ExpressionNode en = (ExpressionNode) gateProperties.getValue();
+											Variable variable = getExpressionVariable(gateProperties.getKey(), en);
 											rateType.getVariables().add(variable);
 
 											if(!((ExpressionNode) gateProperties.getValue()).getExpression().startsWith("org.neuroml.export"))
@@ -1046,6 +1083,7 @@ public class PopulateSummaryNodesUtils
 												if(variables == null) variables = new ArrayList<Variable>();
 												variables.add(variable);
 												this.plottableVariables.put(ionChannel.getName(), variables);
+                                                found = true;
 											}
 										}
 									}
@@ -1053,15 +1091,15 @@ public class PopulateSummaryNodesUtils
 								}
 								else
 								{
-									throw new ModelInterpreterException("No node matches summary gate rate");
+									System.out.println("No node matches summary gate rate!!!");
 								}
 							}
 						}
 					}
 				}
 			}
-		}
-	}
+            return found;
+    }
 
 	private Variable getExpressionVariable(String expressionNodeId, ExpressionNode expressionNode) throws GeppettoVisitingException
 	{

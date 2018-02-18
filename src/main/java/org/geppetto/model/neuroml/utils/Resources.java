@@ -25,9 +25,15 @@ public enum Resources
 	SYNAPSE("Synapse", "synapse"), 
 	CONNECTION("Connection", "connection"),
 	CONNECTION_WD("Connection with Weight & Delay", "connectionWD"),
+    
 	ELECTRICAL_CONNECTION("Electrical Connection", "electricalConnection"),
 	ELECTRICAL_CONNECTION_INSTANCE("Electrical Connection Instance", "electricalConnectionInstance"),
+	ELECTRICAL_CONNECTION_INSTANCE_W("Electrical Connection Instance with weight", "electricalConnectionInstanceW"),
+    
 	CONTINUOUS_CONNECTION("Continuous Connection", "continuousConnection"),
+	CONTINUOUS_CONNECTION_INSTANCE("Continuous Connection Instance", "continuousConnectionInstance"),
+	CONTINUOUS_CONNECTION_INSTANCE_W("Continuous Connection Instance with weight", "continuousConnectionInstanceW"),
+    
 	PROJECTION("Projection", "projection"),
 	ELECTRICAL_PROJECTION("Electrical Projection", "electricalProjection"),
 	CONTINUOUS_PROJECTION("Continuous Projection", "continuousProjection"),

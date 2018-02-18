@@ -5,7 +5,7 @@
 	<groupId>org.geppetto</groupId>
 	<artifactId>model.neuroml</artifactId>
 	<name>Geppetto NeuroML Model bundle</name>
-	<version>0.3.8</version>
+	<version>0.3.9</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<spring.version>3.1.3.RELEASE</spring.version>
@@ -31,29 +31,36 @@
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
-			<version>1.5.2</version>
+			<version>1.5.3-a</version>
 		</dependency>
+        
+		<dependency>
+		    <groupId>org.neuroml.neuroml2modelLite</groupId>
+		    <artifactId>neuroml2modelLite</artifactId>
+		    <version>0.0.7</version>
+		</dependency>
+        
 		<dependency>
 			<groupId>org.geppetto</groupId>
 			<artifactId>core</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>    
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics</artifactId>
+			<version>0.9.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-osgi</artifactId>
 			<version>2.2.11</version>
 		</dependency>
-		<dependency>
-			<groupId>org.jvnet.jaxb2_commons</groupId>
-			<artifactId>jaxb2-commons-lang</artifactId>
-			<version>2.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jvnet.jaxb2_commons</groupId>
-			<artifactId>jaxb2-basics-runtime</artifactId>
-			<version>0.9.0</version>
-		</dependency>
-		<dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
 			<groupId>org.jvnet.sorcerer</groupId>
 			<artifactId>sorcerer-javac</artifactId>
 			<version>0.8</version>
@@ -146,7 +153,6 @@
 				<configuration>
   					<argLine>-Xmx1024m</argLine>
 					<junitArtifactName>org.junit:com.springsource.org.junit</junitArtifactName>
-					<redirectTestOutputToFile>true</redirectTestOutputToFile>
 				</configuration>	
 			</plugin>
 			<plugin>

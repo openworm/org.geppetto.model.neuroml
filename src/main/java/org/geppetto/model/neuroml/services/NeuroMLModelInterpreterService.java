@@ -108,7 +108,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 				// Read main and includes as a String
 				dependentModels.clear();
 				reader = new OptimizedLEMSReader(this.dependentModels);
-				reader.readAllFormats(url);
+				reader.readAllFormats(url, projectId);
 
 				// Extract Types from the lems/neuroml files
 				type = extractTypes(url, typeId, library, access, reader.getPartialLEMSDocument(), reader.getPartialNeuroMLDocument(), reader.getNetworkHelper());

@@ -9,6 +9,8 @@ geppettoTmp/
 /bin/
 /src/test/resources/pyr_4_sym.cell.nml.xmi
 /src/test/resources/LargeConns.net.nml.xmi
+/src/test/resources/FS.net.nml.xmi
+/src/test/resources/Pos
 /src/test/resources/TestSmall.net.nml.xmi
 /libjhdf5.so
 /src/test/resources/MediumNet.net.nml.h5.xmi
@@ -22,3 +24,13 @@ geppettoTmp/
 /src/test/resources/HHTutorial.net.nml.xmi
 /src/test/resources/ManyCells.net.nml.xmi
 /src/test/resources/cADpyr229_L23_PC_5ecbf9b163.net.nml.xmi
+/src/test/resources/hhcell/LEMS_NML2_Ex5_DetCell_0_netpyne.py
+/src/test/resources/hhcell/LEMS_NML2_Ex5_DetCell_0_netpyne.py_main.json
+/src/test/resources/hhcell/hhcell.hoc
+/src/test/resources/hhcell/k.mod
+/src/test/resources/hhcell/na.mod
+/src/test/resources/hhcell/passive.mod
+/src/test/resources/hhcell/pulseGen1.mod
+/libjhdf5.jnilib
+/src/test/resources/GapJunctions.net.nml.xmi
+/src/test/resources/c302_C_Pharyngeal.net.nml.xmi
