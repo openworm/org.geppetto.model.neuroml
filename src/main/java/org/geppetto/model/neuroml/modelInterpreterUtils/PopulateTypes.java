@@ -219,6 +219,10 @@ public class PopulateTypes
                                         CompositeType anonymousCompositeType = extractInfoFromComponent(componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
                                         Variable variable = variablesFactory.createVariable();
                                         NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
+                                        // FIXME: hack, following two lines should not exist if we always want to expose inputs.
+                                        // Frontend needs to change instead!
+                                        if (!(variable.getName().equals("IClamp") || variable.getName().equals("vClamp")))
+                                            variable.setStatic(true);
                                         variable.getAnonymousTypes().add(anonymousCompositeType);
                                         ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable);
                                     }
