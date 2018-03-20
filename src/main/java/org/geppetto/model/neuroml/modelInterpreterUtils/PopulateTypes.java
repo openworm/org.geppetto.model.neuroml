@@ -170,6 +170,7 @@ public class PopulateTypes
 		}
 		for(Component projection : component.getChildrenAL("electricalProjection"))
 		{
+                    createSynapseType(projection);
 			createProjectionImportType(projection, compositeType);
 		}
 		for(Component projection : component.getChildrenAL("continuousProjection"))
@@ -416,11 +417,17 @@ public class PopulateTypes
 	 */
 	protected void createSynapseType(Component projection) throws NeuroMLException, LEMSException, GeppettoVisitingException, ModelInterpreterException
 	{
-		Component synapse = projection.getRefComponents().get(Resources.SYNAPSE.getId());
+            Component synapse = null;
+            if (projection.getDeclaredType().equals(Resources.ELECTRICAL_PROJECTION.getId())) {
+                // electricalProjections don't have synapse attribute, look at first child
+                synapse = projection.getAllChildren().get(0).getRefComponents().get(Resources.SYNAPSE.getId());
+            } else {
+                synapse = projection.getRefComponents().get(Resources.SYNAPSE.getId());
+            }
 		if(!types.containsKey(synapse.getDeclaredType() + synapse.getID()))
 		{
-			Type synapseType = extractInfoFromComponent(projection.getRefComponents().get(Resources.SYNAPSE.getId()), ResourcesDomainType.SYNAPSE.getId());
-			types.put(synapse.getDeclaredType() + synapse.getID(), synapseType);
+                    Type synapseType = extractInfoFromComponent(synapse, ResourcesDomainType.SYNAPSE.getId());
+                    types.put(synapse.getDeclaredType() + synapse.getID(), synapseType);
 		}
 	}
 

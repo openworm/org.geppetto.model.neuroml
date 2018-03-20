@@ -39,6 +39,13 @@ public class PopulateElectricalProjectionTypes extends APopulateProjectionTypes
 		{
 			super.resolveProjectionImportType(projection, importType);
 
+                        // electricalProjections don't have synapse attribute, look at first child
+                        Component synapse = projection.getAllChildren().get(0).getRefComponents().get(Resources.SYNAPSE.getId());
+                        Variable synapsesVariable = variablesFactory.createVariable();
+                        NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(synapsesVariable, synapse);
+                        synapsesVariable.getTypes().add(populateTypes.getTypes().get(synapse.getDeclaredType() + synapse.getID()));
+                        projectionType.getVariables().add(synapsesVariable);
+
 			// Iterate over all the children. Most of them are connections
 			for(Component projectionChild : projection.getStrictChildren())
 			{
