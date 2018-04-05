@@ -190,11 +190,11 @@ public class PopulateSummaryNodesUtils
 					modelDescription.append("<b>Description</b><br/>\n<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(notes.getText()) + "</p>\n ");
 				}
                 
-                nml2ModelInfo = NeuroML2ModelReader.extractExpressions(neuroMLDocument);
-                
 			}
 
 		}
+                nml2ModelInfo = NeuroML2ModelReader.extractExpressions(neuroMLDocument);
+
 		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original NeuroML 2 source file</i></a><br/><br/>\n");
 
 		if(populationComponents != null && populationComponents.size() > 0)
