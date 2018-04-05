@@ -45,7 +45,9 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 			// Iterate over all the children. Most of them are connections
 			for(Component projectionChild : projection.getStrictChildren())
 			{
-				if(projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION.getId()))
+				if(projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION.getId()) ||
+                                   projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION_INSTANCE.getId()) ||
+                                   projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION_INSTANCE_W.getId()))
 				{
 					projectionType.getVariables().add(extractConnection(projectionChild, prePopulationType, prePopulationVariable, postPopulationType, postPopulationVariable));
 				}
