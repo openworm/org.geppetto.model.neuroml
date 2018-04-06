@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2 ../Schemas/NeuroML2/NeuroML_v2beta4.xsd"
+	id="rods_small">
+	<include href="rod.cell.nml"/>
+
+	<gapJunction id="rod_rod_gap" conductance="0.5nS"/>
+	<pulseGenerator id="pulseGen1" delay="50ms" duration="200ms" amplitude="0.0032nA"/>
+
+	<network id="rods_small">
+		<population type="populationList" id="rods_pop" component="rod" size="60">
+			<instance id="0">
+				<location x="0.0" y="0.0" z="0"/>
+			</instance>
+			<instance id="1">
+				<location x="0.0" y="26.0" z="0"/>
+			</instance>
+			<instance id="2">
+				<location x="0.0" y="53.0" z="0"/>
+			</instance>
+			<instance id="3">
+				<location x="0.0" y="79.0" z="0"/>
+			</instance>
+			<instance id="4">
+				<location x="0.0" y="106.0" z="0"/>
+			</instance>
+			<instance id="5">
+				<location x="0.0" y="132.0" z="0"/>
+			</instance>
+			<instance id="6">
+				<location x="24.444" y="0.0" z="0"/>
+			</instance>
+			<instance id="7">
+				<location x="24.444" y="26.0" z="0"/>
+			</instance>
+			<instance id="8">
+				<location x="24.444" y="53.0" z="0"/>
+			</instance>
+			<instance id="9">
+				<location x="24.444" y="79.0" z="0"/>
+			</instance>
+			<instance id="10">
+				<location x="24.444" y="106.0" z="0"/>
+			</instance>
+			<instance id="11">
+				<location x="24.444" y="132.0" z="0"/>
+			</instance>
+			<instance id="12">
+				<location x="48.889" y="0.0" z="0"/>
+			</instance>
+			<instance id="13">
+				<location x="48.889" y="26.0" z="0"/>
+			</instance>
+			<instance id="14">
+				<location x="48.889" y="53.0" z="0"/>
+			</instance>
+			<instance id="15">
+				<location x="48.889" y="79.0" z="0"/>
+			</instance>
+			<instance id="16">
+				<location x="48.889" y="106.0" z="0"/>
+			</instance>
+			<instance id="17">
+				<location x="48.889" y="132.0" z="0"/>
+			</instance>
+			<instance id="18">
+				<location x="73.333" y="0.0" z="0"/>
+			</instance>
+			<instance id="19">
+				<location x="73.333" y="26.0" z="0"/>
+			</instance>
+			<instance id="20">
+				<location x="73.333" y="53.0" z="0"/>
+			</instance>
+			<instance id="21">
+				<location x="73.333" y="79.0" z="0"/>
+			</instance>
+			<instance id="22">
+				<location x="73.333" y="106.0" z="0"/>
+			</instance>
+			<instance id="23">
+				<location x="73.333" y="132.0" z="0"/>
+			</instance>
+			<instance id="24">
+				<location x="97.778" y="0.0" z="0"/>
+			</instance>
+			<instance id="25">
+				<location x="97.778" y="26.0" z="0"/>
+			</instance>
+			<instance id="26">
+				<location x="97.778" y="53.0" z="0"/>
+			</instance>
+			<instance id="27">
+				<location x="97.778" y="79.0" z="0"/>
+			</instance>
+			<instance id="28">
+				<location x="97.778" y="106.0" z="0"/>
+			</instance>
+			<instance id="29">
+				<location x="97.778" y="132.0" z="0"/>
+			</instance>
+			<instance id="30">
+				<location x="122.222" y="0.0" z="0"/>
+			</instance>
+			<instance id="31">
+				<location x="122.222" y="26.0" z="0"/>
+			</instance>
+			<instance id="32">
+				<location x="122.222" y="53.0" z="0"/>
+			</instance>
+			<instance id="33">
+				<location x="122.222" y="79.0" z="0"/>
+			</instance>
+			<instance id="34">
+				<location x="122.222" y="106.0" z="0"/>
+			</instance>
+			<instance id="35">
+				<location x="122.222" y="132.0" z="0"/>
+			</instance>
+			<instance id="36">
+				<location x="146.667" y="0.0" z="0"/>
+			</instance>
+			<instance id="37">
+				<location x="146.667" y="26.0" z="0"/>
+			</instance>
+			<instance id="38">
+				<location x="146.667" y="53.0" z="0"/>
+			</instance>
+			<instance id="39">
+				<location x="146.667" y="79.0" z="0"/>
+			</instance>
+			<instance id="40">
+				<location x="146.667" y="106.0" z="0"/>
+			</instance>
+			<instance id="41">
+				<location x="146.667" y="132.0" z="0"/>
+			</instance>
+			<instance id="42">
+				<location x="171.111" y="0.0" z="0"/>
+			</instance>
+			<instance id="43">
+				<location x="171.111" y="26.0" z="0"/>
+			</instance>
+			<instance id="44">
+				<location x="171.111" y="53.0" z="0"/>
+			</instance>
+			<instance id="45">
+				<location x="171.111" y="79.0" z="0"/>
+			</instance>
+			<instance id="46">
+				<location x="171.111" y="106.0" z="0"/>
+			</instance>
+			<instance id="47">
+				<location x="171.111" y="132.0" z="0"/>
+			</instance>
+			<instance id="48">
+				<location x="195.556" y="0.0" z="0"/>
+			</instance>
+			<instance id="49">
+				<location x="195.556" y="26.0" z="0"/>
+			</instance>
+			<instance id="50">
+				<location x="195.556" y="53.0" z="0"/>
+			</instance>
+			<instance id="51">
+				<location x="195.556" y="79.0" z="0"/>
+			</instance>
+			<instance id="52">
+				<location x="195.556" y="106.0" z="0"/>
+			</instance>
+			<instance id="53">
+				<location x="195.556" y="132.0" z="0"/>
+			</instance>
+			<instance id="54">
+				<location x="220.0" y="0.0" z="0"/>
+			</instance>
+			<instance id="55">
+				<location x="220.0" y="26.0" z="0"/>
+			</instance>
+			<instance id="56">
+				<location x="220.0" y="53.0" z="0"/>
+			</instance>
+			<instance id="57">
+				<location x="220.0" y="79.0" z="0"/>
+			</instance>
+			<instance id="58">
+				<location x="220.0" y="106.0" z="0"/>
+			</instance>
+			<instance id="59">
+				<location x="220.0" y="132.0" z="0"/>
+			</instance>
+		</population>
+		<electricalProjection id ="rod_rod_gap" presynapticPopulation="rods_pop" postsynapticPopulation="rods_pop">
+			<electricalConnectionInstance id="0" preCell="../rods/1/rod" postCell="../rods/2/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="1" preCell="../rods/4/rod" postCell="../rods/5/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="2" preCell="../rods/7/rod" postCell="../rods/8/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="3" preCell="../rods/8/rod" postCell="../rods/9/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="4" preCell="../rods/19/rod" postCell="../rods/20/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="5" preCell="../rods/24/rod" postCell="../rods/25/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="6" preCell="../rods/25/rod" postCell="../rods/26/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="7" preCell="../rods/28/rod" postCell="../rods/29/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="8" preCell="../rods/30/rod" postCell="../rods/31/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="9" preCell="../rods/31/rod" postCell="../rods/32/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="10" preCell="../rods/34/rod" postCell="../rods/35/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="11" preCell="../rods/36/rod" postCell="../rods/37/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="12" preCell="../rods/40/rod" postCell="../rods/41/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="13" preCell="../rods/43/rod" postCell="../rods/44/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="14" preCell="../rods/44/rod" postCell="../rods/45/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="15" preCell="../rods/50/rod" postCell="../rods/51/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="16" preCell="../rods/52/rod" postCell="../rods/53/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="17" preCell="../rods/54/rod" postCell="../rods/55/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="18" preCell="../rods/0/rod" postCell="../rods/6/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="19" preCell="../rods/12/rod" postCell="../rods/18/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="20" preCell="../rods/18/rod" postCell="../rods/24/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="21" preCell="../rods/36/rod" postCell="../rods/42/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="22" preCell="../rods/48/rod" postCell="../rods/54/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="23" preCell="../rods/1/rod" postCell="../rods/7/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="24" preCell="../rods/7/rod" postCell="../rods/13/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="25" preCell="../rods/13/rod" postCell="../rods/19/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="26" preCell="../rods/31/rod" postCell="../rods/37/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="27" preCell="../rods/37/rod" postCell="../rods/43/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="28" preCell="../rods/43/rod" postCell="../rods/49/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="29" preCell="../rods/20/rod" postCell="../rods/26/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="30" preCell="../rods/26/rod" postCell="../rods/32/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="31" preCell="../rods/50/rod" postCell="../rods/56/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="32" preCell="../rods/9/rod" postCell="../rods/15/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="33" preCell="../rods/15/rod" postCell="../rods/21/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="34" preCell="../rods/39/rod" postCell="../rods/45/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="35" preCell="../rods/51/rod" postCell="../rods/57/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="36" preCell="../rods/10/rod" postCell="../rods/16/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="37" preCell="../rods/16/rod" postCell="../rods/22/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="38" preCell="../rods/28/rod" postCell="../rods/34/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="39" preCell="../rods/40/rod" postCell="../rods/46/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="40" preCell="../rods/46/rod" postCell="../rods/52/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="41" preCell="../rods/52/rod" postCell="../rods/58/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="42" preCell="../rods/23/rod" postCell="../rods/29/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="43" preCell="../rods/29/rod" postCell="../rods/35/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="44" preCell="../rods/35/rod" postCell="../rods/41/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="45" preCell="../rods/41/rod" postCell="../rods/47/rod" synapse="rod_rod_gap"/>
+			<electricalConnectionInstance id="46" preCell="../rods/47/rod" postCell="../rods/53/rod" synapse="rod_rod_gap"/>
+		</electricalProjection>
+
+
+		<inputList id="bright_current" component="pulseGen1" population="rods">
+			<input id="0" target="../rods/0/rod" destination="synapses"/>
+		</inputList>
+	</network>
+</neuroml>

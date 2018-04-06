@@ -34,3 +34,5 @@ geppettoTmp/
 /libjhdf5.jnilib
 /src/test/resources/GapJunctions.net.nml.xmi
 /src/test/resources/c302_C_Pharyngeal.net.nml.xmi
+/src/test/resources/rods_small.net.nml.xmi
+/src/test/resources/c302_C0_Social.net.nml.xmi

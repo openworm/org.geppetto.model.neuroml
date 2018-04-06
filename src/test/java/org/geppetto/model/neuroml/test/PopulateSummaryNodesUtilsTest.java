@@ -142,7 +142,12 @@ public class PopulateSummaryNodesUtilsTest
     {
         modelInterpreterTestUtils.serialise("/traub/TestSmall.net.nml", null, new NeuroMLModelInterpreterService());
     }
-
+    
+    @Test
+    public void testRetina() throws Exception
+    {
+        modelInterpreterTestUtils.serialise("/retina/rods_small.net.nml", null, new NeuroMLModelInterpreterService());
+    }
 
     @AfterClass
     public static void doYourOneTimeTeardown()

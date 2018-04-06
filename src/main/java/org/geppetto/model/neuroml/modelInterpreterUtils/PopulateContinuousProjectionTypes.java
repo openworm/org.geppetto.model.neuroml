@@ -45,7 +45,9 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 			// Iterate over all the children. Most of them are connections
 			for(Component projectionChild : projection.getStrictChildren())
 			{
-				if(projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION.getId()))
+				if(projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION.getId()) ||
+                                   projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION_INSTANCE.getId()) ||
+                                   projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION_INSTANCE_W.getId()))
 				{
 					projectionType.getVariables().add(extractConnection(projectionChild, prePopulationType, prePopulationVariable, postPopulationType, postPopulationVariable));
 				}
@@ -80,7 +82,7 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 	 * @throws ModelInterpreterException
 	 */
 	private Variable extractConnection(Component projectionChild, ArrayType prePopulationType, Variable prePopulationVariable, ArrayType postPopulationType, Variable postPopulationVariable)
-            throws ModelInterpreterException, GeppettoVisitingException
+            throws ModelInterpreterException, GeppettoVisitingException, ContentError
 	{
 		ConnectionType connectionType = (ConnectionType) populateTypes.getTypeFactory().getSuperType(ResourcesDomainType.CONNECTION);
                 connectionType.getSuperType().add(this.geppettoModelAccess.getType(TypesPackage.Literals.CONNECTION_TYPE));
@@ -103,6 +105,13 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 			String postCell = projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION_INSTANCE.getId()) 
                                 ? ModelInterpreterUtils.parseCellRefStringForCellNum(projectionChild.getAttributeValue("postCell")) 
                                 : projectionChild.getAttributeValue("postCell");
+
+                        // FIXME: for now we just take postComponent as being the synapse, ignoring preComponent
+                        Component synapse = projectionChild.getRefComponents().get(Resources.POST_COMPONENT.getId());
+                        Variable synapsesVariable = variablesFactory.createVariable();
+                        NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(synapsesVariable, synapse);
+                        synapsesVariable.getTypes().add(populateTypes.getTypes().get(synapse.getDeclaredType() + synapse.getID()));
+                        projectionType.getVariables().add(synapsesVariable);
             
 			if(preCell != null)
 			{
@@ -134,7 +143,7 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 		variable.getInitialValues().put(connectionType, connection);
         
         if(projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION_INSTANCE_W.getId())) {
-            
+            weight = projectionChild.getAttributeValue("weight");
             Text weightValue = valuesFactory.createText();
             weightValue.setText(weight);
             Variable weightVar = variablesFactory.createVariable();

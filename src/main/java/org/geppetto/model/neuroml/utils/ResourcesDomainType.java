@@ -19,6 +19,7 @@ public enum ResourcesDomainType
 	POSTFRACTIONALONG("postFractionAlong", "postFractionAlong"),
 	IONCHANNEL("ionChannel", "baseIonChannel"),
 	PULSEGENERATOR("pulseGenerator", "pulseGenerator"),
+	POISSONFIRINGSYNAPSE("poissonFiringSynapse", "poissonFiringSynapse"),
 	POPULATION("population", "population"),
 	POPULATION_LIST("population", "populationList"),
 	PROJECTION("projection", "projection"),

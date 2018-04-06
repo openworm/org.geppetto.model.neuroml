@@ -37,7 +37,7 @@
 		<dependency>
 		    <groupId>org.neuroml.neuroml2modelLite</groupId>
 		    <artifactId>neuroml2modelLite</artifactId>
-		    <version>0.0.7</version>
+		    <version>0.0.8</version>
 		</dependency>
         
 		<dependency>
