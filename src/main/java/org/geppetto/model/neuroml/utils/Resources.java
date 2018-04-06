@@ -22,7 +22,8 @@ public enum Resources
 	MEMBRANE_PROPERTIES_SOMA("Soma Membrane Properties", "somaMembraneProperties"),
 	INTRACELLULAR_P("Intracellular Properties", "intracellularProperties"),
 	INTRACELLULAR_P_SOMA("Soma Intracellular Properties", "somaIntracellularProperties"), 
-	SYNAPSE("Synapse", "synapse"), 
+	SYNAPSE("Synapse", "synapse"),
+        POST_COMPONENT("Post Component", "postComponent"),
 	CONNECTION("Connection", "connection"),
 	CONNECTION_WD("Connection with Weight & Delay", "connectionWD"),
     
