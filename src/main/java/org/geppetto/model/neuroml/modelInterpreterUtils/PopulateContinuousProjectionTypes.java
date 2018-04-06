@@ -82,7 +82,7 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 	 * @throws ModelInterpreterException
 	 */
 	private Variable extractConnection(Component projectionChild, ArrayType prePopulationType, Variable prePopulationVariable, ArrayType postPopulationType, Variable postPopulationVariable)
-            throws ModelInterpreterException, GeppettoVisitingException
+            throws ModelInterpreterException, GeppettoVisitingException, ContentError
 	{
 		ConnectionType connectionType = (ConnectionType) populateTypes.getTypeFactory().getSuperType(ResourcesDomainType.CONNECTION);
                 connectionType.getSuperType().add(this.geppettoModelAccess.getType(TypesPackage.Literals.CONNECTION_TYPE));
@@ -143,7 +143,7 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 		variable.getInitialValues().put(connectionType, connection);
         
         if(projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION_INSTANCE_W.getId())) {
-            
+            weight = projectionChild.getAttributeValue("weight");
             Text weightValue = valuesFactory.createText();
             weightValue.setText(weight);
             Variable weightVar = variablesFactory.createVariable();
