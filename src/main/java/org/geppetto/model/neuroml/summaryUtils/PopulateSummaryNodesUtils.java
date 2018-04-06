@@ -77,6 +77,7 @@ import org.neuroml.model.Izhikevich2007Cell;
 import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.IafCell;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.PoissonFiringSynapse;
 import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
@@ -135,12 +136,15 @@ public class PopulateSummaryNodesUtils
 
 	private void addList(List<Type> list, StringBuilder desc)
 	{
-		for(Type el : list)
-		{
-			desc.append("<a href=\"#\" instancePath=\"Model.neuroml." + el.getId() + "\">" + el.getName() + "</a>");
-			if(el != list.get(list.size() - 1)) desc.append(" | ");
-			desc.append("\n");
-		}
+        if (list!=null)
+        {
+            for(Type el : list)
+            {
+                desc.append("<a href=\"#\" instancePath=\"Model.neuroml." + el.getId() + "\">" + el.getName() + "</a>");
+                if(el != list.get(list.size() - 1)) desc.append(" | ");
+                desc.append("\n");
+            }
+        }
 	}
 
 	/**
@@ -166,6 +170,8 @@ public class PopulateSummaryNodesUtils
 		sortNodes(synapseComponents);
 		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
 		sortNodes(pulseGeneratorComponents);
+		List<Type> pfsComponents = typesMap.containsKey(ResourcesDomainType.POISSONFIRINGSYNAPSE.get()) ? typesMap.get(ResourcesDomainType.POISSONFIRINGSYNAPSE.get()) : null;
+		sortNodes(pfsComponents);
 
 		StringBuilder modelDescription = new StringBuilder();
 
@@ -253,11 +259,13 @@ public class PopulateSummaryNodesUtils
 			modelDescription.append("<br/><br/>\n");
 		}
 
-		if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
+		if( (pulseGeneratorComponents!=null && pulseGeneratorComponents.size() > 0) || 
+            (pfsComponents!=null && pfsComponents.size()>0))
 		{
 			// FIXME: Pulse generator? InputList? ExplicitList?
 			modelDescription.append("<b>Inputs</b><br/>\n");
 			addList(pulseGeneratorComponents, modelDescription);
+			addList(pfsComponents, modelDescription);
 			modelDescription.append("<br/>\n");
 		}
 
@@ -982,23 +990,24 @@ public class PopulateSummaryNodesUtils
 
 		if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
 		{
-			for(Type pulseGenerator : pulseGeneratorComponents)
+			for(Type t : pulseGeneratorComponents)
 			{
 				PulseGenerator pg = null;
 				for(PulseGenerator pg0 : neuroMLDocument.getPulseGenerator())
 				{
-					if(pg0.getId().equals(pulseGenerator.getId())) pg = pg0;
+					if(pg0.getId().equals(t.getId())) pg = pg0;
 				}
 
 				StringBuilder htmlText = new StringBuilder();
 
 				Variable htmlVariable = variablesFactory.createVariable();
-				htmlVariable.setId(pulseGenerator.getId());
-				htmlVariable.setName(pulseGenerator.getName());
+				htmlVariable.setId(t.getId());
+				htmlVariable.setName(t.getName());
 
 				// Create HTML Value object and set HTML text
 				HTML html = valuesFactory.createHTML();
-				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
+				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + t.getId() + "\">" + t.getName() + "</a> \n");
+				htmlText.append(" FF "+t+" ");
 				htmlText.append("<br/><br/>\n");
 
 				htmlText.append("Delay: " + pg.getDelay() + "<br/>\n");
@@ -1010,7 +1019,43 @@ public class PopulateSummaryNodesUtils
 				if(verbose) System.out.println("======= Input ===============\n" + htmlText.toString());
 				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
 				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
-				((CompositeType) pulseGenerator).getVariables().add(htmlVariable);
+				((CompositeType) t).getVariables().add(htmlVariable);
+			}
+		}
+        
+		List<Type> pfsComponents = typesMap.containsKey(ResourcesDomainType.POISSONFIRINGSYNAPSE.get()) ? typesMap.get(ResourcesDomainType.POISSONFIRINGSYNAPSE.get()) : null;
+		sortNodes(pfsComponents);
+        if(pfsComponents != null && pfsComponents.size() > 0)
+		{
+			for(Type t : pfsComponents)
+			{
+				PoissonFiringSynapse pfs = null;
+				for(PoissonFiringSynapse pfs0 : neuroMLDocument.getPoissonFiringSynapse())
+				{
+					if(pfs0.getId().equals(t.getId())) pfs = pfs0;
+				}
+
+				StringBuilder htmlText = new StringBuilder();
+
+				Variable htmlVariable = variablesFactory.createVariable();
+				htmlVariable.setId(t.getId());
+				htmlVariable.setName(t.getName());
+
+				// Create HTML Value object and set HTML text
+				HTML html = valuesFactory.createHTML();
+				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + t.getId() + "\">" + t.getName() + "</a> \n");
+				htmlText.append(" FF "+t+" ");
+				htmlText.append("<br/><br/>\n");
+
+				htmlText.append("Spiking rate: " + pfs.getAverageRate() + "<br/>\n");
+				htmlText.append("Synapse: " + pfs.getSynapse() + "<br/>\n");
+
+				html.setHtml(htmlText.toString());
+
+				if(verbose) System.out.println("======= Input ===============\n" + htmlText.toString());
+				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+				((CompositeType) t).getVariables().add(htmlVariable);
 			}
 		}
 	}

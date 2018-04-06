@@ -54,6 +54,7 @@ public enum Resources
 	BIOPHYSICAL_PROPERTIES("Biophysical Properties", "biophysicalProperties"),
 	BIOPHYSICAL_PROPERTIES_2_CAPOOLS("Biophysical Properties with two CA pools","biophysicalProperties2CaPools"),
 	PULSE_GENERATOR("Pulse Generator", "pulseGenerator"),
+	POISSON_FIRING_SYNAPSE("Poisson Firing Synapse", "poissonFiringSynapse"),
 	AMPLITUDE("Amplitude", "amplitude"),
 	DELAY("Delay", "delay"),
 	DURATION("Duration", "duration"),
