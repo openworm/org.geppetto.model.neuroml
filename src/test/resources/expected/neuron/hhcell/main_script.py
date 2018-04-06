@@ -21,6 +21,7 @@ Components:
 import neuron
 
 import time
+import sys
 
 import hashlib
 h = neuron.h
@@ -104,8 +105,8 @@ class NeuronSimulation():
         h.run()
 
         self.sim_end = time.time()
-        sim_time = self.sim_end - sim_start
-        print("Finished NEURON simulation in %f seconds (%f mins)..."%(sim_time, sim_time/60.0))
+        self.sim_time = self.sim_end - sim_start
+        print("Finished NEURON simulation in %f seconds (%f mins)..."%(self.sim_time, self.sim_time/60.0))
 
         self.save_results()
 

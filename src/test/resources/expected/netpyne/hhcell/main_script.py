@@ -77,7 +77,6 @@ simConfig.analysis['plot2Dnet'] = False  # Plot 2D net cells and connections
 simConfig.analysis['plotSpikeHist'] = False # plot spike histogram
 simConfig.analysis['plotConn'] = False # plot network connectivity
 simConfig.analysis['plotSpikePSD'] = False # plot 3d architecture
-simConfig.analysis['plotShape'] = False # plot shape in Neuron
 
 # Saving
 simConfig.filename = 'net1.txt'  # Set file output name
@@ -89,7 +88,7 @@ simConfig.saveFileStep = simConfig.dt # step size in ms to save data to disk
 # IMPORT & RUN
 ###############################################################################
 
-print("Running a NetPyNE based simulation for %sms (dt: %sms) at %s degC"%(simConfig.duration, simConfig.dt, h.celsius))
+print("Running a NetPyNE based simulation for %sms (dt: %sms) at %s degC"%(simConfig.duration, simConfig.dt, simConfig.hParams['celsius']))
 
 gids = sim.importNeuroML2SimulateAnalyze(nml2_file_name,simConfig)
 

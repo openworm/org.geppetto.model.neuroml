@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
-			<version>1.5.3-a</version>
+			<version>1.5.3</version>
 		</dependency>
         
 		<dependency>

@@ -2486,6 +2486,7 @@
     <types xsi:type="gep_1:PointerType" id="Pointer" name="Pointer"/>
     <types xsi:type="gep_1:ImageType" id="Image" name="Image"/>
     <types xsi:type="gep_1:ConnectionType" id="connection" name="Connection"/>
+    <types xsi:type="gep_1:VisualType" id="particles" name="Particles"/>
   </libraries>
   <libraries id="common" name="Geppetto Common Library">
     <types xsi:type="gep_1:ParameterType" id="Parameter" name="Parameter"/>
@@ -2500,5 +2501,6 @@
     <types xsi:type="gep_1:PointerType" id="Pointer" name="Pointer"/>
     <types xsi:type="gep_1:ImageType" id="Image" name="Image"/>
     <types xsi:type="gep_1:ConnectionType" id="connection" name="Connection"/>
+    <types xsi:type="gep_1:VisualType" id="particles" name="Particles"/>
   </libraries>
 </gep:GeppettoModel>
