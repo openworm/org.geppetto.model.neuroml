@@ -170,11 +170,12 @@ public class PopulateTypes
 		}
 		for(Component projection : component.getChildrenAL("electricalProjection"))
 		{
-                    createSynapseType(projection);
+                        createSynapseType(projection);
 			createProjectionImportType(projection, compositeType);
 		}
 		for(Component projection : component.getChildrenAL("continuousProjection"))
 		{
+                        createSynapseType(projection);
 			createProjectionImportType(projection, compositeType);
 		}
 
@@ -421,7 +422,11 @@ public class PopulateTypes
             if (projection.getDeclaredType().equals(Resources.ELECTRICAL_PROJECTION.getId())) {
                 // electricalProjections don't have synapse attribute, look at first child
                 synapse = projection.getAllChildren().get(0).getRefComponents().get(Resources.SYNAPSE.getId());
-            } else {
+            } else if (projection.getDeclaredType().equals(Resources.CONTINUOUS_PROJECTION.getId())) {
+            	// continuousProjections don't have synapse attribute, look at postComponent on first child
+            	synapse = projection.getAllChildren().get(0).getRefComponents().get(Resources.POST_COMPONENT.getId());
+            }
+            else {
                 synapse = projection.getRefComponents().get(Resources.SYNAPSE.getId());
             }
 		if(!types.containsKey(synapse.getDeclaredType() + synapse.getID()))

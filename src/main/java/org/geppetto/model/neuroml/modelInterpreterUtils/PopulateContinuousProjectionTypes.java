@@ -105,6 +105,13 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 			String postCell = projectionChild.getComponentType().isOrExtends(Resources.CONTINUOUS_CONNECTION_INSTANCE.getId()) 
                                 ? ModelInterpreterUtils.parseCellRefStringForCellNum(projectionChild.getAttributeValue("postCell")) 
                                 : projectionChild.getAttributeValue("postCell");
+
+                        // FIXME: for now we just take postComponent as being the synapse, ignoring preComponent
+                        Component synapse = projectionChild.getRefComponents().get(Resources.POST_COMPONENT.getId());
+                        Variable synapsesVariable = variablesFactory.createVariable();
+                        NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(synapsesVariable, synapse);
+                        synapsesVariable.getTypes().add(populateTypes.getTypes().get(synapse.getDeclaredType() + synapse.getID()));
+                        projectionType.getVariables().add(synapsesVariable);
             
 			if(preCell != null)
 			{
