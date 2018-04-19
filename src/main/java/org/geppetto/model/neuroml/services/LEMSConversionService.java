@@ -170,41 +170,43 @@ public class LEMSConversionService extends AConversion
 				int fileIndex = 0;
 				int i = 0;
 				String variables = "";
-				Component outputFile = null;
 
 				if(aspectConfig.getWatchedVariables() != null)
 				{
-					for(String watchedVariable : aspectConfig.getWatchedVariables())
+                                    if(fileIndex != 0)
+                                    {
+                                        // Add outputcolumn and variable to outputmapping file per watch variable
+                                        writer.println(variables);
+                                    }
+                                    variables = "time(StateVariable)";
+
+                                    // Create output file component and add file to outputmapping file
+                                    Component outputFile = new Component("outputFile" + fileIndex, new ComponentType("OutputFile"));
+                                    outputFile.addAttribute(new XMLAttribute("fileName", "results/results" + fileIndex + ".dat"));
+                                    simulationComponent.addComponent(outputFile);
+                                    writer.println("results/results" + fileIndex + ".dat");
+
+                                    Component eventOutputFile = new Component("eventOutputFile" + fileIndex, new ComponentType("EventOutputFile"));
+                                    eventOutputFile.addAttribute(new XMLAttribute("fileName", "results/all" + fileIndex + ".spikes"));
+                                    eventOutputFile.addAttribute(new XMLAttribute("format", "TIME_ID"));
+                                    simulationComponent.addComponent(eventOutputFile);
+                                    writer.println("results/all" + fileIndex + ".spikes");
+
+                                    fileIndex++;
+
+                                    for(String watchedVariable : aspectConfig.getWatchedVariables())
 					{
-						if(i == 0)
-						{
-							if(fileIndex != 0)
-							{
-								// Add outputcolumn and variable to outputmapping file per watch variable
-								writer.println(variables);
-							}
-							variables = "time(StateVariable)";
-
-							// Create output file component and add file to outputmapping file
-							outputFile = new Component("outputFile" + fileIndex, new ComponentType("OutputFile"));
-							outputFile.addAttribute(new XMLAttribute("fileName", "results/results" + fileIndex + ".dat"));
-							simulationComponent.addComponent(outputFile);
-							writer.println("results/results" + fileIndex + ".dat");
-
-							i = 10;
-							fileIndex++;
-						}
-						// Create output column component
 						String quantityPath = extractLEMSPath(mainModelComponent, modelAccess.getPointer(watchedVariable));
 						Component outputColumn = new Component(quantityPath.replace("/", "_").replace("[", "_").replace("]", "_"), new ComponentType("OutputColumn"));
+                                                Component eventSelection = new Component(quantityPath.substring(0,quantityPath.lastIndexOf("/")).substring(0,quantityPath.lastIndexOf("/")).replace("/", "_").replace("[", "_").replace("]", "_"), new ComponentType("EventSelection"));
 
-						// Convert from Geppetto to LEMS Path
-						outputColumn.addAttribute(new XMLAttribute("quantity", quantityPath));
+                                                eventSelection.addAttribute(new XMLAttribute("select", quantityPath.substring(0,quantityPath.lastIndexOf("/")).substring(0,quantityPath.lastIndexOf("/"))));
+                                                eventSelection.addAttribute(new XMLAttribute("eventPort", "spike"));
+                                                outputColumn.addAttribute(new XMLAttribute("quantity", quantityPath));
 
-						// Add output column component to file
 						outputFile.addComponent(outputColumn);
+                                                eventOutputFile.addComponent(eventSelection);
 						variables += " " + watchedVariable;
-						i--;
 					}
 				}
 
