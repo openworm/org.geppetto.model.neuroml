@@ -37,6 +37,10 @@ public class LEMSParametersFeature implements ISetParameterFeature
 		return type;
 	}
 
+    public boolean saveSpikes() {
+        return true;
+    }
+
 	@Override
 	public void setParameter(VariableValue variableValue) throws ModelInterpreterException
 	{

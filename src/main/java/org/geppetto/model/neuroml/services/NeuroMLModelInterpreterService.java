@@ -380,7 +380,7 @@ public class NeuroMLModelInterpreterService extends AModelInterpreter
 			ExternalDomainModel outputDomainModel = null;
 			try
 			{
-				outputDomainModel = (ExternalDomainModel) lemsConversionService.convert(domainModel, format, aspectConfiguration, this.access);
+                            outputDomainModel = (ExternalDomainModel) lemsConversionService.convert(domainModel, format, aspectConfiguration, this.access);
 			}
 			catch(ConversionException e)
 			{
