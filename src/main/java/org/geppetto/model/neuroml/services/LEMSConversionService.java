@@ -166,6 +166,9 @@ public class LEMSConversionService extends AConversion
 				simulationComponent.addAttribute(new XMLAttribute("length", Float.toString(aspectConfig.getSimulatorConfiguration().getLength()) + "s"));
 				simulationComponent.addAttribute(new XMLAttribute("step", Float.toString(aspectConfig.getSimulatorConfiguration().getTimestep()) + "s"));
 				simulationComponent.addAttribute(new XMLAttribute("target", aspectConfig.getSimulatorConfiguration().getParameters().get("target")));
+                                String randomSeed = aspectConfig.getSimulatorConfiguration().getParameters().get("randomSeed");
+                                if (randomSeed != null)
+                                    simulationComponent.addAttribute(new XMLAttribute("seed", randomSeed));
 
 				int fileIndex = 0;
 				int i = 0;
