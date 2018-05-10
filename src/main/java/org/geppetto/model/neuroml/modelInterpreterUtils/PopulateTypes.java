@@ -99,6 +99,7 @@ public class PopulateTypes
 		// Create composite type depending on type of component and initialise it
 		CompositeType compositeType = (CompositeType) typeFactory.createType(domainType);
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
+                compositeType.setName(domainType);
 
 		List<String> attributes = new ArrayList<String>();
 		// Parameter types
@@ -225,8 +226,13 @@ public class PopulateTypes
                                         // Frontend needs to change instead!
                                         if (!(variable.getName().startsWith("IClamp") || 
                                               variable.getName().startsWith("vClamp") ||
-                                              componentChild.getRefHM().get("component").getDeclaredType().equals("voltageClampTriple")))
+                                              componentChild.getRefHM().get("component").getDeclaredType().equals("voltageClampTriple"))) {
                                             variable.setStatic(true);
+                                            if (inputListChild.hasAttribute("segmentId")) {
+                                                variable.setId(variable.getId() + "_" + inputListChild.getAttributeValue("segmentId"));
+                                                variable.setName(variable.getName() + "_" + inputListChild.getAttributeValue("segmentId"));
+                                            }
+                                        }
                                         variable.getAnonymousTypes().add(anonymousCompositeType);
                                         variable.setId(variable.getId() + "_" + inputListChild.getAttributeValue("segmentId"));
                                         variable.setName(variable.getName() + "_" + inputListChild.getAttributeValue("segmentId"));
