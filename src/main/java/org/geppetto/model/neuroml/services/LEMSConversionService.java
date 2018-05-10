@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -181,7 +183,7 @@ public class LEMSConversionService extends AConversion
                                     variables = "time(StateVariable)";
 
                                     // Create output file component and add file to outputmapping file
-                                    Component outputFile = new Component("outputFile" + fileIndex, new ComponentType("OutputFile"));
+                                    outputFile = new Component("outputFile" + fileIndex, new ComponentType("OutputFile"));
                                     outputFile.addAttribute(new XMLAttribute("fileName", "results/results" + fileIndex + ".dat"));
                                     simulationComponent.addComponent(outputFile);
                                     writer.println("results/results" + fileIndex + ".dat");
@@ -204,10 +206,26 @@ public class LEMSConversionService extends AConversion
                                                 eventSelection.addAttribute(new XMLAttribute("eventPort", "spike"));
                                                 outputColumn.addAttribute(new XMLAttribute("quantity", quantityPath));
 
-						outputFile.addComponent(outputColumn);
-                                                eventOutputFile.addComponent(eventSelection);
-						variables += " " + watchedVariable;
-					}
+                                                outputFile.addComponent(outputColumn);
+                                                variables += " " + watchedVariable;
+                                        }
+
+                                    if (aspectConfig.getSimulatorConfiguration().getParameters().get("spikes") != null) {
+                                        Set<String> spikingVars = new HashSet<String>();
+                                        for(String watchedVariable : aspectConfig.getWatchedVariables()){
+                                            // looking at first two segments of path to determine cell… not very good
+                                            if (watchedVariable.endsWith(".ca") || watchedVariable.endsWith(".v"))
+                                                spikingVars.add(watchedVariable);
+                                        }
+                                        int index = 0;
+                                        for (String var : spikingVars) {
+                                            String quantityPath = extractLEMSPath(mainModelComponent, modelAccess.getPointer(var));
+                                            Component eventSelection = new Component(String.valueOf(index), new ComponentType("EventSelection"));
+                                            eventSelection.addAttribute(new XMLAttribute("select", quantityPath.substring(0,quantityPath.lastIndexOf("/")).substring(0,quantityPath.lastIndexOf("/"))));
+                                            eventSelection.addAttribute(new XMLAttribute("eventPort", "spike"));
+                                            eventOutputFile.addComponent(eventSelection);
+                                        }
+                                    }    
 				}
 
 				// Add block to lems and process lems doc
