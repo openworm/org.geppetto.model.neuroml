@@ -234,8 +234,6 @@ public class PopulateTypes
                                             }
                                         }
                                         variable.getAnonymousTypes().add(anonymousCompositeType);
-                                        variable.setId(variable.getId() + "_" + inputListChild.getAttributeValue("segmentId"));
-                                        variable.setName(variable.getName() + "_" + inputListChild.getAttributeValue("segmentId"));
                                         ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable);
                                     }
                                 }
