@@ -23,6 +23,8 @@ public enum ResourcesDomainType
 	POPULATION("population", "population"),
 	POPULATION_LIST("population", "populationList"),
 	PROJECTION("projection", "projection"),
+        CONTINUOUS_PROJECTION("continuousProjection", "continuousProjection"),
+        ELECTRICAL_PROJECTION("electricalProjection", "electricalProjection"),
 	CONNECTION("connection", "connection"),
 	CONNECTIONWD("connection", "connectionWD"),
 	NETWORK("network", "network"),

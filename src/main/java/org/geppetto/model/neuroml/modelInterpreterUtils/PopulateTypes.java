@@ -223,9 +223,13 @@ public class PopulateTypes
                                         NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
                                         // FIXME: hack, following two lines should not exist if we always want to expose inputs.
                                         // Frontend needs to change instead!
-                                        if (!(variable.getName().equals("IClamp") || variable.getName().equals("vClamp")))
+                                        if (!(variable.getName().startsWith("IClamp") || 
+                                              variable.getName().startsWith("vClamp") ||
+                                              componentChild.getRefHM().get("component").getDeclaredType().equals("voltageClampTriple")))
                                             variable.setStatic(true);
                                         variable.getAnonymousTypes().add(anonymousCompositeType);
+                                        variable.setId(variable.getId() + "_" + inputListChild.getAttributeValue("segmentId"));
+                                        variable.setName(variable.getName() + "_" + inputListChild.getAttributeValue("segmentId"));
                                         ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable);
                                     }
                                 }
