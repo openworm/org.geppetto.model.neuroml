@@ -192,11 +192,14 @@ public class LEMSConversionService extends AConversion
                                     simulationComponent.addComponent(outputFile);
                                     writer.println("results/results" + fileIndex + ".dat");
 
-                                    Component eventOutputFile = new Component("eventOutputFile" + fileIndex, new ComponentType("EventOutputFile"));
-                                    eventOutputFile.addAttribute(new XMLAttribute("fileName", "results/all" + fileIndex + ".spikes"));
-                                    eventOutputFile.addAttribute(new XMLAttribute("format", "TIME_ID"));
-                                    simulationComponent.addComponent(eventOutputFile);
-                                    writer.println("results/all" + fileIndex + ".spikes");
+                                    Component eventOutputFile = null;
+                                    if (aspectConfig.getSimulatorConfiguration().getParameters().get("spikes") != null) {
+                                        eventOutputFile = new Component("eventOutputFile" + fileIndex, new ComponentType("EventOutputFile"));
+                                        eventOutputFile.addAttribute(new XMLAttribute("fileName", "results/all" + fileIndex + ".spikes"));
+                                        eventOutputFile.addAttribute(new XMLAttribute("format", "TIME_ID"));
+                                        simulationComponent.addComponent(eventOutputFile);
+                                        writer.println("results/all" + fileIndex + ".spikes");
+                                    }
 
                                     fileIndex++;
 
