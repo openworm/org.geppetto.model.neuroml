@@ -298,7 +298,7 @@ public class PopulateChannelDensityVisualGroups
 		{
 			PhysicalQuantity physicalQuantity = valuesFactory.createPhysicalQuantity();
 			// physicalQuantity.setScalingFactor(value);
-			physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
+			physicalQuantity.setValue(Double.parseDouble(matcher.group(1)));
 
 			Unit unit = valuesFactory.createUnit();
 			unit.setUnit(matcher.group(2));
