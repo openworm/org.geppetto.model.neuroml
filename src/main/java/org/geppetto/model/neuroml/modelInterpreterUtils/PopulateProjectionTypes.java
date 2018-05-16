@@ -175,7 +175,7 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 	                Unit unit = valuesFactory.createUnit();
 	                unit.setUnit(matcher.group(2));
 	                physicalQuantity.setUnit(unit);
-	                physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
+	                physicalQuantity.setValue(Double.parseDouble(matcher.group(1)));
 	                variable.getInitialValues().put(geppettoModelAccess.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
 	        }
 
