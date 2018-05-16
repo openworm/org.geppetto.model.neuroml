@@ -242,6 +242,7 @@ public class LEMSConversionService extends AConversion
 
 				lems.addComponent(simulationComponent);
 				lems.setTargetComponent(simulationComponent);
+                                lems.getTarget().reportFile = "report.txt";
 
 				// Process LEMS
 				lems.resolve();
