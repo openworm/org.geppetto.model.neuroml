@@ -224,6 +224,14 @@ public class PopulateTypes
                                         NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(variable, componentChild.getRefComponents().get(Resources.COMPONENT_TYPE.getId()));
                                         // FIXME: hack, following two lines should not exist if we always want to expose inputs.
                                         // Frontend needs to change instead!
+                                            /*for(Segment seg : ca_segments)
+									{
+										Variable variable = variablesFactory.createVariable();
+										variable.setName(Resources.getValueById(seg.getName()));
+										variable.setId(seg.getName() + "_" + seg.getId());
+										if(seg.getParent() != null)
+                                                                                }*/
+                                         
                                         if (!(variable.getName().startsWith("IClamp") || 
                                               variable.getName().startsWith("vClamp") ||
                                               componentChild.getRefHM().get("component").getDeclaredType().equals("voltageClampTriple"))) {
@@ -233,8 +241,38 @@ public class PopulateTypes
                                                 variable.setName(variable.getName() + "_" + inputListChild.getAttributeValue("segmentId"));
                                             }
                                         }
-                                        variable.getAnonymousTypes().add(anonymousCompositeType);
-                                        ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable);
+                                        if (variable.getName().startsWith("IClamp") || 
+                                              variable.getName().startsWith("vClamp") ||
+                                              componentChild.getRefHM().get("component").getDeclaredType().equals("voltageClampTriple")) {
+                                            String segmentId = inputListChild.getAttributeValue("segmentId");
+                                            Cell cell = getGeppettoCellTypesMap().entrySet().iterator().next().getValue();
+                                            CellUtils cellUtils = new CellUtils(cell);
+                                            Segment seg = cellUtils.getIdsVsSegments().get(Integer.parseInt(segmentId));
+                                            String compartmentId = seg.getName() + "_" + seg.getId();
+                                            //for (Variable compartment : cellSegmentMap.entrySet().iterator().next().getValue())
+                                            //if (compartment.getId().equals(compartmentId)) {
+                                            Variable variable2 = variablesFactory.createVariable();
+                                            variable2.setName(compartmentId);
+                                            variable2.setId(compartmentId);
+                                            variable2.getAnonymousTypes().add(anonymousCompositeType);
+                                            ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable2);
+                                            //anonymousCompositeType.setId(compartmentId);
+                                            /*for (Variable subVar : ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables()) {
+                                                if (subVar.getId().equals(compartmentId)) {
+                                                    variable.getAnonymousTypes().add(anonymousCompositeType);
+                                                    ((CompositeType) subVar.getAnonymousTypes().get(0)).getVariables().add(variable);
+                                                }
+                                            }*/
+                                            //compartment.getAnonymousTypes().add(variable);
+                                            /*Variable variable = variablesFactory.createVariable();
+                                              variable.setName(Resources.getValueById(compartment.getName()));
+                                              variable.setId(compartment.getId());*/
+                                            //break;
+                                            //}
+                                        } else {
+                                            variable.getAnonymousTypes().add(anonymousCompositeType);
+                                            ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable);
+                                        }
                                     }
                                 }
                             }
