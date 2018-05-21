@@ -236,14 +236,15 @@ public class PopulateTypes
                                         if (variable.getName().startsWith("IClamp") || 
                                               variable.getName().startsWith("vClamp") ||
                                               componentChild.getRefHM().get("component").getDeclaredType().equals("voltageClampTriple")) {
-                                            String segmentId = inputListChild.getAttributeValue("segmentId");
-                                            Cell cell = getGeppettoCellTypesMap().entrySet().iterator().next().getValue();
-                                            CellUtils cellUtils = new CellUtils(cell);
-                                            Segment seg = cellUtils.getIdsVsSegments().get(Integer.parseInt(segmentId));
-                                            String compartmentId = seg.getName() + "_" + seg.getId();
-                                            variable.setId(compartmentId + "$" + variable.getId() + "_" + inputListChild.getAttributeValue("segmentId"));
-                                            variable.setName(compartmentId + "$" + variable.getName() + "_" + inputListChild.getAttributeValue("segmentId"));
-                                            
+                                            if (inputListChild.hasAttribute("segmentId")) {
+                                                String segmentId = inputListChild.getAttributeValue("segmentId");
+                                                Cell cell = getGeppettoCellTypesMap().entrySet().iterator().next().getValue();
+                                                CellUtils cellUtils = new CellUtils(cell);
+                                                Segment seg = cellUtils.getIdsVsSegments().get(Integer.parseInt(segmentId));
+                                                String compartmentId = seg.getName() + "_" + seg.getId();
+                                                variable.setId(compartmentId + "$" + variable.getId() + "_" + inputListChild.getAttributeValue("segmentId"));
+                                                variable.setName(compartmentId + "$" + variable.getName() + "_" + inputListChild.getAttributeValue("segmentId"));
+                                            }
                                         }
                                         variable.getAnonymousTypes().add(anonymousCompositeType);
                                         ((CompositeType) ((ArrayType) var.getTypes().get(0)).getArrayType()).getVariables().add(variable);
