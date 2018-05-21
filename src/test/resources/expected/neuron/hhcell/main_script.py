@@ -38,6 +38,14 @@ class NeuronSimulation():
 
         print("\n    Starting simulation in NEURON of %sms generated from NeuroML2 model...\n"%tstop)
 
+        self.report_file = open('report.txt','w')
+        print('Simulator version:  %s'%h.nrnversion())
+        self.report_file.write('# Report of running simulation with %s\n'%h.nrnversion())
+        self.report_file.write('SimulationFile=%s\n'%__file__)
+        self.report_file.write('PythonVersion=%s\n'%sys.version.replace('\n',' '))
+        print('Python version:     %s'%sys.version.replace('\n',' '))
+        self.report_file.write('SimulatorVersion=%s\n'%h.nrnversion())
+
         self.seed = seed
         self.randoms = []
         self.next_global_id = 0  # Used in Random123 classes for elements using random(), etc. 
@@ -158,6 +166,12 @@ class NeuronSimulation():
         save_end = time.time()
         save_time = save_end - self.sim_end
         print("Finished saving results in %f seconds"%(save_time))
+
+        self.report_file.write('RealSimulationTime=%s\n'%self.sim_time)
+        self.report_file.write('SimulationSaveTime=%s\n'%save_time)
+        self.report_file.close()
+
+        print("Saving report of simulation to %s"%('report.txt'))
 
         print("Done")
 
