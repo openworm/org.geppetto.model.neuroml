@@ -238,7 +238,13 @@ public class PopulateTypes
                                               componentChild.getRefHM().get("component").getDeclaredType().equals("voltageClampTriple")) {
                                             if (inputListChild.hasAttribute("segmentId")) {
                                                 String segmentId = inputListChild.getAttributeValue("segmentId");
-                                                Cell cell = getGeppettoCellTypesMap().entrySet().iterator().next().getValue();
+                                                String targetCellType = target.substring(target.lastIndexOf('/')+1, target.length());
+                                                Cell cell = null;
+                                                for (Entry<Type,Cell> entry : getGeppettoCellTypesMap().entrySet())
+                                                    if (entry.getValue().getId().equals(targetCellType)) {
+                                                        cell = entry.getValue();
+                                                        break;
+                                                    }
                                                 CellUtils cellUtils = new CellUtils(cell);
                                                 Segment seg = cellUtils.getIdsVsSegments().get(Integer.parseInt(segmentId));
                                                 String compartmentId = seg.getName() + "_" + seg.getId();
