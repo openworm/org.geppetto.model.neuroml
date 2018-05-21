@@ -206,6 +206,12 @@ public class LEMSConversionService extends AConversion
                                     for(String watchedVariable : aspectConfig.getWatchedVariables())
 					{
 						String quantityPath = extractLEMSPath(mainModelComponent, modelAccess.getPointer(watchedVariable));
+                                                if (watchedVariable.indexOf("$") > -1) {
+                                                    int vclampIndex = quantityPath.indexOf("vclamp");
+                                                    int segIndex = Integer.parseInt(watchedVariable.substring(watchedVariable.lastIndexOf("_",watchedVariable.indexOf("$"))+1,watchedVariable.indexOf("$")));
+                                                    if (vclampIndex > -1)
+                                                        quantityPath = quantityPath.substring(0,vclampIndex) + segIndex + "/" + quantityPath.substring(vclampIndex, quantityPath.length());
+                                                }
 						Component outputColumn = new Component(quantityPath.replace("/", "_").replace("[", "_").replace("]", "_"), new ComponentType("OutputColumn"));
                                                 Component eventSelection = new Component(quantityPath.substring(0,quantityPath.lastIndexOf("/")).substring(0,quantityPath.lastIndexOf("/")).replace("/", "_").replace("[", "_").replace("]", "_"), new ComponentType("EventSelection"));
 
