@@ -99,7 +99,6 @@ public class PopulateTypes
 		// Create composite type depending on type of component and initialise it
 		CompositeType compositeType = (CompositeType) typeFactory.createType(domainType);
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(compositeType, component);
-                compositeType.setName(domainType);
 
 		List<String> attributes = new ArrayList<String>();
 		// Parameter types
