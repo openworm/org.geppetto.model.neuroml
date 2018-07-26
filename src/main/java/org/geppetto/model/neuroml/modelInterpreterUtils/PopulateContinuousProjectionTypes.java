@@ -63,7 +63,7 @@ public class PopulateContinuousProjectionTypes extends APopulateProjectionTypes
 					}
 				}
 			}
-
+                        projectionType.setName(projection.getName());
 			return projectionType;
 		}
 		catch(NumberFormatException | NeuroMLException | LEMSException | GeppettoVisitingException e)
