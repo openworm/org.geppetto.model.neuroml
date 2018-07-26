@@ -83,7 +83,7 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 					projectionType.getVariables().add(extractConnection(connection, prePopulationType, prePopulationVariable, postPopulationType, postPopulationVariable));
 				}
 		    	}
-
+                        projectionType.setName(projection.getName());
 			return projectionType;
 		}
 		catch(NeuroMLException | LEMSException | GeppettoVisitingException e)
