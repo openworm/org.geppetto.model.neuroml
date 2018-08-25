@@ -22,28 +22,10 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
-
-		<dependency>
- 			<groupId>org.apache.velocity</groupId>
- 			<artifactId>velocity</artifactId>
- 			<version>1.7</version>
- 		</dependency>
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
 			<version>1.5.3-a</version>
-		</dependency>
-        
-		<dependency>
-		    <groupId>org.neuroml.neuroml2modelLite</groupId>
-		    <artifactId>neuroml2modelLite</artifactId>
-		    <version>0.0.7</version>
-		</dependency>
-        
-		<dependency>
-			<groupId>org.geppetto</groupId>
-			<artifactId>core</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>    
             <groupId>org.jvnet.jaxb2_commons</groupId>
@@ -64,21 +46,16 @@
 			<groupId>org.jvnet.sorcerer</groupId>
 			<artifactId>sorcerer-javac</artifactId>
 			<version>0.8</version>
+		</dependency>        
+		<dependency>
+		    <groupId>org.neuroml.neuroml2modelLite</groupId>
+		    <artifactId>neuroml2modelLite</artifactId>
+		    <version>0.0.7</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
+			<groupId>org.geppetto</groupId>
+			<artifactId>core</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<!-- test dependencies -->
 		<dependency>
@@ -91,11 +68,6 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 	</dependencies>
 	<repositories>
