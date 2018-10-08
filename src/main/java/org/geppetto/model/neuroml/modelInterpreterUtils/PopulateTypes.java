@@ -88,6 +88,24 @@ public class PopulateTypes
 		return extractInfoFromComponent(component, ResourcesDomainType.getValueByComponentType(component.getComponentType()));
 	}
 
+    public void createCompartmentTypes() {
+        // we create four compartment types, one with v+spiking only, another with caConc in addition,
+        // and copies of these to designate root comparments (no parent) segment
+        Resources[] compartments = { Resources.COMPARTMENT, Resources.ROOT_COMPARTMENT, Resources.CA_COMPARTMENT, Resources.CA_ROOT_COMPARTMENT };
+        if(!types.containsKey(Resources.COMPARTMENT.getId()))
+            {
+                for(Resources compartment : compartments)
+                    {
+                        CompositeType compartmentType = (CompositeType) typeFactory.createType(null);
+                        // all our compartment types must have the id Resources.COMPARTMENT so Neuron recognizes them
+                        NeuroMLModelInterpreterUtils.initialiseNodeFromString(compartmentType, Resources.COMPARTMENT.getId());
+                        compartmentType.setName(compartment.getId());
+                        types.put(compartment.getId(), compartmentType);
+                    }
+            }
+
+    }
+
 	/*
 	 * Generic method to extract info from any component
 	 */
@@ -166,16 +184,19 @@ public class PopulateTypes
 		for(Component projection : component.getChildrenAL("projections"))
 		{
 			createSynapseType(projection);
+                        projection.setName("projection");
 			createProjectionImportType(projection, compositeType);
 		}
 		for(Component projection : component.getChildrenAL("electricalProjection"))
 		{
                         createSynapseType(projection);
+                        projection.setName("electricalProjection");
 			createProjectionImportType(projection, compositeType);
 		}
 		for(Component projection : component.getChildrenAL("continuousProjection"))
 		{
                         createSynapseType(projection);
+                        projection.setName("continuousProjection");
 			createProjectionImportType(projection, compositeType);
 		}
 
@@ -231,10 +252,7 @@ public class PopulateTypes
                                                 variable.setId(variable.getId() + "_" + inputListChild.getAttributeValue("segmentId"));
                                                 variable.setName(variable.getName() + "_" + inputListChild.getAttributeValue("segmentId"));
                                             }
-                                        }
-                                        if (variable.getName().startsWith("IClamp") || 
-                                              variable.getName().startsWith("vClamp") ||
-                                              componentChild.getRefHM().get("component").getDeclaredType().equals("voltageClampTriple")) {
+                                        } else {
                                             if (inputListChild.hasAttribute("segmentId")) {
                                                 String segmentId = inputListChild.getAttributeValue("segmentId");
                                                 String targetCellType = target.substring(target.lastIndexOf('/')+1, target.length());
@@ -284,23 +302,10 @@ public class PopulateTypes
 			{
 				if(!types.containsKey(Resources.COMPARTMENT.getId()) || ((CompositeType) types.get(Resources.COMPARTMENT.getId())).getVariables().size() == 1)
 				{
-					// we create four compartment types, one with v+spiking only, another with caConc in addition,
-					// and copies of these to designate root comparments (no parent) segment
-					Resources[] compartments = { Resources.COMPARTMENT, Resources.ROOT_COMPARTMENT, Resources.CA_COMPARTMENT, Resources.CA_ROOT_COMPARTMENT };
-					if(!types.containsKey(Resources.COMPARTMENT.getId()))
-					{
-						for(Resources compartment : compartments)
-						{
-							CompositeType compartmentType = (CompositeType) typeFactory.createType(null);
-							// all our compartment types must have the id Resources.COMPARTMENT so Neuron recognizes them
-							NeuroMLModelInterpreterUtils.initialiseNodeFromString(compartmentType, Resources.COMPARTMENT.getId());
-							compartmentType.setName(compartment.getId());
-							types.put(compartment.getId(), compartmentType);
-						}
-					}
-
+                                        createCompartmentTypes();
 					if(exposure.getName().equals(Resources.POTENTIAL.getId()) || exposure.getName().equals(Resources.SPIKING.getId()))
 					{
+                                                Resources[] compartments = { Resources.COMPARTMENT, Resources.ROOT_COMPARTMENT, Resources.CA_COMPARTMENT, Resources.CA_ROOT_COMPARTMENT };
 						for(Resources compartment : compartments)
 						{
 							CompositeType compartmentType = (CompositeType) types.get(compartment.getId());
@@ -394,17 +399,22 @@ public class PopulateTypes
 
 		if(!allSegs)
 		{
-			if(cellSegmentMap.containsKey(component) && cellSegmentMap.get(component).size() > 1)
+			if(cellSegmentMap.containsKey(component) && cellSegmentMap.get(component).size() > 0)
 			{
 				for(Variable compartment : cellSegmentMap.get(component))
 				{
 					Variable variable = variablesFactory.createVariable();
 					variable.setName(Resources.getValueById(compartment.getName()));
-					variable.setId(compartment.getId());
+				    variable.setId(compartment.getId());
 					Cell cell = getNeuroMLCell(component);
 					for(Segment seg : cell.getMorphology().getSegment())
 					{
-						if(compartment.getId().equals(seg.getName() + "_" + seg.getId())) if(seg.getParent() == null) variable.getTypes().add(types.get(Resources.ROOT_COMPARTMENT.getId()));
+						if(compartment.getId().equals(seg.getName() + "_" + seg.getId()))
+                                                    if(seg.getParent() == null) {
+                                                        if (types.get(Resources.ROOT_COMPARTMENT.getId()) == null)
+                                                            createCompartmentTypes();
+                                                        variable.getTypes().add(types.get(Resources.ROOT_COMPARTMENT.getId()));
+                                                    }
 						else variable.getTypes().add(types.get(Resources.COMPARTMENT.getId()));
 					}
 					boolean varExists = false;
@@ -489,8 +499,9 @@ public class PopulateTypes
 		ImportType projectionType = null;
 		if(!getTypesMap().containsKey(projection.getDeclaredType() + projection.getID()))
 		{
-			projectionType = getTypeFactory().createImportType(ResourcesDomainType.PROJECTION.getId());
+                        projectionType = getTypeFactory().createImportType("projection");
 			NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(projectionType, projection);
+                        projectionType.setName(projection.getDeclaredType());
 			getTypes().put(projection.getDeclaredType() + projection.getID(), projectionType);
 		}
 		else
@@ -501,6 +512,7 @@ public class PopulateTypes
 		Variable projectionVariable = variablesFactory.createVariable();
 		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(projectionVariable, projection);
 		projectionVariable.getTypes().add(getTypes().get(projection.getDeclaredType() + projection.getID()));
+                projectionVariable.setName(projection.getDeclaredType());
 		compositeType.getVariables().add(projectionVariable);
 		projections.put(projection.id, projection);
 		return projectionType;
