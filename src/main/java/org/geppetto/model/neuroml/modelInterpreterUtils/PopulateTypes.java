@@ -246,6 +246,7 @@ public class PopulateTypes
                                         // Frontend needs to change instead!
                                         if (!(variable.getName().startsWith("IClamp") || 
                                               variable.getName().startsWith("vClamp") ||
+                                              componentChild.getRefHM().get("component").getDeclaredType().equals("pulseGenerator") ||
                                               componentChild.getRefHM().get("component").getDeclaredType().equals("voltageClampTriple"))) {
                                             variable.setStatic(true);
                                             if (inputListChild.hasAttribute("segmentId")) {
