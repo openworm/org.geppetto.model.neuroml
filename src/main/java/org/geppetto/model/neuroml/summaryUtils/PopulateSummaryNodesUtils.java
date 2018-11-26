@@ -199,9 +199,9 @@ public class PopulateSummaryNodesUtils
 			}
 
 		}
-                nml2ModelInfo = NeuroML2ModelReader.extractExpressions(neuroMLDocument);
+        nml2ModelInfo = NeuroML2ModelReader.extractExpressions(neuroMLDocument);
 
-		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original NeuroML 2 source file</i></a><br/><br/>\n");
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original <strong>NeuroML 2</strong> source file</i></a><br/><br/>\n");
 
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
@@ -209,8 +209,8 @@ public class PopulateSummaryNodesUtils
 			for(Type population : populationComponents)
 			{
                 // TODO
-				//modelDescription.append("<span style=\"color:#" + ((ArrayType) population).getVisualType() + "\">XXX</span>\n");
-				modelDescription.append("" + population.getName() + ": ");
+				//modelDescription.append("<span style=\"color:#" + ((ArrayType) population).getVisualType() + "\">&#9608;&#9608;</span>\n");
+				modelDescription.append(" " + population.getName() + ": ");
 				// get proper name of population cell with brackets and index # of population
 				int size = ((ArrayType) population).getSize();
 				String name = ((ArrayType) population).getArrayType().getId().trim();
@@ -1007,7 +1007,6 @@ public class PopulateSummaryNodesUtils
 				// Create HTML Value object and set HTML text
 				HTML html = valuesFactory.createHTML();
 				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + t.getId() + "\">" + t.getName() + "</a> \n");
-				htmlText.append(" FF "+t+" ");
 				htmlText.append("<br/><br/>\n");
 
 				htmlText.append("Delay: " + pg.getDelay() + "<br/>\n");
