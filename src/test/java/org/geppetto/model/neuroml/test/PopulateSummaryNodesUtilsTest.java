@@ -21,10 +21,12 @@ import org.emfjson.jackson.resource.JsonResourceFactory;
 import org.geppetto.core.manager.SharedLibraryManager;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.model.IModelInterpreter;
+import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
 import org.geppetto.model.GeppettoModel;
 import org.geppetto.model.GeppettoPackage;
+import org.geppetto.model.neuroml.features.DefaultViewCustomiserFeature;
 import org.geppetto.model.neuroml.services.NeuroMLModelInterpreterService;
 import org.geppetto.model.neuroml.summaryUtils.PopulateSummaryNodesUtils;
 import org.geppetto.model.types.Type;
@@ -90,7 +92,8 @@ public class PopulateSummaryNodesUtilsTest
         Map<String, List<Type>> typesMap =  new HashMap<String, List<Type>>();
         typesMap.put(typeName, Arrays.asList(type));
         NeuroMLDocument neuroMLDocument = null;
-        PopulateSummaryNodesUtils psnu = new PopulateSummaryNodesUtils(typesMap, type, url, geppettoModelAccess, neuroMLDocument);
+        NeuroMLModelInterpreterService nmis = new NeuroMLModelInterpreterService();
+        PopulateSummaryNodesUtils psnu = new PopulateSummaryNodesUtils(typesMap, (DefaultViewCustomiserFeature) nmis.getFeature(GeppettoFeature.DEFAULT_VIEW_CUSTOMISER_FEATURE), type, url, geppettoModelAccess, neuroMLDocument);
 
         psnu.createHTMLVariables();
 
