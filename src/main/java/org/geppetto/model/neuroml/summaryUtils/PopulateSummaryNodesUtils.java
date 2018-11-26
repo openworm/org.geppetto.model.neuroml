@@ -20,6 +20,7 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.model.Node;
 import org.geppetto.model.neuroml.features.DefaultViewCustomiserFeature;
+import org.geppetto.model.neuroml.features.CanvasCustomisation;
 import org.geppetto.model.neuroml.utils.CellUtils;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
@@ -104,6 +105,7 @@ public class PopulateSummaryNodesUtils
 	GeppettoModelAccess access;
 	Map<String, List<Type>> typesMap;
 	Map<String, List<Variable>> plottableVariables = new HashMap<String, List<Variable>>();
+        Map<String, String> colorMap = new HashMap<String, String>();
 
 	Type type;
 
@@ -114,13 +116,14 @@ public class PopulateSummaryNodesUtils
 
 	boolean verbose = false;
 
-	public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, Type type, URL url, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument)
+     public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, DefaultViewCustomiserFeature view, Type type, URL url, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument)
 	{
 		this.access = access;
 		this.typesMap = typesMap;
 		this.url = url;
 		this.type = type;
 		this.neuroMLDocument = neuroMLDocument;
+                this.colorMap = view.getCanvas().getColorMap();
 	}
 
 	/**
