@@ -55,6 +55,8 @@ import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
 import org.neuroml.export.utils.Utils;
+import org.neuroml.model.BasePyNNCell;
+import org.neuroml.model.BasePyNNIaFCell;
 
 import org.neuroml.model.Cell;
 import org.neuroml.model.ChannelDensity;
@@ -62,6 +64,8 @@ import org.neuroml.model.ChannelDensityGHK;
 import org.neuroml.model.ChannelDensityNernst;
 import org.neuroml.model.ChannelDensityNonUniform;
 import org.neuroml.model.ChannelDensityNonUniformNernst;
+import org.neuroml.model.ExpCondSynapse;
+import org.neuroml.model.ExpCurrSynapse;
 import org.neuroml.model.ExpOneSynapse;
 import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.GateHHInstantaneous;
@@ -71,6 +75,10 @@ import org.neuroml.model.GateHHRatesTau;
 import org.neuroml.model.GateHHRatesTauInf;
 import org.neuroml.model.GateHHTauInf;
 import org.neuroml.model.GateHHUndetermined;
+import org.neuroml.model.IFCondAlpha;
+import org.neuroml.model.IFCondExp;
+import org.neuroml.model.IFCurrAlpha;
+import org.neuroml.model.IFCurrExp;
 import org.neuroml.model.InhomogeneousParameter;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
@@ -105,7 +113,7 @@ public class PopulateSummaryNodesUtils
 	GeppettoModelAccess access;
 	Map<String, List<Type>> typesMap;
 	Map<String, List<Variable>> plottableVariables = new HashMap<String, List<Variable>>();
-        Map<String, String> colorMap = new HashMap<String, String>();
+    Map<String, String> colorMap = new HashMap<String, String>();
 
 	Type type;
 
@@ -123,7 +131,7 @@ public class PopulateSummaryNodesUtils
 		this.url = url;
 		this.type = type;
 		this.neuroMLDocument = neuroMLDocument;
-                this.colorMap = view.getCanvas().getColorMap();
+        this.colorMap = view.getCanvas().getColorMap();
 	}
 
 	/**
@@ -202,21 +210,24 @@ public class PopulateSummaryNodesUtils
 			}
 
 		}
-                nml2ModelInfo = NeuroML2ModelReader.extractExpressions(neuroMLDocument);
-
-		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original NeuroML 2 source file</i></a><br/><br/>\n");
+        nml2ModelInfo = NeuroML2ModelReader.extractExpressions(neuroMLDocument);
+        
+        //System.out.println(":::::::::::::::::::::::::::::::::::::::::::::\n"+nml2ModelInfo.toDetailString("  "));
+        
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original <strong>NeuroML 2</strong> source file</i></a><br/><br/>\n");
 
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
 			modelDescription.append("<b>Populations</b><br/>\n");
 			for(Type population : populationComponents)
 			{
-                // TODO
-				//modelDescription.append("<span style=\"color:#" + ((ArrayType) population).getVisualType() + "\">XXX</span>\n");
-				modelDescription.append("" + population.getName() + ": ");
+				String name = ((ArrayType) population).getArrayType().getId().trim();
+				String net_name = networkComponents.get(0).getId()+"."+population.getName();
+                String color = this.colorMap.getOrDefault(net_name, "#0199CC");
+				modelDescription.append("<span style=\"color:" + color + "\">&#9608;&#9608;</span>\n");
+				modelDescription.append(" " + population.getName() + ": ");
 				// get proper name of population cell with brackets and index # of population
 				int size = ((ArrayType) population).getSize();
-				String name = ((ArrayType) population).getArrayType().getId().trim();
 				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + name + "\">" + size + " cell" + (size == 1 ? "s" : "") + " of type "
 						+ ((ArrayType) population).getArrayType().getName() + "</a><br/>\n");
 			}
@@ -642,6 +653,32 @@ public class PopulateSummaryNodesUtils
 							htmlText0.append("v threshold: " + c.getThresh() + "<br/>\n");
 						}
 					}
+                    ArrayList<BasePyNNCell> pynnCells = new ArrayList<>();
+					for(IFCurrExp c : neuroMLDocument.getIFCurrExp()) pynnCells.add(c);
+					for(IFCurrAlpha c : neuroMLDocument.getIFCurrAlpha()) pynnCells.add(c);
+					for(IFCondAlpha c : neuroMLDocument.getIFCondAlpha()) pynnCells.add(c);
+					for(IFCondExp c : neuroMLDocument.getIFCondExp()) pynnCells.add(c);
+                    
+					for(BasePyNNCell c : pynnCells)
+					{
+						if(c.getId().equals(cell.getId()))
+						{
+                            htmlText0.append("Type: "+c.getClass().getName()+"<br/>\n");
+
+                            htmlText0.append("cm: " + c.getCm() + "<br/>\n");
+                            htmlText0.append("i_offset: " + c.getIOffset() + "<br/>\n");
+                            htmlText0.append("vinit: " + c.getVInit() + "<br/>\n");
+                            if (c instanceof BasePyNNIaFCell)
+                            {
+                                BasePyNNIaFCell b = (BasePyNNIaFCell)c;
+                                htmlText0.append("tau_m: " + b.getTauM() + "<br/>\n");
+                                htmlText0.append("tau_refrac: " + b.getTauRefrac() + "<br/>\n");
+                                htmlText0.append("v_rest: " + b.getVRest() + "<br/>\n");
+                                htmlText0.append("v_reset: " + b.getVReset() + "<br/>\n");
+                                htmlText0.append("v_thresh: " + b.getVThresh() + "<br/>\n");
+                            }
+                        }
+					}
 					for(Cell c : neuroMLDocument.getCell())
 					{
 						if(c.getId().equals(cell.getId()))
@@ -962,6 +999,7 @@ public class PopulateSummaryNodesUtils
 				{
 					if(syn.getId().equals(synapse.getId()))
 					{
+						htmlText.append("Type: NeuroML ExpOneSynapse<br/>\n");
 						htmlText.append("Base conductance: " + syn.getGbase() + "<br/>\n");
 						htmlText.append("Decay time: " + syn.getTauDecay() + "<br/>\n");
 						htmlText.append("Reversal potential: " + syn.getErev() + "<br/>\n");
@@ -971,10 +1009,28 @@ public class PopulateSummaryNodesUtils
 				{
 					if(syn.getId().equals(synapse.getId()))
 					{
+						htmlText.append("Type: NeuroML ExpTwoSynapse<br/>\n");
 						htmlText.append("Base conductance: " + syn.getGbase() + "<br/>\n");
 						htmlText.append("Rise time: " + syn.getTauRise() + "<br/>\n");
 						htmlText.append("Decay time: " + syn.getTauDecay() + "<br/>\n");
 						htmlText.append("Reversal potential: " + syn.getErev() + "<br/>\n");
+					}
+				}
+				for(ExpCurrSynapse syn : neuroMLDocument.getExpCurrSynapse())
+				{
+					if(syn.getId().equals(synapse.getId()))
+					{
+						htmlText.append("Type: NeuroML/PyNN ExpCurrSynapse<br/>\n");
+						htmlText.append("Decay time: " + syn.getTauSyn() + "<br/>\n");
+					}
+				}
+				for(ExpCondSynapse syn : neuroMLDocument.getExpCondSynapse())
+				{
+					if(syn.getId().equals(synapse.getId()))
+					{
+						htmlText.append("Type: NeuroML/PyNN ExpCondSynapse<br/>\n");
+						htmlText.append("Decay time: " + syn.getTauSyn() + "<br/>\n");
+						htmlText.append("Reversal potential: " + syn.getERev() + "<br/>\n");
 					}
 				}
 				html.setHtml(htmlText.toString());
@@ -1010,7 +1066,6 @@ public class PopulateSummaryNodesUtils
 				// Create HTML Value object and set HTML text
 				HTML html = valuesFactory.createHTML();
 				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + t.getId() + "\">" + t.getName() + "</a> \n");
-				htmlText.append(" FF "+t+" ");
 				htmlText.append("<br/><br/>\n");
 
 				htmlText.append("Delay: " + pg.getDelay() + "<br/>\n");
@@ -1100,8 +1155,10 @@ public class PopulateSummaryNodesUtils
 			for(Map.Entry<String, Object> entry : node.getProperties().entrySet())
 			{
 				String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
+                //System.out.println("   id: "+id);
 				for(Variable gateVariable : ionChannel.getVariables())
 				{
+                    
 					if(gateVariable.getId().equals(id))
 					{
 						InfoNode gateNode = (InfoNode) entry.getValue();
