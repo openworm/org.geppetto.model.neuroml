@@ -55,6 +55,7 @@ import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
 import org.neuroml.export.utils.Utils;
+import org.neuroml.model.BaseCell;
 import org.neuroml.model.BasePyNNCell;
 import org.neuroml.model.BasePyNNIaFCell;
 
@@ -555,6 +556,24 @@ public class PopulateSummaryNodesUtils
 		else ion = "o";
 		return ion;
 	}
+    
+    private String variableLine(String varName, float value)
+    {
+        return variableLine(varName, value+"");
+    }
+    private String variableLine(String varName, String value)
+    {
+        return "<strong>"+varName+"</strong>: " + value + "<br/>\n";
+    }
+    
+    private void addDescription(BaseCell cell, StringBuilder htmlText)
+    {
+        if (cell.getNotes() != null && cell.getNotes().length() > 0)
+        {
+
+            htmlText.append("<b>Description</b><br/>"+formatDescription(cell.getNotes())+"<br/>\n");
+        }
+    }
 
 	/**
 	 * Create Variable with HTML value for a Cell
@@ -616,41 +635,42 @@ public class PopulateSummaryNodesUtils
 					{
 						if(c.getId().equals(cell.getId()))
 						{
-							htmlText0.append("Type: NeuroML IaFCell<br/>\n");
-							htmlText0.append("Leak reversal potential: " + c.getLeakReversal() + "<br/>\n");
-							htmlText0.append("Threshold voltage: " + c.getThresh() + "<br/>\n");
-							htmlText0.append("Reset voltage: " + c.getReset() + "<br/>\n");
-							htmlText0.append("Capacitance: " + c.getC() + "<br/>\n");
-							htmlText0.append("Leak conductance: " + c.getLeakConductance() + "<br/>\n");
+							htmlText0.append(variableLine("Type","NeuroML IaFCell"));
+                            htmlText0.append(variableLine("Leak reversal potential", c.getLeakReversal()));
+							//htmlText0.append("Leak reversal potential: " + c.getLeakReversal()));
+							htmlText0.append(variableLine("Threshold voltage", c.getThresh()));
+							htmlText0.append(variableLine("Reset voltage", c.getReset()));
+							htmlText0.append(variableLine("Capacitance", c.getC()));
+							htmlText0.append(variableLine("Leak conductance", c.getLeakConductance()));
 						}
 					}
 					for(Izhikevich2007Cell c : neuroMLDocument.getIzhikevich2007Cell())
 					{
 						if(c.getId().equals(cell.getId()))
 						{
-							htmlText0.append("Type: NeuroML Izhikevich2007Cell<br/>\n");
-							htmlText0.append("a: " + c.getA() + "<br/>\n");
-							htmlText0.append("b: " + c.getB() + "<br/>\n");
-							htmlText0.append("c: " + c.getC() + "<br/>\n");
-							htmlText0.append("d: " + c.getD() + "<br/>\n");
-							htmlText0.append("k: " + c.getK() + "<br/>\n");
-							htmlText0.append("v0: " + c.getV0() + "<br/>\n");
-							htmlText0.append("v peak: " + c.getVpeak() + "<br/>\n");
-							htmlText0.append("v reset: " + c.getVr() + "<br/>\n");
-							htmlText0.append("v threshold: " + c.getVt() + "<br/>\n");
+							htmlText0.append(variableLine("Type","NeuroML Izhikevich2007Cell<br/>"));
+							htmlText0.append(variableLine("a", c.getA()));
+							htmlText0.append(variableLine("b", c.getB()));
+							htmlText0.append(variableLine("c", c.getC()));
+							htmlText0.append(variableLine("d", c.getD()));
+							htmlText0.append(variableLine("k", c.getK()));
+							htmlText0.append(variableLine("v0", c.getV0()));
+							htmlText0.append(variableLine("v peak", c.getVpeak()));
+							htmlText0.append(variableLine("v reset", c.getVr()));
+							htmlText0.append(variableLine("v threshold", c.getVt()));
 						}
 					}
 					for(IzhikevichCell c : neuroMLDocument.getIzhikevichCell())
 					{
 						if(c.getId().equals(cell.getId()))
 						{
-							htmlText0.append("Type: NeuroML IzhikevichCell<br/>\n");
-							htmlText0.append("a: " + c.getA() + "<br/>\n");
-							htmlText0.append("b: " + c.getB() + "<br/>\n");
-							htmlText0.append("c: " + c.getC() + "<br/>\n");
-							htmlText0.append("d: " + c.getD() + "<br/>\n");
-							htmlText0.append("v0: " + c.getV0() + "<br/>\n");
-							htmlText0.append("v threshold: " + c.getThresh() + "<br/>\n");
+							htmlText0.append(variableLine("Type","NeuroML IzhikevichCell"));
+							htmlText0.append(variableLine("a", c.getA()));
+							htmlText0.append(variableLine("b", c.getB()));
+							htmlText0.append(variableLine("c", c.getC()));
+							htmlText0.append(variableLine("d", c.getD()));
+							htmlText0.append(variableLine("v0", c.getV0()));
+							htmlText0.append(variableLine("v threshold", c.getThresh()));
 						}
 					}
                     ArrayList<BasePyNNCell> pynnCells = new ArrayList<>();
@@ -663,19 +683,19 @@ public class PopulateSummaryNodesUtils
 					{
 						if(c.getId().equals(cell.getId()))
 						{
-                            htmlText0.append("Type: "+c.getClass().getName()+"<br/>\n");
+                            htmlText0.append(variableLine("Type",c.getClass().getName()));
 
-                            htmlText0.append("cm: " + c.getCm() + "<br/>\n");
-                            htmlText0.append("i_offset: " + c.getIOffset() + "<br/>\n");
-                            htmlText0.append("vinit: " + c.getVInit() + "<br/>\n");
+                            htmlText0.append(variableLine("cm", c.getCm()+""));
+                            htmlText0.append(variableLine("i_offset", c.getIOffset()));
+                            htmlText0.append(variableLine("vinit", c.getVInit()));
                             if (c instanceof BasePyNNIaFCell)
                             {
                                 BasePyNNIaFCell b = (BasePyNNIaFCell)c;
-                                htmlText0.append("tau_m: " + b.getTauM() + "<br/>\n");
-                                htmlText0.append("tau_refrac: " + b.getTauRefrac() + "<br/>\n");
-                                htmlText0.append("v_rest: " + b.getVRest() + "<br/>\n");
-                                htmlText0.append("v_reset: " + b.getVReset() + "<br/>\n");
-                                htmlText0.append("v_thresh: " + b.getVThresh() + "<br/>\n");
+                                htmlText0.append(variableLine("tau_m", b.getTauM()));
+                                htmlText0.append(variableLine("tau_refrac", b.getTauRefrac()));
+                                htmlText0.append(variableLine("v_rest", b.getVRest()));
+                                htmlText0.append(variableLine("v_reset", b.getVReset()));
+                                htmlText0.append(variableLine("v_thresh", b.getVThresh()));
                             }
                         }
 					}
@@ -684,8 +704,8 @@ public class PopulateSummaryNodesUtils
 						if(c.getId().equals(cell.getId()))
 						{
 							nmlCell = c;
-							htmlText0.append("Number of segments: " + c.getMorphology().getSegment().size() + "<br/>\n");
-							htmlText0.append("Number of segment groups: " + c.getMorphology().getSegmentGroup().size() + "<br/><br/>\n");
+							htmlText0.append(variableLine("Number of segments", c.getMorphology().getSegment().size()));
+							htmlText0.append(variableLine("Number of segment groups", c.getMorphology().getSegmentGroup().size() + "<br/>"));
 						}
 					}
 					HashMap<String, Float[]> ionChannelInfo = getIonChannelsInCell(nmlCell);
@@ -982,15 +1002,15 @@ public class PopulateSummaryNodesUtils
 		{
 			for(Type synapse : synapseComponents)
 			{
-				StringBuilder htmlText = new StringBuilder();
+				StringBuilder htmlText0 = new StringBuilder();
 
 				Variable htmlVariable = variablesFactory.createVariable();
 				htmlVariable.setId(synapse.getId());
 				htmlVariable.setName(synapse.getName());
 
-				htmlText.append("<b>Synapse: </b> <a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getId() + "</a><br/><br/>\n");
+				htmlText0.append("<b>Synapse: </b> <a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getId() + "</a><br/><br/>\n");
 
-				extractDescription(synapse, htmlText);
+				extractDescription(synapse, htmlText0);
 
 				// Create HTML Value object and set HTML text
 				HTML html = valuesFactory.createHTML();
@@ -999,42 +1019,42 @@ public class PopulateSummaryNodesUtils
 				{
 					if(syn.getId().equals(synapse.getId()))
 					{
-						htmlText.append("Type: NeuroML ExpOneSynapse<br/>\n");
-						htmlText.append("Base conductance: " + syn.getGbase() + "<br/>\n");
-						htmlText.append("Decay time: " + syn.getTauDecay() + "<br/>\n");
-						htmlText.append("Reversal potential: " + syn.getErev() + "<br/>\n");
+						htmlText0.append(variableLine("Type","NeuroML ExpOneSynapse<br/>"));
+						htmlText0.append(variableLine("Base conductance", syn.getGbase()));
+						htmlText0.append(variableLine("Decay time", syn.getTauDecay()));
+						htmlText0.append(variableLine("Reversal potential", syn.getErev()));
 					}
 				}
 				for(ExpTwoSynapse syn : neuroMLDocument.getExpTwoSynapse())
 				{
 					if(syn.getId().equals(synapse.getId()))
 					{
-						htmlText.append("Type: NeuroML ExpTwoSynapse<br/>\n");
-						htmlText.append("Base conductance: " + syn.getGbase() + "<br/>\n");
-						htmlText.append("Rise time: " + syn.getTauRise() + "<br/>\n");
-						htmlText.append("Decay time: " + syn.getTauDecay() + "<br/>\n");
-						htmlText.append("Reversal potential: " + syn.getErev() + "<br/>\n");
+						htmlText0.append(variableLine("Type","NeuroML ExpTwoSynapse<br/>"));
+						htmlText0.append(variableLine("Base conductance", syn.getGbase()));
+						htmlText0.append(variableLine("Rise time", syn.getTauRise()));
+						htmlText0.append(variableLine("Decay time", syn.getTauDecay()));
+						htmlText0.append(variableLine("Reversal potential", syn.getErev()));
 					}
 				}
 				for(ExpCurrSynapse syn : neuroMLDocument.getExpCurrSynapse())
 				{
 					if(syn.getId().equals(synapse.getId()))
 					{
-						htmlText.append("Type: NeuroML/PyNN ExpCurrSynapse<br/>\n");
-						htmlText.append("Decay time: " + syn.getTauSyn() + "<br/>\n");
+						htmlText0.append(variableLine("Type","NeuroML/PyNN ExpCurrSynapse<br/>"));
+						htmlText0.append(variableLine("Decay time", syn.getTauSyn()));
 					}
 				}
 				for(ExpCondSynapse syn : neuroMLDocument.getExpCondSynapse())
 				{
 					if(syn.getId().equals(synapse.getId()))
 					{
-						htmlText.append("Type: NeuroML/PyNN ExpCondSynapse<br/>\n");
-						htmlText.append("Decay time: " + syn.getTauSyn() + "<br/>\n");
-						htmlText.append("Reversal potential: " + syn.getERev() + "<br/>\n");
+						htmlText0.append(variableLine("Type","NeuroML/PyNN ExpCondSynapse<br/>"));
+						htmlText0.append(variableLine("Decay time", syn.getTauSyn()));
+						htmlText0.append(variableLine("Reversal potential", syn.getERev()));
 					}
 				}
-				html.setHtml(htmlText.toString());
-				if(verbose) System.out.println("======= Synapse ===============\n" + htmlText.toString());
+				html.setHtml(htmlText0.toString());
+				if(verbose) System.out.println("======= Synapse ===============\n" + htmlText0.toString());
 				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
 				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 				((CompositeType) synapse).getVariables().add(htmlVariable);
@@ -1057,7 +1077,7 @@ public class PopulateSummaryNodesUtils
 					if(pg0.getId().equals(t.getId())) pg = pg0;
 				}
 
-				StringBuilder htmlText = new StringBuilder();
+				StringBuilder htmlText0 = new StringBuilder();
 
 				Variable htmlVariable = variablesFactory.createVariable();
 				htmlVariable.setId(t.getId());
@@ -1065,16 +1085,16 @@ public class PopulateSummaryNodesUtils
 
 				// Create HTML Value object and set HTML text
 				HTML html = valuesFactory.createHTML();
-				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + t.getId() + "\">" + t.getName() + "</a> \n");
-				htmlText.append("<br/><br/>\n");
+				htmlText0.append("<a href=\"#\" instancePath=\"Model.neuroml." + t.getId() + "\">" + t.getName() + "</a> \n");
+				htmlText0.append("<br/><br/>\n");
 
-				htmlText.append("Delay: " + pg.getDelay() + "<br/>\n");
-				htmlText.append("Duration: " + pg.getDuration() + "<br/>\n");
-				htmlText.append("Amplitude: " + pg.getAmplitude() + "<br/>\n");
+				htmlText0.append(variableLine("Delay", pg.getDelay()));
+				htmlText0.append(variableLine("Duration", pg.getDuration()));
+				htmlText0.append(variableLine("Amplitude", pg.getAmplitude()));
 
-				html.setHtml(htmlText.toString());
+				html.setHtml(htmlText0.toString());
 
-				if(verbose) System.out.println("======= Input ===============\n" + htmlText.toString());
+				if(verbose) System.out.println("======= Input ===============\n" + htmlText0.toString());
 				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
 				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 				((CompositeType) t).getVariables().add(htmlVariable);
@@ -1093,7 +1113,7 @@ public class PopulateSummaryNodesUtils
 					if(pfs0.getId().equals(t.getId())) pfs = pfs0;
 				}
 
-				StringBuilder htmlText = new StringBuilder();
+				StringBuilder htmlText0 = new StringBuilder();
 
 				Variable htmlVariable = variablesFactory.createVariable();
 				htmlVariable.setId(t.getId());
@@ -1101,16 +1121,16 @@ public class PopulateSummaryNodesUtils
 
 				// Create HTML Value object and set HTML text
 				HTML html = valuesFactory.createHTML();
-				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + t.getId() + "\">" + t.getName() + "</a> \n");
-				htmlText.append(" FF "+t+" ");
-				htmlText.append("<br/><br/>\n");
+				htmlText0.append("<a href=\"#\" instancePath=\"Model.neuroml." + t.getId() + "\">" + t.getName() + "</a> \n");
+				htmlText0.append(" FF "+t+" ");
+				htmlText0.append("<br/><br/>\n");
 
-				htmlText.append("Spiking rate: " + pfs.getAverageRate() + "<br/>\n");
-				htmlText.append("Synapse: " + pfs.getSynapse() + "<br/>\n");
+				htmlText0.append(variableLine("Spiking rate", pfs.getAverageRate()));
+				htmlText0.append(variableLine("Synapse", pfs.getSynapse()));
 
-				html.setHtml(htmlText.toString());
+				html.setHtml(htmlText0.toString());
 
-				if(verbose) System.out.println("======= Input ===============\n" + htmlText.toString());
+				if(verbose) System.out.println("======= Input ===============\n" + htmlText0.toString());
 				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
 				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 				((CompositeType) t).getVariables().add(htmlVariable);
