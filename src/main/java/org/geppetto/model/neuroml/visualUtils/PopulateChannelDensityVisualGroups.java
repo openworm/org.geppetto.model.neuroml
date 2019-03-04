@@ -36,12 +36,15 @@ import org.lemsml.jlems.core.expression.Parser;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.neuroml.model.Base;
 import org.neuroml.model.BiophysicalProperties;
+import org.neuroml.model.BiophysicalProperties2CaPools;
 import org.neuroml.model.Cell;
+import org.neuroml.model.Cell2CaPools;
 import org.neuroml.model.ChannelDensity;
 import org.neuroml.model.ChannelDensityNernst;
 import org.neuroml.model.ChannelDensityNonUniform;
 import org.neuroml.model.ChannelDensityNonUniformNernst;
 import org.neuroml.model.InhomogeneousParameter;
+import org.neuroml.model.MembraneProperties;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
 import org.neuroml.model.VariableParameter;
@@ -103,61 +106,66 @@ public class PopulateChannelDensityVisualGroups
 	{
 		Map<String, VisualGroup> groupsMap = new HashMap<String, VisualGroup>();
 
-		BiophysicalProperties biophysicalProperties = cell.getBiophysicalProperties();
-		if(biophysicalProperties != null
-				&& biophysicalProperties.getMembraneProperties() != null
-				&& (biophysicalProperties.getMembraneProperties().getChannelDensity() != null || biophysicalProperties.getMembraneProperties().getChannelDensityNernst() != null || biophysicalProperties
-						.getMembraneProperties().getChannelDensityNonUniform() != null))
+                MembraneProperties membraneProperties = null;
+                if(cell.getBiophysicalProperties() != null) {
+                    membraneProperties = cell.getBiophysicalProperties().getMembraneProperties();
+                }
+                else if (((Cell2CaPools)cell).getBiophysicalProperties2CaPools() != null) {
+                    membraneProperties = ((Cell2CaPools)cell).getBiophysicalProperties2CaPools().getMembraneProperties2CaPools();
+                }
+                
+		if (membraneProperties != null
+				&& (membraneProperties.getChannelDensity() != null || membraneProperties.getChannelDensityNernst() != null || membraneProperties.getChannelDensityNonUniform() != null))
 		{
 			channelDensityTag = geppettoFactory.createTag();
 			channelDensityTag.setName("Channel Densities");
 
-			if(biophysicalProperties.getMembraneProperties().getChannelDensity() != null && biophysicalProperties.getMembraneProperties().getChannelDensity().size() > 0)
+			if(membraneProperties.getChannelDensity() != null && membraneProperties.getChannelDensity().size() > 0)
 			{
 				Tag channelDensityTypeTag = geppettoFactory.createTag();
 				channelDensityTypeTag.setName("Density");
 				channelDensityTag.getTags().add(channelDensityTypeTag);
 
-				for(ChannelDensity density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
+				for(ChannelDensity density : membraneProperties.getChannelDensity())
 				{
 					createVisualGroupFromCondDensity(groupsMap, channelDensityTypeTag, density, density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
 				}
 			}
 
-			if(biophysicalProperties.getMembraneProperties().getChannelDensityNernst() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNernst().size() > 0)
+			if(membraneProperties.getChannelDensityNernst() != null && membraneProperties.getChannelDensityNernst().size() > 0)
 			{
 				Tag channelDensityTypeTag = geppettoFactory.createTag();
 				channelDensityTypeTag.setName("Density Nernst");
 				channelDensityTag.getTags().add(channelDensityTypeTag);
 
-				for(ChannelDensityNernst density : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
+				for(ChannelDensityNernst density : membraneProperties.getChannelDensityNernst())
 				{
 					createVisualGroupFromCondDensity(groupsMap, channelDensityTypeTag, density, density.getIonChannel(), density.getSegmentGroup(), density.getCondDensity());
 				}
 			}
 
-			if(biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform() != null && biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform().size() > 0)
+			if(membraneProperties.getChannelDensityNonUniform() != null && membraneProperties.getChannelDensityNonUniform().size() > 0)
 			{
 				Tag channelDensityTypeTag = geppettoFactory.createTag();
 				channelDensityTypeTag.setName("Density Non Uniform");
 				channelDensityTag.getTags().add(channelDensityTypeTag);
 
 				cellUtils = new CellUtils(cell);
-				for(ChannelDensityNonUniform density : biophysicalProperties.getMembraneProperties().getChannelDensityNonUniform())
+				for(ChannelDensityNonUniform density : membraneProperties.getChannelDensityNonUniform())
 				{
 					createVisualGroupElement(groupsMap, channelDensityTypeTag, density.getId(), density.getIonChannel(), density.getVariableParameter());
 				}
 			}
 
-			if(biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst() != null
-					&& biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst().size() > 0)
+			if(membraneProperties.getChannelDensityNonUniformNernst() != null
+					&& membraneProperties.getChannelDensityNonUniformNernst().size() > 0)
 			{
 				Tag channelDensityTypeTag = geppettoFactory.createTag();
 				channelDensityTypeTag.setName("Density Non Uniform Nernst");
 				channelDensityTag.getTags().add(channelDensityTypeTag);
 
 				cellUtils = new CellUtils(cell);
-				for(ChannelDensityNonUniformNernst density : biophysicalProperties.getMembraneProperties().getChannelDensityNonUniformNernst())
+				for(ChannelDensityNonUniformNernst density : membraneProperties.getChannelDensityNonUniformNernst())
 				{
 					createVisualGroupElement(groupsMap, channelDensityTypeTag, density.getId(), density.getIonChannel(), density.getVariableParameter());
 				}
