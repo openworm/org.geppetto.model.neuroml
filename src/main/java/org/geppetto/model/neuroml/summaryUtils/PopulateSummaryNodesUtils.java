@@ -60,6 +60,7 @@ import org.neuroml.model.BasePyNNCell;
 import org.neuroml.model.BasePyNNIaFCell;
 
 import org.neuroml.model.Cell;
+import org.neuroml.model.Cell2CaPools;
 import org.neuroml.model.ChannelDensity;
 import org.neuroml.model.ChannelDensityGHK;
 import org.neuroml.model.ChannelDensityNernst;
@@ -86,6 +87,8 @@ import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.Izhikevich2007Cell;
 import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.IafCell;
+import org.neuroml.model.MembraneProperties;
+import org.neuroml.model.MembraneProperties2CaPools;
 import org.neuroml.model.NeuroMLDocument;
 import org.neuroml.model.PoissonFiringSynapse;
 import org.neuroml.model.PulseGenerator;
@@ -310,55 +313,108 @@ public class PopulateSummaryNodesUtils
 	 * 
 	 * @returns HashMap with channel id vs [min, max] of channel density in SI units
 	 */
-	public HashMap<String, Float[]> getIonChannelsInCell(Cell cell) throws NeuroMLException, ContentError, ParseError
-	{
-		HashMap<String, Float[]> ic = new HashMap<>();
+    public HashMap<String, Float[]> getIonChannelsInCell(Cell cell) throws NeuroMLException, ContentError, ParseError
+    {
+        HashMap<String, Float[]> ic = new HashMap<>();
 
-		if(cell == null) return ic;
+        if(cell == null) return ic;
         
-		CellUtils cellUtils = new CellUtils(cell);
+        CellUtils cellUtils = new CellUtils(cell);
+        MembraneProperties mp = null;
+        if(cell.getBiophysicalProperties() != null) {
+            mp = cell.getBiophysicalProperties().getMembraneProperties();
+        }
+        else if (((Cell2CaPools)cell).getBiophysicalProperties2CaPools() != null) {
+            mp = ((Cell2CaPools)cell).getBiophysicalProperties2CaPools().getMembraneProperties2CaPools();
+        } else {
+            return ic;
+        }
+        for(ChannelDensity cd : mp.getChannelDensity())
+            {
+                if(!ic.containsKey(cd.getIonChannel()))
+                    {
+                        ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, 0f });
+                    }
+                float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
+                if(densSi < ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0] = densSi;
+                if(densSi > ic.get(cd.getIonChannel())[1]) ic.get(cd.getIonChannel())[1] = densSi;
+            }
 
-		if(cell.getBiophysicalProperties() != null)
-		{
-			for(ChannelDensity cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
-			{
-				if(!ic.containsKey(cd.getIonChannel()))
-				{
-					ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, 0f });
-				}
-				float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
-				if(densSi < ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0] = densSi;
-				if(densSi > ic.get(cd.getIonChannel())[1]) ic.get(cd.getIonChannel())[1] = densSi;
-			}
-
-			for(ChannelDensityGHK cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityGHK())
-			{
-				if(ic.containsKey(cd.getIonChannel()))
-				{
-					ic.put(cd.getIonChannel(), new Float[] { -1f, -1f });
-				}
-				// float densSi = cd.getCondDensity();
-			}
-			/*
-			 * for (ChannelDensityGHK2 cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityGHK2()) ic.add(cd.getIonChannel());
-			 */
-			for(ChannelDensityNernst cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
-			{
-				if(!ic.containsKey(cd.getIonChannel()))
-				{
-					ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, 0f });
-				}
-				float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
-				if(densSi < ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0] = densSi;
-				if(densSi > ic.get(cd.getIonChannel())[1]) ic.get(cd.getIonChannel())[1] = densSi;
-			}
-			for(ChannelDensityNonUniform cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniform())
-			{
+        for(ChannelDensityGHK cd : mp.getChannelDensityGHK())
+            {
+                if(ic.containsKey(cd.getIonChannel()))
+                    {
+                        ic.put(cd.getIonChannel(), new Float[] { -1f, -1f });
+                    }
+                // float densSi = cd.getCondDensity();
+            }
+        /*
+         * for (ChannelDensityGHK2 cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityGHK2()) ic.add(cd.getIonChannel());
+         */
+        for(ChannelDensityNernst cd : mp.getChannelDensityNernst())
+            {
+                if(!ic.containsKey(cd.getIonChannel()))
+                    {
+                        ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, 0f });
+                    }
+                float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
+                if(densSi < ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0] = densSi;
+                if(densSi > ic.get(cd.getIonChannel())[1]) ic.get(cd.getIonChannel())[1] = densSi;
+            }
+        for(ChannelDensityNonUniform cd : mp.getChannelDensityNonUniform())
+            {
                 String visId = cd.getIonChannel()+"_"+cd.getVariableParameter().get(0).getSegmentGroup();
-				if(!ic.containsKey(visId))
-				{
-					ic.put(visId, new Float[] { Float.MAX_VALUE, 0f });
-				}
+                if(!ic.containsKey(visId))
+                    {
+                        ic.put(visId, new Float[] { Float.MAX_VALUE, 0f });
+                    }
+                
+                for(VariableParameter variableParameter : cd.getVariableParameter())
+                    {
+                        if(variableParameter.getParameter().equals(Resources.COND_DENSITY.getId()))
+                            {
+                                DoubleEvaluator doubleEvaluator = PopulateChannelDensityVisualGroups.getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
+                        
+                                String segGrpId = variableParameter.getSegmentGroup();
+                                SegmentGroup segmentGroup = null;
+                                for (SegmentGroup sg: cell.getMorphology().getSegmentGroup())
+                                    {
+                                        if (sg.getId().equals(segGrpId))
+                                            segmentGroup = sg;
+                                    }
+                        
+                                for(InhomogeneousParameter inhomogeneousParameter : segmentGroup.getInhomogeneousParameter())
+                                    {
+                                        if(inhomogeneousParameter.getId().equals(variableParameter.getInhomogeneousValue().getInhomogeneousParameter()))
+                                            {
+                                                // Get all segments for the subgroup
+                                                List<Segment> segmentsPerSubgroup = cellUtils.getSegmentsInGroup(segmentGroup.getId());
+                                                for(Segment sg : segmentsPerSubgroup)
+                                                    {
+                                                        double distanceAllSegments = cellUtils.calculateDistanceInGroup(0.0, sg);
+                                    
+                                                        HashMap<String, Double> valHM = new HashMap<String, Double>();
+                                                        valHM.put(inhomogeneousParameter.getVariable(), distanceAllSegments);
+
+                                                        float densSi = (float) doubleEvaluator.evalD(valHM);
+                                                        if(densSi < ic.get(visId)[0]) ic.get(visId)[0] = densSi;
+                                                        if(densSi > ic.get(visId)[1]) ic.get(visId)[1] = densSi;
+                                                    }
+                                            }
+                                    }
+                            }
+                    }
+            }
+        /*
+         * for (ChannelDensityNonUniformGHK cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformGHK()) ic.add(cd.getIonChannel());
+         */
+        for(ChannelDensityNonUniformNernst cd : mp.getChannelDensityNonUniformNernst())
+            {
+                String visId = cd.getIonChannel()+"_"+cd.getVariableParameter().get(0).getSegmentGroup();
+                if(!ic.containsKey(visId))
+                    {
+                        ic.put(visId, new Float[] { Float.MAX_VALUE, 0f });
+                    }
                 
                 for(VariableParameter variableParameter : cd.getVariableParameter())
                 {
@@ -396,56 +452,8 @@ public class PopulateSummaryNodesUtils
                     }
                 }
             }
-			/*
-			 * for (ChannelDensityNonUniformGHK cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformGHK()) ic.add(cd.getIonChannel());
-			 */
-			for(ChannelDensityNonUniformNernst cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformNernst())
-			{
-                String visId = cd.getIonChannel()+"_"+cd.getVariableParameter().get(0).getSegmentGroup();
-				if(!ic.containsKey(visId))
-				{
-					ic.put(visId, new Float[] { Float.MAX_VALUE, 0f });
-				}
-                
-                for(VariableParameter variableParameter : cd.getVariableParameter())
-                {
-                    if(variableParameter.getParameter().equals(Resources.COND_DENSITY.getId()))
-                    {
-                        DoubleEvaluator doubleEvaluator = PopulateChannelDensityVisualGroups.getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
-                        
-                        String segGrpId = variableParameter.getSegmentGroup();
-                        SegmentGroup segmentGroup = null;
-                        for (SegmentGroup sg: cell.getMorphology().getSegmentGroup())
-                        {
-                            if (sg.getId().equals(segGrpId))
-                                segmentGroup = sg;
-                        }
-                        
-                        for(InhomogeneousParameter inhomogeneousParameter : segmentGroup.getInhomogeneousParameter())
-                        {
-                            if(inhomogeneousParameter.getId().equals(variableParameter.getInhomogeneousValue().getInhomogeneousParameter()))
-                            {
-                                // Get all segments for the subgroup
-                                List<Segment> segmentsPerSubgroup = cellUtils.getSegmentsInGroup(segmentGroup.getId());
-                                for(Segment sg : segmentsPerSubgroup)
-                                {
-                                    double distanceAllSegments = cellUtils.calculateDistanceInGroup(0.0, sg);
-                                    
-                                    HashMap<String, Double> valHM = new HashMap<String, Double>();
-                                    valHM.put(inhomogeneousParameter.getVariable(), distanceAllSegments);
-
-                                    float densSi = (float) doubleEvaluator.evalD(valHM);
-                                    if(densSi < ic.get(visId)[0]) ic.get(visId)[0] = densSi;
-                                    if(densSi > ic.get(visId)[1]) ic.get(visId)[1] = densSi;
-                                }
-                            }
-                        }
-                    }
-                }
-			}
-		}
 		return ic;
-	}
+}
 
 	// Could be moved elsewhere...
 	/**
@@ -699,15 +707,27 @@ public class PopulateSummaryNodesUtils
                             }
                         }
 					}
-					for(Cell c : neuroMLDocument.getCell())
-					{
-						if(c.getId().equals(cell.getId()))
-						{
-							nmlCell = c;
-							htmlText0.append(variableLine("Number of segments", c.getMorphology().getSegment().size()));
-							htmlText0.append(variableLine("Number of segment groups", c.getMorphology().getSegmentGroup().size() + "<br/>"));
-						}
-					}
+                                        if (neuroMLDocument.getCell().size() > 0) {
+                                            for(Cell c : neuroMLDocument.getCell())
+                                                {
+                                                    if(c.getId().equals(cell.getId()))
+                                                        {
+                                                            nmlCell = c;
+                                                            htmlText0.append("Number of segments: " + c.getMorphology().getSegment().size() + "<br/>\n");
+                                                            htmlText0.append("Number of segment groups: " + c.getMorphology().getSegmentGroup().size() + "<br/><br/>\n");
+                                                        }
+                                                }
+                                        } else {
+                                            for(Cell c : neuroMLDocument.getCell2CaPools())
+                                                {
+                                                    if(c.getId().equals(cell.getId()))
+                                                        {
+                                                            nmlCell = c;
+                                                            htmlText0.append("Number of segments: " + c.getMorphology().getSegment().size() + "<br/>\n");
+                                                            htmlText0.append("Number of segment groups: " + c.getMorphology().getSegmentGroup().size() + "<br/><br/>\n");
+                                                        }
+                                                }
+                                        }
 					HashMap<String, Float[]> ionChannelInfo = getIonChannelsInCell(nmlCell);
 
 					if(ionChannelComponents != null && ionChannelComponents.size() > 0)
