@@ -38,6 +38,7 @@ class NeuronSimulation():
 
         print("\n    Starting simulation in NEURON of %sms generated from NeuroML2 model...\n"%tstop)
 
+        setup_start = time.time()
         self.report_file = open('report.txt','w')
         print('Simulator version:  %s'%h.nrnversion())
         self.report_file.write('# Report of running simulation with %s\n'%h.nrnversion())
@@ -104,19 +105,32 @@ class NeuronSimulation():
 
         self.sim_end = -1 # will be overwritten
 
+        setup_end = time.time()
+        self.setup_time = setup_end - setup_start
+        print("Set up network to simulate in %f seconds"%(self.setup_time))
+
     def run(self):
 
         self.initialized = True
         sim_start = time.time()
         print("Running a simulation of %sms (dt = %sms; seed=%s)" % (h.tstop, h.dt, self.seed))
 
-        h.run()
+        try:
+            h.run()
+        except Exception as e:
+            print("Exception running NEURON: %s" % (e))
+            quit()
+
 
         self.sim_end = time.time()
         self.sim_time = self.sim_end - sim_start
         print("Finished NEURON simulation in %f seconds (%f mins)..."%(self.sim_time, self.sim_time/60.0))
 
-        self.save_results()
+        try:
+            self.save_results()
+        except Exception as e:
+            print("Exception saving results of NEURON simulation: %s" % (e))
+            quit()
 
 
     def advance(self):
@@ -167,6 +181,7 @@ class NeuronSimulation():
         save_time = save_end - self.sim_end
         print("Finished saving results in %f seconds"%(save_time))
 
+        self.report_file.write('SetupTime=%s\n'%self.setup_time)
         self.report_file.write('RealSimulationTime=%s\n'%self.sim_time)
         self.report_file.write('SimulationSaveTime=%s\n'%save_time)
         self.report_file.close()
