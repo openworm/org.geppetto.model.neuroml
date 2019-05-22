@@ -3,6 +3,7 @@ install:
 - export main_repo_branch=$TRAVIS_BRANCH
 - if [[ ${main_repo_branch} != "master" && ${main_repo_branch} != "development" ]]; then main_repo_branch=development ; fi
 - if [[ ${main_repo_branch} == "livemix" ]]; then main_repo_branch=livemix ; fi
+- echo "Using branches: $main_repo_branch"
 - git clone https://github.com/openworm/org.geppetto.model.git -b $main_repo_branch
 - cd org.geppetto.model
 - mvn install
