@@ -240,14 +240,15 @@ public class LEMSConversionServiceTest
 		{
 			for(File child : directoryListing)
 			{
-				_logger.info("= Comparing: "+child.getAbsolutePath()+"...");
+                String info = "= Comparing: "+child.getAbsolutePath()+"...";
 				File expectedFile = new File(LEMSConversionServiceTest.class.getClassLoader().getResource(expectedFolder + child.getName()).toURI());
-				_logger.info("= ...to: "+expectedFile.getAbsolutePath());
+				info += "= ...to: "+expectedFile.getAbsolutePath()+": ";
+				_logger.info(info);
                 List exp = FileUtils.readLines(expectedFile);
                 List found = FileUtils.readLines(child);
                 for (int i=0; i<exp.size(); i++)
                 {
-                    Assert.assertEquals(exp.get(i),found.get(i));
+                    Assert.assertEquals(info, exp.get(i),found.get(i));
                 }
             }
         }
