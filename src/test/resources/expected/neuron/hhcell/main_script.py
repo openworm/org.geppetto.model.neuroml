@@ -21,6 +21,7 @@ Components:
 import neuron
 
 import time
+import datetime
 import sys
 
 import hashlib
@@ -38,15 +39,17 @@ class NeuronSimulation():
 
         print("\n    Starting simulation in NEURON of %sms generated from NeuroML2 model...\n"%tstop)
 
-        setup_start = time.time()
+        self.setup_start = time.time()
         self.report_file = open('report.txt','w')
         print('Simulator version:  %s'%h.nrnversion())
         self.report_file.write('# Report of running simulation with %s\n'%h.nrnversion())
+        self.report_file.write('Simulator=NEURON\n')
+        self.report_file.write('SimulatorVersion=%s\n'%h.nrnversion())
+
         self.report_file.write('SimulationFile=%s\n'%__file__)
         self.report_file.write('PythonVersion=%s\n'%sys.version.replace('\n',' '))
         print('Python version:     %s'%sys.version.replace('\n',' '))
-        self.report_file.write('SimulatorVersion=%s\n'%h.nrnversion())
-
+        self.report_file.write('NeuroMLExportVersion=1.5.4\n')
         self.seed = seed
         self.randoms = []
         self.next_global_id = 0  # Used in Random123 classes for elements using random(), etc. 
@@ -106,8 +109,8 @@ class NeuronSimulation():
         self.sim_end = -1 # will be overwritten
 
         setup_end = time.time()
-        self.setup_time = setup_end - setup_start
-        print("Set up network to simulate in %f seconds"%(self.setup_time))
+        self.setup_time = setup_end - self.setup_start
+        print("Setting up the network to simulate took %f seconds"%(self.setup_time))
 
     def run(self):
 
@@ -181,6 +184,7 @@ class NeuronSimulation():
         save_time = save_end - self.sim_end
         print("Finished saving results in %f seconds"%(save_time))
 
+        self.report_file.write('StartTime=%s\n'%datetime.datetime.fromtimestamp(self.setup_start).strftime('%Y-%m-%d %H:%M:%S'))
         self.report_file.write('SetupTime=%s\n'%self.setup_time)
         self.report_file.write('RealSimulationTime=%s\n'%self.sim_time)
         self.report_file.write('SimulationSaveTime=%s\n'%save_time)
@@ -198,4 +202,3 @@ if __name__ == '__main__':
     ns = NeuronSimulation(tstop=1000.0, dt=0.049999997, seed=123456789)
 
     ns.run()
-

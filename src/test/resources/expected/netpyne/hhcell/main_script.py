@@ -23,10 +23,23 @@ Components:
 
 from netpyne import specs  # import netpyne specs module
 from netpyne import sim    # import netpyne sim module
+from netpyne import __version__ as version
 
 from neuron import h
 
 import sys
+import time
+import datetime
+
+setup_start = time.time()
+report_file = open('report.txt','w')
+report_file.write('# Report of running simulation with NetPyNE v%s\n'%version)
+report_file.write('Simulator=NetPyNE\n')
+report_file.write('SimulatorVersion=%s\n'%version)
+report_file.write('SimulationFile=%s\n'%__file__)
+report_file.write('PythonVersion=%s\n'%sys.version.replace('\n',' '))
+report_file.write('NeuronVersion=%s\n'%h.nrnversion())
+report_file.write('NeuroMLExportVersion=1.5.4\n')
 
 
 ###############################################################################
@@ -90,9 +103,12 @@ simConfig.saveFileStep = simConfig.dt # step size in ms to save data to disk
 
 print("Running a NetPyNE based simulation for %sms (dt: %sms) at %s degC"%(simConfig.duration, simConfig.dt, simConfig.hParams['celsius']))
 
+setup_sim_start = time.time()
 gids = sim.importNeuroML2SimulateAnalyze(nml2_file_name,simConfig)
 
-print("Finished simulation")
+sim_end = time.time()
+setup_sim_time = sim_end - setup_sim_start
+print("Finished NetPyNE simulation in %f seconds (%f mins)..."%(setup_sim_time, setup_sim_time/60.0))
 
 
 ###############################################################################
@@ -104,8 +120,16 @@ print("Finished simulation")
 if sim.rank==0: 
 
 
+    save_end = time.time()
+    save_time = save_end - sim_end
+    print("Finished saving results in %f seconds"%(save_time))
 
-    print("Saved all data.")
+
+    report_file.write('StartTime=%s\n'%datetime.datetime.fromtimestamp(setup_start).strftime('%Y-%m-%d %H:%M:%S'))
+    report_file.write('RealSetupAndSimulationTime=%s\n'%setup_sim_time)
+    report_file.write('SimulationSaveTime=%s\n'%save_time)
+    report_file.close()
+    print("Saving report of simulation to %s"%('report.txt'))
 
 if '-nogui' in sys.argv:
     quit()
