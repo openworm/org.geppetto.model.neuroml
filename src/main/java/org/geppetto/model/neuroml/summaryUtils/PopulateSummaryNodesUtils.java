@@ -70,6 +70,7 @@ import org.neuroml.model.ExpCondSynapse;
 import org.neuroml.model.ExpCurrSynapse;
 import org.neuroml.model.ExpOneSynapse;
 import org.neuroml.model.ExpTwoSynapse;
+import org.neuroml.model.FitzHughNagumo1969Cell;
 import org.neuroml.model.GateHHInstantaneous;
 import org.neuroml.model.GateHHRates;
 import org.neuroml.model.GateHHRatesInf;
@@ -681,6 +682,19 @@ public class PopulateSummaryNodesUtils
 							htmlText0.append(variableLine("v threshold", c.getThresh()));
 						}
 					}
+                    for(FitzHughNagumo1969Cell c: neuroMLDocument.getFitzHughNagumo1969Cell())
+                    {
+						if(c.getId().equals(cell.getId()))
+						{
+							htmlText0.append(variableLine("Type","NeuroML FitzHughNagumo1969Cell"));
+							htmlText0.append(variableLine("a", c.getA()));
+							htmlText0.append(variableLine("b", c.getB()));
+							htmlText0.append(variableLine("I", c.getI()));
+							htmlText0.append(variableLine("phi", c.getPhi()));
+							htmlText0.append(variableLine("V0", c.getV0()));
+							htmlText0.append(variableLine("W0", c.getW0()));
+                        }
+                    }
                     ArrayList<BasePyNNCell> pynnCells = new ArrayList<>();
 					for(IFCurrExp c : neuroMLDocument.getIFCurrExp()) pynnCells.add(c);
 					for(IFCurrAlpha c : neuroMLDocument.getIFCurrAlpha()) pynnCells.add(c);
