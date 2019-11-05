@@ -10,3 +10,6 @@ This Geppetto module contains a model interpreter for [NeuroML](http://neuroml.o
 Through this module Geppetto has the ability to parse NeuroML and LEMS models and to build a visual model compatible with the frontend of Geppetto.
 
 For information about how this fits into [Geppetto](http://www.geppetto.org/) refer to the umbrella project [org.geppetto](https://github.com/openworm/org.geppetto) on GitHub.
+
+
+
