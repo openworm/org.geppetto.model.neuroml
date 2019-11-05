@@ -1,16 +1,16 @@
 language: java
 install:
-- export main_repo_branch=$TRAVIS_BRANCH
-- if [[ ${TRAVIS_BRANCH} != "master" && ${TRAVIS_BRANCH} != "development" ]]; then main_repo_branch=development ; fi
-- if [[ ${TRAVIS_BRANCH} == "livemix" || ${TRAVIS_BRANCH} == "pg_temp" ]]; then main_repo_branch=livemix ; fi
-- echo "Using branches $main_repo_branch"
-- git clone https://github.com/openworm/org.geppetto.model.git -b $main_repo_branch
+- git clone https://github.com/openworm/org.geppetto.model.git
 - cd org.geppetto.model
+- if [[ `git branch -a | egrep "remotes/origin/${TRAVIS_BRANCH}"` ]]; then git checkout $TRAVIS_BRANCH ; else echo "Branch $TRAVIS_BRANCH does not exist for the model bundle, checking out development ..." && git checkout development; fi
+- git status
 - mvn install
 - cd ..
 
-- git clone https://github.com/openworm/org.geppetto.core.git -b $main_repo_branch
+- git clone https://github.com/openworm/org.geppetto.core.git
 - cd org.geppetto.core
+- if [[ `git branch -a | egrep "remotes/origin/${TRAVIS_BRANCH}"` ]]; then git checkout $TRAVIS_BRANCH ; else echo "Branch $TRAVIS_BRANCH does not exist for the core bundle, checking out development ..." && git checkout development; fi
+- git status
 - mvn install
 - cd ..
 env:
