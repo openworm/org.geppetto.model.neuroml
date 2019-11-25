@@ -5,7 +5,7 @@
 	<groupId>org.geppetto</groupId>
 	<artifactId>model.neuroml</artifactId>
 	<name>Geppetto NeuroML Model bundle</name>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<spring.version>4.3.9.RELEASE</spring.version>
@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
-			<version>1.5.4</version>
+			<version>1.5.5</version>
 		</dependency>
 		<dependency>    
             <groupId>org.jvnet.jaxb2_commons</groupId>
@@ -55,7 +55,7 @@
 		<dependency>
 			<groupId>org.geppetto</groupId>
 			<artifactId>core</artifactId>
-			<version>${project.version}</version>
+			<version>[1.0, 2.0)</version>
 		</dependency>
 		<!-- test dependencies -->
 		<dependency>
@@ -93,7 +93,7 @@
 		</repository>
 		<repository>
 			<id>org.geppetto-mvn-repo</id>
-            <url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml1.5.4</url>
+            <url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml1.5.5</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
