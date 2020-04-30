@@ -766,7 +766,7 @@ public class PopulateSummaryNodesUtils
 						// sortNodes(visualGroups);
 						if(visualGroups != null && visualGroups.size() > 0)
 						{
-							htmlText0.append("\n<b>Click to apply colouring to the cell morphology</b><br/>\n");
+							htmlText0.append("\n<b>Click below to apply colouring to the cell morphology</b><br/>\n");
 
 							htmlText0.append("\n<table>\n");
 							HashMap<String, String> ionsVsHtml = new HashMap<>();
