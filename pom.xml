@@ -18,14 +18,14 @@
 			<version>1.9.13</version>
 		</dependency>
 		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.9.13</version>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.10.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
-			<version>1.5.3-a</version>
+			<version>1.6.1</version>
 		</dependency>
 		<dependency>    
             <groupId>org.jvnet.jaxb2_commons</groupId>
