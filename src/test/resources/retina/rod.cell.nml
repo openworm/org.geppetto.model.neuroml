@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2 ../Schemas/NeuroML2/NeuroML_v2beta4.xsd"
+	id="rod">
+
+	<include href="ih_rod.channel.nml"/>
+	<include href="kv_rod.channel.nml"/>
+	<include href="kx_rod.channel.nml"/>
+
+	<ionChannel id="leak" conductance="0.5pS" type="ionChannelPassive" species="non_specific"/>
+
+	<cell id="rod">
+
+		<morphology id="morph1">
+			<segment id="0" name="soma">
+				<proximal x="0" y="0" z="0" diameter="10"/>
+				<!-- L=10/PI -->
+				<distal x="0" y="0" z="3.1830988618" diameter="10"/>
+				<!-- human rods: ~ 100um (length) x 2um (diam)  -->
+			</segment>
+
+			<segmentGroup id="soma_group">
+				<member segment="0"/>
+			</segmentGroup>
+
+		</morphology>
+
+		<biophysicalProperties id="bioPhys1">
+
+			<membraneProperties>
+				<channelDensity id="leakChans" ionChannel="leak" condDensity="5200 S_per_m2" erev="-74 mV" ion="non_specific"/>
+				<channelDensity id="ihChans" ionChannel="ih_rod" condDensity="2.5 mS_per_cm2" erev="-32 mV" ion="non_specific"/>
+				<channelDensity id="kvChans" ionChannel="kv_rod" condDensity="0.01 mS_per_cm2" erev="-80 mV" ion="k"/>
+				<channelDensity id="kxChans" ionChannel="kx_rod" condDensity="0.00104 mS_per_cm2" erev="-80 mV" ion="k"/>
+				<specificCapacitance value="30 uF_per_cm2"/><!-- Rod.tem wrongly specifies 30pF -->
+				<initMembPotential value="-65mV"/>
+
+			</membraneProperties>
+
+			<intracellularProperties>
+				<resistivity value="35.4 ohm_cm"/>
+			</intracellularProperties>
+
+		</biophysicalProperties>
+
+	</cell>
+
+</neuroml>
+

@@ -90,6 +90,11 @@ public class DefaultViewCustomiserFeature implements IDefaultViewCustomiserFeatu
         return color;
     }
 
+    public CanvasCustomisation getCanvas()
+    {
+        return canvas;
+    }
+
     public void buildCustomizationFromType(Type type, GeppettoLibrary library)
     {
         for (Variable var : ((CompositeType) type).getVariables()) {

@@ -46,11 +46,11 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 		super.resolveProjectionImportType(projection, importType);
 
 		// Add synapse variable to projection to projection type
-		Component synapse = projection.getRefComponents().get(Resources.SYNAPSE.getId());
-		Variable synapsesVariable = variablesFactory.createVariable();
-		NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(synapsesVariable, synapse);
-		synapsesVariable.getTypes().add(populateTypes.getTypes().get(synapse.getDeclaredType() + synapse.getID()));
-		projectionType.getVariables().add(synapsesVariable);
+                Component synapse = projection.getRefComponents().get(Resources.SYNAPSE.getId());
+                Variable synapsesVariable = variablesFactory.createVariable();
+                NeuroMLModelInterpreterUtils.initialiseNodeFromComponent(synapsesVariable, synapse);
+                synapsesVariable.getTypes().add(populateTypes.getTypes().get(synapse.getDeclaredType() + synapse.getID()));
+                projectionType.getVariables().add(synapsesVariable);
 
 		try
 		{
@@ -83,7 +83,7 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 					projectionType.getVariables().add(extractConnection(connection, prePopulationType, prePopulationVariable, postPopulationType, postPopulationVariable));
 				}
 		    	}
-
+                        projectionType.setName(projection.getName());
 			return projectionType;
 		}
 		catch(NeuroMLException | LEMSException | GeppettoVisitingException e)
@@ -175,7 +175,7 @@ public class PopulateProjectionTypes extends APopulateProjectionTypes
 	                Unit unit = valuesFactory.createUnit();
 	                unit.setUnit(matcher.group(2));
 	                physicalQuantity.setUnit(unit);
-	                physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
+	                physicalQuantity.setValue(Double.parseDouble(matcher.group(1)));
 	                variable.getInitialValues().put(geppettoModelAccess.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);
 	        }
 

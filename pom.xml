@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
-			<version>1.5.3-a</version>
+			<version>1.5.5</version>
 		</dependency>
 		<dependency>    
             <groupId>org.jvnet.jaxb2_commons</groupId>
@@ -50,7 +50,7 @@
 		<dependency>
 		    <groupId>org.neuroml.neuroml2modelLite</groupId>
 		    <artifactId>neuroml2modelLite</artifactId>
-		    <version>0.0.7</version>
+		    <version>0.0.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geppetto</groupId>
@@ -93,7 +93,7 @@
 		</repository>
 		<repository>
 			<id>org.geppetto-mvn-repo</id>
-            <url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo</url>
+            <url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml1.5.5</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>

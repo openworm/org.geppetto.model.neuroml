@@ -20,6 +20,7 @@ import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.model.Node;
 import org.geppetto.model.neuroml.features.DefaultViewCustomiserFeature;
+import org.geppetto.model.neuroml.features.CanvasCustomisation;
 import org.geppetto.model.neuroml.utils.CellUtils;
 import org.geppetto.model.neuroml.utils.ModelInterpreterUtils;
 import org.geppetto.model.neuroml.utils.Resources;
@@ -54,13 +55,19 @@ import org.neuroml.export.info.model.ExpressionNode;
 import org.neuroml.export.info.model.InfoNode;
 import org.neuroml.export.info.model.PlotMetadataNode;
 import org.neuroml.export.utils.Utils;
+import org.neuroml.model.BaseCell;
+import org.neuroml.model.BasePyNNCell;
+import org.neuroml.model.BasePyNNIaFCell;
 
 import org.neuroml.model.Cell;
+import org.neuroml.model.Cell2CaPools;
 import org.neuroml.model.ChannelDensity;
 import org.neuroml.model.ChannelDensityGHK;
 import org.neuroml.model.ChannelDensityNernst;
 import org.neuroml.model.ChannelDensityNonUniform;
 import org.neuroml.model.ChannelDensityNonUniformNernst;
+import org.neuroml.model.ExpCondSynapse;
+import org.neuroml.model.ExpCurrSynapse;
 import org.neuroml.model.ExpOneSynapse;
 import org.neuroml.model.ExpTwoSynapse;
 import org.neuroml.model.GateHHInstantaneous;
@@ -70,13 +77,20 @@ import org.neuroml.model.GateHHRatesTau;
 import org.neuroml.model.GateHHRatesTauInf;
 import org.neuroml.model.GateHHTauInf;
 import org.neuroml.model.GateHHUndetermined;
+import org.neuroml.model.IFCondAlpha;
+import org.neuroml.model.IFCondExp;
+import org.neuroml.model.IFCurrAlpha;
+import org.neuroml.model.IFCurrExp;
 import org.neuroml.model.InhomogeneousParameter;
 import org.neuroml.model.IonChannel;
 import org.neuroml.model.IonChannelHH;
 import org.neuroml.model.Izhikevich2007Cell;
 import org.neuroml.model.IzhikevichCell;
 import org.neuroml.model.IafCell;
+import org.neuroml.model.MembraneProperties;
+import org.neuroml.model.MembraneProperties2CaPools;
 import org.neuroml.model.NeuroMLDocument;
+import org.neuroml.model.PoissonFiringSynapse;
 import org.neuroml.model.PulseGenerator;
 import org.neuroml.model.Segment;
 import org.neuroml.model.SegmentGroup;
@@ -103,6 +117,7 @@ public class PopulateSummaryNodesUtils
 	GeppettoModelAccess access;
 	Map<String, List<Type>> typesMap;
 	Map<String, List<Variable>> plottableVariables = new HashMap<String, List<Variable>>();
+    Map<String, String> colorMap = new HashMap<String, String>();
 
 	Type type;
 
@@ -113,13 +128,14 @@ public class PopulateSummaryNodesUtils
 
 	boolean verbose = false;
 
-	public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, Type type, URL url, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument)
+     public PopulateSummaryNodesUtils(Map<String, List<Type>> typesMap, DefaultViewCustomiserFeature view, Type type, URL url, GeppettoModelAccess access, NeuroMLDocument neuroMLDocument)
 	{
 		this.access = access;
 		this.typesMap = typesMap;
 		this.url = url;
 		this.type = type;
 		this.neuroMLDocument = neuroMLDocument;
+        this.colorMap = view.getCanvas().getColorMap();
 	}
 
 	/**
@@ -135,12 +151,15 @@ public class PopulateSummaryNodesUtils
 
 	private void addList(List<Type> list, StringBuilder desc)
 	{
-		for(Type el : list)
-		{
-			desc.append("<a href=\"#\" instancePath=\"Model.neuroml." + el.getId() + "\">" + el.getName() + "</a>");
-			if(el != list.get(list.size() - 1)) desc.append(" | ");
-			desc.append("\n");
-		}
+        if (list!=null)
+        {
+            for(Type el : list)
+            {
+                desc.append("<a href=\"#\" instancePath=\"Model.neuroml." + el.getId() + "\">" + el.getName() + "</a>");
+                if(el != list.get(list.size() - 1)) desc.append(" | ");
+                desc.append("\n");
+            }
+        }
 	}
 
 	/**
@@ -166,6 +185,8 @@ public class PopulateSummaryNodesUtils
 		sortNodes(synapseComponents);
 		List<Type> pulseGeneratorComponents = typesMap.containsKey(ResourcesDomainType.PULSEGENERATOR.get()) ? typesMap.get(ResourcesDomainType.PULSEGENERATOR.get()) : null;
 		sortNodes(pulseGeneratorComponents);
+		List<Type> pfsComponents = typesMap.containsKey(ResourcesDomainType.POISSONFIRINGSYNAPSE.get()) ? typesMap.get(ResourcesDomainType.POISSONFIRINGSYNAPSE.get()) : null;
+		sortNodes(pfsComponents);
 
 		StringBuilder modelDescription = new StringBuilder();
 
@@ -190,24 +211,27 @@ public class PopulateSummaryNodesUtils
 					modelDescription.append("<b>Description</b><br/>\n<p instancePath=\"Model.neuroml." + note.getId() + "\">" + formatDescription(notes.getText()) + "</p>\n ");
 				}
                 
-                nml2ModelInfo = NeuroML2ModelReader.extractExpressions(neuroMLDocument);
-                
 			}
 
 		}
-		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original NeuroML 2 source file</i></a><br/><br/>\n");
+        nml2ModelInfo = NeuroML2ModelReader.extractExpressions(neuroMLDocument);
+        
+        //System.out.println(":::::::::::::::::::::::::::::::::::::::::::::\n"+nml2ModelInfo.toDetailString("  "));
+        
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original <strong>NeuroML 2</strong> source file</i></a><br/><br/>\n");
 
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
 			modelDescription.append("<b>Populations</b><br/>\n");
 			for(Type population : populationComponents)
 			{
-                // TODO
-				//modelDescription.append("<span style=\"color:#" + ((ArrayType) population).getVisualType() + "\">XXX</span>\n");
-				modelDescription.append("" + population.getName() + ": ");
+				String name = ((ArrayType) population).getArrayType().getId().trim();
+				String net_name = networkComponents.get(0).getId()+"."+population.getName();
+                String color = this.colorMap.getOrDefault(net_name, "#0199CC");
+				modelDescription.append("<span style=\"color:" + color + "\">&#9608;&#9608;</span>\n");
+				modelDescription.append(" " + population.getName() + ": ");
 				// get proper name of population cell with brackets and index # of population
 				int size = ((ArrayType) population).getSize();
-				String name = ((ArrayType) population).getArrayType().getId().trim();
 				modelDescription.append("<a href=\"#\" instancePath=\"Model.neuroml." + name + "\">" + size + " cell" + (size == 1 ? "s" : "") + " of type "
 						+ ((ArrayType) population).getArrayType().getName() + "</a><br/>\n");
 			}
@@ -253,11 +277,13 @@ public class PopulateSummaryNodesUtils
 			modelDescription.append("<br/><br/>\n");
 		}
 
-		if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
+		if( (pulseGeneratorComponents!=null && pulseGeneratorComponents.size() > 0) || 
+            (pfsComponents!=null && pfsComponents.size()>0))
 		{
 			// FIXME: Pulse generator? InputList? ExplicitList?
 			modelDescription.append("<b>Inputs</b><br/>\n");
 			addList(pulseGeneratorComponents, modelDescription);
+			addList(pfsComponents, modelDescription);
 			modelDescription.append("<br/>\n");
 		}
 
@@ -287,55 +313,108 @@ public class PopulateSummaryNodesUtils
 	 * 
 	 * @returns HashMap with channel id vs [min, max] of channel density in SI units
 	 */
-	public HashMap<String, Float[]> getIonChannelsInCell(Cell cell) throws NeuroMLException, ContentError, ParseError
-	{
-		HashMap<String, Float[]> ic = new HashMap<>();
+    public HashMap<String, Float[]> getIonChannelsInCell(Cell cell) throws NeuroMLException, ContentError, ParseError
+    {
+        HashMap<String, Float[]> ic = new HashMap<>();
 
-		if(cell == null) return ic;
+        if(cell == null) return ic;
         
-		CellUtils cellUtils = new CellUtils(cell);
+        CellUtils cellUtils = new CellUtils(cell);
+        MembraneProperties mp = null;
+        if(cell.getBiophysicalProperties() != null) {
+            mp = cell.getBiophysicalProperties().getMembraneProperties();
+        }
+        else if (((Cell2CaPools)cell).getBiophysicalProperties2CaPools() != null) {
+            mp = ((Cell2CaPools)cell).getBiophysicalProperties2CaPools().getMembraneProperties2CaPools();
+        } else {
+            return ic;
+        }
+        for(ChannelDensity cd : mp.getChannelDensity())
+            {
+                if(!ic.containsKey(cd.getIonChannel()))
+                    {
+                        ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, 0f });
+                    }
+                float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
+                if(densSi < ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0] = densSi;
+                if(densSi > ic.get(cd.getIonChannel())[1]) ic.get(cd.getIonChannel())[1] = densSi;
+            }
 
-		if(cell.getBiophysicalProperties() != null)
-		{
-			for(ChannelDensity cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensity())
-			{
-				if(!ic.containsKey(cd.getIonChannel()))
-				{
-					ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, 0f });
-				}
-				float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
-				if(densSi < ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0] = densSi;
-				if(densSi > ic.get(cd.getIonChannel())[1]) ic.get(cd.getIonChannel())[1] = densSi;
-			}
-
-			for(ChannelDensityGHK cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityGHK())
-			{
-				if(ic.containsKey(cd.getIonChannel()))
-				{
-					ic.put(cd.getIonChannel(), new Float[] { -1f, -1f });
-				}
-				// float densSi = cd.getCondDensity();
-			}
-			/*
-			 * for (ChannelDensityGHK2 cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityGHK2()) ic.add(cd.getIonChannel());
-			 */
-			for(ChannelDensityNernst cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNernst())
-			{
-				if(!ic.containsKey(cd.getIonChannel()))
-				{
-					ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, 0f });
-				}
-				float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
-				if(densSi < ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0] = densSi;
-				if(densSi > ic.get(cd.getIonChannel())[1]) ic.get(cd.getIonChannel())[1] = densSi;
-			}
-			for(ChannelDensityNonUniform cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniform())
-			{
+        for(ChannelDensityGHK cd : mp.getChannelDensityGHK())
+            {
+                if(ic.containsKey(cd.getIonChannel()))
+                    {
+                        ic.put(cd.getIonChannel(), new Float[] { -1f, -1f });
+                    }
+                // float densSi = cd.getCondDensity();
+            }
+        /*
+         * for (ChannelDensityGHK2 cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityGHK2()) ic.add(cd.getIonChannel());
+         */
+        for(ChannelDensityNernst cd : mp.getChannelDensityNernst())
+            {
+                if(!ic.containsKey(cd.getIonChannel()))
+                    {
+                        ic.put(cd.getIonChannel(), new Float[] { Float.MAX_VALUE, 0f });
+                    }
+                float densSi = Utils.getMagnitudeInSI(cd.getCondDensity());
+                if(densSi < ic.get(cd.getIonChannel())[0]) ic.get(cd.getIonChannel())[0] = densSi;
+                if(densSi > ic.get(cd.getIonChannel())[1]) ic.get(cd.getIonChannel())[1] = densSi;
+            }
+        for(ChannelDensityNonUniform cd : mp.getChannelDensityNonUniform())
+            {
                 String visId = cd.getIonChannel()+"_"+cd.getVariableParameter().get(0).getSegmentGroup();
-				if(!ic.containsKey(visId))
-				{
-					ic.put(visId, new Float[] { Float.MAX_VALUE, 0f });
-				}
+                if(!ic.containsKey(visId))
+                    {
+                        ic.put(visId, new Float[] { Float.MAX_VALUE, 0f });
+                    }
+                
+                for(VariableParameter variableParameter : cd.getVariableParameter())
+                    {
+                        if(variableParameter.getParameter().equals(Resources.COND_DENSITY.getId()))
+                            {
+                                DoubleEvaluator doubleEvaluator = PopulateChannelDensityVisualGroups.getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
+                        
+                                String segGrpId = variableParameter.getSegmentGroup();
+                                SegmentGroup segmentGroup = null;
+                                for (SegmentGroup sg: cell.getMorphology().getSegmentGroup())
+                                    {
+                                        if (sg.getId().equals(segGrpId))
+                                            segmentGroup = sg;
+                                    }
+                        
+                                for(InhomogeneousParameter inhomogeneousParameter : segmentGroup.getInhomogeneousParameter())
+                                    {
+                                        if(inhomogeneousParameter.getId().equals(variableParameter.getInhomogeneousValue().getInhomogeneousParameter()))
+                                            {
+                                                // Get all segments for the subgroup
+                                                List<Segment> segmentsPerSubgroup = cellUtils.getSegmentsInGroup(segmentGroup.getId());
+                                                for(Segment sg : segmentsPerSubgroup)
+                                                    {
+                                                        double distanceAllSegments = cellUtils.calculateDistanceInGroup(0.0, sg);
+                                    
+                                                        HashMap<String, Double> valHM = new HashMap<String, Double>();
+                                                        valHM.put(inhomogeneousParameter.getVariable(), distanceAllSegments);
+
+                                                        float densSi = (float) doubleEvaluator.evalD(valHM);
+                                                        if(densSi < ic.get(visId)[0]) ic.get(visId)[0] = densSi;
+                                                        if(densSi > ic.get(visId)[1]) ic.get(visId)[1] = densSi;
+                                                    }
+                                            }
+                                    }
+                            }
+                    }
+            }
+        /*
+         * for (ChannelDensityNonUniformGHK cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformGHK()) ic.add(cd.getIonChannel());
+         */
+        for(ChannelDensityNonUniformNernst cd : mp.getChannelDensityNonUniformNernst())
+            {
+                String visId = cd.getIonChannel()+"_"+cd.getVariableParameter().get(0).getSegmentGroup();
+                if(!ic.containsKey(visId))
+                    {
+                        ic.put(visId, new Float[] { Float.MAX_VALUE, 0f });
+                    }
                 
                 for(VariableParameter variableParameter : cd.getVariableParameter())
                 {
@@ -373,56 +452,8 @@ public class PopulateSummaryNodesUtils
                     }
                 }
             }
-			/*
-			 * for (ChannelDensityNonUniformGHK cd: cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformGHK()) ic.add(cd.getIonChannel());
-			 */
-			for(ChannelDensityNonUniformNernst cd : cell.getBiophysicalProperties().getMembraneProperties().getChannelDensityNonUniformNernst())
-			{
-                String visId = cd.getIonChannel()+"_"+cd.getVariableParameter().get(0).getSegmentGroup();
-				if(!ic.containsKey(visId))
-				{
-					ic.put(visId, new Float[] { Float.MAX_VALUE, 0f });
-				}
-                
-                for(VariableParameter variableParameter : cd.getVariableParameter())
-                {
-                    if(variableParameter.getParameter().equals(Resources.COND_DENSITY.getId()))
-                    {
-                        DoubleEvaluator doubleEvaluator = PopulateChannelDensityVisualGroups.getExpressionEvaluator(variableParameter.getInhomogeneousValue().getValue());
-                        
-                        String segGrpId = variableParameter.getSegmentGroup();
-                        SegmentGroup segmentGroup = null;
-                        for (SegmentGroup sg: cell.getMorphology().getSegmentGroup())
-                        {
-                            if (sg.getId().equals(segGrpId))
-                                segmentGroup = sg;
-                        }
-                        
-                        for(InhomogeneousParameter inhomogeneousParameter : segmentGroup.getInhomogeneousParameter())
-                        {
-                            if(inhomogeneousParameter.getId().equals(variableParameter.getInhomogeneousValue().getInhomogeneousParameter()))
-                            {
-                                // Get all segments for the subgroup
-                                List<Segment> segmentsPerSubgroup = cellUtils.getSegmentsInGroup(segmentGroup.getId());
-                                for(Segment sg : segmentsPerSubgroup)
-                                {
-                                    double distanceAllSegments = cellUtils.calculateDistanceInGroup(0.0, sg);
-                                    
-                                    HashMap<String, Double> valHM = new HashMap<String, Double>();
-                                    valHM.put(inhomogeneousParameter.getVariable(), distanceAllSegments);
-
-                                    float densSi = (float) doubleEvaluator.evalD(valHM);
-                                    if(densSi < ic.get(visId)[0]) ic.get(visId)[0] = densSi;
-                                    if(densSi > ic.get(visId)[1]) ic.get(visId)[1] = densSi;
-                                }
-                            }
-                        }
-                    }
-                }
-			}
-		}
 		return ic;
-	}
+}
 
 	// Could be moved elsewhere...
 	/**
@@ -533,6 +564,24 @@ public class PopulateSummaryNodesUtils
 		else ion = "o";
 		return ion;
 	}
+    
+    private String variableLine(String varName, float value)
+    {
+        return variableLine(varName, value+"");
+    }
+    private String variableLine(String varName, String value)
+    {
+        return "<strong>"+varName+"</strong>: " + value + "<br/>\n";
+    }
+    
+    private void addDescription(BaseCell cell, StringBuilder htmlText)
+    {
+        if (cell.getNotes() != null && cell.getNotes().length() > 0)
+        {
+
+            htmlText.append("<b>Description</b><br/>"+formatDescription(cell.getNotes())+"<br/>\n");
+        }
+    }
 
 	/**
 	 * Create Variable with HTML value for a Cell
@@ -594,52 +643,91 @@ public class PopulateSummaryNodesUtils
 					{
 						if(c.getId().equals(cell.getId()))
 						{
-							htmlText0.append("Type: NeuroML IaFCell<br/>\n");
-							htmlText0.append("Leak reversal potential: " + c.getLeakReversal() + "<br/>\n");
-							htmlText0.append("Threshold voltage: " + c.getThresh() + "<br/>\n");
-							htmlText0.append("Reset voltage: " + c.getReset() + "<br/>\n");
-							htmlText0.append("Capacitance: " + c.getC() + "<br/>\n");
-							htmlText0.append("Leak conductance: " + c.getLeakConductance() + "<br/>\n");
+							htmlText0.append(variableLine("Type","NeuroML IaFCell"));
+                            htmlText0.append(variableLine("Leak reversal potential", c.getLeakReversal()));
+							//htmlText0.append("Leak reversal potential: " + c.getLeakReversal()));
+							htmlText0.append(variableLine("Threshold voltage", c.getThresh()));
+							htmlText0.append(variableLine("Reset voltage", c.getReset()));
+							htmlText0.append(variableLine("Capacitance", c.getC()));
+							htmlText0.append(variableLine("Leak conductance", c.getLeakConductance()));
 						}
 					}
 					for(Izhikevich2007Cell c : neuroMLDocument.getIzhikevich2007Cell())
 					{
 						if(c.getId().equals(cell.getId()))
 						{
-							htmlText0.append("Type: NeuroML Izhikevich2007Cell<br/>\n");
-							htmlText0.append("a: " + c.getA() + "<br/>\n");
-							htmlText0.append("b: " + c.getB() + "<br/>\n");
-							htmlText0.append("c: " + c.getC() + "<br/>\n");
-							htmlText0.append("d: " + c.getD() + "<br/>\n");
-							htmlText0.append("k: " + c.getK() + "<br/>\n");
-							htmlText0.append("v0: " + c.getV0() + "<br/>\n");
-							htmlText0.append("v peak: " + c.getVpeak() + "<br/>\n");
-							htmlText0.append("v reset: " + c.getVr() + "<br/>\n");
-							htmlText0.append("v threshold: " + c.getVt() + "<br/>\n");
+							htmlText0.append(variableLine("Type","NeuroML Izhikevich2007Cell<br/>"));
+							htmlText0.append(variableLine("a", c.getA()));
+							htmlText0.append(variableLine("b", c.getB()));
+							htmlText0.append(variableLine("c", c.getC()));
+							htmlText0.append(variableLine("d", c.getD()));
+							htmlText0.append(variableLine("k", c.getK()));
+							htmlText0.append(variableLine("v0", c.getV0()));
+							htmlText0.append(variableLine("v peak", c.getVpeak()));
+							htmlText0.append(variableLine("v reset", c.getVr()));
+							htmlText0.append(variableLine("v threshold", c.getVt()));
 						}
 					}
 					for(IzhikevichCell c : neuroMLDocument.getIzhikevichCell())
 					{
 						if(c.getId().equals(cell.getId()))
 						{
-							htmlText0.append("Type: NeuroML IzhikevichCell<br/>\n");
-							htmlText0.append("a: " + c.getA() + "<br/>\n");
-							htmlText0.append("b: " + c.getB() + "<br/>\n");
-							htmlText0.append("c: " + c.getC() + "<br/>\n");
-							htmlText0.append("d: " + c.getD() + "<br/>\n");
-							htmlText0.append("v0: " + c.getV0() + "<br/>\n");
-							htmlText0.append("v threshold: " + c.getThresh() + "<br/>\n");
+							htmlText0.append(variableLine("Type","NeuroML IzhikevichCell"));
+							htmlText0.append(variableLine("a", c.getA()));
+							htmlText0.append(variableLine("b", c.getB()));
+							htmlText0.append(variableLine("c", c.getC()));
+							htmlText0.append(variableLine("d", c.getD()));
+							htmlText0.append(variableLine("v0", c.getV0()));
+							htmlText0.append(variableLine("v threshold", c.getThresh()));
 						}
 					}
-					for(Cell c : neuroMLDocument.getCell())
+                    ArrayList<BasePyNNCell> pynnCells = new ArrayList<>();
+					for(IFCurrExp c : neuroMLDocument.getIFCurrExp()) pynnCells.add(c);
+					for(IFCurrAlpha c : neuroMLDocument.getIFCurrAlpha()) pynnCells.add(c);
+					for(IFCondAlpha c : neuroMLDocument.getIFCondAlpha()) pynnCells.add(c);
+					for(IFCondExp c : neuroMLDocument.getIFCondExp()) pynnCells.add(c);
+                    
+					for(BasePyNNCell c : pynnCells)
 					{
 						if(c.getId().equals(cell.getId()))
 						{
-							nmlCell = c;
-							htmlText0.append("Number of segments: " + c.getMorphology().getSegment().size() + "<br/>\n");
-							htmlText0.append("Number of segment groups: " + c.getMorphology().getSegmentGroup().size() + "<br/><br/>\n");
-						}
+                            htmlText0.append(variableLine("Type",c.getClass().getName()));
+
+                            htmlText0.append(variableLine("cm", c.getCm()+""));
+                            htmlText0.append(variableLine("i_offset", c.getIOffset()));
+                            htmlText0.append(variableLine("vinit", c.getVInit()));
+                            if (c instanceof BasePyNNIaFCell)
+                            {
+                                BasePyNNIaFCell b = (BasePyNNIaFCell)c;
+                                htmlText0.append(variableLine("tau_m", b.getTauM()));
+                                htmlText0.append(variableLine("tau_refrac", b.getTauRefrac()));
+                                htmlText0.append(variableLine("v_rest", b.getVRest()));
+                                htmlText0.append(variableLine("v_reset", b.getVReset()));
+                                htmlText0.append(variableLine("v_thresh", b.getVThresh()));
+                            }
+                        }
 					}
+                                        if (neuroMLDocument.getCell().size() > 0) {
+                                            for(Cell c : neuroMLDocument.getCell())
+                                                {
+                                                    if(c.getId().equals(cell.getId()))
+                                                        {
+                                                            nmlCell = c;
+                                                            htmlText0.append("Number of segments: " + c.getMorphology().getSegment().size() + "<br/>\n");
+                                                            htmlText0.append("Number of segment groups: " + c.getMorphology().getSegmentGroup().size() + "<br/><br/>\n");
+                                                        }
+                                                }
+                                        } else {
+                                            for(Cell c : neuroMLDocument.getCell2CaPools())
+                                                {
+                                                    if(c.getId().equals(cell.getId()))
+                                                        {
+                                                            nmlCell = c;
+                                                            htmlText0.append("Number of segments: " + c.getMorphology().getSegment().size() + "<br/>\n");
+                                                            htmlText0.append("Number of segment groups: " + c.getMorphology().getSegmentGroup().size() + "<br/><br/>\n");
+                                                        }
+                                                }
+                                        }
 					HashMap<String, Float[]> ionChannelInfo = getIonChannelsInCell(nmlCell);
 
 					if(ionChannelComponents != null && ionChannelComponents.size() > 0)
@@ -934,15 +1022,15 @@ public class PopulateSummaryNodesUtils
 		{
 			for(Type synapse : synapseComponents)
 			{
-				StringBuilder htmlText = new StringBuilder();
+				StringBuilder htmlText0 = new StringBuilder();
 
 				Variable htmlVariable = variablesFactory.createVariable();
 				htmlVariable.setId(synapse.getId());
 				htmlVariable.setName(synapse.getName());
 
-				htmlText.append("<b>Synapse: </b> <a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getId() + "</a><br/><br/>\n");
+				htmlText0.append("<b>Synapse: </b> <a href=\"#\" instancePath=\"Model.neuroml." + synapse.getId() + "\">" + synapse.getId() + "</a><br/><br/>\n");
 
-				extractDescription(synapse, htmlText);
+				extractDescription(synapse, htmlText0);
 
 				// Create HTML Value object and set HTML text
 				HTML html = valuesFactory.createHTML();
@@ -951,23 +1039,42 @@ public class PopulateSummaryNodesUtils
 				{
 					if(syn.getId().equals(synapse.getId()))
 					{
-						htmlText.append("Base conductance: " + syn.getGbase() + "<br/>\n");
-						htmlText.append("Decay time: " + syn.getTauDecay() + "<br/>\n");
-						htmlText.append("Reversal potential: " + syn.getErev() + "<br/>\n");
+						htmlText0.append(variableLine("Type","NeuroML ExpOneSynapse<br/>"));
+						htmlText0.append(variableLine("Base conductance", syn.getGbase()));
+						htmlText0.append(variableLine("Decay time", syn.getTauDecay()));
+						htmlText0.append(variableLine("Reversal potential", syn.getErev()));
 					}
 				}
 				for(ExpTwoSynapse syn : neuroMLDocument.getExpTwoSynapse())
 				{
 					if(syn.getId().equals(synapse.getId()))
 					{
-						htmlText.append("Base conductance: " + syn.getGbase() + "<br/>\n");
-						htmlText.append("Rise time: " + syn.getTauRise() + "<br/>\n");
-						htmlText.append("Decay time: " + syn.getTauDecay() + "<br/>\n");
-						htmlText.append("Reversal potential: " + syn.getErev() + "<br/>\n");
+						htmlText0.append(variableLine("Type","NeuroML ExpTwoSynapse<br/>"));
+						htmlText0.append(variableLine("Base conductance", syn.getGbase()));
+						htmlText0.append(variableLine("Rise time", syn.getTauRise()));
+						htmlText0.append(variableLine("Decay time", syn.getTauDecay()));
+						htmlText0.append(variableLine("Reversal potential", syn.getErev()));
 					}
 				}
-				html.setHtml(htmlText.toString());
-				if(verbose) System.out.println("======= Synapse ===============\n" + htmlText.toString());
+				for(ExpCurrSynapse syn : neuroMLDocument.getExpCurrSynapse())
+				{
+					if(syn.getId().equals(synapse.getId()))
+					{
+						htmlText0.append(variableLine("Type","NeuroML/PyNN ExpCurrSynapse<br/>"));
+						htmlText0.append(variableLine("Decay time", syn.getTauSyn()));
+					}
+				}
+				for(ExpCondSynapse syn : neuroMLDocument.getExpCondSynapse())
+				{
+					if(syn.getId().equals(synapse.getId()))
+					{
+						htmlText0.append(variableLine("Type","NeuroML/PyNN ExpCondSynapse<br/>"));
+						htmlText0.append(variableLine("Decay time", syn.getTauSyn()));
+						htmlText0.append(variableLine("Reversal potential", syn.getERev()));
+					}
+				}
+				html.setHtml(htmlText0.toString());
+				if(verbose) System.out.println("======= Synapse ===============\n" + htmlText0.toString());
 				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
 				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
 				((CompositeType) synapse).getVariables().add(htmlVariable);
@@ -982,35 +1089,71 @@ public class PopulateSummaryNodesUtils
 
 		if(pulseGeneratorComponents != null && pulseGeneratorComponents.size() > 0)
 		{
-			for(Type pulseGenerator : pulseGeneratorComponents)
+			for(Type t : pulseGeneratorComponents)
 			{
 				PulseGenerator pg = null;
 				for(PulseGenerator pg0 : neuroMLDocument.getPulseGenerator())
 				{
-					if(pg0.getId().equals(pulseGenerator.getId())) pg = pg0;
+					if(pg0.getId().equals(t.getId())) pg = pg0;
 				}
 
-				StringBuilder htmlText = new StringBuilder();
+				StringBuilder htmlText0 = new StringBuilder();
 
 				Variable htmlVariable = variablesFactory.createVariable();
-				htmlVariable.setId(pulseGenerator.getId());
-				htmlVariable.setName(pulseGenerator.getName());
+				htmlVariable.setId(t.getId());
+				htmlVariable.setName(t.getName());
 
 				// Create HTML Value object and set HTML text
 				HTML html = valuesFactory.createHTML();
-				htmlText.append("<a href=\"#\" instancePath=\"Model.neuroml." + pulseGenerator.getId() + "\">" + pulseGenerator.getName() + "</a> ");
-				htmlText.append("<br/><br/>\n");
+				htmlText0.append("<a href=\"#\" instancePath=\"Model.neuroml." + t.getId() + "\">" + t.getName() + "</a> \n");
+				htmlText0.append("<br/><br/>\n");
 
-				htmlText.append("Delay: " + pg.getDelay() + "<br/>\n");
-				htmlText.append("Duration: " + pg.getDuration() + "<br/>\n");
-				htmlText.append("Amplitude: " + pg.getAmplitude() + "<br/>\n");
+				htmlText0.append(variableLine("Delay", pg.getDelay()));
+				htmlText0.append(variableLine("Duration", pg.getDuration()));
+				htmlText0.append(variableLine("Amplitude", pg.getAmplitude()));
 
-				html.setHtml(htmlText.toString());
+				html.setHtml(htmlText0.toString());
 
-				if(verbose) System.out.println("======= Input ===============\n" + htmlText.toString());
+				if(verbose) System.out.println("======= Input ===============\n" + htmlText0.toString());
 				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
 				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
-				((CompositeType) pulseGenerator).getVariables().add(htmlVariable);
+				((CompositeType) t).getVariables().add(htmlVariable);
+			}
+		}
+        
+		List<Type> pfsComponents = typesMap.containsKey(ResourcesDomainType.POISSONFIRINGSYNAPSE.get()) ? typesMap.get(ResourcesDomainType.POISSONFIRINGSYNAPSE.get()) : null;
+		sortNodes(pfsComponents);
+        if(pfsComponents != null && pfsComponents.size() > 0)
+		{
+			for(Type t : pfsComponents)
+			{
+				PoissonFiringSynapse pfs = null;
+				for(PoissonFiringSynapse pfs0 : neuroMLDocument.getPoissonFiringSynapse())
+				{
+					if(pfs0.getId().equals(t.getId())) pfs = pfs0;
+				}
+
+				StringBuilder htmlText0 = new StringBuilder();
+
+				Variable htmlVariable = variablesFactory.createVariable();
+				htmlVariable.setId(t.getId());
+				htmlVariable.setName(t.getName());
+
+				// Create HTML Value object and set HTML text
+				HTML html = valuesFactory.createHTML();
+				htmlText0.append("<a href=\"#\" instancePath=\"Model.neuroml." + t.getId() + "\">" + t.getName() + "</a> \n");
+				htmlText0.append(" FF "+t+" ");
+				htmlText0.append("<br/><br/>\n");
+
+				htmlText0.append(variableLine("Spiking rate", pfs.getAverageRate()));
+				htmlText0.append(variableLine("Synapse", pfs.getSynapse()));
+
+				html.setHtml(htmlText0.toString());
+
+				if(verbose) System.out.println("======= Input ===============\n" + htmlText0.toString());
+				htmlVariable.getTypes().add(access.getType(TypesPackage.Literals.HTML_TYPE));
+				htmlVariable.getInitialValues().put(access.getType(TypesPackage.Literals.HTML_TYPE), html);
+				((CompositeType) t).getVariables().add(htmlVariable);
 			}
 		}
 	}
@@ -1052,8 +1195,10 @@ public class PopulateSummaryNodesUtils
 			for(Map.Entry<String, Object> entry : node.getProperties().entrySet())
 			{
 				String id = entry.getKey().substring(entry.getKey().lastIndexOf(" ") + 1);
+                //System.out.println("   id: "+id);
 				for(Variable gateVariable : ionChannel.getVariables())
 				{
+                    
 					if(gateVariable.getId().equals(id))
 					{
 						InfoNode gateNode = (InfoNode) entry.getValue();
