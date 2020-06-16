@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>org.neuroml.export</groupId>
 			<artifactId>org.neuroml.export</artifactId>
-			<version>1.5.5</version>
+			<version>1.6.1</version>
 		</dependency>
 		<dependency>    
             <groupId>org.jvnet.jaxb2_commons</groupId>
