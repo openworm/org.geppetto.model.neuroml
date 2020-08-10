@@ -33,18 +33,13 @@
 		<dependency>
 		    <groupId>org.neuroml.neuroml2modelLite</groupId>
 		    <artifactId>neuroml2modelLite</artifactId>
-		    <version>0.0.8</version>
+		    <version>0.0.9</version>
 		</dependency>
         
 		<dependency>
 			<groupId>org.geppetto</groupId>
 			<artifactId>core</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>    
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics</artifactId>
-			<version>0.9.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
