@@ -40,6 +40,8 @@ class NeuronSimulation():
         print("\n    Starting simulation in NEURON of %sms generated from NeuroML2 model...\n"%tstop)
 
         self.setup_start = time.time()
+        self.seed = seed
+        import socket
         self.report_file = open('report.txt','w')
         print('Simulator version:  %s'%h.nrnversion())
         self.report_file.write('# Report of running simulation with %s\n'%h.nrnversion())
@@ -50,7 +52,8 @@ class NeuronSimulation():
         self.report_file.write('PythonVersion=%s\n'%sys.version.replace('\n',' '))
         print('Python version:     %s'%sys.version.replace('\n',' '))
         self.report_file.write('NeuroMLExportVersion=1.7.1\n')
-        self.seed = seed
+        self.report_file.write('SimulationSeed=%s\n'%self.seed)
+        self.report_file.write('Hostname=%s\n'%socket.gethostname())
         self.randoms = []
         self.next_global_id = 0  # Used in Random123 classes for elements using random(), etc. 
 
@@ -202,3 +205,4 @@ if __name__ == '__main__':
     ns = NeuronSimulation(tstop=1000.0, dt=0.049999997, seed=123456789)
 
     ns.run()
+
