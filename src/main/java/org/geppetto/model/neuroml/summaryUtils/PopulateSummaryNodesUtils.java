@@ -219,7 +219,7 @@ public class PopulateSummaryNodesUtils
         
         //System.out.println(":::::::::::::::::::::::::::::::::::::::::::::\n"+nml2ModelInfo.toDetailString("  "));
         
-		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original <strong>NeuroML v2</strong> source file...</i></a><br/><br/>\n");
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original <strong>NeuroML ver2</strong> source file...</i></a><br/><br/>\n");
 
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
