@@ -70,6 +70,7 @@ import org.neuroml.model.ExpCondSynapse;
 import org.neuroml.model.ExpCurrSynapse;
 import org.neuroml.model.ExpOneSynapse;
 import org.neuroml.model.ExpTwoSynapse;
+import org.neuroml.model.FitzHughNagumo1969Cell;
 import org.neuroml.model.GateHHInstantaneous;
 import org.neuroml.model.GateHHRates;
 import org.neuroml.model.GateHHRatesInf;
@@ -218,7 +219,7 @@ public class PopulateSummaryNodesUtils
         
         //System.out.println(":::::::::::::::::::::::::::::::::::::::::::::\n"+nml2ModelInfo.toDetailString("  "));
         
-		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original <strong>NeuroML 2</strong> source file</i></a><br/><br/>\n");
+		modelDescription.append("<a target=\"_blank\" href=\"" + url.toString() + "\"><i>View the original <strong>NeuroML version 2</strong> source file (pgt2x)...</i></a><br/><br/>\n");
 
 		if(populationComponents != null && populationComponents.size() > 0)
 		{
@@ -681,6 +682,19 @@ public class PopulateSummaryNodesUtils
 							htmlText0.append(variableLine("v threshold", c.getThresh()));
 						}
 					}
+                    for(FitzHughNagumo1969Cell c: neuroMLDocument.getFitzHughNagumo1969Cell())
+                    {
+						if(c.getId().equals(cell.getId()))
+						{
+							htmlText0.append(variableLine("Type","NeuroML FitzHughNagumo1969Cell"));
+							htmlText0.append(variableLine("a", c.getA()));
+							htmlText0.append(variableLine("b", c.getB()));
+							htmlText0.append(variableLine("I", c.getI()));
+							htmlText0.append(variableLine("phi", c.getPhi()));
+							htmlText0.append(variableLine("V0", c.getV0()));
+							htmlText0.append(variableLine("W0", c.getW0()));
+                        }
+                    }
                     ArrayList<BasePyNNCell> pynnCells = new ArrayList<>();
 					for(IFCurrExp c : neuroMLDocument.getIFCurrExp()) pynnCells.add(c);
 					for(IFCurrAlpha c : neuroMLDocument.getIFCurrAlpha()) pynnCells.add(c);
@@ -752,7 +766,7 @@ public class PopulateSummaryNodesUtils
 						// sortNodes(visualGroups);
 						if(visualGroups != null && visualGroups.size() > 0)
 						{
-							htmlText0.append("\n<b>Click to apply colouring to the cell morphology</b><br/>\n");
+							htmlText0.append("\n<b>Click below to apply colouring to the cell morphology</b><br/>\n");
 
 							htmlText0.append("\n<table>\n");
 							HashMap<String, String> ionsVsHtml = new HashMap<>();
