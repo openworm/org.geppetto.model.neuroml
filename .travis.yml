@@ -14,6 +14,9 @@ install:
 - mvn -Dhttps.protocols=TLSv1.2 install
 - cd ..
 
+script: 
+- mvn -Dhttps.protocols=TLSv1.2 install
+
 env:
   global:
     secure: eFdQrJRGpJj5PeTR1E7msCBPse24wv7tC8n1cWGl/Dq/7BFKRzW8uewBpFrqeKQzSUBEvgFe/kqjhMp9ZVGcHfobXxVxR0w7KF4qLsdM5wZDxgNmbsYCJWyeCOdRjscBkqab1ldq3DsMYqlgmWhRTxcd6bNtpuwU7pL7SPYJyJg=
