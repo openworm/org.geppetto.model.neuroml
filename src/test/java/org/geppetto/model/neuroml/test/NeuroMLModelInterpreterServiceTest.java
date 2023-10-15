@@ -193,7 +193,7 @@ public class NeuroMLModelInterpreterServiceTest
             try
             {
                 List<Type> modelProjections = new ArrayList<Type>(nmlModelInterpreter.getPopulateTypes().getTypesMap().get("projection"));
-                System.out.println("Types "+nmlModelInterpreter.getPopulateTypes().getTypesMap().keySet());
+                //System.out.println("Types "+nmlModelInterpreter.getPopulateTypes().getTypesMap().keySet());
                 for (Type proj : modelProjections)
                 {
                     
@@ -222,7 +222,7 @@ public class NeuroMLModelInterpreterServiceTest
                     modelProjSummary.put(resolvedProj.getId(), resolvedProjSize);
 
                     _logger.info(projComponent.getID() + " = " + projComponent.getStrictChildren().size() + " = " + docProjSummary.get(projComponent.getID()));
-                    System.out.println(projComponent.getID() + " = " + projComponent.getStrictChildren().size() + " = " + docProjSummary.get(projComponent.getID()));
+                    //System.out.println(projComponent.getID() + " = " + projComponent.getStrictChildren().size() + " = " + docProjSummary.get(projComponent.getID()));
                 }
 
                 assertEquals(modelProjSummary, docProjSummary);

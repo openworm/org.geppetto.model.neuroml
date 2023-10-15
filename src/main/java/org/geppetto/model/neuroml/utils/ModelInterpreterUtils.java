@@ -73,7 +73,7 @@ public class ModelInterpreterUtils
 			unit.setUnit(matcher.group(2));
 			physicalQuantity.setUnit(unit);
 
-			physicalQuantity.setValue(Float.parseFloat(matcher.group(1)));
+			physicalQuantity.setValue(Double.parseDouble(matcher.group(1)));
 
 			Variable variable = variablesFactory.createVariable();
 			variable.getInitialValues().put(access.getType(TypesPackage.Literals.PARAMETER_TYPE), physicalQuantity);

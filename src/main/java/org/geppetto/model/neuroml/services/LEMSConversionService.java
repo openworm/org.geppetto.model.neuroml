@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -134,8 +136,8 @@ public class LEMSConversionService extends AConversion
 		return modelFormats;
 	}
 
-	@Override
-	public DomainModel convert(DomainModel model, ModelFormat output, IAspectConfiguration aspectConfig, GeppettoModelAccess modelAccess) throws ConversionException
+    @Override
+    public DomainModel convert(DomainModel model, ModelFormat output, IAspectConfiguration aspectConfig, GeppettoModelAccess modelAccess) throws ConversionException
 	{
 		_logger.info("Converting model from " + model.getFormat() + " to " + output.getModelFormat());
 		// AQP: Review if this was commented out
@@ -166,53 +168,87 @@ public class LEMSConversionService extends AConversion
 				simulationComponent.addAttribute(new XMLAttribute("length", Float.toString(aspectConfig.getSimulatorConfiguration().getLength()) + "s"));
 				simulationComponent.addAttribute(new XMLAttribute("step", Float.toString(aspectConfig.getSimulatorConfiguration().getTimestep()) + "s"));
 				simulationComponent.addAttribute(new XMLAttribute("target", aspectConfig.getSimulatorConfiguration().getParameters().get("target")));
+                                String randomSeed = aspectConfig.getSimulatorConfiguration().getParameters().get("randomSeed");
+                                if (randomSeed != null)
+                                    simulationComponent.addAttribute(new XMLAttribute("seed", randomSeed));
 
 				int fileIndex = 0;
 				int i = 0;
 				String variables = "";
-				Component outputFile = null;
 
 				if(aspectConfig.getWatchedVariables() != null)
 				{
-					for(String watchedVariable : aspectConfig.getWatchedVariables())
+                                    if(fileIndex != 0)
+                                    {
+                                        // Add outputcolumn and variable to outputmapping file per watch variable
+                                        writer.println(variables);
+                                    }
+                                    variables = "time(StateVariable)";
+
+                                    // Create output file component and add file to outputmapping file
+                                    Component outputFile = new Component("outputFile" + fileIndex, new ComponentType("OutputFile"));
+                                    outputFile = new Component("outputFile" + fileIndex, new ComponentType("OutputFile"));
+                                    outputFile.addAttribute(new XMLAttribute("fileName", "results/results" + fileIndex + ".dat"));
+                                    simulationComponent.addComponent(outputFile);
+                                    writer.println("results/results" + fileIndex + ".dat");
+
+                                    Component eventOutputFile = null;
+                                    if (aspectConfig.getSimulatorConfiguration().getParameters().get("spikes") != null) {
+                                        eventOutputFile = new Component("eventOutputFile" + fileIndex, new ComponentType("EventOutputFile"));
+                                        eventOutputFile.addAttribute(new XMLAttribute("fileName", "results/all" + fileIndex + ".spikes"));
+                                        eventOutputFile.addAttribute(new XMLAttribute("format", "TIME_ID"));
+                                        simulationComponent.addComponent(eventOutputFile);
+                                        writer.println("results/all" + fileIndex + ".spikes");
+                                    }
+
+                                    fileIndex++;
+
+                                    for(String watchedVariable : aspectConfig.getWatchedVariables())
 					{
-						if(i == 0)
-						{
-							if(fileIndex != 0)
-							{
-								// Add outputcolumn and variable to outputmapping file per watch variable
-								writer.println(variables);
-							}
-							variables = "time(StateVariable)";
-
-							// Create output file component and add file to outputmapping file
-							outputFile = new Component("outputFile" + fileIndex, new ComponentType("OutputFile"));
-							outputFile.addAttribute(new XMLAttribute("fileName", "results/results" + fileIndex + ".dat"));
-							simulationComponent.addComponent(outputFile);
-							writer.println("results/results" + fileIndex + ".dat");
-
-							i = 10;
-							fileIndex++;
-						}
-						// Create output column component
 						String quantityPath = extractLEMSPath(mainModelComponent, modelAccess.getPointer(watchedVariable));
+                                                if (watchedVariable.indexOf("$") > -1) {
+                                                    int vclampIndex = quantityPath.indexOf("vclamp");
+                                                    int segIndex = Integer.parseInt(watchedVariable.substring(watchedVariable.lastIndexOf("_",watchedVariable.indexOf("$"))+1,watchedVariable.indexOf("$")));
+                                                    if (vclampIndex > -1)
+                                                        quantityPath = quantityPath.substring(0,vclampIndex) + segIndex + "/" + quantityPath.substring(vclampIndex, quantityPath.length());
+                                                }
 						Component outputColumn = new Component(quantityPath.replace("/", "_").replace("[", "_").replace("]", "_"), new ComponentType("OutputColumn"));
+                                                Component eventSelection = new Component(quantityPath.substring(0,quantityPath.lastIndexOf("/")).substring(0,quantityPath.lastIndexOf("/")).replace("/", "_").replace("[", "_").replace("]", "_"), new ComponentType("EventSelection"));
 
-						// Convert from Geppetto to LEMS Path
-						outputColumn.addAttribute(new XMLAttribute("quantity", quantityPath));
+                                                eventSelection.addAttribute(new XMLAttribute("select", quantityPath.substring(0,quantityPath.lastIndexOf("/")).substring(0,quantityPath.lastIndexOf("/"))));
+                                                eventSelection.addAttribute(new XMLAttribute("eventPort", "spike"));
+                                                outputColumn.addAttribute(new XMLAttribute("quantity", quantityPath));
 
-						// Add output column component to file
-						outputFile.addComponent(outputColumn);
-						variables += " " + watchedVariable;
-						i--;
-					}
+                                                outputFile.addComponent(outputColumn);
+                                                variables += " " + watchedVariable;
+                                        }
+
+                                    if (aspectConfig.getSimulatorConfiguration().getParameters().get("spikes") != null) {
+                                        Set<String> spikingVars = new HashSet<String>();
+                                        for(String watchedVariable : aspectConfig.getWatchedVariables()){
+                                            // looking at first two segments of path to determine cell… not very good
+                                            if (watchedVariable.endsWith(".ca") || watchedVariable.endsWith(".v"))
+                                                spikingVars.add(watchedVariable);
+                                        }
+                                        int index = 0;
+                                        for (String var : spikingVars) {
+                                            String quantityPath = extractLEMSPath(mainModelComponent, modelAccess.getPointer(var));
+                                            Component eventSelection = new Component(String.valueOf(index), new ComponentType("EventSelection"));
+                                            eventSelection.addAttribute(new XMLAttribute("select", quantityPath.substring(0,quantityPath.lastIndexOf("/")).substring(0,quantityPath.lastIndexOf("/"))));
+                                            eventSelection.addAttribute(new XMLAttribute("eventPort", "spike"));
+                                            eventOutputFile.addComponent(eventSelection);
+                                        }
+                                    }    
 				}
+                                
+                                fileIndex++;
 
 				// Add block to lems and process lems doc
 				writer.println(variables);
 
 				lems.addComponent(simulationComponent);
 				lems.setTargetComponent(simulationComponent);
+                                lems.getTarget().reportFile = "report.txt";
 
 				// Process LEMS
 				lems.resolve();

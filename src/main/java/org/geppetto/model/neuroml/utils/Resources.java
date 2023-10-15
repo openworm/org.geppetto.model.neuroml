@@ -22,7 +22,8 @@ public enum Resources
 	MEMBRANE_PROPERTIES_SOMA("Soma Membrane Properties", "somaMembraneProperties"),
 	INTRACELLULAR_P("Intracellular Properties", "intracellularProperties"),
 	INTRACELLULAR_P_SOMA("Soma Intracellular Properties", "somaIntracellularProperties"), 
-	SYNAPSE("Synapse", "synapse"), 
+	SYNAPSE("Synapse", "synapse"),
+        POST_COMPONENT("Post Component", "postComponent"),
 	CONNECTION("Connection", "connection"),
 	CONNECTION_WD("Connection with Weight & Delay", "connectionWD"),
     
@@ -54,6 +55,7 @@ public enum Resources
 	BIOPHYSICAL_PROPERTIES("Biophysical Properties", "biophysicalProperties"),
 	BIOPHYSICAL_PROPERTIES_2_CAPOOLS("Biophysical Properties with two CA pools","biophysicalProperties2CaPools"),
 	PULSE_GENERATOR("Pulse Generator", "pulseGenerator"),
+	POISSON_FIRING_SYNAPSE("Poisson Firing Synapse", "poissonFiringSynapse"),
 	AMPLITUDE("Amplitude", "amplitude"),
 	DELAY("Delay", "delay"),
 	DURATION("Duration", "duration"),

@@ -38,7 +38,7 @@ public class CellUtils
 		return distance;
 	}
 
-	private LinkedHashMap<Integer, Segment> getIdsVsSegments()
+	public LinkedHashMap<Integer, Segment> getIdsVsSegments()
 	{
 
 		LinkedHashMap<Integer, Segment> idsVsSegments = new LinkedHashMap<Integer, Segment>();

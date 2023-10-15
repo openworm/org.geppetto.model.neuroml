@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2 https://raw.github.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd" id="kv_rod">
+
+
+	<ionChannelHH id="kv_rod" conductance="10pS" species="k">
+		<notes>Single Channel description adapted from Y. Kamiyama, T. O'Sura, S. Usui (1996): Ionic current model of the vertebrate rod photoreceptor, Vision Research.</notes>
+
+		<gateHHrates id="n" instances="4">
+			<forwardRate type="HHExpLinearRate" rate="0.11per_ms" midpoint="20mV" scale="22mV"/>
+			<reverseRate type="HHExpRate" rate="0.0625per_ms" midpoint="0mV" scale="-80mV"/>
+		</gateHHrates>
+
+	</ionChannelHH>
+</neuroml>
